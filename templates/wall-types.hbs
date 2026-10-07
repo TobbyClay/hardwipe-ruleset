@@ -1,0 +1,42 @@
+<section class="hardwipe-wall-types-editor">
+<p class="hint">Durability applies to each five-foot section. Editing a type changes its preset; walls already configured keep their current values.</p>
+<div class="hardwipe-wall-types-toolbar">
+  <div class="form-group">
+    <label for="{{rootId}}-selected">Wall type</label>
+    <select id="{{rootId}}-selected" name="selectedType" {{#unless hasType}}disabled{{/unless}}>
+      {{#each types}}<option value="{{id}}" {{#if selected}}selected{{/if}}>{{name}}</option>{{/each}}
+      {{#unless hasType}}<option>No wall types</option>{{/unless}}
+    </select>
+  </div>
+  <button type="button" data-action="create"><i class="fas fa-plus" inert></i> New</button>
+</div>
+{{#if hasType}}
+<div class="form-group">
+  <label for="{{rootId}}-name">Name</label>
+  <input id="{{rootId}}-name" name="name" type="text" value="{{type.name}}" maxlength="80" required>
+</div>
+<div class="form-group">
+  <label for="{{rootId}}-material">Material</label>
+  <input id="{{rootId}}-material" name="material" type="text" value="{{type.material}}" maxlength="80" required>
+  <p class="hint">Surface styles: glass, light, concrete, reinforced. Other material names use the default surface style.</p>
+</div>
+<div class="hardwipe-wall-types-values">
+  <div class="form-group"><label for="{{rootId}}-ac">Armor Class</label><input id="{{rootId}}-ac" name="ac" type="number" min="0" step="any" value="{{type.ac}}" required></div>
+  <div class="form-group"><label for="{{rootId}}-armor">Armor reduction</label><input id="{{rootId}}-armor" name="armor" type="number" min="0" step="any" value="{{type.armor}}" required></div>
+  <div class="form-group"><label for="{{rootId}}-max">Maximum HP</label><input id="{{rootId}}-max" name="max" type="number" min="0.000001" step="any" value="{{type.max}}" required></div>
+  <div class="form-group"><label for="{{rootId}}-hp">Starting HP</label><input id="{{rootId}}-hp" name="hp" type="number" min="0.000001" step="any" value="{{type.hp}}" placeholder="Maximum HP"></div>
+</div>
+<div class="form-group">
+  <label for="{{rootId}}-threshold">Damage threshold</label>
+  <input id="{{rootId}}-threshold" name="damageThreshold" type="number" min="0" step="any" value="{{type.damageThreshold}}" required>
+  <p class="hint">A damage roll below this value deals no damage. A qualifying roll then loses armor reduction. Use 0 to allow every hit.</p>
+</div>
+<footer class="form-footer hardwipe-wall-types-footer">
+  <button type="button" data-action="duplicate"><i class="fas fa-copy" inert></i> Duplicate</button>
+  {{#if canDelete}}<button type="button" data-action="remove"><i class="fas fa-trash" inert></i> Delete</button>{{/if}}
+  <button type="submit"><i class="fas fa-save" inert></i> {{#if isNew}}Create type{{else}}Save type{{/if}}</button>
+</footer>
+{{else}}
+<p>Create a wall type to define its HP, armor, and damage threshold.</p>
+{{/if}}
+</section>

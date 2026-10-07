@@ -1,0 +1,135 @@
+<section class="hardwipe-medscan flexcol">
+    <div class="hardwipe-medscan-patient">
+        <img src="{{monitor.img}}" alt="">
+        <span><b>{{monitor.name}}</b><small>{{localize "HARDWIPE.Rest.Patient"}}</small></span>
+    </div>
+
+    <div class="hardwipe-medscan-vitals">
+        <div class="hardwipe-medscan-ecg {{#if monitor.steady}}is-steady{{/if}}">
+            <svg viewBox="0 0 396 64" preserveAspectRatio="none" aria-hidden="true">
+                <defs><mask id="{{monitor.trace.uid}}" maskUnits="userSpaceOnUse" x="0" y="0" width="396" height="64">
+                    <rect width="396" height="64" fill="#fff"/>
+                    <rect class="gap" y="0" width="20" height="64" fill="#000"><animate attributeName="x" values="2;{{monitor.trace.end}}" dur="{{monitor.trace.dur}}s" begin="{{monitor.trace.begin}}s" repeatCount="indefinite"/></rect>
+                </mask></defs>
+                <path class="trace" d="{{monitor.trace.d}}" mask="url(#{{monitor.trace.uid}})"/>
+                <circle class="head" r="2.2"><animateMotion path="{{monitor.trace.d}}" keyPoints="{{monitor.trace.keyPoints}}" keyTimes="{{monitor.trace.keyTimes}}" calcMode="linear" dur="{{monitor.trace.dur}}s" begin="{{monitor.trace.begin}}s" repeatCount="indefinite"/></circle>
+            </svg>
+            <span>{{monitor.bandLabel}} · {{#if monitor.steady}}{{localize "HARDWIPE.Rest.Steady"}}{{else}}{{localize "HARDWIPE.Rest.Weak"}}{{/if}}</span>
+        </div>
+        <div class="hardwipe-medscan-readout">
+            <div class="hardwipe-medscan-hp">{{monitor.value}}<small>/{{monitor.max}}</small></div>
+            <div class="hardwipe-medscan-delta" aria-live="polite">
+                <span>{{localize "DND5E.HitPoints"}}</span>
+                {{#if monitor.healing}}
+                <b>▲ {{localize "HARDWIPE.Rest.RecoveredHP" healing=monitor.healing}}</b>
+                <span>{{localize "HARDWIPE.Rest.From" hp=monitor.start}}</span>
+                {{else}}
+                <b class="is-zero">{{localize "HARDWIPE.Rest.NoneYet"}}</b>
+                {{/if}}
+            </div>
+        </div>
+        <div class="hardwipe-medscan-bar">
+            <i class="had" style="width: {{monitor.had}}%"></i>
+            {{#each monitor.segments}}<i class="seg" style="width: {{width}}%">+{{healing}}</i>{{/each}}
+            {{#if monitor.ghost}}<i class="ghost" style="width: {{monitor.ghost}}%"></i>{{/if}}
+            <i class="mark" style="left: {{monitor.mark}}%"></i>
+        </div>
+        <div class="hardwipe-medscan-legend">
+            <span>{{localize "HARDWIPE.Rest.Had" hp=monitor.start}}</span>
+            {{#if monitor.range}}<span>{{localize "HARDWIPE.Rest.Next" range=monitor.range}}</span>{{/if}}
+        </div>
+    </div>
+
+    {{> "dnd5e.formlist" formSections}}
+
+    {{#if hitDice.canRoll}}
+    <fieldset class="hardwipe-medscan-dice">
+        <legend>{{localize "DND5E.HitDice"}}</legend>
+        <div class="hardwipe-medscan-dice-row">
+            {{#each monitor.dice}}
+            <label class="hardwipe-medscan-die {{#if empty}}is-empty{{/if}}">
+                <input type="radio" name="denom" value="{{value}}" {{checked selected}} {{disabled (or empty ../busy)}}>
+                <b>{{value}}</b>
+                <span class="pips">{{#each pips}}<i class="{{#if this}}on{{/if}}"></i>{{/each}}</span>
+                <small>{{localize "HARDWIPE.Rest.Left" number=number total=total}}</small>
+            </label>
+            {{/each}}
+            <button type="button" class="hardwipe-medscan-roll" data-action="rollHitDie" {{disabled busy}}>
+                <i class="fa-solid fa-dice-d20" inert></i>
+                <span>{{localize "HARDWIPE.Rest.Roll"}}</span>
+            </button>
+        </div>
+    </fieldset>
+    {{else}}
+    <div class="note info">{{localize "DND5E.REST.HitDice.None"}}</div>
+    {{/if}}
+
+    <fieldset class="hardwipe-rest-recovery">
+        <legend>{{localize "HARDWIPE.Rest.Log"}}</legend>
+        <div class="hardwipe-rest-history">
+            {{#each recovery.history}}
+            <details>
+                <summary>
+                    <span class="n">#{{number}}</span><span class="dn">{{denomination}}</span><span class="f">{{formula}}</span>
+                    <span class="tot">{{total}}</span><span class="hp {{#unless healing}}is-zero{{/unless}}">+{{healing}} {{localize "DND5E.HP"}}</span>
+                </summary>
+                <div class="hardwipe-rest-detail">
+                    {{#each faces}}<span class="face">{{this}}</span>{{/each}}
+                    {{#if bonus}}<span>{{bonus}}</span>{{/if}}
+                    <span class="state">{{#if capped}}{{localize "HARDWIPE.Rest.Capped"}}{{else}}{{localize "HARDWIPE.Rest.Applied"}}{{/if}}</span>
+                </div>
+            </details>
+            {{else}}
+            <div class="hardwipe-rest-empty">{{localize "HARDWIPE.Rest.NoDice"}}</div>
+            {{/each}}
+        </div>
+    </fieldset>
+
+    {{#if abilities.length}}
+    <fieldset class="hardwipe-rest-abilities">
+        <legend>{{localize "HARDWIPE.Rest.Abilities"}}</legend>
+        {{#each abilities}}
+        <div class="hardwipe-rest-ability {{#if done}}is-done{{/if}}">
+            <div class="hardwipe-rest-ability-row">
+                <img src="{{img}}" alt="">
+                <span class="name"><b>{{name}}</b><small>{{sub}}</small></span>
+                {{#if uses}}<span class="uses">{{uses}}</span>{{/if}}
+                <button type="button" class="hardwipe-rest-use" data-action="useRestAbility" data-key="{{key}}" {{disabled locked}}>
+                    {{#if done}}<i class="fa-solid fa-check" inert></i> {{localize "HARDWIPE.Rest.Used"}}{{else}}<i class="fa-solid fa-play" inert></i> {{localize "HARDWIPE.Rest.Use"}}{{/if}}
+                </button>
+            </div>
+            {{#if pick}}
+            <div class="hardwipe-slot-pick">
+                <div class="hardwipe-slot-pick-head"><span>{{pick.rule}}</span><b>{{pick.tally}}</b></div>
+                {{#each pick.rows}}
+                <div class="hardwipe-slot-level">
+                    <span>{{label}}</span>
+                    <span class="slots">{{#each slots}}<button type="button" class="hardwipe-slot {{#if on}}is-on{{/if}}" data-action="pickSlot" data-level="{{../level}}" data-count="{{count}}" aria-pressed="{{on}}" aria-label="{{../label}} · {{count}}" {{disabled off}}></button>{{/each}}</span>
+                </div>
+                {{else}}
+                <div class="hardwipe-rest-empty">{{localize "HARDWIPE.Rest.SlotNone"}}</div>
+                {{/each}}
+                <div class="hardwipe-slot-pick-acts">
+                    <button type="button" class="hardwipe-rest-use is-quiet" data-action="cancelSlots">{{localize "HARDWIPE.Rest.Cancel"}}</button>
+                    <button type="button" class="hardwipe-rest-use" data-action="recoverSlots" {{disabled (eq pick.used 0)}}><i class="fa-solid fa-rotate-left" inert></i> {{localize "HARDWIPE.Rest.Recover"}}</button>
+                </div>
+            </div>
+            {{/if}}
+        </div>
+        {{/each}}
+    </fieldset>
+    {{/if}}
+
+    <fieldset class="hardwipe-rest-gains">
+        <legend>{{localize "HARDWIPE.Rest.Gains"}}</legend>
+        {{#each gains}}
+        <div class="hardwipe-rest-gain {{#if held}}is-held{{/if}}"><span class="k">{{label}}</span><span class="v">{{value}}</span></div>
+        {{else}}
+        <div class="hardwipe-rest-empty">{{localize "HARDWIPE.Rest.GainsNone"}}</div>
+        {{/each}}
+    </fieldset>
+
+    {{#if request}}
+    {{> "systems/dnd5e/templates/actors/rest/parts/rest-request.hbs"}}
+    {{/if}}
+</section>

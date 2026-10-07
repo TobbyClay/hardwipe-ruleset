@@ -1,0 +1,55 @@
+<section class="hardwipe-heat-panel {{statusClass}} {{#unless hasMission}}is-compact{{/unless}}" data-scene-id="{{sceneId}}">
+  <div class="hardwipe-heat-scanline"></div>
+
+  <header class="hardwipe-heat-header" data-hardwipe-drag="true" title="{{localize "HARDWIPE.Heat.Drag"}}">
+    <div class="hardwipe-heat-heading">
+      <div class="hardwipe-heat-label"><i class="fas fa-temperature-half" inert></i> {{localize "HARDWIPE.Heat.Title"}}</div>
+      <div class="hardwipe-heat-scene">{{sceneName}}</div>
+    </div>
+    <div class="hardwipe-heat-header-actions">
+      <div class="hardwipe-heat-status">{{status}}</div>
+      <button type="button" class="hardwipe-heat-close" data-hardwipe-action="close"
+              data-tooltip="HARDWIPE.Heat.Close" aria-label="{{localize "HARDWIPE.Heat.Close"}}">
+        <i class="fas fa-xmark" inert></i>
+      </button>
+    </div>
+  </header>
+
+  {{#if hasMission}}
+  <div class="hardwipe-heat-readout">
+    <span class="hardwipe-heat-current">{{current}}</span>
+    <span class="hardwipe-heat-divider">/</span>
+    <span class="hardwipe-heat-max">{{max}}</span>
+  </div>
+
+  <div class="hardwipe-heat-meter" role="meter" aria-label="{{localize "HARDWIPE.Heat.Title"}}"
+       aria-valuemin="0" aria-valuenow="{{current}}" aria-valuemax="{{max}}" aria-valuetext="{{current}} / {{max}} · {{status}}">
+    <div class="hardwipe-heat-meter-fill" style="width: {{percent}}%"></div>
+    <span class="hardwipe-heat-tick is-hot" style="left: 50%"></span>
+    <span class="hardwipe-heat-tick is-critical" style="left: 75%"></span>
+  </div>
+
+  {{#if isGM}}
+    <footer class="hardwipe-heat-controls">
+      <button type="button" data-hardwipe-action="adjust" data-delta="-1" data-tooltip="HARDWIPE.Heat.Decrease"
+              aria-label="{{localize "HARDWIPE.Heat.Decrease"}}" {{#unless canDecrease}}disabled{{/unless}}>
+        <i class="fas fa-minus" inert></i>
+      </button>
+      <button type="button" data-hardwipe-action="configure" data-tooltip="HARDWIPE.Heat.Configure"
+              aria-label="{{localize "HARDWIPE.Heat.Configure"}}">
+        <i class="fas fa-sliders" inert></i>
+      </button>
+      <button type="button" data-hardwipe-action="adjust" data-delta="1" data-tooltip="HARDWIPE.Heat.Increase"
+              aria-label="{{localize "HARDWIPE.Heat.Increase"}}" {{#unless canIncrease}}disabled{{/unless}}>
+        <i class="fas fa-plus" inert></i>
+      </button>
+    </footer>
+  {{/if}}
+  {{else if isGM}}
+    <footer class="hardwipe-heat-controls is-idle">
+      <button type="button" class="hardwipe-heat-start" data-hardwipe-action="configure">
+        <i class="fas fa-satellite-dish" inert></i> {{localize "HARDWIPE.Heat.StartMission"}}
+      </button>
+    </footer>
+  {{/if}}
+</section>

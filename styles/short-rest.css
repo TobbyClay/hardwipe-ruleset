@@ -1,0 +1,398 @@
+/* =============================================================================================
+ * Short rest: a Ripperdoc med-scan monitor. Its phosphor follows the patient's health: red under a
+ * third of max HP, blue under two thirds, green above (is-critical / is-stable / is-healthy).
+ * The content scrolls between a fixed header and footer, as in 0.7.32.
+ * =========================================================================================== */
+.application.hardwipe-short-rest {
+  --ms-g: #46ff9a;
+  --ms-rgb: 70, 255, 154;
+  --ms-g-hi: #7dffb8;
+  --ms-hi: #e8fff2;
+  --ms-on: #062012;
+  --ms-dim: #7fae95;
+  --ms-ink: #d8ffe9;
+  --ms-edge: #2a6a4a;
+  --ms-line: #1d4a34;
+  --ms-line-2: #143826;
+  --ms-well: #061510;
+  --ms-head: #071510;
+  --ms-foot: #050d09;
+  --ms-bg: #030907;
+  --ms-panel: #020604;
+  --ms-amber: #ffb45c;
+  --ms-font-disp: var(--hw-font-disp, "Bahnschrift", "Rajdhani", sans-serif);
+  --ms-font-mono: var(--hw-font-mono, ui-monospace, monospace);
+  max-height: calc(100vh - 12rem);
+  color: var(--ms-ink);
+  background: var(--ms-bg);
+  border: 1px solid var(--ms-line);
+  border-radius: 0;
+  box-shadow: 0 0 0 1px #000, 0 12px 40px rgba(0, 0, 0, 0.6);
+}
+.application.hardwipe-short-rest.is-stable {
+  --ms-g: #4cc6ff;
+  --ms-rgb: 76, 198, 255;
+  --ms-g-hi: #8fdcff;
+  --ms-hi: #e8f7ff;
+  --ms-on: #04161f;
+  --ms-dim: #7fa2b5;
+  --ms-ink: #d8f0ff;
+  --ms-edge: #2a5a70;
+  --ms-line: #1d3d4f;
+  --ms-line-2: #14303e;
+  --ms-well: #06111a;
+  --ms-head: #07111a;
+  --ms-foot: #050a0f;
+  --ms-bg: #03070a;
+  --ms-panel: #020406;
+}
+.application.hardwipe-short-rest.is-critical {
+  --ms-g: #ff4d6a;
+  --ms-rgb: 255, 77, 106;
+  --ms-g-hi: #ff8a9c;
+  --ms-hi: #ffeef1;
+  --ms-on: #24060c;
+  --ms-dim: #b5828c;
+  --ms-ink: #ffe0e6;
+  --ms-edge: #6f2a3a;
+  --ms-line: #4f1d29;
+  --ms-line-2: #3e141e;
+  --ms-well: #160609;
+  --ms-head: #17070b;
+  --ms-foot: #0f0507;
+  --ms-bg: #0a0305;
+  --ms-panel: #060203;
+}
+.hardwipe-short-rest .window-header {
+  margin: 0;
+  color: var(--ms-g);
+  background: var(--ms-head);
+  border-bottom: 1px solid var(--ms-line);
+}
+/* dnd5e centres a large title below the bar; the monitor keeps it in the bar. */
+.hardwipe-short-rest .window-header .window-title {
+  position: static;
+  flex: 1;
+  justify-content: flex-start;
+  padding-left: 4px;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  font: 700 14px var(--ms-font-disp);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+.hardwipe-short-rest .window-header .window-title::before {
+  content: "";
+  flex: none;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #ff3f5f;
+  box-shadow: 0 0 2px #ff3f5f;
+}
+.hardwipe-short-rest .window-header button { color: var(--ms-dim); }
+.hardwipe-short-rest .window-content {
+  min-height: 0;
+  flex-shrink: 1;
+  overflow: hidden;
+  padding: 0;
+  color: var(--ms-ink);
+  background: var(--ms-bg);
+}
+.hardwipe-short-rest [data-application-part=content] {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 12px;
+  background: repeating-linear-gradient(to bottom, rgba(0, 0, 0, 0.22) 0 1px, transparent 1px 3px), var(--ms-bg);
+}
+.hardwipe-short-rest [data-application-part=footer] {
+  flex: 0 0 auto;
+  margin: 0;
+  padding: 10px 12px 12px;
+  background: var(--ms-foot);
+  border-top: 1px solid var(--ms-line-2);
+}
+.hardwipe-short-rest .hardwipe-medscan { gap: 10px; }
+
+/* Section labels and the native form sections (New Day and other rest options). */
+.hardwipe-short-rest fieldset {
+  margin: 0;
+  padding: 8px 0 0;
+  border: 0;
+  border-top: 1px solid var(--ms-line-2);
+  border-radius: 0;
+  background: none;
+}
+.hardwipe-short-rest fieldset > legend {
+  padding: 0 8px 0 0;
+  color: var(--ms-dim);
+  font: 700 10px var(--ms-font-disp);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+.hardwipe-short-rest .form-group label { color: var(--ms-ink); font: 700 12px var(--ms-font-disp); letter-spacing: 0.1em; text-transform: uppercase; }
+.hardwipe-short-rest .form-group .hint,
+.hardwipe-short-rest .hint { color: var(--ms-dim); font-size: 11px; }
+.hardwipe-short-rest dnd5e-checkbox {
+  --checkbox-size: 18px;
+  --checkbox-border-radius: 0;
+  --checkbox-border-width: 1px;
+  --checkbox-border-color: var(--ms-edge);
+  --checkbox-empty-color: var(--ms-well);
+  --checkbox-fill-color: var(--ms-g);
+}
+.hardwipe-short-rest dnd5e-checkbox[checked] { --checkbox-border-color: var(--ms-g); filter: drop-shadow(0 0 2px var(--ms-g)); }
+.hardwipe-short-rest input[type=checkbox] {
+  appearance: none;
+  position: relative;
+  flex: none;
+  width: 32px;
+  height: 18px;
+  margin: 0;
+  border: 1px solid var(--ms-edge);
+  border-radius: 0;
+  background: var(--ms-well);
+  cursor: pointer;
+}
+.hardwipe-short-rest input[type=checkbox]::after {
+  content: "";
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 10px;
+  height: 10px;
+  background: var(--ms-edge);
+  transition: left 120ms ease;
+}
+.hardwipe-short-rest input[type=checkbox]:checked { border-color: var(--ms-g); }
+.hardwipe-short-rest input[type=checkbox]:checked::after { left: 17px; background: var(--ms-g); box-shadow: 0 0 2px var(--ms-g); }
+.hardwipe-short-rest .note {
+  padding: 9px;
+  color: var(--ms-dim);
+  text-align: center;
+  background: var(--ms-panel);
+  border: 1px dashed var(--ms-line);
+  font: 700 10px var(--ms-font-disp);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+.hardwipe-short-rest .note::before { display: none; }
+
+/* Patient. */
+.hardwipe-medscan-patient { display: flex; align-items: center; gap: 10px; }
+.hardwipe-medscan-patient img {
+  flex: none;
+  width: 38px;
+  height: 38px;
+  object-fit: cover;
+  border: 1px solid var(--ms-line);
+}
+.hardwipe-medscan-patient b { display: block; font: 700 17px/1 var(--ms-font-disp); letter-spacing: 0.08em; text-transform: uppercase; }
+.hardwipe-medscan-patient small { color: var(--ms-dim); font: 700 10px var(--ms-font-disp); letter-spacing: 0.16em; text-transform: uppercase; }
+
+/* Vitals: heart trace, HP readout and the recovery bar. */
+.hardwipe-medscan-vitals { border: 1px solid var(--ms-line-2); background: var(--ms-panel); }
+.hardwipe-medscan-ecg {
+  position: relative;
+  height: 64px;
+  border-bottom: 1px solid var(--ms-line-2);
+  background-image: linear-gradient(rgba(var(--ms-rgb), 0.07) 1px, transparent 1px), linear-gradient(90deg, rgba(var(--ms-rgb), 0.07) 1px, transparent 1px);
+  background-size: 10px 10px;
+}
+.hardwipe-medscan-ecg svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+.hardwipe-medscan-ecg path { fill: none; stroke: var(--ms-g); stroke-width: 1.8; filter: drop-shadow(0 0 1px var(--ms-g)); }
+/* The sweep: a bright head runs along the trace with a short blank gap ahead of it. */
+.hardwipe-medscan-ecg .head { fill: var(--ms-hi); filter: drop-shadow(0 0 2px var(--ms-g)); }
+.hardwipe-medscan-ecg span {
+  position: absolute;
+  top: 4px;
+  right: 6px;
+  padding: 1px 4px;
+  color: var(--ms-dim);
+  background: var(--ms-panel);
+  font: 700 9px var(--ms-font-disp);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+.hardwipe-medscan-readout { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: end; gap: 12px; padding: 10px 10px 4px; }
+.hardwipe-medscan-hp { color: var(--ms-g); font: 700 40px/0.9 var(--ms-font-disp); text-shadow: none; font-variant-numeric: tabular-nums; }
+.hardwipe-medscan-hp small { color: var(--ms-dim); font-size: 16px; text-shadow: none; }
+.hardwipe-medscan-delta { display: grid; padding-bottom: 3px; color: var(--ms-dim); font: 700 10px var(--ms-font-disp); letter-spacing: 0.14em; text-transform: uppercase; }
+.hardwipe-medscan-delta b { color: var(--ms-g); font-size: 17px; letter-spacing: 0.06em; }
+.hardwipe-medscan-delta b.is-zero { color: var(--ms-dim); font-size: 14px; }
+.hardwipe-medscan-bar { position: relative; display: flex; height: 16px; margin: 6px 10px 0; background: var(--ms-well); border: 1px solid var(--ms-line); }
+.hardwipe-medscan-bar > i { flex: none; height: 100%; font-style: normal; }
+.hardwipe-medscan-bar .had { background: repeating-linear-gradient(90deg, #4a5650 0 3px, #3e4943 3px 5px); }
+.hardwipe-medscan-bar .seg {
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  color: var(--ms-on);
+  background: repeating-linear-gradient(-45deg, var(--ms-g) 0 6px, var(--ms-g-hi) 6px 12px);
+  box-shadow: inset -1px 0 0 var(--ms-panel), 0 0 2px rgba(var(--ms-rgb), 0.9);
+  font: 700 10px var(--ms-font-disp);
+  letter-spacing: 0.04em;
+}
+.hardwipe-medscan-bar .seg:nth-of-type(odd) { background: repeating-linear-gradient(-45deg, color-mix(in srgb, var(--ms-g) 80%, #000) 0 6px, color-mix(in srgb, var(--ms-g-hi) 85%, #000) 6px 12px); }
+.hardwipe-medscan-bar .ghost { border: 1px dashed rgba(var(--ms-rgb), 0.55); border-left: 0; background: rgba(var(--ms-rgb), 0.06); }
+/* The start mark stands 4px proud of the bar on both sides (not the segments' full height). */
+.hardwipe-medscan-bar .mark { position: absolute; top: -4px; bottom: -4px; height: auto; width: 2px; margin-left: -1px; background: #fff; box-shadow: 0 0 2px #fff; }
+.hardwipe-medscan-legend {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  margin: 4px 10px 10px;
+  color: var(--ms-dim);
+  font: 700 9px var(--ms-font-disp);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+/* Hit dice: one chip per die size (a radio), then the roll button. */
+.hardwipe-medscan-dice-row { display: flex; flex-wrap: wrap; align-items: stretch; gap: 8px; }
+.hardwipe-medscan-die {
+  display: grid;
+  gap: 4px;
+  min-width: 82px;
+  padding: 6px 10px;
+  border: 1px solid var(--ms-line);
+  background: var(--ms-well);
+  cursor: pointer;
+}
+.hardwipe-medscan-die input { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
+.hardwipe-medscan-die b { font: 700 16px/1 var(--ms-font-disp); letter-spacing: 0.06em; text-transform: uppercase; }
+.hardwipe-medscan-die small { color: var(--ms-dim); font: 700 9px var(--ms-font-disp); letter-spacing: 0.12em; text-transform: uppercase; }
+.hardwipe-medscan-die .pips { display: flex; flex-wrap: wrap; gap: 4px; }
+.hardwipe-medscan-die .pips i { width: 8px; height: 8px; border: 1px solid var(--ms-edge); transform: rotate(45deg); }
+.hardwipe-medscan-die .pips i.on { background: var(--ms-g); border-color: var(--ms-g); box-shadow: 0 0 2px var(--ms-g); }
+.hardwipe-medscan-die:has(input:checked) { border-color: var(--ms-g); box-shadow: inset 0 0 2px var(--ms-g); }
+.hardwipe-medscan-die:has(input:focus-visible) { outline: 1px solid var(--ms-g); outline-offset: 2px; }
+.hardwipe-medscan-die.is-empty { opacity: 0.4; cursor: not-allowed; }
+button.hardwipe-medscan-roll {
+  flex: 1 1 140px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  min-height: 52px;
+  margin: 0;
+  color: var(--ms-g);
+  background: rgba(var(--ms-rgb), 0.12);
+  border: 1px solid var(--ms-g);
+  border-radius: 0;
+  font: 700 15px var(--ms-font-disp);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  text-shadow: none;
+}
+button.hardwipe-medscan-roll span { display: grid; text-align: left; }
+button.hardwipe-medscan-roll:hover:not(:disabled) { background: rgba(var(--ms-rgb), 0.22); box-shadow: 0 0 2px rgba(var(--ms-rgb), 0.7); }
+button.hardwipe-medscan-roll:disabled { border-style: dashed; opacity: 0.6; }
+.hardwipe-short-rest.is-busy button.hardwipe-medscan-roll i { animation: fa-spin 1s linear infinite; }
+
+/* Treatment log: one row per die, expandable to its faces and bonus. */
+.hardwipe-rest-history { display: grid; gap: 4px; max-height: 180px; overflow-y: auto; }
+.hardwipe-rest-history details { border: 1px solid var(--ms-line-2); background: var(--ms-panel); }
+.hardwipe-rest-history summary {
+  display: grid;
+  grid-template-columns: 26px 38px minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 8px;
+  list-style: none;
+  cursor: pointer;
+  font: 700 12px var(--ms-font-disp);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.hardwipe-rest-history summary::-webkit-details-marker { display: none; }
+.hardwipe-rest-history .n { color: var(--ms-dim); }
+.hardwipe-rest-history .dn { padding: 0 5px; text-align: center; border: 1px solid var(--ms-edge); }
+.hardwipe-rest-history .f { overflow: hidden; color: var(--ms-dim); font: 400 11px var(--ms-font-mono); letter-spacing: 0; text-overflow: ellipsis; text-transform: none; white-space: nowrap; }
+.hardwipe-rest-history .tot { min-width: 22px; color: var(--ms-hi); font-size: 15px; text-align: right; }
+.hardwipe-rest-history .hp { min-width: 50px; color: var(--ms-g); text-align: right; }
+.hardwipe-rest-history .hp.is-zero { color: var(--ms-dim); }
+.hardwipe-rest-detail { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; padding: 0 8px 7px 42px; color: var(--ms-dim); font-size: 11px; }
+.hardwipe-rest-detail .face { display: inline-grid; place-items: center; width: 22px; height: 22px; color: var(--ms-hi); border: 1px solid var(--ms-edge); font: 700 12px var(--ms-font-disp); }
+.hardwipe-rest-detail .state { margin-left: auto; }
+.hardwipe-rest-empty {
+  padding: 9px;
+  color: var(--ms-dim);
+  text-align: center;
+  border: 1px dashed var(--ms-line);
+  font: 700 10px var(--ms-font-disp);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+/* Footer: Rest completes the short rest. */
+.hardwipe-short-rest [data-application-part=footer] button {
+  flex: 1;
+  min-height: 38px;
+  color: var(--ms-on);
+  background: var(--ms-g);
+  border: 0;
+  border-radius: 0;
+  box-shadow: 0 0 2px rgba(var(--ms-rgb), 0.7);
+  font: 700 14px var(--ms-font-disp);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+.hardwipe-short-rest [data-application-part=footer] button:hover:not(:disabled) { background: var(--ms-g-hi); }
+.hardwipe-short-rest [data-application-part=footer] button:disabled { opacity: 0.4; box-shadow: none; }
+/* Rest abilities: features to use now (Arcane Recovery opens a spell-slot picker). */
+.hardwipe-rest-abilities { display: grid; gap: 4px; }
+.hardwipe-rest-ability { border: 1px solid var(--ms-line-2); background: var(--ms-panel); }
+.hardwipe-rest-ability-row { display: grid; grid-template-columns: 26px minmax(0, 1fr) auto auto; align-items: center; gap: 8px; padding: 5px 6px 5px 8px; }
+.hardwipe-rest-ability-row img { width: 26px; height: 26px; object-fit: cover; border: 1px solid var(--ms-line); }
+.hardwipe-rest-ability-row .name { display: grid; min-width: 0; }
+.hardwipe-rest-ability-row .name b { overflow: hidden; font: 700 12px var(--ms-font-disp); letter-spacing: 0.08em; text-overflow: ellipsis; text-transform: uppercase; white-space: nowrap; }
+.hardwipe-rest-ability-row .name small { overflow: hidden; color: var(--ms-dim); font: 700 9px var(--ms-font-disp); letter-spacing: 0.12em; text-overflow: ellipsis; text-transform: uppercase; white-space: nowrap; }
+.hardwipe-rest-ability.is-done .name small { color: var(--ms-g); }
+.hardwipe-rest-ability-row .uses { color: var(--ms-dim); font: 700 12px var(--ms-font-disp); letter-spacing: 0.06em; }
+button.hardwipe-rest-use {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  width: auto;
+  height: auto;
+  margin: 0;
+  padding: 5px 10px;
+  color: var(--ms-g);
+  background: rgba(var(--ms-rgb), 0.12);
+  border: 1px solid var(--ms-g);
+  border-radius: 0;
+  font: 700 11px var(--ms-font-disp);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+button.hardwipe-rest-use:hover:not(:disabled) { background: rgba(var(--ms-rgb), 0.22); }
+button.hardwipe-rest-use:disabled { border-style: dashed; opacity: 0.5; }
+button.hardwipe-rest-use.is-quiet { color: var(--ms-dim); background: none; border-color: var(--ms-line); }
+.hardwipe-rest-ability.is-done button.hardwipe-rest-use:disabled { border-style: solid; opacity: 0.8; }
+.hardwipe-slot-pick { display: grid; gap: 7px; padding: 8px; border-top: 1px dashed var(--ms-line-2); }
+.hardwipe-slot-pick-head { display: flex; justify-content: space-between; gap: 8px; color: var(--ms-dim); font: 700 9px var(--ms-font-disp); letter-spacing: 0.12em; text-transform: uppercase; }
+.hardwipe-slot-pick-head b { flex: none; color: var(--ms-g); font-size: 11px; }
+.hardwipe-slot-level { display: grid; grid-template-columns: 62px minmax(0, 1fr); align-items: center; gap: 8px; color: var(--ms-ink); font: 700 11px var(--ms-font-disp); letter-spacing: 0.1em; text-transform: uppercase; }
+.hardwipe-slot-level .slots { display: flex; flex-wrap: wrap; gap: 6px; }
+button.hardwipe-slot { flex: none; width: 14px; height: 14px; margin: 2px; padding: 0; background: var(--ms-well); border: 1px solid var(--ms-g); border-radius: 0; transform: rotate(45deg); cursor: pointer; }
+button.hardwipe-slot.is-on { background: var(--ms-g); box-shadow: 0 0 2px var(--ms-g); }
+button.hardwipe-slot:disabled { border-color: var(--ms-edge); opacity: 0.4; cursor: not-allowed; }
+.hardwipe-slot-pick-acts { display: flex; justify-content: flex-end; gap: 6px; }
+
+/* What else the rest restores when it completes. */
+.hardwipe-rest-gains { display: grid; gap: 0; }
+.hardwipe-rest-gain { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 10px; padding: 5px 2px; border-bottom: 1px dotted var(--ms-line-2); }
+.hardwipe-rest-gain .k { overflow: hidden; font: 700 11px var(--ms-font-disp); letter-spacing: 0.08em; text-overflow: ellipsis; text-transform: uppercase; white-space: nowrap; }
+.hardwipe-rest-gain .v { color: var(--ms-g); font: 700 11px var(--ms-font-mono); white-space: nowrap; }
+.hardwipe-rest-gain.is-held .v { color: var(--ms-amber); }
+
+@media (prefers-reduced-motion: reduce) {
+  .hardwipe-medscan-ecg .head { display: none; }
+  .hardwipe-medscan-ecg path { mask: none; }
+  .hardwipe-short-rest input[type=checkbox]::after { transition: none; }
+  .hardwipe-short-rest.is-busy button.hardwipe-medscan-roll i { animation: none; }
+}

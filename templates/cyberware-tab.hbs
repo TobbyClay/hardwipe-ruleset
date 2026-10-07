@@ -1,0 +1,177 @@
+{{#*inline "hardwipeSlotCard"}}
+{{!-- SC recognizes inventory rows and image frames; it owns palette/settings refresh. --}}
+<div class="hardwipe-slot-group {{#if previewItem}}{{#if rarityColors}}item{{/if}}{{/if}}" data-slot="{{id}}" {{#if previewItem}}data-item-id="{{previewItem.id}}"{{/if}}>
+  <h4>{{label}}{{#if selfSwap}} <small>*</small>{{/if}}</h4>
+  <button type="button" class="unbutton always-interactive hardwipe-slot-card {{#if previewItem}}{{#if rarityColors}}item-image gold-icon{{/if}}{{/if}} {{#if selected}}is-selected{{/if}} {{#if previewItem}}is-filled{{else}}is-empty{{/if}} {{#if occupied}}is-occupied{{/if}} {{#if damaged}}is-damaged{{else if disabled}}is-disabled{{/if}}"
+    data-action="hardwipeSelectRegion" data-slot="{{id}}" aria-pressed="{{selected}}"
+    aria-label="{{label}}{{#if previewItem}}: {{previewItem.name}}{{/if}}" data-tooltip="{{#if selfSwap}}{{labels.selfSwap}}{{else}}{{labels.clinicSwap}}{{/if}}">
+    {{#if previewItem}}
+    <img src="{{previewItem.img}}" alt="" loading="lazy">
+    <span class="hardwipe-slot-content"><span class="hardwipe-slot-name {{#if rarityColors}}item-name{{/if}}">{{previewItem.name}}</span>
+      <small class="hardwipe-state is-{{previewItem.stateKey}}">{{previewItem.stateLabel}}</small>
+      {{#if previewItem.installed}}{{#if previewItem.usesPips}}<span class="hardwipe-slot-pips" data-tooltip="{{previewItem.usesLabel}}">{{#each previewItem.usesPips}}<i class="{{#if on}}is-on{{/if}}"></i>{{/each}}<b>{{previewItem.usesLabel}}</b></span>{{/if}}{{/if}}
+      {{#if previewItem.queued}}<small class="hardwipe-slot-queued"><i class="fas fa-clock" inert></i> {{labels.queued}}</small>{{/if}}
+      {{#if extraCount}}<small>+{{extraCount}} {{labels.available}}</small>{{/if}}
+    </span>
+    {{else}}
+    <span class="hardwipe-slot-empty-icon"><i class="fas fa-microchip" inert></i></span>
+    <span class="hardwipe-slot-content"><small>{{labels.emptySlot}}</small></span>
+    {{/if}}
+  </button>
+</div>
+{{/inline}}
+<section class="tab hardwipe-cyberware-tab {{tab.cssClass}}" data-tab="{{tab.id}}" data-group="{{tab.group}}">
+  {{#with cyberware}}
+  <header class="hardwipe-cyberware-header">
+    <h3><i class="fas fa-microchip" inert></i> {{labels.title}}</h3>
+    {{#if pendingCount}}<span class="hardwipe-pending-count hardwipe-label hardwipe-queued"><i class="fas fa-clock" inert></i> {{labels.pending}}: {{pendingCount}}</span>{{/if}}
+    {{#if isGM}}
+    <button type="button" class="always-interactive hardwipe-btn hardwipe-service-menu" data-action="hardwipeService"
+      data-service="menu" aria-expanded="{{servicesOpen}}" aria-label="{{labels.service}}" data-tooltip="{{labels.service}}">
+      <i class="fas fa-house-medical" inert></i>
+      <span>{{labels.serviceShort}}</span>
+      <span class="hardwipe-service-flags">
+        <i class="fas fa-user-doctor {{#if service.ripperDoc}}is-on{{/if}}" inert></i>
+        <i class="fas fa-toolbox {{#if service.tools}}is-on{{/if}}" inert></i>
+      </span>
+      <i class="fas {{#if servicesOpen}}fa-chevron-up{{else}}fa-chevron-down{{/if}} hardwipe-service-chevron" inert></i>
+    </button>
+    {{/if}}
+  </header>
+
+  {{#if servicesOpen}}
+  {{#if isGM}}
+  <div class="hardwipe-services" role="group" aria-label="{{labels.service}}">
+    <span class="hardwipe-label">{{labels.service}}</span>
+    <button type="button" class="always-interactive hardwipe-btn" data-action="hardwipeService" data-service="ripperDoc"
+      aria-pressed="{{service.ripperDoc}}"><i class="fas fa-user-doctor" inert></i> {{labels.ripperDoc}}</button>
+    <button type="button" class="always-interactive hardwipe-btn" data-action="hardwipeService" data-service="tools"
+      aria-pressed="{{service.tools}}"><i class="fas fa-toolbox" inert></i> {{labels.tools}}</button>
+  </div>
+  {{/if}}
+  {{/if}}
+
+  <div class="hardwipe-cyberware-layout">
+    <nav class="hardwipe-slot-column" aria-label="{{labels.schematic}}">
+      {{#each leftSlots}}{{> hardwipeSlotCard labels=../labels rarityColors=../rarityColors}}{{/each}}
+    </nav>
+    <figure class="hardwipe-body-map {{#if customBody}}has-custom-paper-doll{{/if}}" aria-label="{{labels.schematic}}">
+      <div class="hardwipe-body-map-drawing" {{#if canControl}}tabindex="0" aria-haspopup="menu" aria-label="{{labels.paperDollMenu}}" data-tooltip="{{labels.paperDollMenu}}"{{/if}}>
+        <svg viewBox="{{bodyViewBox}}" aria-hidden="true" focusable="false">
+          <defs>
+            <pattern id="hardwipe-hatch-ok" class="hardwipe-hatch is-ok" width="16" height="16" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="16" height="16"/><line x1="0" y1="0" x2="0" y2="16"/></pattern>
+            <pattern id="hardwipe-hatch-warn" class="hardwipe-hatch is-warn" width="16" height="16" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="16" height="16"/><line x1="0" y1="0" x2="0" y2="16"/></pattern>
+            <pattern id="hardwipe-hatch-bad" class="hardwipe-hatch is-bad" width="16" height="16" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="16" height="16"/><line x1="0" y1="0" x2="0" y2="16"/></pattern>
+            <pattern id="hardwipe-hatch-gold" class="hardwipe-hatch is-gold" width="16" height="16" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="16" height="16"/><line x1="0" y1="0" x2="0" y2="16"/></pattern>
+          </defs>
+          <image class="hardwipe-paper-doll" href="{{bodyArt}}" x="0" y="0" width="1024" height="1536" preserveAspectRatio="xMidYMid meet"/>
+          {{#each slots}}
+          <g class="hardwipe-map-region {{#if selected}}is-selected{{/if}} {{#if occupied}}is-occupied{{/if}} {{#if damaged}}is-damaged{{else if disabled}}is-disabled{{/if}}" data-slot="{{id}}">
+            <path d="{{bodyPath}}"/>
+            {{#if mirrored}}<path d="{{bodyPath}}" transform="translate(1024 0) scale(-1 1)"/>{{/if}}
+            {{#each pings}}<circle class="hardwipe-map-ping" cx="{{cx}}" cy="{{cy}}" r="{{r}}"/>{{/each}}
+          </g>
+          {{/each}}
+        </svg>
+      </div>
+      <figcaption>{{labels.frontView}}</figcaption>
+    </figure>
+    <nav class="hardwipe-slot-column" aria-label="{{labels.schematic}}">
+      {{#each rightSlots}}{{> hardwipeSlotCard labels=../labels rarityColors=../rarityColors}}{{/each}}
+    </nav>
+    <div class="hardwipe-cyberware-detail">
+      <header class="hardwipe-region-header">
+        <h4>{{selected.label}}{{#if selected.selfSwap}} *{{/if}}</h4>
+        <span class="hardwipe-region-summary">{{#if selected.installedItem}}{{selected.installedItem.name}}{{else}}{{labels.emptySlot}}{{/if}}</span>
+        <p>{{#if selected.selfSwap}}{{labels.selfSwap}}{{else}}{{labels.clinicSwap}}{{/if}}</p>
+      </header>
+      <ol class="hardwipe-cyberware-items unlist">
+        {{#each selected.items}}
+        <li class="hardwipe-cyberware-item {{#if ../rarityColors}}item{{/if}} {{#if installed}}is-installed{{/if}} {{#if damaged}}is-damaged{{else if disabled}}is-disabled{{/if}}"
+          data-item-id="{{id}}">
+          <div class="hardwipe-cyberware-item-heading">
+            <button type="button" class="unbutton always-interactive hardwipe-item-image {{#if ../rarityColors}}item-image gold-icon{{/if}}" data-action="hardwipeCyberware"
+              data-cyberware-action="open" data-tooltip="{{../labels.open}}: {{name}}" aria-label="{{../labels.open}}: {{name}}">
+              <img src="{{img}}" alt="">
+            </button>
+            <div class="hardwipe-cyberware-item-name">
+              <button type="button" class="unbutton always-interactive {{#if ../rarityColors}}item-name{{/if}}" data-action="hardwipeCyberware" data-cyberware-action="open">{{name}}</button>
+              <div class="hardwipe-cyberware-item-meta">
+                {{#if installed}}<span>{{../labels.installed}}</span>{{/if}}
+                <span class="hardwipe-item-state hardwipe-state is-{{stateKey}}">{{stateLabel}}</span>
+                {{#if usesLabel}}<span class="hardwipe-uses" data-tooltip="{{usesLabel}}">{{#if usesPips}}{{#each usesPips}}<i class="{{#if on}}is-on{{/if}}"></i>{{/each}}{{/if}}<b>{{usesLabel}}</b></span>{{/if}}
+              </div>
+            </div>
+          </div>
+          {{#if description}}
+          <div class="hardwipe-cyberware-desc {{#if descriptionLong}}is-clamped{{/if}} {{#if descriptionOpen}}is-open{{/if}}">
+            <div class="hardwipe-cyberware-desc-body">{{{description}}}</div>
+            {{#if descriptionLong}}
+            <button type="button" class="unbutton always-interactive hardwipe-cyberware-desc-more" data-action="hardwipeCyberware" data-cyberware-action="description"
+              aria-expanded="{{#if descriptionOpen}}true{{else}}false{{/if}}"><span>{{#if descriptionOpen}}{{../labels.showLess}}{{else}}{{../labels.readMore}}{{/if}}</span><i class="fas fa-chevron-down" inert></i></button>
+            {{/if}}
+          </div>
+          {{/if}}
+          {{#if passiveEffects}}
+          <div class="hardwipe-passive-effects"><span>{{../labels.passive}}:</span>
+            {{#each passiveEffects}}<span>{{this}}</span>{{/each}}
+          </div>
+          {{/if}}
+          {{#if activities}}
+          <div class="hardwipe-cyberware-activities" role="group" aria-label="{{../labels.actions}}">
+            {{#each activities}}
+            <button type="button" class="{{#if canUse}}always-interactive{{/if}} hardwipe-btn is-primary hardwipe-activity-button" data-action="hardwipeCyberware"
+              data-cyberware-action="use" data-activity-id="{{id}}" aria-disabled="{{#if canUse}}false{{else}}true{{/if}}" {{#unless canUse}}disabled{{/unless}}>
+              <i class="fas fa-play" inert></i><span>{{name}}</span><small>{{activation}}</small>
+            </button>
+            {{/each}}
+          </div>
+          {{/if}}
+          {{#if queued}}<p class="hardwipe-item-pending hardwipe-queued"><i class="fas fa-clock" inert></i> {{queuedLabel}} · {{../labels.queued}}</p>{{/if}}
+          {{#if canControl}}
+          <div class="hardwipe-cyberware-item-controls">
+            {{#if queued}}
+            <button type="button" class="always-interactive hardwipe-btn is-queue" data-action="hardwipeCyberware" data-cyberware-action="cancel"
+              data-tooltip="{{../labels.cancel}}" aria-label="{{../labels.cancel}}"><i class="fas fa-xmark" inert></i> {{../labels.cancelShort}}</button>
+            {{else}}
+            {{#if installed}}
+            {{#if enabled}}
+            <button type="button" class="always-interactive hardwipe-btn" data-action="hardwipeCyberware" data-cyberware-action="disable"
+              aria-label="{{../labels.disable}}"><i class="fas fa-power-off" inert></i> {{../labels.disable}}</button>
+            {{/if}}
+            {{#if disabled}}
+            {{#unless damaged}}
+            <button type="button" class="always-interactive hardwipe-btn is-primary" data-action="hardwipeCyberware" data-cyberware-action="enable"
+              aria-label="{{../labels.enable}}"><i class="fas fa-power-off" inert></i> {{../labels.enable}}</button>
+            {{/unless}}
+            {{/if}}
+            {{/if}}
+            {{#if disabled}}
+            <button type="button" class="always-interactive hardwipe-btn" data-action="hardwipeCyberware" data-cyberware-action="reset"
+              data-tooltip="{{../labels.serviceHint}}" aria-label="{{../labels.reset}}" {{#unless canReset}}disabled{{/unless}}><i class="fas fa-rotate" inert></i> {{../labels.reset}}</button>
+            {{/if}}
+            {{#if damaged}}
+            <button type="button" class="always-interactive hardwipe-btn is-danger" data-action="hardwipeCyberware" data-cyberware-action="repair"
+              data-tooltip="{{../labels.serviceHint}}" aria-label="{{../labels.repair}}" {{#unless canRepair}}disabled{{/unless}}><i class="fas fa-screwdriver-wrench" inert></i> {{../labels.repair}}</button>
+            {{/if}}
+            {{#if installed}}
+            <button type="button" class="always-interactive hardwipe-btn is-queue" data-action="hardwipeCyberware" data-cyberware-action="remove"
+              data-tooltip="{{../labels.remove}}" aria-label="{{../labels.remove}}" {{#unless canRemove}}disabled{{/unless}}><i class="fas fa-eject" inert></i> {{../labels.removeShort}}</button>
+            {{else}}
+            <button type="button" class="always-interactive hardwipe-btn is-queue is-primary" data-action="hardwipeCyberware" data-cyberware-action="install"
+              data-tooltip="{{../labels.install}}" aria-label="{{../labels.install}}" {{#unless canInstall}}disabled{{/unless}}><i class="fas fa-arrow-down-to-bracket" inert></i> {{../labels.installShort}}</button>
+            {{/if}}
+            {{/if}}
+          </div>
+          {{/if}}
+        </li>
+        {{else}}
+        <li class="hardwipe-cyberware-empty"><i class="fas fa-microchip" inert></i><p>{{labels.empty}}</p></li>
+        {{/each}}
+      </ol>
+      <p class="hardwipe-inventory-note">{{labels.inventoryHint}}</p>
+      <p class="hardwipe-rest-note"><i class="fas fa-moon" inert></i> {{labels.restHint}}</p>
+    </div>
+  </div>
+  {{/with}}
+</section>
