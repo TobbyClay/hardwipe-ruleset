@@ -326,8 +326,6 @@ The compact Shield Block button appears on a damage card only when its applicabl
 
 Shield HP is stored on the actual Equipment Item. Its readout is a number badge beside one cell per HP point, with nothing drawn over the cells; it turns amber at 60% or less, red at 30% or less, and shows Broken at zero. The item editor and inventory meters refresh from that saved state after damage, healing, repair and Shield Block. Each client queues HP changes per shield, including Shield Block, so overlapping local edits use the result of the preceding write. The editor briefly disables all HP adjustment controls while its update is pending. HP stays within 0–10; zero marks the shield broken and unequips it. Healing or repair clears the broken state, but does not automatically re-equip the item. Macros can use `game.hardwipe.shields.damage(item, amount)`, `.heal(item, amount)` and `.repair(item)`.
 
-Global Power Attack, Called Shots and Sudden Charge have been removed from hooks, controls, dialogs and language strings. Power Attack can be designed later as a weapon property; Called Shots are deferred.
-
 Cover is a **two-dimensional footprint calculation within a Foundry scene level**. This release does not model wall height, elevation penetration, token silhouettes, destructible map artwork, automatic damage to Tiles, ricochets or bullet penetration. A breach changes Foundry wall geometry and therefore subsequent cover/vision/movement checks; background art remains unchanged. Implant content and balance are authored as normal Equipment Items and Active Effects; there is no new implant compendium in this release.
 
 ## Integration data
