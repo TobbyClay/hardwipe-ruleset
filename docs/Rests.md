@@ -23,7 +23,7 @@ Individual dice do not post separate chat cards. Completing the rest sends one c
 
 The health color changes from red below one third of maximum HP, to blue below two thirds, then green. The HP bar distinguishes starting HP from each die's healing and previews the next die's possible range. The trace animates like a medical monitor and stops under reduced motion.
 
-<img src="media/rest-medscan-live.gif" alt="Eight-second native recording of the med-scan and one actual Hit Die raising HP from 22 to 26" width="420">
+<img src="media/rest-medscan-live.gif" alt="Native recording of the med-scan and one actual Hit Die raising HP from 22 to 24" width="420">
 
 This live recording shows the monitor's motion and one real Hit Die recovery. [Static alternative](media/rest-current.png).
 

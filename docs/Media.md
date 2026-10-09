@@ -59,9 +59,9 @@ These native captures were prepared on **2026-10-09** in the local **0.7.41 audi
 | [resources-shield-current.png](media/resources-shield-current.png) | Expanded Strikes, Edge, shield durability, and disabled/damaged inventory actions. |
 | [cyberware-service-current.png](media/cyberware-service-current.png) | Expanded implant service controls. |
 | [cyberware-queue-current.png](media/cyberware-queue-current.png) | Queued implant removal, its current enabled state, and the Cancel control. |
-| [rest-medscan-live.gif](media/rest-medscan-live.gif) | Live short-rest monitor recording: 30 sequential native captures over 8.32 seconds; one actual Hit Die changes HP from 22 to 26. |
+| [rest-medscan-live.gif](media/rest-medscan-live.gif) | Live short-rest monitor recording: 30 sequential native captures; one actual Hit Die changes HP from 22 to 24. |
 
-The **rest recording** contains genuine native motion and one real Hit Die expenditure. It was assembled from 30 sequential captures over 8.32 seconds at 420 × 260 pixels. GIF encoding coalesces repeated frames into 18 stored frames while retaining the full duration; the motion was not fabricated between still states.
+The **rest recording** contains genuine native motion and one real Hit Die expenditure. It was assembled from 30 sequential full-viewport captures over 2.79 seconds, cropped afterward to the monitor at 420 × 260 pixels. The GIF keeps all 30 frames and plays for 3.09 seconds, including a final 300 ms hold. The motion was not fabricated between still states. Fresh screenshots were likewise cropped from full captures after verifying the window coordinates.
 
 The **wall glimpse** is a prepared damaged-stage example at 10/40 wall HP using the native appearance helpers. The screenshot shows the GM canvas view of that prepared state; it is not a player-login test or a recording of an attack being applied.
 

@@ -136,9 +136,9 @@ These four captures show the dialog rather than separate chat posts. Roll one Hi
 <details>
 <summary>Watch the native short-rest monitor in motion · audited preview</summary>
 
-<a href="media/rest-medscan-live.gif"><img src="media/rest-medscan-live.gif" alt="Recorded native short-rest ECG and HP display; one real Hit Die raises HP from 22 to 26" width="420"></a>
+<a href="media/rest-medscan-live.gif"><img src="media/rest-medscan-live.gif" alt="Recorded native short-rest ECG and HP display; one real Hit Die raises HP from 22 to 24" width="420"></a>
 
-Thirty sequential native captures over 8.32 seconds show the running trace and one actual Hit Die expenditure. [Recording provenance](Media.md#fresh-guide-screenshots-and-recording).
+Thirty sequential native captures show the running trace and one actual Hit Die expenditure. [Recording provenance](Media.md#fresh-guide-screenshots-and-recording).
 
 </details>
 

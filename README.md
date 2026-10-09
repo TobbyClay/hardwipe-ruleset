@@ -18,7 +18,7 @@ Ten body regions, real inventory items, visible charges, and clear implant state
 
 ## Rest at the safehouse
 
-<img src="docs/media/rest-medscan-live.gif" alt="Live Foundry recording: the med-scan animates and one Hit Die raises HP from 22 to 26" width="420">
+<img src="docs/media/rest-medscan-live.gif" alt="Live Foundry recording: the med-scan animates and one Hit Die raises HP from 22 to 24" width="420">
 
 Roll **one Hit Die at a time** inside the rest dialog. Watch HP recover, inspect each result, use eligible rest abilities, then send one combined receipt to chat. Queued implant swaps complete when the rest and service requirements are met.
 
