@@ -12,6 +12,15 @@ export const STATUSES = {
 
 const DOWNED_EFFECT_FLAG = "downed";
 const DEAD_CHAT_FLAG = "hardwipe-death";
+const actorStateUpdates = new Map();
+
+async function queueActorState(actor, operation) {
+  const previous = actorStateUpdates.get(actor.uuid) ?? Promise.resolve();
+  const pending = previous.catch(() => {}).then(() => canControlActor(actor) ? operation() : false);
+  actorStateUpdates.set(actor.uuid, pending);
+  try { return await pending; }
+  finally { if (actorStateUpdates.get(actor.uuid) === pending) actorStateUpdates.delete(actor.uuid); }
+}
 
 export class EdgeManager {
   static get api() {
@@ -30,27 +39,30 @@ export class EdgeManager {
   static async award(actor) {
     const target = resolveActor(actor);
     if (!target || !canControlActor(target)) return false;
-    await target.setFlag(MODULE_ID, FLAGS.EDGE, 1);
-    return true;
+    return queueActorState(target, async () => {
+      await target.setFlag(MODULE_ID, FLAGS.EDGE, 1);
+      return true;
+    });
   }
 
   static async spend(actor, reason = "") {
     const target = resolveActor(actor);
     if (!target || !canControlActor(target)) return false;
-    if (this.get(target) < 1) {
-      ui.notifications.warn(game.i18n.localize("HARDWIPE.Edge.None"));
-      return false;
-    }
-
-    await target.setFlag(MODULE_ID, FLAGS.EDGE, 0);
-    if (reason) await postSystemCard({
-      actor: target,
-      kind: "edge",
-      kicker: game.i18n.localize("HARDWIPE.Edge.Title"),
-      title: game.i18n.localize("HARDWIPE.Edge.Spent"),
-      subtitle: reason
+    return queueActorState(target, async () => {
+      if (this.get(target) < 1) {
+        ui.notifications.warn(game.i18n.localize("HARDWIPE.Edge.None"));
+        return false;
+      }
+      await target.setFlag(MODULE_ID, FLAGS.EDGE, 0);
+      if (reason) await postSystemCard({
+        actor: target,
+        kind: "edge",
+        kicker: game.i18n.localize("HARDWIPE.Edge.Title"),
+        title: game.i18n.localize("HARDWIPE.Edge.Spent"),
+        subtitle: reason
+      });
+      return true;
     });
-    return true;
   }
 }
 
@@ -72,6 +84,10 @@ export class StrikesManager {
     const target = resolveActor(actor);
     if (!target || !canControlActor(target)) return false;
 
+    return queueActorState(target, () => this._set(target, value, { announceDeath }));
+  }
+
+  static async _set(target, value, { announceDeath = true } = {}) {
     const strikes = clamp(Math.trunc(Number(value) || 0), 0, 3);
     await target.setFlag(MODULE_ID, FLAGS.STRIKES, strikes);
     if (strikes >= 3) await DownedManager.kill(target, { announce: announceDeath });
@@ -81,14 +97,16 @@ export class StrikesManager {
   static async add(actor) {
     const target = resolveActor(actor);
     if (!target || !canControlActor(target)) return false;
-    return this.set(target, this.get(target) + 1);
+    return queueActorState(target, () => this._set(target, this.get(target) + 1));
   }
 
   static async reset(actor) {
     const target = resolveActor(actor);
     if (!target || !canControlActor(target)) return false;
-    await target.setFlag(MODULE_ID, FLAGS.STRIKES, 0);
-    return true;
+    return queueActorState(target, async () => {
+      await target.setFlag(MODULE_ID, FLAGS.STRIKES, 0);
+      return true;
+    });
   }
 }
 

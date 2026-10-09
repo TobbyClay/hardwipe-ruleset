@@ -99,35 +99,41 @@ function snapshot(message) {
 
 /* Linking a request and its save ---------------------------------------------------------------- */
 
-/** The Concentration save rolled for a request: the next one for that actor, before any newer request. */
+/** Unlinked tokens can share an Actor ID; their concentration requests belong to distinct speakers. */
+function sameSpeaker(left, right) {
+  const a = left?.speaker ?? {};
+  const b = right?.speaker ?? {};
+  if (a.token || b.token) return !!a.token && a.token === b.token && a.scene === b.scene;
+  return !!a.actor && a.actor === b.actor;
+}
+
+/** The Concentration save rolled for a request: the next one for that speaker, before any newer request. */
 function linkedSave(request) {
   const messages = game.messages.contents;
-  const actorId = request.speaker?.actor;
   for (let i = messages.indexOf(request) + 1; i < messages.length; i++) {
     const message = messages[i];
-    if (message.speaker?.actor !== actorId) continue;
+    if (!sameSpeaker(message, request)) continue;
     if (message.flags?.[MODULE_ID]?.[FLAG]) return null;
     if (isConcentrationSave(message)) return message;
   }
   return null;
 }
 
-/** A newer concentration request for the same actor, posted before this one was answered. */
+/** A newer concentration request for the same speaker, posted before this one was answered. */
 function superseded(request) {
   const messages = game.messages.contents;
-  const actorId = request.speaker?.actor;
-  return messages.slice(messages.indexOf(request) + 1).some(message => message.speaker?.actor === actorId && message.flags?.[MODULE_ID]?.[FLAG]);
+  return messages.slice(messages.indexOf(request) + 1).some(message => sameSpeaker(message, request) && message.flags?.[MODULE_ID]?.[FLAG]);
 }
 
 /** The request a Concentration save answers, if it was rolled for one. */
 function linkedRequest(save) {
   const messages = game.messages.contents;
-  const actorId = save.speaker?.actor;
   for (let i = messages.indexOf(save) - 1; i >= 0; i--) {
     const message = messages[i];
-    if (message.speaker?.actor !== actorId) continue;
+    if (!sameSpeaker(message, save)) continue;
     if (isConcentrationSave(message)) return null;
-    if (message.flags?.[MODULE_ID]?.[FLAG]?.kind === "check") return message;
+    const kind = message.flags?.[MODULE_ID]?.[FLAG]?.kind;
+    if (kind) return kind === "check" ? message : null;
   }
   return null;
 }
@@ -148,6 +154,7 @@ const slug = name => String(name ?? "program").toLowerCase().normalize("NFKD").r
 const uptime = seconds => [Math.floor(seconds / 3600), Math.floor(seconds / 60) % 60, seconds % 60].map(n => String(n).padStart(2, "0")).join(":");
 
 function rollResult(save, dc) {
+  if (!save?.isContentVisible) return null;
   const roll = save?.rolls?.[0];
   if (!roll) return null;
   const total = Number(roll.total);
@@ -174,6 +181,8 @@ function render(message, html) {
   const owner = !!actor?.isOwner;
   const save = data.kind === "check" ? linkedSave(message) : null;
   const result = rollResult(save, data.dc);
+  // A private answer still prevents duplicate rolls, but its result belongs only to its recipients.
+  const privateAnswer = !!save && !save.isContentVisible;
   // An unanswered request is stale once a newer one replaces it or the program has stopped.
   const stale = data.kind === "check" && !result && (!live || superseded(message));
   const state = data.kind === "end" ? (live ? "offline" : "ended")
@@ -198,7 +207,7 @@ function render(message, html) {
     interrupt: `<div class="hardwipe-conc-screen is-interrupt"><div class="face">!</div>
       <div class="title">${t("InterruptTitle", { program: spellName })}</div>
       <div class="text">${data.damage ? t("InterruptDamage", { damage: `<b>${data.damage}</b>` }) : t("InterruptHit")} ${t("InterruptCheck", { ability: `<b>${escapeHTML(game.i18n.localize(CONFIG.DND5E.abilities?.[data.ability]?.label ?? "DND5E.AbilityCon"))}</b>`, dc: `<b>${data.dc ?? 10}</b>` })}</div>
-      ${stale ? `<div class="pct">${escapeHTML(t(live ? "Superseded" : "NotRunning"))}</div>` : owner ? `<button type="button" class="hardwipe-conc-save" data-hw-conc="roll"><i class="fas fa-dice-d20" inert></i><span>${escapeHTML(t("Roll", { ability: abilityLabel }))}</span><small>${escapeHTML(t("DC", { dc: data.dc ?? 10 }))}</small></button>
+      ${privateAnswer ? `<div class="pct">${escapeHTML(t("FootHandled"))}</div>` : stale ? `<div class="pct">${escapeHTML(t(live ? "Superseded" : "NotRunning"))}</div>` : owner ? `<button type="button" class="hardwipe-conc-save" data-hw-conc="roll"><i class="fas fa-dice-d20" inert></i><span>${escapeHTML(t("Roll", { ability: abilityLabel }))}</span><small>${escapeHTML(t("DC", { dc: data.dc ?? 10 }))}</small></button>
         <div class="note">${escapeHTML(t("FailNote"))}</div>`
         : `<div class="pct">${escapeHTML(t("Waiting", { name: actor?.name ?? "" }))}</div>`}</div>`,
     held: `<div class="hardwipe-conc-screen is-held"><div class="face">:)</div>
@@ -217,7 +226,7 @@ function render(message, html) {
       <div class="title">${escapeHTML(t("OfflineTitle"))}</div>
       <div class="text">${t("EndedText", { program: spellName })}</div></div>`
   };
-  const foot = {
+  const foot = privateAnswer ? [t("FootHandled"), ""] : {
     interrupt: [t("FootConcentration"), t("FootAwaiting")], held: [t("FootHandled"), "Exit 0"], lost: [t("FootLost"), "Exit 139"],
     offline: [t("FootConcentration"), t("HostDown")], ended: [t("FootLost"), "Exit 0"]
   }[state];
@@ -245,8 +254,9 @@ function render(message, html) {
 
 /** A save rolled from a request is shown in that request's window; its own card collapses to a line. */
 function collapseSave(message, element) {
+  if (!message.isContentVisible) return;
   const request = linkedRequest(message);
-  if (!request) return;
+  if (!request?.isContentVisible) return;
   const content = element.querySelector(".message-content");
   if (!content || content.querySelector(":scope > .hardwipe-conc-linked")) return;
   const file = `${slug(request.flags[MODULE_ID][FLAG].spells?.[0]?.name)}.prg`;

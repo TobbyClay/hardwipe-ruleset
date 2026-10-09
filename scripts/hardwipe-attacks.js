@@ -1,7 +1,7 @@
 import { MODULE_ID, escapeHTML, plainActivityLabel } from "./hardwipe-state.js";
 import { HardwipeRules } from "./hardwipe-rules.js";
 import {
-  bindBrief, briefHTML, decorateRollCard, fallenTargets, insertAfterDamage, markDamageTypes, stampHTML, propertyChipsHTML, rarityClasses, recordSaveTargets, saveBlock, saveState
+  aggregateCriticalDamage, bindBrief, briefHTML, decorateRollCard, fallenTargets, insertAfterDamage, markDamageTypes, stampHTML, propertyChipsHTML, rarityClasses, recordSaveTargets, saveBlock, saveState
 } from "./hardwipe-attack-cards.js";
 import { isSpellCard, renderSpellCard } from "./hardwipe-spell-cards.js";
 import { isImplantCard, renderImplantCard } from "./hardwipe-implant-cards.js";
@@ -76,6 +76,9 @@ export class AttackReviewManager {
     Hooks.on("midi-qol.AttackRollComplete", workflow => this._guard(workflow, () => this._holdWithoutDamage(workflow)));
     Hooks.on("midi-qol.DamageRollComplete", workflow => this._guard(workflow, () => this._holdForDamage(workflow)));
     Hooks.on("midi-qol.preWaitForSaves", workflow => this._guard(workflow, () => this._beforeSaves(workflow)));
+    // ShieldManager invokes the same idempotent callback before offering a block.
+    Hooks.on("midi-qol.preTargetDamageApplication", (token, { workflow, damageItem } = {}) =>
+      workflow?.hardwipeCriticalDamage?.apply(token, damageItem));
     // The caster's client records who must save, so every client can list them while they roll.
     Hooks.on("midi-qol.preCheckSaves", workflow => recordSaveTargets(workflow));
     Hooks.on("midi-qol.RollComplete", workflow => recordSaveTargets(workflow));
@@ -153,6 +156,8 @@ export class AttackReviewManager {
 
   static async _onHitsChecked(workflow) {
     const key = attackKey(workflow);
+    // A completed mixed roll may be rerolled on the same usage card.
+    if (workflow.hardwipeAttack?.key !== key) delete workflow.hardwipeCriticalDamage;
     if (!this.isReviewedWorkflow(workflow) || workflow.hardwipeAttack?.key === key || workflow.aborted) return;
     const card = workflow.chatCard;
     if (!card) throw new Error("The attack has no chat card for GM approval.");
@@ -323,7 +328,16 @@ export class AttackReviewManager {
         if (!current()) return;
         await workflow.displayDamageRolls();
       } else if (bonus?.total > 0) {
-        await MidiQOL.applyTokenDamage(bonus.detail, bonus.total, new Set(critTokens), workflow.item, new Set(), { workflow, forceApply: true });
+        // Mixed outcomes need target-specific damage. Keep it in Midi's ordinary application,
+        // after saves/defenses and before Shield Block, including manual-apply modes.
+        const targets = new Set(critTokens.map(token => token.document.uuid));
+        const applied = new WeakSet();
+        workflow.hardwipeCriticalDamage = {
+          apply: (token, damageItem) => this._applyCriticalDamage(workflow, card, key, targets, bonus.detail, applied, token, damageItem)
+        };
+        for (const token of critTokens) stateTarget(state, token.document.uuid).critBonusDetail = bonus.detail.map(part => ({
+          type: part.type, value: part.value, properties: [...part.properties]
+        }));
       }
       if (!current()) return;
       if (bonus?.total > 0) for (const token of critTokens) stateTarget(state, token.document.uuid).critBonus = bonus.total;
@@ -333,6 +347,51 @@ export class AttackReviewManager {
     if (!current()) return;
     await card.setFlag(MODULE_ID, CARD_FLAG, state);
     if (current()) attack.pending = false;
+  }
+
+  static async _applyCriticalDamage(workflow, card, key, targets, bonus, applied, token, damageItem) {
+    const uuid = token?.document?.uuid;
+    const state = game.messages.get(card?.id)?.getFlag(MODULE_ID, CARD_FLAG);
+    if (!damageItem) return;
+    if (workflow.aborted) { clearTargetDamage(damageItem, token?.actor); return; }
+    if (applied.has(damageItem) || !targets.has(uuid) || damageItem.damageSelector !== "combinedDamage") return;
+    try {
+    if (!this._matchesAttack(card, key, workflow) || state?.status !== "resolved"
+      || stateTarget(state, uuid)?.outcome !== "critical") throw new Error("The confirmed critical is no longer current.");
+    const details = damageItem.damageDetails;
+    const options = details?.calcDamageOptions?.defaultDamage;
+    if (!options || !Array.isArray(details.rawdefaultDamage) || !token.actor?.calculateDamage) {
+      // Incompatible damage data must never silently turn a critical into a normal hit.
+      throw new Error("The confirmed critical has no native damage calculation context. Roll the attack again.");
+    }
+    const rawDefault = aggregateCriticalDamage([...details.rawdefaultDamage, ...foundry.utils.deepClone(bonus)]);
+    const calculation = foundry.utils.deepClone(options);
+    calculation.midi = { ...calculation.midi, isCritical: true };
+    const calculated = token.actor.calculateDamage(rawDefault, calculation);
+    if (!Array.isArray(calculated)) throw new Error("The confirmed critical damage calculation was canceled.");
+    const single = !!MidiQOL.configSettings().singleConcentrationRoll;
+    const combined = [...calculated, ...(details.bonusDamage ?? []), ...(single ? details.otherDamage ?? [] : [])];
+    const rawCombined = [...rawDefault, ...(details.rawbonusDamage ?? []), ...(single ? details.rawotherDamage ?? [] : [])];
+    details.defaultDamage = calculated;
+    details.rawdefaultDamage = rawDefault;
+    details.calcDamageOptions.defaultDamage = calculation;
+    details.calcDamageOptions.combinedDamage = calculation;
+    details.combinedDamage = combined;
+    details.rawcombinedDamage = rawCombined;
+    damageItem.damageDetail = combined;
+    damageItem.rawDamageDetail = rawCombined;
+    damageItem.calcDamageOptions = calculation;
+    damageItem.critical = true;
+    updateDamagePreview(damageItem, token.actor);
+    applied.add(damageItem);
+    } catch (error) {
+      // Midi logs hook errors and continues. Clear receipts before aborting so no ordinary
+      // or follow-up damage can slip through when this target cannot be calculated safely.
+      for (const receipt of workflow.damageList ?? []) clearTargetDamage(receipt, foundry.utils.fromUuidSync(receipt.actorUuid));
+      clearTargetDamage(damageItem, token?.actor);
+      console.error(`${MODULE_ID} | Critical damage stopped the workflow`, error);
+      await this._stop(workflow);
+    }
   }
 
   static _resolveLocal(cardId, outcomes, key) {
@@ -421,40 +480,17 @@ export class AttackReviewManager {
     return true;
   }
 
-  /** The attacker's workflow is gone (reload or disconnect): apply rolled damage from the stored card. */
+  /** A stored card cannot reconstruct pending saves, defenses or reactions after a disconnect. */
   static async _applyFromGM(data, final) {
     const card = game.messages.get(data.cardId);
     const current = () => this._matchesAttack(card, data.attackKey, this._pending.get(data.cardId)?.workflow);
     if (!current()) return;
-    const midi = card.flags?.[MIDI] ?? {};
-    const detail = (midi.damageDetail ?? []).map(part => ({ type: part.type, value: Number(part.value ?? part.damage) || 0 })).filter(part => part.value);
-    const total = Number(midi.damageTotal) || detail.reduce((sum, part) => sum + part.value, 0);
-    const item = await fromUuid(card.flags?.dnd5e?.item?.uuid ?? "").catch(() => null);
-    if (!current()) return;
     const state = foundry.utils.deepClone(card.getFlag(MODULE_ID, CARD_FLAG) ?? { version: 1, targets: [] });
-    const hits = new Set(), crits = new Set();
-    for (const [uuid, outcome] of Object.entries(final)) {
-      const token = foundry.utils.fromUuidSync(uuid)?.object;
-      const target = stateTarget(state, uuid);
-      if (target) target.outcome = outcome;
-      if (!token || !["hit", "critical"].includes(outcome)) continue;
-      hits.add(token);
-      if (outcome === "critical" && !midi.isCritical) crits.add(token);
-    }
-    if (detail.length && hits.size) await MidiQOL.applyTokenDamage(detail, total, hits, item, new Set(), { forceApply: true });
-    if (crits.size) {
-      const damageRolls = (card.rolls ?? []).filter(roll => roll instanceof CONFIG.Dice.DamageRoll);
-      const bonus = await rollCriticalDice(damageRolls);
-      if (!current()) return;
-      if (bonus?.total > 0) {
-        await MidiQOL.applyTokenDamage(bonus.detail, bonus.total, crits, item, new Set(), { forceApply: true });
-        for (const token of crits) stateTarget(state, token.document.uuid).critBonus = bonus.total;
-      }
-    }
-    state.status = "resolved";
-    state.application = "gm";
+    state.unavailable = true;
+    state.unavailableReason = "The attacker's live workflow is unavailable. Roll the attack again so saves and Shield Block can resolve.";
     if (!current()) return;
     await card.setFlag(MODULE_ID, CARD_FLAG, state);
+    ui.notifications.error(state.unavailableReason);
   }
 
   // ---- Rendering ----
@@ -466,7 +502,7 @@ export class AttackReviewManager {
 
   static _onRenderAttack(message, html) {
     const element = html?.querySelector ? html : html?.[0];
-    if (!element) return;
+    if (!element || !message.isContentVisible) return;
     // Checks, saves, death saves and initiative: the check panel.
     if (isCheckCard(message)) {
       renderCheckCard(message, element);
@@ -625,9 +661,39 @@ async function rollCriticalDice(damageRolls) {
   if (!results.length) return null;
   return {
     total: results.reduce((sum, part) => sum + part.value, 0),
-    detail: results.map(({ type, value }) => ({ type, value })),
+    detail: results.map(({ type, value, roll }) => ({ type, value, properties: new Set(roll.options.properties ?? []) })),
     rolls: results.map(part => part.roll)
   };
+}
+
+/** Keep Midi's legacy preview fields consistent with the recalculated target detail. */
+function updateDamagePreview(damageItem, actor) {
+  const hp = actor.system.attributes.hp;
+  let amount = 0, temp = 0;
+  for (const damage of damageItem.damageDetail) {
+    if (damage.type === "temphp") temp += Number(damage.value) || 0;
+    else if (!["midi-none", "vitality", "maximum"].includes(damage.type)) amount += Number(damage.value) || 0;
+  }
+  amount = amount < 0 ? Math.ceil(amount) : Math.floor(amount);
+  const deltaTemp = amount > 0 ? Math.min(Number(hp.temp) || 0, amount) : 0;
+  const deltaHP = Math.clamp(amount - deltaTemp, -(Number(hp.damage) || 0), Number(hp.value) || 0);
+  damageItem.hpDamage = deltaHP;
+  damageItem.tempDamage = deltaTemp;
+  damageItem.newHP = hp.value - deltaHP;
+  damageItem.newTempHP = Math.floor(Math.max(0, (Number(hp.temp) || 0) - deltaTemp, temp));
+  damageItem.totalDamage = damageItem.damageDetail.reduce((sum, damage) =>
+    ["temphp", "midi-none", "vitality", "maximum", "healing"].includes(damage.type) ? sum : sum + (Number(damage.value) || 0), 0);
+  damageItem.healingAdjustedTotalDamage = amount;
+}
+
+function clearTargetDamage(damageItem, actor) {
+  damageItem.damageDetail = [];
+  damageItem.rawDamageDetail = [];
+  for (const key of ["defaultDamage", "bonusDamage", "otherDamage", "combinedDamage", "rawdefaultDamage", "rawbonusDamage", "rawotherDamage", "rawcombinedDamage"])
+    if (damageItem.damageDetails) damageItem.damageDetails[key] = [];
+  Object.assign(damageItem, { hpDamage: 0, tempDamage: 0, totalDamage: 0, healingAdjustedTotalDamage: 0,
+    newHP: actor?.system.attributes.hp.value ?? damageItem.oldHP,
+    newTempHP: actor?.system.attributes.hp.temp ?? damageItem.oldTempHP });
 }
 
 function attackKind(activity, melee) {

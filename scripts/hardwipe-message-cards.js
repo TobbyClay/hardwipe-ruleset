@@ -44,6 +44,7 @@ function rerender(filter) {
 }
 
 function render(message, html) {
+  if (!message.isContentVisible) return;
   const element = html?.querySelector ? html : html?.[0];
   const content = element?.querySelector(".message-content");
   if (!content) return;

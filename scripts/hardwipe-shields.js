@@ -4,6 +4,7 @@ import {
   escapeHTML,
   resolveActor
 } from "./hardwipe-state.js";
+import { aggregateCriticalDamage } from "./hardwipe-attack-cards.js";
 
 const SHIELD_FLAG = "shield";
 const DEFAULT_SHIELD_HP = 10;
@@ -15,6 +16,9 @@ export class ShieldManager {
   static _chatElements = new Map();
   static _refreshTimer = null;
   static _initialized = false;
+  static _socket = null;
+  static _workflowRequests = new Map();
+  static _workflowApplications = new Set();
 
   static initialize() {
     if (this._initialized) return;
@@ -24,17 +28,155 @@ export class ShieldManager {
       this.injectChatButton(message, element);
       setTimeout(() => this.injectChatButton(message, element), 0);
     });
+    this._registerSocket();
+    Hooks.on("socketlib.ready", () => this._registerSocket());
+    Hooks.once("ready", () => this._registerSocket());
+    // Midi awaits this hook after saves and resistance calculation, before applying HP/temp HP.
+    Hooks.on("midi-qol.preTargetDamageApplication", (token, data) => this._beforeWorkflowDamage(token, data));
+    Hooks.on("updateChatMessage", () => this._scheduleChatRefresh());
     for (const hook of ["controlToken", "targetToken", "canvasReady", "updateActor", "createItem", "updateItem",
       "deleteItem", "createActiveEffect", "updateActiveEffect", "deleteActiveEffect", "updateUser"]) {
       Hooks.on(hook, () => this._scheduleChatRefresh());
     }
     Hooks.on("deleteChatMessage", message => {
+      for (const key of this._workflowRequests.keys()) if (key.startsWith(`${message.id}:`)) this._workflowRequests.delete(key);
+      for (const key of this._workflowApplications) if (key.startsWith(`${message.id}:`)) this._workflowApplications.delete(key);
       for (const [element, state] of this._chatElements) {
         if (state.message.id !== message.id) continue;
         state.observer.disconnect();
         this._chatElements.delete(element);
       }
     });
+  }
+
+  static _registerSocket() {
+    if (this._socket || !globalThis.socketlib) return;
+    this._socket = socketlib.registerModule(MODULE_ID);
+    this._socket?.register("requestShieldBlock", function(payload) {
+      return ShieldManager._requestWorkflowBlock(payload, this.socketdata?.userId);
+    });
+  }
+
+  static async _beforeWorkflowDamage(token, { workflow, damageItem } = {}) {
+    const card = game.messages.get(workflow?.chatCard?.id);
+    const actor = token?.actor;
+    const review = card?.flags?.[MODULE_ID]?.attackReview;
+    if (!review || !actor || !damageItem || workflow.hardwipeAttack?.key !== review.attackKey) return;
+    // A reviewed target's additional critical dice must be mitigated before its shield choice.
+    await workflow.hardwipeCriticalDamage?.apply?.(token, damageItem);
+    const automatic = this._workflowAppliesDamage(actor);
+    // Remember the mode used by this attack, so changing Midi settings later cannot re-enable overflow.
+    const routing = (card.flags?.[MODULE_ID]?.shieldDamageRouting ?? [])
+      .filter(entry => entry.targetUuid !== token.document.uuid || entry.attackKey !== review.attackKey);
+    routing.push({ targetUuid: token.document.uuid, actorUuid: actor.uuid, attackKey: review.attackKey, automatic });
+    try { await card.setFlag(MODULE_ID, "shieldDamageRouting", routing); }
+    catch (error) { console.warn(`${MODULE_ID} | Could not record shield damage routing`, error); return; }
+    if (!automatic || !this._getEquippedShield(actor)) return;
+    const permission = this._attackPermission(card, actor, workflow.hardwipeAttack?.key, { workflow: true, targetUuid: token.document.uuid });
+    if (!permission.allowed || !this._hasReaction(actor) || !globalThis.MidiQOL?.modifyDamageBy) return;
+    // Calculated details include saves, resistance, immunity and damage reductions. Ignore temp/max HP grants.
+    const amount = Math.max(0, Math.floor((damageItem.damageDetail ?? []).reduce((sum, damage) => {
+      return ["temphp", "vitality", "maximum", "midi-none"].includes(damage.type) ? sum : sum + (Number(damage.value) || 0);
+    }, 0)));
+    if (!amount) return;
+    const key = this._workflowKey(card.id, permission.attackKey, token.document.uuid);
+    if (this._workflowApplications.has(key)) return;
+    const preferred = MidiQOL.playerFor?.(token);
+    const owner = preferred?.active && actor.testUserPermission(preferred, "OWNER") ? preferred
+      : game.users.find(user => user.active && !user.isGM && actor.testUserPermission(user, "OWNER"))
+        ?? game.users.activeGM;
+    if (!owner?.active) return; // A missing defender never invents a Shield Block.
+    const payload = { cardId: card.id, attackKey: permission.attackKey, targetUuid: token.document.uuid, amount };
+    let result;
+    try {
+      if (owner.id === game.user.id) result = await this._requestWorkflowBlock(payload, game.user.id);
+      else if (this._socket) result = await this._socket.executeAsUser("requestShieldBlock", owner.id, payload);
+    } catch (error) {
+      console.warn(`${MODULE_ID} | Shield response unavailable; applying the approved damage normally`, error);
+      return;
+    }
+    if (!result?.absorbed || this._workflowApplications.has(key)
+      || !this._attackPermission(card, actor, permission.attackKey, { workflow: true, targetUuid: token.document.uuid }).allowed) return;
+    this._workflowApplications.add(key);
+    MidiQOL.modifyDamageBy({ damageItem, value: -Math.min(amount, result.absorbed), type: "none", reason: "Shield Block" });
+    this._refreshDamageReceipt(actor, damageItem);
+    // Bound completed-card bookkeeping without disturbing a live request.
+    if (this._workflowApplications.size > 256) this._workflowApplications.delete(this._workflowApplications.values().next().value);
+  }
+
+  static _workflowKey(cardId, attackKey, targetUuid) {
+    return `${cardId}:${attackKey}:${targetUuid}`;
+  }
+
+  static _refreshDamageReceipt(actor, damageItem) {
+    const hp = actor.system?.attributes?.hp;
+    if (!hp) return;
+    // Midi's legacy mode trusts hpDamage, which originally excludes temp HP and caps overkill.
+    // Recompute it from the modified details; this also keeps isDamaged hooks accurate in detail mode.
+    const totals = (damageItem.damageDetail ?? []).reduce((sum, damage) => {
+      const value = Number(damage.value) || 0;
+      if (damage.type === "temphp") sum.temp += value;
+      else if (damage.type === "maximum") sum.tempMax += value;
+      else if (damage.type === "healing" || damage.active?.absorption || damage.active?.type?.absorption) sum.healing += value;
+      else if (!["midi-none", "vitality"].includes(damage.type)) sum.damage += value;
+      return sum;
+    }, { damage: 0, healing: 0, temp: 0, tempMax: 0 });
+    const amount = Math.trunc(Math.max(0, totals.damage) + totals.healing);
+    const tempMax = Math.trunc(totals.tempMax);
+    const oldTemp = Number(hp.temp) || 0;
+    const tempDamage = amount > 0 ? Math.min(oldTemp, amount) : 0;
+    const hpDamage = clamp(amount - tempDamage, -(Number(hp.damage) || 0) + tempMax, hp.value - tempMax);
+    Object.assign(damageItem, {
+      hpDamage, tempDamage, newHP: hp.value - hpDamage,
+      newTempHP: Math.max(oldTemp - tempDamage, totals.temp),
+      healingAdjustedTotalDamage: amount
+    });
+  }
+
+  static _workflowAppliesDamage(actor) {
+    const mode = globalThis.MidiQOL?.configSettings?.()?.autoApplyDamage;
+    return ["yes", "yesCard", "yesCardMisses"].includes(mode) || (mode === "yesCardNPC" && actor?.type !== "character");
+  }
+
+  static async _requestWorkflowBlock(payload, senderId) {
+    const sender = game.users.get(senderId);
+    const card = game.messages.get(payload?.cardId);
+    const token = foundry.utils.fromUuidSync(payload?.targetUuid ?? "", { strict: false });
+    const actor = token?.actor;
+    const amount = Number(payload?.amount);
+    if (!sender || !card || typeof payload?.attackKey !== "string" || !payload.attackKey
+      || (!sender.isGM && card.author?.id !== sender.id) || !actor || !canControlActor(actor)
+      || !Number.isFinite(amount) || amount <= 0
+      || !this._attackPermission(card, actor, payload.attackKey, { workflow: true, targetUuid: payload.targetUuid }).allowed) return false;
+    const key = this._workflowKey(card.id, payload.attackKey, payload.targetUuid);
+    if (this._workflowRequests.has(key)) return this._workflowRequests.get(key);
+    const pending = this._chooseWorkflowBlock(actor, card, { ...payload, amount });
+    this._workflowRequests.set(key, pending);
+    try { return await pending; }
+    finally {
+      if (this._workflowRequests.size > 256) this._workflowRequests.delete(this._workflowRequests.keys().next().value);
+    }
+  }
+
+  static async _chooseWorkflowBlock(actor, card, payload) {
+    if (!this.canBlock(actor)) return false;
+    const shield = this.get(actor);
+    const absorb = Math.min(shield.hp, payload.amount);
+    const accepted = await foundry.applications.api.DialogV2.confirm({
+      window: { title: `${actor.name}: Shield Block` },
+      content: `<p>${escapeHTML(actor.name)} will take <strong>${payload.amount}</strong> damage after saves and defenses.</p>
+        <p>Spend your reaction and <strong>${absorb} shield HP</strong> to absorb that amount?</p>`,
+      yes: { label: game.i18n.localize("HARDWIPE.Shield.Block"), icon: "fas fa-shield-halved" },
+      no: { label: "Take damage", icon: "fas fa-check" },
+      rejectClose: false
+    });
+    if (!accepted) return false;
+    const result = await this.block(actor, [{ value: payload.amount, type: "none" }], {
+      originatingMessage: card, origin: card, hardwipeWorkflowShield: true,
+      hardwipeShieldAttackKey: payload.attackKey, hardwipeShieldTargetUuid: payload.targetUuid
+    });
+    // Socket responses carry only the receipt, never Actor/Item Documents.
+    return result ? { absorbed: result.absorbed, remaining: result.remaining, hp: result.hp, max: result.max, broken: result.broken } : false;
   }
 
   static _scheduleChatRefresh() {
@@ -149,6 +291,10 @@ export class ShieldManager {
 
     // A cover-only damage roll never reached a character and cannot spend its shield reaction.
     if (this._isWallOnlyDamage(options.originatingMessage ?? options.origin)) return false;
+    const permission = this._attackPermission(options.originatingMessage ?? options.origin, actor, options.hardwipeShieldAttackKey,
+      { workflow: !!options.hardwipeWorkflowShield, targetUuid: options.hardwipeShieldTargetUuid });
+    if (!permission.allowed) return false;
+    options = { ...options, hardwipeShieldAttackKey: permission.attackKey };
 
     const item = this._getEquippedShield(actor);
     if (!item) {
@@ -160,6 +306,9 @@ export class ShieldManager {
   }
 
   static async _blockWithShield(actor, item, damages, options) {
+    // State can change while another shield HP edit is queued. Read the canonical card again.
+    if (!this._attackPermission(options.originatingMessage ?? options.origin, actor, options.hardwipeShieldAttackKey,
+      { workflow: !!options.hardwipeWorkflowShield, targetUuid: options.hardwipeShieldTargetUuid }).allowed) return false;
     if (this._getEquippedShield(actor)?.uuid !== item.uuid) {
       ui.notifications.warn(game.i18n.localize("HARDWIPE.Shield.None"));
       return false;
@@ -176,7 +325,16 @@ export class ShieldManager {
       return false;
     }
 
-    const incoming = this._normalizeDamages(damages, options);
+    let incoming;
+    if (options.hardwipeWorkflowShield) incoming = this._normalizeDamages(damages, options);
+    else {
+      const parts = this._manualDamageParts(actor, damages, options);
+      if (!parts) return false;
+      const calculated = actor.calculateDamage(parts, { ...options, only: "damage" });
+      if (!calculated) return false;
+      // Defenses apply once before the shield; only the resulting damage can consume shield HP.
+      incoming = [{ value: Math.max(0, Math.trunc(calculated.amount)), type: "none" }];
+    }
     const incomingTotal = incoming.reduce((total, damage) => total + Math.max(0, Number(damage.value) || 0), 0);
     if (incomingTotal <= 0) {
       ui.notifications.warn(game.i18n.localize("HARDWIPE.Shield.NoDamage"));
@@ -198,8 +356,8 @@ export class ShieldManager {
       broken: state.hp - absorbed <= 0
     });
 
-    if (remaining > 0) {
-      const applyOptions = { ...options, multiplier: 1, hardwipeShieldBlock: true };
+    if (remaining > 0 && !options.hardwipeWorkflowShield) {
+      const applyOptions = { ...options, multiplier: 1, ignore: true, invertHealing: false, only: "damage", hardwipeShieldBlock: true };
       await actor.applyDamage(remainingDamages, applyOptions);
     }
 
@@ -250,7 +408,8 @@ export class ShieldManager {
 
   static async _onNativeBlock(message, damageApplication) {
     if (this._isWallOnlyDamage(message)) return;
-    const candidates = this._getNativeCandidates(damageApplication);
+    const candidates = this._getNativeCandidates(damageApplication)
+      .filter(candidate => this._attackPermission(message, candidate.actor, null, { targetUuid: candidate.options?.hardwipeShieldTargetUuid }).allowed);
     const candidate = await this._chooseCandidate(candidates);
     if (!candidate) return;
     await this.block(candidate.actor, candidate.damages, {
@@ -264,10 +423,13 @@ export class ShieldManager {
   static async _onRSRBlock(message) {
     if (this._isWallOnlyDamage(message)) return;
     const damages = this._getMessageDamages(message);
-    const candidates = this._getCurrentCandidates().map(candidate => ({ ...candidate, damages }));
+    const candidates = this._getCurrentCandidates().filter(candidate => this._attackPermission(message, candidate.actor, null,
+      { targetUuid: candidate.options?.hardwipeShieldTargetUuid }).allowed)
+      .map(candidate => ({ ...candidate, damages }));
     const candidate = await this._chooseCandidate(candidates);
     if (!candidate) return;
     await this.block(candidate.actor, candidate.damages, {
+      ...candidate.options,
       multiplier: 1,
       originatingMessage: message,
       origin: message
@@ -280,7 +442,7 @@ export class ShieldManager {
     const candidates = this._getNativeCandidates(damageApplication, { available: false });
     let button = wrapper.querySelector("[data-hardwipe-shield-block]");
     if (!candidates.length) { button?.remove(); return; }
-    if (button) { this._updateButton(button, candidates); return; }
+    if (button) { this._updateButton(button, candidates, message); return; }
 
     button = this._buildButton(element.ownerDocument);
     button.addEventListener("click", event => {
@@ -289,7 +451,7 @@ export class ShieldManager {
       void this._onNativeBlock(message, damageApplication);
     });
     wrapper.appendChild(button);
-    this._updateButton(button, candidates);
+    this._updateButton(button, candidates, message);
   }
 
   static _injectRSRButton(message, element, rsrButtons) {
@@ -299,7 +461,7 @@ export class ShieldManager {
     const existing = damageResult.querySelector(".hardwipe-shield-block-row");
     if (!candidates.length) { existing?.remove(); return; }
     if (existing) {
-      this._updateButton(existing.querySelector("[data-hardwipe-shield-block]"), candidates);
+      this._updateButton(existing.querySelector("[data-hardwipe-shield-block]"), candidates, message);
       return;
     }
     if (damageResult.querySelector("[data-hardwipe-shield-block]")) return;
@@ -319,7 +481,7 @@ export class ShieldManager {
     });
     row.appendChild(button);
     rsrButtons.insertAdjacentElement("afterend", row);
-    this._updateButton(button, candidates);
+    this._updateButton(button, candidates, message);
   }
 
   static _buildButton(ownerDocument = document) {
@@ -332,10 +494,17 @@ export class ShieldManager {
     return button;
   }
 
-  static _updateButton(button, candidates) {
-    const available = candidates.some(candidate => this.canBlock(candidate.actor));
+  static _updateButton(button, candidates, message) {
+    const permitted = candidates.filter(candidate => this._attackPermission(message, candidate.actor, null,
+      { targetUuid: candidate.options?.hardwipeShieldTargetUuid }).allowed);
+    const available = permitted.some(candidate => this.canBlock(candidate.actor));
     button.disabled = !available;
     button.ariaDisabled = String(!available);
+    if (!permitted.length) {
+      button.title = this._attackPermission(message, candidates[0]?.actor, null,
+        { targetUuid: candidates[0]?.options?.hardwipeShieldTargetUuid }).reason;
+      return;
+    }
     const broken = candidates.every(candidate => this.get(candidate.actor)?.broken);
     button.title = game.i18n.localize(available ? "HARDWIPE.Shield.Block" : broken
       ? "HARDWIPE.Shield.Broken" : "HARDWIPE.Shield.ReactionSpent");
@@ -363,7 +532,7 @@ export class ShieldManager {
       candidates.push({
         actor,
         damages,
-        options: damageApplication.getMergedOptions?.(uuid) ?? damageApplication.getTargetOptions?.(uuid) ?? {},
+        options: { ...(damageApplication.getMergedOptions?.(uuid) ?? damageApplication.getTargetOptions?.(uuid) ?? {}), hardwipeShieldTargetUuid: uuid },
         label: actor.name
       });
     }
@@ -384,7 +553,7 @@ export class ShieldManager {
       if (!actor || seen.has(actor.uuid) || !canControlActor(actor) || !this._getEquippedShield(actor)
         || (available && !this.canBlock(actor))) continue;
       seen.add(actor.uuid);
-      candidates.push({ actor, label: token.name ?? actor.name });
+      candidates.push({ actor, label: token.name ?? actor.name, options: { hardwipeShieldTargetUuid: token.document.uuid } });
     }
     return candidates;
   }
@@ -433,6 +602,34 @@ export class ShieldManager {
     const resolved = message?.flags?.["midi-qol"]?.resolvedTargetACs;
     return Boolean(impacts?.length && Array.isArray(resolved) && resolved.length
       && !resolved.some(target => target.isHit || target.isHitEC));
+  }
+
+  /** Approval belongs to the stored attack and this exact target, never a rendered card snapshot. */
+  static _attackPermission(message, actor, expectedKey, { workflow = false, targetUuid = null } = {}) {
+    if (!message) return { allowed: true };
+    const canonical = message.id ? game.messages.get(message.id) : message;
+    const snapshot = message.flags?.[MODULE_ID]?.attackReview;
+    if (!canonical) return snapshot ? { allowed: false, reason: "This attack card is no longer available." } : { allowed: true };
+    const review = canonical.flags?.[MODULE_ID]?.attackReview;
+    if (!review) return snapshot ? { allowed: false, reason: "This attack review is no longer current." } : { allowed: true };
+    if (review.unavailable) return { allowed: false, reason: game.i18n.localize("HARDWIPE.Attack.ReviewUnavailable") };
+    if (review.status !== "resolved") return { allowed: false, reason: game.i18n.localize("HARDWIPE.Attack.ApplyPending") };
+    if ((snapshot?.attackKey && snapshot.attackKey !== review.attackKey) || (expectedKey && expectedKey !== review.attackKey)) {
+      return { allowed: false, reason: "This attack review is no longer current." };
+    }
+    const hit = (review.targets ?? []).some(target => {
+      if (targetUuid && target.uuid !== targetUuid) return false;
+      if (!["hit", "critical"].includes(target.outcome)) return false;
+      const document = foundry.utils.fromUuidSync(target.uuid, { strict: false });
+      return document?.actor?.uuid === actor?.uuid || document?.uuid === actor?.uuid;
+    });
+    const route = canonical.flags?.[MODULE_ID]?.shieldDamageRouting?.find(entry => entry.attackKey === review.attackKey
+      && (targetUuid ? entry.targetUuid === targetUuid : entry.actorUuid === actor?.uuid));
+    const automatic = review.application === "gm" || (review.application === "workflow" && (route?.automatic ?? this._workflowAppliesDamage(actor)));
+    if (hit && automatic && !workflow) {
+      return { allowed: false, reason: "Shield Block is offered before this attack applies damage." };
+    }
+    return hit ? { allowed: true, attackKey: review.attackKey } : { allowed: false, reason: "This attack did not hit this character." };
   }
 
   static _getMessageDamages(message) {
@@ -511,6 +708,26 @@ export class ShieldManager {
       type: damage.type,
       properties: toPropertySet(damage.properties)
     })).filter(damage => damage.value > 0 && !isHealingType(damage.type));
+  }
+
+  static _manualDamageParts(actor, damages, options) {
+    const message = options.originatingMessage ?? options.origin;
+    const canonical = message?.id ? game.messages.get(message.id) : message;
+    const review = canonical?.flags?.[MODULE_ID]?.attackReview;
+    const matches = (review?.targets ?? []).filter(target => {
+      if (options.hardwipeShieldTargetUuid) return target.uuid === options.hardwipeShieldTargetUuid;
+      const document = foundry.utils.fromUuidSync(target.uuid, { strict: false });
+      return document?.actor?.uuid === actor.uuid || document?.uuid === actor.uuid;
+    });
+    if (matches.length > 1 && matches.some(target => target.critBonusDetail?.length)) {
+      ui.notifications.warn("Choose the exact target token to block this critical attack.");
+      return false;
+    }
+    const extra = matches.length === 1 && matches[0].outcome === "critical" ? matches[0].critBonusDetail ?? [] : [];
+    const raw = typeof damages === "number" || typeof damages === "string" ? [{ value: damages }] : Array.from(damages ?? []);
+    return aggregateCriticalDamage([...raw, ...extra].map(damage => ({
+      value: Math.max(0, Number(damage.value) || 0), type: damage.type, properties: toPropertySet(damage.properties)
+    })).filter(damage => damage.value > 0 && !isHealingType(damage.type)));
   }
 
   static _subtractAbsorbedDamage(damages, absorbed) {
