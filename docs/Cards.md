@@ -233,9 +233,9 @@ Pick the mission’s presentation when starting it. Each style covers rising Hea
 
 ## Ranged source advisory
 
-<a href="media/ranged-advisory-current.webp"><img src="media/ranged-advisory-current.webp" alt="Audited preview: a ranged attack names long-range, Poisoned, and configured attacker-flag reasons beneath its roll" width="294"></a>
+<a href="media/ranged-advisory-current.webp"><img src="media/ranged-advisory-current.webp" alt="Audited preview: a ranged attack shows sources actually evaluated by Ready Set Midi" width="294"></a>
 
-*Native capture: audited preview.* Identified advantage or disadvantage sources appear beneath the roll. The roller or GM chooses the roll mode; the advisory does not change it. [Ranged hints and their limits →](Combat.md#ranged-hints-name-the-actual-source)
+*Native capture: audited preview.* Only sources actually evaluated by Ready Set Midi appear beneath the roll. No evaluated source means no box. The roller or GM chooses the roll mode; the advisory does not change it. [Ranged hints and their limits →](Combat.md#ranged-hints-name-the-actual-source)
 
 ## Make the cards readable at your table
 

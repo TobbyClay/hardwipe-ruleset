@@ -44,6 +44,8 @@ Walls supply ranged cover. Give them a type, HP, armor, and a damage threshold. 
 
 [Configure and fight around walls →](docs/Walls.md)
 
+**Development preview:** integrated Walled Regions adds **Damage walls — Normal / Half** beside Reflect/Spread in the Wall Effects dropdown. Area impacts use the original roll, wall threshold, and armor, then wait for a separate GM Apply/Ignore decision. [See the configuration and actual review card →](docs/Walls.md#spell-and-area-wall-effects--development-preview)
+
 ## Concentration is a running program
 
 | Interrupt | Recovered | Crashed |

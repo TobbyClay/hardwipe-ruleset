@@ -119,9 +119,7 @@ export class WallTargeting {
         if (config.workflow?.hardwipeDirectWall) {
           config.workflow.setTargets(new Set());
           canvas.tokens.setTargets([]);
-          if (config.workflow.hardwipeDirectWall.longRange) {
-            config.disadvantage = true;
-          }
+          // Long range is an advisory on the attack card; roll mode stays manual.
         }
         return wrapped(config);
       }, "WRAPPER");

@@ -1,8 +1,8 @@
 {
   "id": "hardwipe-ruleset",
   "title": "Hardwipe Ruleset",
-  "description": "Hardwipe character cyberware, wall cover and breaches, Shield Block, Strikes, Edge, and scene Mission Heat.",
-  "version": "0.7.40",
+  "description": "Hardwipe cyberware, wall cover and breaches, integrated Wall Effects for areas, Shield Block, Strikes, Edge, and scene Mission Heat.",
+  "version": "0.7.41",
   "socket": true,
   "compatibility": {
     "minimum": "14.367",
@@ -26,6 +26,11 @@
         }
       }
     ],
+    "conflicts": [
+      { "id": "walled-regions", "type": "module" },
+      { "id": "walled-templates", "type": "module" },
+      { "id": "walledtemplates", "type": "module" }
+    ],
     "requires": [
       {
         "id": "lib-wrapper",
@@ -35,8 +40,8 @@
         "id": "ready-set-midi",
         "type": "module",
         "compatibility": {
-          "minimum": "14.0.10.1",
-          "verified": "14.0.10.1"
+          "minimum": "14.0.10.2",
+          "verified": "14.0.10.2"
         },
         "manifest": "https://github.com/TobbyClay/hardwipe-ruleset/releases/latest/download/ready-set-midi-module.json"
       }
@@ -55,6 +60,11 @@
       "lang": "en",
       "name": "English",
       "path": "lang/en.json"
+    },
+    {
+      "lang": "pt-BR",
+      "name": "Português (Brasil)",
+      "path": "vendor/walled-regions/languages/pt-BR.json"
     }
   ],
   "scripts": [
@@ -62,6 +72,6 @@
   ],
   "url": "https://github.com/TobbyClay/hardwipe-ruleset",
   "manifest": "https://github.com/TobbyClay/hardwipe-ruleset/releases/latest/download/module.json",
-  "download": "https://github.com/TobbyClay/hardwipe-ruleset/releases/download/v0.7.40/hardwipe-ruleset-0.7.40.zip",
+  "download": "https://github.com/TobbyClay/hardwipe-ruleset/releases/download/v0.7.41/hardwipe-ruleset-0.7.41.zip",
   "bugs": "https://github.com/TobbyClay/hardwipe-ruleset/issues"
 }

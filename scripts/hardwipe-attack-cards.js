@@ -384,7 +384,8 @@ function combineSection(message, section, rolls, key, pending, critical = false,
     event.stopPropagation();
     const holder = button.closest(".hardwipe-apply");
     const label = `${button.textContent.trim()} ${damageLabel(holder.dataset.type)}`;
-    void applyParts([{ value: Number(holder.dataset.value), type: holder.dataset.type, properties: String(holder.dataset.properties ?? "").split(",").filter(Boolean) }],
+    const parts = JSON.parse(holder.dataset.parts);
+    void applyParts(parts,
       Number(button.dataset.multiplier), { message, key, label });
   }));
 }
@@ -405,6 +406,11 @@ function damageGroups(rolls) {
 
 const HEALING = new Set(["healing", "temphp"]);
 
+function damageGroupParts(group) {
+  return group.rolls.map(roll => ({ value: Number(roll.total) || 0, type: group.type,
+    properties: [...(roll.options?.properties ?? [])] }));
+}
+
 /** Quick buttons for one damage type: half, full and double (healing: one button), through dnd5e's own damage application. */
 function applyButtonsHTML(group, pending) {
   const type = damageLabel(group.type);
@@ -416,6 +422,7 @@ function applyButtonsHTML(group, pending) {
     return `<button type="button" data-multiplier="${multiplier}" data-tooltip="${escapeHTML(tip)}"${pending ? " disabled" : ""}>${text}</button>`;
   }).join("");
   return `<span class="hardwipe-apply${heal ? " is-heal" : ""}" data-type="${escapeHTML(group.type)}" data-value="${escapeHTML(group.total)}"
+    data-parts="${escapeHTML(JSON.stringify(damageGroupParts(group)))}"
     data-properties="${escapeHTML([...group.properties].join(","))}">${buttons}</span>`;
 }
 
@@ -438,23 +445,52 @@ function damageTargets() {
  * token's hit points before and after are logged on the card, so the application can be undone.
  */
 async function applyParts(parts, multiplier, { message = null, key = "", label = "", targets = null } = {}) {
+  const canonical = message?.id ? game.messages.get(message.id) : message;
+  const review = canonical?.flags?.[MODULE_ID]?.attackReview;
+  if (message && (!canonical || !canonical.isContentVisible || review?.unavailable || (review && review.status !== "resolved")))
+    return ui.notifications.warn(game.i18n.localize("HARDWIPE.Attack.ApplyPending"));
   const list = targets ?? [...damageTargets()].map(token => ({ token: token.document ?? token, multiplier }));
   if (!list.length) return ui.notifications.warn(game.i18n.localize("HARDWIPE.Attack.ApplyNoTargets"));
   const owned = list.filter(entry => entry.token?.actor?.isOwner);
   if (!owned.length) return ui.notifications.warn(game.i18n.localize("HARDWIPE.Attack.ApplyNoOwned"));
   if (owned.length < list.length) ui.notifications.info(game.i18n.format("HARDWIPE.Cards.ApplySkipped", { count: list.length - owned.length }));
   // dnd5e rewrites the damage descriptions it is given, so each token gets fresh ones.
-  const damage = () => parts.filter(part => Number.isFinite(part.value)).map(part => ({ value: part.value, type: part.type, properties: new Set(part.properties ?? []) }));
+  const damage = token => {
+    const types = new Set(parts.filter(part => !HEALING.has(part.type)).map(part => part.type));
+    const target = review?.targets?.find(entry => entry.uuid === token.uuid && entry.outcome === "critical");
+    const extra = key === "damage" ? (target?.critBonusDetail ?? []).filter(part => types.has(part.type) && !HEALING.has(part.type)) : [];
+    return aggregateCriticalDamage([...parts, ...extra].filter(part => Number.isFinite(part.value))
+      .map(part => ({ value: part.value, type: part.type, properties: new Set(part.properties ?? []) })));
+  };
   const records = [];
   for (const { token, multiplier: factor } of owned) {
     const actor = token.actor;
     const hp = () => [Number(actor.system.attributes?.hp?.value) || 0, Number(actor.system.attributes?.hp?.temp) || 0];
     const [value, temp] = hp();
-    await actor.applyDamage(damage(), { multiplier: factor });
+    await actor.applyDamage(damage(token), { multiplier: factor });
     const [after, afterTemp] = hp();
     records.push({ uuid: token.uuid, name: token.name ?? actor.name, dv: after - value, dt: afterTemp - temp });
   }
   if (message) await logApplication(message, key, label, records);
+}
+
+/** Match native respectProperties grouping before per-description resistance rounding. */
+export function aggregateCriticalDamage(parts) {
+  const result = [], groups = new Map();
+  for (const part of parts) {
+    const properties = new Set(part.properties ?? []);
+    // Healing and temporary HP retain their own native descriptions.
+    if (HEALING.has(part.type)) { result.push({ ...part, properties }); continue; }
+    const key = JSON.stringify([part.type, ...[...properties].sort()]);
+    const previous = groups.get(key);
+    if (previous) previous.value += Number(part.value) || 0;
+    else {
+      const value = { ...part, value: Number(part.value) || 0, properties };
+      groups.set(key, value);
+      result.push(value);
+    }
+  }
+  return result;
 }
 
 /** Who a section's damage lands on: hit targets for an attack, save results for save damage, otherwise every target. */
@@ -495,7 +531,7 @@ function speakerTarget(message) {
 function applyRow(message, key, groups, pending, healing, landing) {
   const t = name => game.i18n.localize(`HARDWIPE.Cards.${name}`);
   const total = groups.reduce((sum, group) => sum + Math.max(0, group.total), 0);
-  const parts = groups.map(group => ({ value: group.total, type: group.type, properties: [...group.properties] }));
+  const parts = groups.flatMap(damageGroupParts);
   const who = landing.map(target => `${target.name}${target.multiplier !== 1 ? ` (½)` : ""}`).join(", ");
   const choices = healing
     ? [["heal", "fa-heart", t("ApplyHeal"), t("RowHeal")], ["temp", "fa-hourglass-half", t("ApplyTemp"), t("RowTemp")]]
@@ -889,6 +925,7 @@ function firstAbility(activity) {
  * save rolls linked to this card; Ready Set Midi's final saved / failed lists win once it posts them.
  */
 export function saveState(message, element) {
+  if (!message.isContentVisible) return null;
   const stored = message.flags?.[MODULE_ID]?.saves;
   const activity = saveActivityFor(message);
   const ability = stored?.ability ?? firstAbility(activity);
@@ -902,10 +939,15 @@ export function saveState(message, element) {
   const failedFinal = new Set(midi.failedSaveUuids ?? []);
   const rolls = new Map();
   for (const entry of game.messages) {
-    if (entry.type === "save" && entry.flags?.dnd5e?.originatingMessage === message.id && entry.speaker?.token) rolls.set(entry.speaker.token, entry);
+    if (entry.type !== "save" || entry.flags?.dnd5e?.originatingMessage !== message.id || !entry.speaker?.token) continue;
+    const { scene, token } = entry.speaker;
+    const key = scene ? `Scene.${scene}.Token.${token}` : token;
+    rolls.set(key, entry);
   }
   for (const target of targets) {
-    const total = Number(rolls.get(target.uuid.split(".").pop())?.rolls?.[0]?.total);
+    const save = rolls.get(target.uuid) ?? rolls.get(target.uuid.split(".").pop());
+    const total = save?.isContentVisible ? Number(save.rolls?.[0]?.total) : NaN;
+    delete target.total;
     if (Number.isFinite(total)) target.total = total;
     if (savedFinal.has(target.uuid)) target.status = "saved";
     else if (failedFinal.has(target.uuid)) target.status = "failed";

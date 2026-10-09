@@ -20,3 +20,31 @@
 .hardwipe-wall-types .hardwipe-wall-types-values label { display: block; margin-bottom: 0.25rem; }
 .hardwipe-wall-types .hardwipe-wall-types-footer { display: flex; gap: 0.5rem; }
 .hardwipe-wall-types .hardwipe-wall-types-footer > button { flex: 1; }
+
+.wall-config .hardwipe-wall-config {
+  padding: 0.5rem 0.75rem;
+  gap: 0.35rem;
+}
+.wall-config .hardwipe-wall-config > legend { font-size: var(--font-size-12); }
+.wall-config .hardwipe-wall-config .hint { margin: 0; }
+.wall-config .hardwipe-wall-config-type { gap: 0.5rem; }
+.wall-config .hardwipe-wall-config-type > label { flex: 0 0 auto; }
+.wall-config .hardwipe-wall-config-type .form-fields { flex-wrap: nowrap; gap: 0.35rem; }
+.wall-config .hardwipe-wall-config-type select { min-width: 0; flex: 1; }
+.wall-config .hardwipe-wall-config-values {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 0.85rem;
+  margin: 0;
+  font-size: var(--font-size-12);
+}
+.wall-config .hardwipe-wall-config-values > div { display: flex; gap: 0.25rem; min-width: 0; }
+.wall-config .hardwipe-wall-config-values dt { color: var(--color-text-secondary); }
+.wall-config .hardwipe-wall-config-values dd { margin: 0; font-weight: bold; }
+.wall-config .hardwipe-wall-config-manage { flex: 0 0 var(--input-height); width: var(--input-height); }
+.wall-config .hardwipe-wall-config-options { margin: 0; padding: 0; border: 0; }
+.wall-config .hardwipe-wall-config-options > summary { cursor: pointer; font-size: var(--font-size-12); color: var(--color-text-secondary); }
+.wall-config .hardwipe-wall-config-options[open] > summary { margin-bottom: 0.5rem; }
+.wall-config .hardwipe-wall-config-toggles { display: flex; flex-wrap: wrap; gap: 0.5rem 1rem; margin-bottom: 0.5rem; }
+.wall-config .hardwipe-wall-config-toggles > label { display: inline-flex; align-items: center; gap: 0.4rem; font-size: var(--font-size-12); }
+.wall-config .hardwipe-wall-config-toggles input { margin: 0; }

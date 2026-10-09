@@ -1,0 +1,142 @@
+<p class="notes">{{ localize "walledregions.MeasuredTemplateConfiguration.hint" }}</p>
+
+{{#if walledregions.supportsDisplaySettings}}
+<div class="form-group">
+  <label>{{localize "walledregions.MeasuredTemplateConfiguration.hide-border.Name"}}
+    <i class="tip fas fa-info-circle" data-tooltip="walledregions.MeasuredTemplateConfiguration.hide-border.Hint"></i>
+  </label>
+  <div class="form-fields">
+    <select name="{{walledregions.flagPath}}.hideBorder">
+      {{ selectOptions walledregions.hideoptions selected=walledregions.flags.hideBorder localize=true }}
+    </select>
+  </div>
+  <p class="hint">
+</div>
+
+<div class="form-group">
+  <label>{{localize "walledregions.MeasuredTemplateConfiguration.hide-highlighting.Name"}}
+    <i class="tip fas fa-info-circle" data-tooltip="walledregions.MeasuredTemplateConfiguration.hide-highlighting.Hint"></i>
+  </label>
+  <div class="form-fields">
+    <select name="{{walledregions.flagPath}}.hideHighlighting">
+      {{ selectOptions walledregions.hideoptions selected=walledregions.flags.hideHighlighting localize=true }}
+    </select>
+  </div>
+  <p class="hint">
+</div>
+
+<div class="form-group">
+  <label>{{localize "walledregions.MeasuredTemplateConfiguration.show-hover.Name"}}
+    <i class="tip fas fa-info-circle" data-tooltip="walledregions.MeasuredTemplateConfiguration.show-hover.Hint"></i>
+  </label>
+  <div class="form-fields">
+    <select name="{{walledregions.flagPath}}.showOnHover">
+      {{ selectOptions walledregions.hideoptions selected=walledregions.flags.showOnHover localize=true }}
+    </select>
+  </div>
+  <p class="hint">
+</div>
+{{/if}}
+
+<fieldset>
+  <legend>{{localize "walledregions.MeasuredTemplateConfiguration.legend.walls"}}</legend>
+
+<div class="form-group">
+  <label>{{localize "walledregions.MeasuredTemplateConfiguration.walls-block.Name"}}
+     <i class="tip fas fa-info-circle" data-tooltip="walledregions.MeasuredTemplateConfiguration.walls-block.Hint"></i>
+  </label>
+  <div class="form-fields">
+    <select name="{{walledregions.flagPath}}.wallsBlock">
+      {{ selectOptions walledregions.blockoptions selected=walledregions.flags.wallsBlock localize=true }}
+    </select>
+  </div>
+</div>
+
+<div class="form-group">
+  <label>{{localize "walledregions.MeasuredTemplateConfiguration.wall-restriction-type.Name"}}
+    <i class="tip fas fa-info-circle" data-tooltip="walledregions.MeasuredTemplateConfiguration.walls-restriction-type.Hint"></i>
+  </label>
+  <div class="form-fields">
+    <select name="{{walledregions.flagPath}}.wallRestriction" {{#if walledregions.damageWalls}}disabled data-hardwipe-physical-disabled="true"{{/if}}>
+      {{ selectOptions walledregions.walloptions selected=walledregions.flags.wallRestriction localize=true }}
+    </select>
+  </div>
+  <p class="hint" data-hardwipe-physical-walls="true" {{#unless walledregions.damageWalls}}hidden{{/unless}}>
+    Damage modes use physical walls. Vision and lighting gaps do not carry blast damage.
+    Circles, cones, lines, and rectangles are supported; emanations and rings require manual wall damage.
+  </p>
+</div>
+</fieldset>
+<br>
+
+{{#if walledregions.supportsTokens}}
+<fieldset>
+  <legend>{{localize "walledregions.MeasuredTemplateConfiguration.legend.tokens"}}</legend>
+
+<div class="form-group">
+  <label>{{localize "walledregions.MeasuredTemplateConfiguration.no-autotarget.Name"}}
+    <i class="tip fas fa-info-circle" data-tooltip="walledregions.MeasuredTemplateConfiguration.no-autotarget.Hint"></i>
+  </label>
+  <div class="form-fields">
+    <input type="checkbox" name="{{walledregions.flagPath}}.noAutotarget" {{checked walledregions.flags.noAutotarget}}/>
+  </div>
+  <p class="hint">
+</div>
+
+<div class="form-group">
+  <label>{{localize "walledregions.MeasuredTemplateConfiguration.attach-token.Name"}}
+    <i class="tip fas fa-info-circle" data-tooltip="walledregions.MeasuredTemplateConfiguration.attach-token.Hint"></i>
+  </label>
+  <div class="form-fields">
+    <span class="display-value"><em>{{walledregions.attachedTokenName}}</em></span>
+    <button type="button" data-type="token" data-target="data.entity" class="walledregions-entity-picker" id="walledregions-useSelectedToken" title="{{localize 'walledregions.MeasuredTemplateConfiguration.attach-token.useSelectedToken'}}"><i class="fas fa-user-alt fa-sm"></i></button>
+    <button type="button" data-type="token" data-target="data.entity" class="walledregions-entity-picker" id="walledregions-useTargetedToken" title="{{localize 'walledregions.MeasuredTemplateConfiguration.attach-token.useTargetedToken'}}"><i class="fas fa-crosshairs fa-sm"></i></button>
+    <button type="button" {{ disabled (not walledregions.hasAttachedToken) }} data-type="token" data-target="data.entity" class="walledregions-entity-picker" id="walledregions-removeAttachedToken" title="{{localize 'walledregions.MeasuredTemplateConfiguration.attach-token.removeToken'}}"><i class="fas fa-user-slash fa-sm"></i></button>
+  </div>
+</div>
+
+<div class="form-group">
+  <label>{{localize "walledregions.MeasuredTemplateConfiguration.rotate-with-token.Name"}}
+    <i class="tip fas fa-info-circle" data-tooltip="walledregions.MeasuredTemplateConfiguration.rotate-with-token.Hint"></i>
+  </label>
+  <div class="form-fields">
+    <input type="checkbox" name="{{walledregions.flagPath}}.rotateWithAttachedToken" {{checked walledregions.flags.rotateWithAttachedToken}}/>
+  </div>
+  <p class="hint">
+</div>
+</fieldset>
+<br>
+{{/if}}
+
+{{#if walledregions.supportsSnapping}}
+<fieldset>
+  <legend>{{localize "walledregions.MeasuredTemplateConfiguration.legend.snapping"}}</legend>
+
+<div class="form-group">
+  <label>{{localize "walledregions.settings.submenu.snap-center.Name"}}
+  </label>
+  <div class="form-fields">
+    <input type="checkbox" name="{{walledregions.flagPath}}.snapCenter" {{checked walledregions.flags.snapCenter}}/>
+  </div>
+  <p class="hint">
+</div>
+
+<div class="form-group">
+  <label>{{localize "walledregions.settings.submenu.snap-corner.Name"}}
+  </label>
+  <div class="form-fields">
+    <input type="checkbox" name="{{walledregions.flagPath}}.snapCorner" {{checked walledregions.flags.snapCorner}}/>
+  </div>
+</div>
+
+<div class="form-group">
+  <label>{{localize "walledregions.settings.submenu.snap-midpoint.Name"}}
+  </label>
+  <div class="form-fields">
+    <input type="checkbox" name="{{walledregions.flagPath}}.snapSideMidpoint" {{checked walledregions.flags.snapSideMidpoint}}/>
+  </div>
+  <p class="hint">
+</div>
+</fieldset>
+<br>
+{{/if}}

@@ -77,7 +77,8 @@ export function renderGearCard(message, element) {
  * messages into the card it came from, so the card lists them.
  */
 function checkResults(message) {
-  const rolls = game.messages.filter(entry => entry.type === "check" && entry.id !== message.id
+  const rolls = game.messages.filter(entry => entry.type === "check" && entry.id !== message.id && entry.isContentVisible
+    && sameCheckSpeaker(message, entry)
     && (entry.flags?.dnd5e?.originatingMessage === message.id || entry._source?.system?.origin === message.id));
   if (!rolls.length) return null;
   const t = key => game.i18n.localize(`HARDWIPE.Check.${key}`);
@@ -102,6 +103,14 @@ function checkResults(message) {
   block.innerHTML = `<div class="hardwipe-save-title"><span>${escapeHTML(t("Results"))}</span><b>${escapeHTML(abbr)}${escapeHTML(dcLabel)}</b></div>
     <div class="hardwipe-save-rows">${rows}</div>`;
   return block;
+}
+
+/** A check on an item's card belongs to its originating speaker, including an unlinked token. */
+function sameCheckSpeaker(left, right) {
+  const a = left?.speaker ?? {};
+  const b = right?.speaker ?? {};
+  if (a.token || b.token) return !!a.token && a.token === b.token && a.scene === b.scene;
+  return !!a.actor && a.actor === b.actor;
 }
 
 /** "Consumable · Potion · Rare", or "Feature · Class Feature". */

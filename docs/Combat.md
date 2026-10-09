@@ -22,11 +22,11 @@ If no GM can review, the workflow stops without applying damage. Deleting a pend
 
 <img src="media/ranged-advisory-current.webp" alt="Audited preview: detected advantage and disadvantage reasons beneath the ranged roll" width="350">
 
-> **Audited preview:** the player or GM chooses the roll mode. A ranged attack card shows identified reasons such as long range, a visible condition, or a configured modifier. With no identified source, it shows no advisory. The generic “choose roll mode manually” notice is removed.
+> **Audited preview:** the roller chooses Normal, Advantage, or Disadvantage. After the roll, the card lists only sources that Ready Set Midi actually evaluated for that attack, using Midi's own source labels. Conditional flags that evaluate false produce no hint. With no identified source, there is no box.
 
-This choice covers ranged weapon attacks, ranged spell attacks, and weapons used in Thrown mode. Ordinary melee automation keeps its existing behavior.
+Ranged weapons and ranged spell attacks retain manual roll mode. A newly selected Thrown mode does not borrow attribution calculated for melee; if Midi has no matching source calculation, its advisory stays hidden. Ordinary melee automation keeps its existing behavior.
 
-Hints explain why a modifier may apply; they do not change the roll or expose hidden targets, secret walls, or private condition details to other viewers. Attacker-only reasons live in a bounded local cache, so they do not survive a reload or transfer to another client. Range limits still apply. This is advisory detection, not a promise to model every third-party rule or macro.
+The advisory does not inspect conditions, guess at unevaluated flags, or turn an unlabelled native modifier into a generic reminder. Clicking Advantage is a choice, not an identified rules source. Source names stay on the rolling client and are shown only to the actor's owner or GM on that client. They are not added to shared chat flags, and the local snapshot does not survive a reload. Older guessed advisories are hidden. Range limits still apply. Rules that Midi does not identify cannot generate a hint here.
 
 ## Read and apply a roll
 

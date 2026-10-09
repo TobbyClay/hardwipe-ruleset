@@ -3,6 +3,7 @@ import { WallAppearance, wallWearDataEqual } from "./hardwipe-wall-appearance.js
 import { coverRollSignatureData } from "./hardwipe-cover-rolls.js";
 import { WallTypes, evaluateWallDamage } from "./hardwipe-wall-types.js";
 import { WallTargeting } from "./hardwipe-wall-targeting.js";
+import { AreaWallManager } from "./hardwipe-area-walls.js";
 
 const MODULE_ID = "hardwipe-ruleset";
 const STATE_FLAG = "coverAttack";
@@ -81,6 +82,7 @@ export class CoverManager {
   static _socket = null;
   static _reviews = new Map();
   static _reviewHooksRegistered = false;
+  static _wallConfigRegistered = false;
 
   static get api() {
     return {
@@ -101,7 +103,7 @@ export class CoverManager {
     WallTypes.registerSettings();
     if (game.settings.settings.has(`${MODULE_ID}.wallCoverEnabled`)) return;
     game.settings.register(MODULE_ID, "wallCoverEnabled", {
-      name: "Automatic wall cover", hint: "Use scene walls for ranged cover and weapon impacts.",
+      name: "Automatic wall cover", hint: "Use scene walls for ranged cover, weapon impacts, and area wall damage.",
       scope: "world", config: true, type: Boolean, default: true
     });
   }
@@ -109,6 +111,7 @@ export class CoverManager {
   static registerControls() {
     WallTargeting.registerControls();
     this._registerReviewHooks();
+    this._registerWallConfig();
     if (this._controlsRegistered) return;
     this._controlsRegistered = true;
     Hooks.on("getSceneControlButtons", controls => {
@@ -128,11 +131,20 @@ export class CoverManager {
     });
   }
 
+  static _registerWallConfig() {
+    if (this._wallConfigRegistered) return;
+    this._wallConfigRegistered = true;
+    // Registration during init is queued by core; explicit world/document sheet choices still win.
+    foundry.applications.apps.DocumentSheetConfig.registerSheet(CONFIG.Wall.documentClass, MODULE_ID,
+      buildWallConfig(), { label: "HARDWIPE.Cover.WallConfig.Sheet", makeDefault: true });
+  }
+
   static initialize() {
     if (this._initialized) return;
     this._initialized = true;
     WallTypes.initialize();
     WallTargeting.initialize({ cover: this });
+    AreaWallManager.initialize({ cover: this });
     WallAppearance.initialize({ enqueue: task => this._enqueue(task), report: error => this._report(error) });
     this.registerControls();
     this._registerSocket();
@@ -379,7 +391,7 @@ export class CoverManager {
         return true;
       }
       // Re-read inside the queue so duplicate approvals observe persisted receipts.
-      const current = this._verifyCard(message);
+      const current = await this._verifyCard(message);
       await this._applyRecords(current);
       await message.setFlag(MODULE_ID, STATE_FLAG, { ...message.getFlag(MODULE_ID, STATE_FLAG), pending: false, confirmedBy: sender.id });
       return { applied: true, workflowId: current.workflowId };
@@ -392,6 +404,7 @@ export class CoverManager {
 
   static _verifyCard(message, author = message.author) {
     const state = message.getFlag(MODULE_ID, STATE_FLAG);
+    if (state?.mode === "area") return AreaWallManager.verifyCard(message);
     this._checkWallStates(state ?? {});
     if (state?.mode === "direct") return WallTargeting.verifyCard(message);
     if (state?.version !== 1 || !state.damageReady || typeof state.workflowId !== "string" || !Array.isArray(state.records)) throw new Error("The originating card has no completed wall attack.");
@@ -517,7 +530,9 @@ export class CoverManager {
     return this._socket.executeAsUser(action, game.users.activeGM.id, messageId);
   }
 
-  static async _applyRecords({ workflowId, scene, attacker, activity, records, damage, message, direct = false }) {
+  static async _applyRecords(context) {
+    if (context.area) return AreaWallManager.applyRecords(context);
+    const { workflowId, scene, attacker, activity, records, damage, message, direct = false } = context;
     this._requireGM();
     if (!scene || !Number.isFinite(damage) || damage <= 0) return;
     const wallsUsed = new Set();
@@ -621,13 +636,17 @@ export class CoverManager {
     const direction = cover.sectionDirection ?? { x: (c[2] - c[0]) / length, y: (c[3] - c[1]) / length };
     const size = Number(cover.sectionPixels) > 0 ? Number(cover.sectionPixels) : getFiveFootPixels(scene);
     const distance = (impact.x - origin.x) * direction.x + (impact.y - origin.y) * direction.y;
-    const key = String(Math.floor(Math.max(0, distance - 1e-7) / size));
+    const start = (c[0] - origin.x) * direction.x + (c[1] - origin.y) * direction.y;
+    const end = (c[2] - origin.x) * direction.x + (c[3] - origin.y) * direction.y;
+    // Internal boundaries belong to the preceding section, but a surviving
+    // segment endpoint cannot select a section removed by an earlier breach.
+    const first = Math.max(0, Math.floor((Math.min(start, end) + 1e-7) / size));
+    const last = Math.max(first, Math.ceil((Math.max(start, end) - 1e-7) / size) - 1);
+    const key = String(Math.min(last, Math.max(first, Math.floor(Math.max(0, distance - 1e-7) / size))));
     const candidateHP = Number(cover.sections?.[key]?.hp ?? cover.hp ?? cover.max);
     const hp = Math.min(Number(cover.max), Math.max(0, Number.isFinite(candidateHP) ? candidateHP : Number(cover.max)));
     // The same anchored interval owns HP and the breach. Remainders retain the
     // original origin, so subsequent hits cannot reset surviving section HP.
-    const start = (c[0] - origin.x) * direction.x + (c[1] - origin.y) * direction.y;
-    const end = (c[2] - origin.x) * direction.x + (c[3] - origin.y) * direction.y;
     const intervalStart = Math.max(Math.min(start, end), Number(key) * size);
     const intervalEnd = Math.min(Math.max(start, end), (Number(key) + 1) * size);
     const midpoint = (intervalStart + intervalEnd) / 2;
@@ -694,7 +713,8 @@ export class CoverManager {
       window: { title: `Configure cover: ${walls.length} wall${walls.length === 1 ? "" : "s"}` },
       content: `<p>Durability applies to each five-foot section. Open doors allow shots through.</p>
         <div class="form-group"><label>Wall type</label><select name="preset">
-        <option value="custom" selected>Custom values below</option>
+        <option value="current" selected>Keep each wall's current values</option>
+        <option value="custom">Custom values below</option>
         ${Object.entries(types).map(([key, preset]) => `<option value="type:${escape(key)}">${escape(preset.name)}: ${preset.max} HP, ${preset.armor} armor, threshold ${preset.damageThreshold}</option>`).join("")}
         <option value="solid">Solid, indestructible</option></select></div>
         <p class="hint">Choose a saved type to use its values, or Custom to use the fields below. Manage saved types in Settings → Game Settings → Hardwipe Ruleset → Manage wall types.</p>
@@ -711,27 +731,68 @@ export class CoverManager {
       ok: { label: "Apply material", icon: "fa-solid fa-shield-halved" }, rejectClose: false
     });
     if (!input) return;
-    let material = input.preset.startsWith("type:") ? types[input.preset.slice(5)] : null;
-    if (input.preset === "solid") material = { material: "solid", max: null, hp: null, armor: 0, ac: 10, damageThreshold: 0 };
-    if (!material) {
+    let material = this._wallMaterial(input.preset);
+    if (input.preset === "custom") {
       material = WallTypes.validate({ ...input, id: "custom", name: String(input.material || "Custom wall") });
     }
     const reset = Boolean(input.resetHP);
     await this._enqueue(async () => {
-      const operations = [];
-      for (const wall of walls) {
-        const previous = copy(wall.getFlag(MODULE_ID, "cover") ?? {});
-        const cover = { ...previous, ...copy(material), typeId: input.preset.startsWith("type:") ? material.id : null,
-          version: 2, ballistic: true, appearance: Boolean(input.appearance) };
-        if (!reset && material.max && Number(previous.max) > 0 && finite(previous.hp ?? previous.max)) cover.hp = Math.min(Number(previous.hp ?? previous.max), material.max);
-        if (reset) Object.assign(cover, { sections: {}, sectionOrigin: null, sectionDirection: null, sectionPixels: null });
-        else cover.sections = Object.fromEntries(Object.entries(previous.sections ?? {}).map(([key, section]) =>
-          [key, { ...section, max: material.max, hp: material.max ? Math.min(Number(section.hp), material.max) : section.hp }]));
-        operations.push(...WallAppearance.operations(wall.parent, WallAppearance.plan(wall.parent, wall.toObject(), cover, { reset })));
-      }
+      const operations = walls.flatMap(wall => this._wallConfigurationOperations(wall, {
+        material, typeId: input.preset.startsWith("type:") ? material.id : null,
+        reset, appearance: Boolean(input.appearance)
+      }));
       await this._batch(operations);
     });
     ui.notifications.info(`Cover material applied to ${walls.length} wall${walls.length === 1 ? "" : "s"}.`);
+  }
+
+  static _wallMaterial(preset) {
+    if (preset === "current" || preset === "custom") return null;
+    if (preset === "solid") return { material: "solid", max: null, hp: null, armor: 0, ac: 10, damageThreshold: 0 };
+    const material = preset?.startsWith("type:") ? WallTypes.get(preset.slice(5)) : null;
+    if (!material) throw new Error("This wall type no longer exists. Reopen the wall configuration before saving.");
+    return material;
+  }
+
+  /** Build the same durability snapshot for configuration previews and saved wall operations. */
+  static _wallConfigurationCover(previous, { material, typeId, reset = false, appearance }) {
+    const cover = material ? { ...copy(previous), ...copy(material), typeId, version: 2, ballistic: true } : copy(previous);
+    if (appearance !== undefined) cover.appearance = appearance;
+    if (!reset && material?.max && Number(previous.max) > 0 && finite(previous.hp ?? previous.max)) {
+      cover.hp = Math.min(Number(previous.hp ?? previous.max), Number(material.max));
+    }
+    if (reset) {
+      if (!material && Number(cover.max) > 0) cover.hp = Number(cover.max);
+      Object.assign(cover, { sections: {}, sectionOrigin: null, sectionDirection: null, sectionPixels: null });
+    }
+    // A type change adopts its maximum immediately, clamping HP without healing or moving sections.
+    // Keep-current edits preserve every recorded section value exactly.
+    else if (previous.sections) {
+      cover.sections = copy(previous.sections);
+      if (Number(material?.max) > 0) {
+        for (const section of Object.values(cover.sections)) {
+          section.max = Number(material.max);
+          if (finite(section.hp)) section.hp = Math.min(Number(section.hp), Number(material.max));
+        }
+      }
+    }
+    return cover;
+  }
+
+  /** Shared by the native single-wall sheet and the selected-walls dialog. */
+  static _wallConfigurationOperations(document, { material, typeId, reset = false, appearance, updateData = {} }) {
+    this._requireGM();
+    const wall = document.parent?.walls.get(document.id);
+    if (!wall || wall.getFlag(MODULE_ID, "wallWear")) throw new Error("Configure the original physical wall, not a damage visual.");
+    const previous = copy(wall.getFlag(MODULE_ID, "cover") ?? {});
+    const data = foundry.utils.mergeObject(wall.toObject(), updateData, { inplace: false });
+    // Native WallConfig has no editable coordinates. Configuration never changes physical geometry.
+    data.c = copy(wall.c);
+    const cover = this._wallConfigurationCover(previous, { material, typeId, reset, appearance });
+    if (cover.wear?.restrictions) {
+      for (const key of ["sight", "light"]) if (key in updateData) cover.wear.restrictions[key] = data[key];
+    }
+    return WallAppearance.operations(wall.parent, WallAppearance.plan(wall.parent, data, cover, { reset }));
   }
 
   /**
@@ -742,10 +803,16 @@ export class CoverManager {
     const t = key => escape(game.i18n.localize(`HARDWIPE.Cover.Card.${key}`));
     const title = t(`${kind}Title`);
     const body = impacts.map(impact => {
+      const sections = [...new Set(impact.sections ?? [])].sort((a, b) => a - b);
+      const sectionList = sections.length > 1 && sections.every((value, index) => !index || value === sections[index - 1] + 1)
+        ? `${sections[0]}–${sections.at(-1)}` : sections.join(", ");
+      const sectionLabel = sectionList ? `${t(sections.length === 1 ? "Section" : "Sections")} ${escape(sectionList)}`
+        : impact.section ? `${t("Section")} ${escape(impact.section)}`
+          : impact.sectionCount ? escape(game.i18n.format("HARDWIPE.Cover.Card.SectionCount", { count: impact.sectionCount })) : "";
       const head = `<div class="hardwipe-wall-head"><span class="hardwipe-wall-material">${impact.indestructible
         ? t("Indestructible") : escape(game.i18n.format("HARDWIPE.Cover.Card.Material", { material: impact.material ?? t("Wall") }))}</span>
-        ${impact.section ? `<span class="hardwipe-wall-section">${t("Section")} ${escape(impact.section)}</span>` : ""}</div>
-        <div class="hardwipe-wall-target">${impact.direct ? t("DirectTarget") : escape(game.i18n.format("HARDWIPE.Cover.Card.Protecting", { target: impact.target }))}</div>`;
+        ${sectionLabel ? `<span class="hardwipe-wall-section">${sectionLabel}</span>` : ""}</div>
+        <div class="hardwipe-wall-target">${impact.area ? t("AreaTarget") : impact.direct ? t("DirectTarget") : escape(game.i18n.format("HARDWIPE.Cover.Card.Protecting", { target: impact.target }))}</div>`;
       if (impact.indestructible) {
         return `<div class="hardwipe-wall-impact is-held">${head}<div class="hardwipe-wall-held"><i class="fas fa-shield" inert></i>${t("NoDamage")}</div></div>`;
       }
@@ -785,4 +852,137 @@ export class CoverManager {
     console.error(`${MODULE_ID} | Wall cover`, error);
     ui.notifications.error(error.message ?? String(error));
   }
+}
+
+/** Extend the v14 native sheet so core validation and submission stay in their intended subclass lifecycle. */
+function buildWallConfig() {
+  const prefix = "hardwipeWall";
+  const t = key => game.i18n.localize(`HARDWIPE.Cover.WallConfig.${key}`);
+  return class HardwipeWallConfig extends foundry.applications.sheets.WallConfig {
+    _wallTypesChangedHook = null;
+
+    async _prepareContext(options) {
+      const context = await super._prepareContext(options);
+      const cover = this.document.getFlag(MODULE_ID, "cover");
+      // Damage uses optical helper walls. Show the physical wall's original restrictions in its native inputs.
+      if (cover?.wear?.restrictions) context.source = { ...context.source, ...copy(cover.wear.restrictions) };
+      return context;
+    }
+
+    async _onRender(context, options) {
+      await super._onRender(context, options);
+      if (this._wallTypesChangedHook !== null) Hooks.off("hardwipe.wallTypesChanged", this._wallTypesChangedHook);
+      this._wallTypesChangedHook = null;
+      if (!game.user.isGM || !this.isEditable) return;
+      const body = this.element.querySelector(".standard-form.scrollable");
+      if (!body) return;
+      body.querySelector(".hardwipe-wall-config")?.remove();
+      const fieldset = this.element.ownerDocument.createElement("fieldset");
+      fieldset.className = "hardwipe-wall-config";
+      if (this.document.getFlag(MODULE_ID, "wallWear")) {
+        fieldset.innerHTML = `<legend>${escape(t("Title"))}</legend><p class="hint">${escape(t("HelperWall"))}</p>`;
+        body.append(fieldset);
+        return;
+      }
+      const cover = this.document.getFlag(MODULE_ID, "cover") ?? {};
+      let types = WallTypes.materials;
+      const currentName = cover.name ?? types[cover.typeId]?.name ?? cover.material ?? t("Solid");
+      const root = `${this.id}-hardwipe-wall`;
+      fieldset.innerHTML = `<legend>${escape(t("Title"))}</legend>
+        <div class="form-group hardwipe-wall-config-type"><label for="${escape(root)}-type">${escape(t("Type"))}</label>
+          <div class="form-fields"><select id="${escape(root)}-type" name="${prefix}Type">
+            <option value="current">${escape(t("KeepCurrent"))}: ${escape(currentName)}</option>
+            ${Object.values(types).map(type => `<option value="type:${escape(type.id)}">${escape(type.name)}</option>`).join("")}
+            <option value="solid">${escape(t("Solid"))}</option>
+          </select><button type="button" class="hardwipe-wall-config-manage icon" aria-label="${escape(t("Manage"))}" data-tooltip="${escape(t("Manage"))}"><i class="fas fa-cubes" inert></i></button></div>
+        </div>
+        <dl class="hardwipe-wall-config-values" aria-live="polite"></dl>
+        <details class="hardwipe-wall-config-options"><summary>${escape(t("Options"))}</summary>
+          <div class="hardwipe-wall-config-toggles">
+            <label for="${escape(root)}-reset" title="${escape(t("ResetHint"))}"><input id="${escape(root)}-reset" name="${prefix}ResetHP" type="checkbox">${escape(t("Reset"))}</label>
+            <label for="${escape(root)}-appearance"><input id="${escape(root)}-appearance" name="${prefix}Appearance" type="checkbox" ${cover.appearance !== false ? "checked" : ""}>${escape(t("Appearance"))}</label>
+          </div>
+          <p class="hint">${escape(t("Hint"))}</p>
+          <p class="hint hardwipe-wall-config-sections"></p>
+        </details>`;
+      const select = fieldset.querySelector("select");
+      const updateSummary = () => {
+        const material = select.value === "current" ? cover : select.value === "solid"
+          ? CoverManager._wallMaterial("solid") : types[select.value.slice(5)];
+        if (!material) {
+          fieldset.querySelector("dl").textContent = t("Unavailable");
+          return;
+        }
+        const preview = CoverManager._wallConfigurationCover(cover, {
+          material: select.value === "current" ? null : material,
+          typeId: material.id ?? null, reset: fieldset.querySelector(`[name='${prefix}ResetHP']`).checked
+        });
+        const destructible = Number(preview.max) > 0;
+        const values = destructible ? [
+          ["HP", `${preview.hp ?? preview.max} / ${preview.max}`], ["AC", preview.ac ?? 10],
+          ["Armor", preview.armor ?? 0], ["Threshold", preview.damageThreshold ?? 0]
+        ] : [["Durability", t("Solid")]];
+        fieldset.querySelector("dl").innerHTML = values.map(([key, value]) => `<div title="${escape(t(key))}"><dt>${escape(t(`${key}Short`))}</dt><dd>${escape(value)}</dd></div>`).join("");
+        const sections = Object.entries(preview.sections ?? {}).slice(0, 8).map(([key, section]) => game.i18n.format("HARDWIPE.Cover.WallConfig.SectionHP", {
+          section: Number(key) + 1, hp: section.hp, max: section.max ?? preview.max
+        })).join("; ");
+        fieldset.querySelector(".hardwipe-wall-config-sections").textContent = game.i18n.format("HARDWIPE.Cover.WallConfig.Sections", {
+          count: Object.keys(preview.sections ?? {}).length
+        }) + (sections ? ` ${sections}${Object.keys(preview.sections).length > 8 ? "…" : ""}` : "");
+      };
+      this._wallTypesChangedHook = Hooks.on("hardwipe.wallTypesChanged", () => {
+        const selected = select.value;
+        types = WallTypes.materials;
+        select.innerHTML = `<option value="current">${escape(t("KeepCurrent"))}: ${escape(currentName)}</option>
+          ${Object.values(types).map(type => `<option value="type:${escape(type.id)}">${escape(type.name)}</option>`).join("")}
+          <option value="solid">${escape(t("Solid"))}</option>`;
+        if (selected.startsWith("type:") && !types[selected.slice(5)]) {
+          select.insertAdjacentHTML("beforeend", `<option value="${escape(selected)}">${escape(t("Unavailable"))}</option>`);
+        }
+        select.value = selected;
+        updateSummary();
+      });
+      select.addEventListener("change", updateSummary);
+      fieldset.querySelector(`[name='${prefix}ResetHP']`).addEventListener("change", updateSummary);
+      fieldset.querySelector(".hardwipe-wall-config-manage").addEventListener("click", () => WallTypes.manage());
+      body.append(fieldset);
+      updateSummary();
+    }
+
+    _onClose(options) {
+      if (this._wallTypesChangedHook !== null) Hooks.off("hardwipe.wallTypesChanged", this._wallTypesChangedHook);
+      this._wallTypesChangedHook = null;
+      super._onClose(options);
+    }
+
+    _processFormData(event, form, formData) {
+      // UI-only values must never reach WallDocument validation or PlaceableConfig's live preview.
+      const object = Object.fromEntries(Object.entries(formData.object).filter(([key]) => !key.startsWith(prefix)));
+      return super._processFormData(event, form, { object });
+    }
+
+    async _processSubmitData(event, form, submitData, options = {}) {
+      const selector = form.elements[`${prefix}Type`];
+      if (!selector) return super._processSubmitData(event, form, submitData, options);
+      CoverManager._requireGM();
+      const preset = selector.value;
+      const reset = form.elements[`${prefix}ResetHP`].checked;
+      const appearance = form.elements[`${prefix}Appearance`].checked;
+      const previous = this.document.getFlag(MODULE_ID, "cover");
+      if (preset === "current" && !reset && appearance === (previous?.appearance !== false) && !previous?.wear) {
+        return super._processSubmitData(event, form, submitData, options);
+      }
+      if (!this.document.parent?.walls.has(this.document.id)) {
+        throw new Error("Place this wall in the scene before assigning a wall type.");
+      }
+      await CoverManager._enqueue(async () => {
+        const material = CoverManager._wallMaterial(preset);
+        const operations = CoverManager._wallConfigurationOperations(this.document, {
+          material, typeId: preset.startsWith("type:") ? material.id : null, reset, appearance, updateData: submitData
+        });
+        await CoverManager._batch(operations);
+      });
+      return { updated: this.document };
+    }
+  };
 }

@@ -1,3 +1,4 @@
+import "../vendor/walled-regions/scripts/module.js";
 import { HeatManager } from "./heat.js";
 import { HardwipeRules } from "./hardwipe-rules.js";
 import { HardwipeSheet } from "./hardwipe-sheet.js";
@@ -14,6 +15,7 @@ import { ShortRestManager } from "./hardwipe-rests.js";
 import { registerRestReceipts } from "./hardwipe-rest-receipt.js";
 import { registerConcentrationCards } from "./hardwipe-concentration.js";
 import { registerMessageCards } from "./hardwipe-message-cards.js";
+import { RangedAttackManager } from "./hardwipe-ranged.js";
 
 export const MODULE_ID = "hardwipe-ruleset";
 export const MODULE_TITLE = "Hardwipe Ruleset";
@@ -38,6 +40,7 @@ Hooks.once("init", async () => {
   CoverManager.registerSettings();
   CoverManager.registerControls();
   AttackReviewManager.registerSettings();
+  RangedAttackManager.registerHooks();
   AttackReviewManager.registerHooks();
   registerCardSettings();
   registerFallenStamps();
@@ -60,6 +63,7 @@ Hooks.once("ready", () => {
   HardwipeRules.initialize();
   CyberwareManager.initialize();
   CoverManager.initialize();
+  RangedAttackManager.initialize();
   AttackReviewManager.initialize();
   HardwipeSheet.initialize();
   ShortRestManager.initialize();

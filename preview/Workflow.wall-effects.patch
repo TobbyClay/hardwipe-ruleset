@@ -1,0 +1,155 @@
+--- a/src/module/Workflow.ts
++++ b/src/module/Workflow.ts
+@@ -150,6 +150,14 @@
+ export const minAttackTotal = -100;
+ export function noKeySet(event: AugmentedEvent) { return !(event?.shiftKey || event?.ctrlKey || event?.altKey || event?.metaKey) }
+ 
++/** Native v14 Regions may contain several placed areas; clipped polygons are not separate placements. */
++export function countPlacedTemplateAreas(document: { documentName?: string; shapes?: unknown; flags?: Record<string, unknown> }): number {
++  if (document.documentName !== "Region") return 1; // Legacy MeasuredTemplate: one document per area.
++  const walled = document.flags?.["walled-regions"] as { sourceShapes?: unknown } | undefined;
++  const shapes = Array.isArray(walled?.sourceShapes) ? walled.sourceShapes : Array.isArray(document.shapes) ? document.shapes : [];
++  return shapes.filter(shape => shape && typeof shape === "object" && !(shape as { hole?: boolean }).hole).length;
++}
++
+ export type AttributionType = 'ADV' | 'DIS' | 'NOADV' | 'NODIS' | 'CRIT' | 'NOCRIT' | 'FUMBLE' | 'NOFUMBLE';
+ export type AttributionMap = Partial<Record<AttributionType, Record<string, string>>>;
+ export interface AttributionEntry {
+@@ -544,7 +552,13 @@
+     if (templateUuid && !this.templateUuids.includes(templateUuid)) {
+       this.templateUuids.push(templateUuid);
+     }
+-    this.persistFields({ templateUuid, templateUuids: this.templateUuids });
++    this.placedTemplateCount = this.templateUuids.reduce((count, uuid) => {
++      const document = fromUuidSync(uuid) as MeasuredTemplateDocument | RegionDocument.Implementation | null;
++      return count + (document ? countPlacedTemplateAreas(document) : 0);
++    }, 0);
++    // Placed-area identity is needed for durable GM wall review even when full
++    // workflow snapshots are disabled by SaveToChatCard.
++    this.forcePersistFields({ templateUuid, templateUuids: this.templateUuids });
+   }
+ 
+   // v14: templates are backed by Regions — this may return either a MeasuredTemplateDocument or RegionDocument
+@@ -1458,7 +1472,7 @@
+   }
+ 
+   get needTemplate(): boolean {
+-    return this.expectedTemplateCount > 0 && this.templateUuids.length < this.expectedTemplateCount;
++    return this.expectedTemplateCount > 0 && this.placedTemplateCount < this.expectedTemplateCount;
+   }
+ 
+   get itemUuid(): string | undefined {
+@@ -1738,6 +1752,7 @@
+       this.expectedTemplateCount = 0;
+     }
+     this.templateUuids = [];
++    this.placedTemplateCount = 0;
+     if (this.activity instanceof MidiSummonActivity && configSettings.autoRemoveSummonedCreature) {
+       this.postSummonHookId = Hooks.once("dnd5e.postSummon", (activity, profile, createdTokens, options) => {
+         this.summonedCreatures = createdTokens;
+@@ -1952,12 +1967,23 @@
+     }
+   }
+ 
+-  async processPlacedTemplates(templates: MeasuredTemplateDocument[], activity?: Activity): Promise<boolean> {
++  async processPlacedTemplates(templates: (MeasuredTemplateDocument | RegionDocument.Implementation)[], activity?: Activity): Promise<boolean> {
+     if (!templates || templates.length === 0) return false;
+-    const expectedCount = Number(activity?.target?.template?.count) || 1;
+-    if (templates.length < expectedCount) {
++    const expectedCount = Number((activity ?? this.activity)?.target?.template?.count) || 1;
++    // Resolve proxy templates before counting or deleting. D&D5e 6 can return
++    // one Region with multiple positive source shapes, and integrations may
++    // return the same Region both directly and through its legacy proxy.
++    const documents = new Map<string, MeasuredTemplateDocument | RegionDocument.Implementation>();
++    for (const template of templates) {
++      const scene = template.parent as Scene.Implementation | null;
++      const region = template._id ? (scene ?? canvas.scene)?.regions.get(template._id) : undefined;
++      const document = region ?? template;
++      if (document.uuid) documents.set(document.uuid, document);
++    }
++    const placedCount = [...documents.values()].reduce((count, document) => count + countPlacedTemplateAreas(document), 0);
++    if (placedCount < expectedCount) {
+       // Incomplete placement: delete any templates placed so far
+-      for (const tDoc of templates) {
++      for (const tDoc of documents.values()) {
+         try { await tDoc.delete(); } catch (e) { /* template may already be gone */ }
+       }
+       return false;
+@@ -1965,11 +1991,10 @@
+ 
+     // Set midi-qol flags on each template and register cleanup
+     // v14: resolve proxy MeasuredTemplateDocuments to actual RegionDocuments
+-    for (const tDoc of templates) {
+-      const regionDoc = tDoc._id ? canvas.scene?.regions.get(tDoc._id) : undefined;
+-      const docToStore = regionDoc ?? tDoc;
+-      this.templateUuid = docToStore.uuid;  // setter pushes to array + persists
+-      await this.setupTemplateCleanup(docToStore);
++    for (const tDoc of documents.values()) {
++      const regionDoc = tDoc.documentName === "Region" ? tDoc as RegionDocument.Implementation : undefined;
++      this.templateUuid = tDoc.uuid;  // setter updates distinct area count and persists UUIDs
++      await this.setupTemplateCleanup(tDoc);
+ 
+       if (regionDoc && activity) {
+         const overTimeActivity = activity.isOverTimeFlag
+@@ -1980,7 +2005,6 @@
+         await activity._attachRegionActivityBehavior?.(regionDoc, this, overTimeActivity, this.spellLevel);
+       }
+     }
+-    this.placedTemplateCount = templates.length;
+     this.selectAllTemplateTargets(activity);
+     if (this.suspended && this.currentAction === this.WorkflowState_AwaitTemplate) {
+       this.unSuspend();
+@@ -2224,7 +2248,7 @@
+ 
+   async WorkflowState_AwaitTemplate(context: WorkflowContext = {}): Promise<WorkflowState> {
+     if (debugEnabled > 0) warn("WorkflowState_AwaitTemplate started");
+-    if (this.templateUuids.length >= this.expectedTemplateCount) {
++    if (this.placedTemplateCount >= this.expectedTemplateCount) {
+       if (debugEnabled > 0) warn("WorkflowState_AwaitTemplate context - template placed", "needTemplate", this.needTemplate, "needItemCard", this.needItemCard, "itemUseComplete", this.itemUseComplete);
+       return this.WorkflowState_TemplatePlaced;
+     }
+@@ -3154,7 +3178,13 @@
+       game.modules.get("boss-loot-assets-free")?.active;
+     const AAActive = game.modules.get("autoanimations")?.active;
+     const elapsedTimeRequired = 5000;
+-    if (configSettings.autoRemoveInstantaneousTemplate && this.templateUuids.length > 0 && this.activity.duration?.units === "inst") {
++    // A pending structural review needs its original Region for GM verification.
++    // Check again inside delayed cleanup, since review creation can finish later.
++    const hasPendingWallReview = () => {
++      const state = game.messages.get(this.itemCardId)?.flags?.["hardwipe-ruleset"]?.coverAttack as any;
++      return state?.mode === "area" && state.pending;
++    };
++    if (!hasPendingWallReview() && configSettings.autoRemoveInstantaneousTemplate && this.templateUuids.length > 0 && this.activity.duration?.units === "inst") {
+       for (const tUuid of this.templateUuids) {
+         if (!blfxActive) {
+           const elapsed = Date.now() - (this.workflowStartTime ?? 0);
+@@ -3162,11 +3192,11 @@
+           let timeout = AAActive ? Math.max(elapsedTimeRequired - elapsed, 1) : 1;
+           timeout = Math.max(elapsedTimeRequired, timeout);
+           setTimeout(() => {
+-            (fromUuidSync(tUuid) as MeasuredTemplateDocument | null)?.delete()
++            if (!hasPendingWallReview()) (fromUuidSync(tUuid) as MeasuredTemplateDocument | null)?.delete()
+           }, timeout);
+         } else {
+           setTimeout(() => {
+-            (fromUuidSync(tUuid) as MeasuredTemplateDocument | null)?.delete()
++            if (!hasPendingWallReview()) (fromUuidSync(tUuid) as MeasuredTemplateDocument | null)?.delete()
+           }, elapsedTimeRequired);
+           log("Not auto removing instantaneous template because boss loot assets active")
+         }
+@@ -8474,7 +8504,6 @@
+         this.templateUuid = docToStore.uuid;
+         await this.setupTemplateCleanup(docToStore);
+       }
+-      this.placedTemplateCount = templates.length;
+       this.selectAllTemplateTargets();
+       if (this.templateLocation?.removeDelay) {
+         let ids: string[] = templates.map(td => td._id as string)
+@@ -8620,6 +8649,7 @@
+     super(actor, activity, speaker, targets, options);
+     this.expectedTemplateCount = activityHasAreaTarget(this.activity) ? 1 : 0;
+     this.templateUuids = [];
++    this.placedTemplateCount = 0;
+     // this.needItemCard = false; TODO see where this is used
+     this.needsDamage = !!this.activity.hasDamage;
+     this.attackRolled = !activity.hasAttack;

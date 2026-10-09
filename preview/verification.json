@@ -1,0 +1,20 @@
+{
+  "hardwipe-ruleset": {
+    "archive": "hardwipe-ruleset-0.7.41-wall-effects-preview.zip",
+    "version": "0.7.41",
+    "files": 248,
+    "archiveSha256": "0161208DEE866D2D33F6EE379F780035A07D0445450CF7623480358C525A0610",
+    "bytes": 11763042,
+    "areaScriptSha256": "9E27DB14B4F6FCD636DAF2242051F316B122EDE1E6F503A21B9CE05EDB33FFD2"
+  },
+  "ready-set-midi": {
+    "archive": "ready-set-midi-14.0.10.2-wall-effects-preview.zip",
+    "version": "14.0.10.2",
+    "files": 120,
+    "archiveSha256": "B397FDBCFB04331C7F956DD89AEA36C251FF18F80F29335EA165542A9D9297B8",
+    "bytes": 3048199,
+    "javascriptSha256": "40CBB1E42A49565A1EAABE4488B0B9B05E21740A29EC17CB49BB4AB4A201D7FD"
+  },
+  "status": "Local preview only. No release publication or production installation.",
+  "companionMetadata": "Uses the tested QA 14.0.10.2 manifest and runtime assets, with the verified freshly built JavaScript. Source base and dist manifests still identify 14.0.10; these archives are explicitly preview artifacts."
+}
