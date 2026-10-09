@@ -26,11 +26,13 @@ The source review must travel with the **matching tested companion bundle** in [
 40CBB1E42A49565A1EAABE4488B0B9B05E21740A29EC17CB49BB4AB4A201D7FD
 ```
 
-The current `scripts/hardwipe-ranged.js` SHA256, after the actual-Midi-attribution correction, is:
+The native QA Windows file `scripts/hardwipe-ranged.js` uses CRLF line endings; its SHA256 is:
 
 ```text
 C4614DC76ABC87D465A998C2FF45D9444945454CB20EA9CF9B2144D4962F4AA0
 ```
+
+Git normalizes that file to LF without changing its code. The repository blob SHA256 is `3F40B1099E17CB3CD0D146F28BE4B29D4CE328BA20DCF64B2A0ED212B62A1C16`.
 
 The preview manifest names version 0.7.41 and companion 14.0.10.2. Those public release assets do **not** exist yet. Do not use the development manifest as an installer until a coherent release publishes both verified packages and updates the release metadata.
 
