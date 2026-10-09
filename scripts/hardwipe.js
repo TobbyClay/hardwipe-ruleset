@@ -1,3 +1,4 @@
+import "../vendor/walled-regions/scripts/module.js";
 import { HeatManager } from "./heat.js";
 import { HardwipeRules } from "./hardwipe-rules.js";
 import { HardwipeSheet } from "./hardwipe-sheet.js";

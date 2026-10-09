@@ -1,0 +1,3 @@
+# Preserve the imported upstream source and review patch byte for byte.
+vendor/** -text -whitespace
+preview/*.patch -text -whitespace

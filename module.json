@@ -1,7 +1,7 @@
 {
   "id": "hardwipe-ruleset",
   "title": "Hardwipe Ruleset",
-  "description": "Hardwipe character cyberware, wall cover and breaches, Shield Block, Strikes, Edge, and scene Mission Heat.",
+  "description": "Hardwipe cyberware, wall cover and breaches, integrated Wall Effects for areas, Shield Block, Strikes, Edge, and scene Mission Heat.",
   "version": "0.7.41",
   "socket": true,
   "compatibility": {
@@ -25,6 +25,11 @@
           "verified": "6.0.5"
         }
       }
+    ],
+    "conflicts": [
+      { "id": "walled-regions", "type": "module" },
+      { "id": "walled-templates", "type": "module" },
+      { "id": "walledtemplates", "type": "module" }
     ],
     "requires": [
       {
@@ -55,6 +60,11 @@
       "lang": "en",
       "name": "English",
       "path": "lang/en.json"
+    },
+    {
+      "lang": "pt-BR",
+      "name": "Português (Brasil)",
+      "path": "vendor/walled-regions/languages/pt-BR.json"
     }
   ],
   "scripts": [

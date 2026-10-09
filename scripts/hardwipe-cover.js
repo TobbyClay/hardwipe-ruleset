@@ -3,6 +3,7 @@ import { WallAppearance, wallWearDataEqual } from "./hardwipe-wall-appearance.js
 import { coverRollSignatureData } from "./hardwipe-cover-rolls.js";
 import { WallTypes, evaluateWallDamage } from "./hardwipe-wall-types.js";
 import { WallTargeting } from "./hardwipe-wall-targeting.js";
+import { AreaWallManager } from "./hardwipe-area-walls.js";
 
 const MODULE_ID = "hardwipe-ruleset";
 const STATE_FLAG = "coverAttack";
@@ -102,7 +103,7 @@ export class CoverManager {
     WallTypes.registerSettings();
     if (game.settings.settings.has(`${MODULE_ID}.wallCoverEnabled`)) return;
     game.settings.register(MODULE_ID, "wallCoverEnabled", {
-      name: "Automatic wall cover", hint: "Use scene walls for ranged cover and weapon impacts.",
+      name: "Automatic wall cover", hint: "Use scene walls for ranged cover, weapon impacts, and area wall damage.",
       scope: "world", config: true, type: Boolean, default: true
     });
   }
@@ -143,6 +144,7 @@ export class CoverManager {
     this._initialized = true;
     WallTypes.initialize();
     WallTargeting.initialize({ cover: this });
+    AreaWallManager.initialize({ cover: this });
     WallAppearance.initialize({ enqueue: task => this._enqueue(task), report: error => this._report(error) });
     this.registerControls();
     this._registerSocket();
@@ -389,7 +391,7 @@ export class CoverManager {
         return true;
       }
       // Re-read inside the queue so duplicate approvals observe persisted receipts.
-      const current = this._verifyCard(message);
+      const current = await this._verifyCard(message);
       await this._applyRecords(current);
       await message.setFlag(MODULE_ID, STATE_FLAG, { ...message.getFlag(MODULE_ID, STATE_FLAG), pending: false, confirmedBy: sender.id });
       return { applied: true, workflowId: current.workflowId };
@@ -402,6 +404,7 @@ export class CoverManager {
 
   static _verifyCard(message, author = message.author) {
     const state = message.getFlag(MODULE_ID, STATE_FLAG);
+    if (state?.mode === "area") return AreaWallManager.verifyCard(message);
     this._checkWallStates(state ?? {});
     if (state?.mode === "direct") return WallTargeting.verifyCard(message);
     if (state?.version !== 1 || !state.damageReady || typeof state.workflowId !== "string" || !Array.isArray(state.records)) throw new Error("The originating card has no completed wall attack.");
@@ -527,7 +530,9 @@ export class CoverManager {
     return this._socket.executeAsUser(action, game.users.activeGM.id, messageId);
   }
 
-  static async _applyRecords({ workflowId, scene, attacker, activity, records, damage, message, direct = false }) {
+  static async _applyRecords(context) {
+    if (context.area) return AreaWallManager.applyRecords(context);
+    const { workflowId, scene, attacker, activity, records, damage, message, direct = false } = context;
     this._requireGM();
     if (!scene || !Number.isFinite(damage) || damage <= 0) return;
     const wallsUsed = new Set();
@@ -798,10 +803,16 @@ export class CoverManager {
     const t = key => escape(game.i18n.localize(`HARDWIPE.Cover.Card.${key}`));
     const title = t(`${kind}Title`);
     const body = impacts.map(impact => {
+      const sections = [...new Set(impact.sections ?? [])].sort((a, b) => a - b);
+      const sectionList = sections.length > 1 && sections.every((value, index) => !index || value === sections[index - 1] + 1)
+        ? `${sections[0]}–${sections.at(-1)}` : sections.join(", ");
+      const sectionLabel = sectionList ? `${t(sections.length === 1 ? "Section" : "Sections")} ${escape(sectionList)}`
+        : impact.section ? `${t("Section")} ${escape(impact.section)}`
+          : impact.sectionCount ? escape(game.i18n.format("HARDWIPE.Cover.Card.SectionCount", { count: impact.sectionCount })) : "";
       const head = `<div class="hardwipe-wall-head"><span class="hardwipe-wall-material">${impact.indestructible
         ? t("Indestructible") : escape(game.i18n.format("HARDWIPE.Cover.Card.Material", { material: impact.material ?? t("Wall") }))}</span>
-        ${impact.section ? `<span class="hardwipe-wall-section">${t("Section")} ${escape(impact.section)}</span>` : ""}</div>
-        <div class="hardwipe-wall-target">${impact.direct ? t("DirectTarget") : escape(game.i18n.format("HARDWIPE.Cover.Card.Protecting", { target: impact.target }))}</div>`;
+        ${sectionLabel ? `<span class="hardwipe-wall-section">${sectionLabel}</span>` : ""}</div>
+        <div class="hardwipe-wall-target">${impact.area ? t("AreaTarget") : impact.direct ? t("DirectTarget") : escape(game.i18n.format("HARDWIPE.Cover.Card.Protecting", { target: impact.target }))}</div>`;
       if (impact.indestructible) {
         return `<div class="hardwipe-wall-impact is-held">${head}<div class="hardwipe-wall-held"><i class="fas fa-shield" inert></i>${t("NoDamage")}</div></div>`;
       }

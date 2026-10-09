@@ -2,26 +2,20 @@ const ID = "hardwipe-ruleset";
 const FLAG = "rangedAdvisory";
 const MANUAL_OPTIONS = "hardwipeManualAttackModes";
 const MANUAL_TOP = "hardwipeManualAttackConfig";
-const ATTACKER_CONDITIONS = {
-  blind: "Disadvantage: Blinded.", blinded: "Disadvantage: Blinded.",
-  frightened: "Possible disadvantage: Frightened, if the source of fear is visible.",
-  invisible: "Possible advantage: Invisible, depending on the target's senses.",
-  hidden: "Possible advantage: Hidden, if the target cannot see the attacker.",
-  poisoned: "Disadvantage: Poisoned.", prone: "Disadvantage: Prone.",
-  restrained: "Disadvantage: Restrained.",
-  heavilyEncumbered: "Possible disadvantage: Heavily encumbered, on a physical attack."
-};
-const LEGACY_GENERIC_REASONS = new Set([
-  "Confirm target conditions, visibility, and nearby allies with the GM.",
-  "Confirm range, conditions, and visibility with the GM.",
-  "The attacker's conditions may affect advantage or disadvantage.",
-  "An attacker advantage or disadvantage flag is present; check its conditions.",
-  "Check the Heavy weapon requirement for the attacker.",
-  "An attacker system roll modifier is configured; choose whether it applies."
-]);
+const MODIFIER_LABELS = { ADV: "Advantage", DIS: "Disadvantage",
+  NOADV: "Advantage prevented", NODIS: "Disadvantage prevented" };
+const MANUAL_SOURCES = new Set(["workflowOptions", "options", "keyPress", "forcedKeyPress", "config-buttons"]);
+const savedModes = value => Object.fromEntries(["advantage", "disadvantage"]
+  .filter(key => Object.hasOwn(value ?? {}, key)).map(key => [key, value[key]]));
+function restoreModes(target, saved) {
+  for (const key of ["advantage", "disadvantage"]) {
+    if (Object.hasOwn(saved, key)) target[key] = saved[key];
+    else delete target[key];
+  }
+}
 
 function emptyAdvisory() {
-  return { version: 2, reasons: [], attackerReasons: [], manual: true };
+  return { version: 3, reasons: [], manual: true };
 }
 
 /** Identify ranged activities without treating an ordinary melee-capable weapon as ranged. */
@@ -38,83 +32,23 @@ export function isRangedAttack(workflow) {
     || ["ranged", "thrown", "thrown-offhand"].includes(workflow.attackMode));
 }
 
-function hasFlagValue(value) {
-  if (value && typeof value === "object") return Object.values(value).some(hasFlagValue);
-  return value !== undefined && value !== null && value !== false && value !== 0
-    && value !== "" && value !== "false" && value !== "0";
-}
-
-function attackFlagReasons(actor, actionType, activity) {
-  const flags = actor?.flags?.["midi-qol"] ?? {};
-  const ability = activity?.ability;
-  const school = activity?.item?.system?.school;
-  const reasons = [];
-  const labels = { advantage: "Possible advantage", disadvantage: "Possible disadvantage",
-    noAdvantage: "Advantage suppression", noDisadvantage: "Disadvantage suppression" };
-  const actionLabels = { rwak: "ranged weapon attacks", rsak: "ranged spell attacks" };
-  for (const [key, label] of Object.entries(labels)) {
-    const data = flags[key];
-    const scopes = [[data?.all, "all rolls"], [data?.attack?.all, "all attacks"],
-      [data?.attack?.[actionType], actionLabels[actionType] ?? actionType],
-      [ability && data?.attack?.[ability], `${ability} attacks`],
-      [school && data?.attack?.school?.[school], `${school} spell attacks`]];
-    for (const [value, scope] of scopes) {
-      if (hasFlagValue(value)) reasons.push(`${label}: configured attacker flag (${scope}).`);
+/** Read only sources already evaluated by Midi; never infer rules from actor data. */
+export function collectRangedAdvisory(workflow, attackMode = workflow?.attackMode) {
+  const data = emptyAdvisory();
+  const activity = workflow?.activity;
+  // A dialog can switch a melee weapon to Thrown after Midi checked it as melee.
+  // That earlier attribution is not evidence for the newly selected attack mode.
+  const resolvedType = activity?.getActionType?.(attackMode) ?? activity?.actionType;
+  if (!isRangedAttack({ activity, attackMode }) || resolvedType !== activity?.actionType) return data;
+  const attribution = workflow?.attackRollModifierTracker?.attribution;
+  if (!attribution || typeof attribution !== "object") return data;
+  for (const [type, label] of Object.entries(MODIFIER_LABELS)) {
+    for (const [source, displayName] of Object.entries(attribution[type] ?? {})) {
+      if (MANUAL_SOURCES.has(source) || typeof displayName !== "string" || !displayName.trim()) continue;
+      data.reasons.push(`${label}: ${displayName.trim()}`);
     }
   }
-  return reasons;
-}
-
-function sceneUnitsPerUnit(unit, sceneUnit) {
-  const feet = { ft: 1, feet: 1, foot: 1, m: 3.280839895, meter: 3.280839895, meters: 3.280839895,
-    metre: 3.280839895, metres: 3.280839895, yd: 3, yards: 3, mi: 5280, miles: 5280, km: 3280.839895 };
-  const from = feet[String(unit ?? "").toLowerCase()];
-  const to = feet[String(sceneUnit ?? "").toLowerCase()];
-  return from && to ? from / to : null;
-}
-
-function beyondNormalRange(workflow) {
-  if (workflow.longRangeAttack || workflow.hardwipeDirectWall?.longRange) return true;
-  if (!workflow.token || !globalThis.MidiQOL?.getDistance) return false;
-  const activity = workflow.activity;
-  // Prepared dnd5e 6 activity ranges can promote normal range to long range.
-  const range = activity.range?.override ? activity.toObject().range : activity.item?.system?.range;
-  if (!(Number(range?.value) > 0)) return false;
-  const scale = sceneUnitsPerUnit(range.units, canvas.scene?.grid.units);
-  if (!scale) return false;
-  return [...(workflow.targets ?? [])].some(target => {
-    const distance = MidiQOL.getDistance(workflow.token, target, { wallsBlock: false });
-    return Number.isFinite(distance) && distance > Number(range.value) * scale + 1e-7;
-  });
-}
-
-function nearbyVisibleFoe(workflow) {
-  const attacker = workflow.token;
-  const disposition = attacker?.document?.disposition;
-  if (!attacker || !disposition || !canvas.ready || !globalThis.MidiQOL?.getDistance) return false;
-  const reach = sceneUnitsPerUnit("ft", canvas.scene?.grid.units);
-  if (!reach) return false;
-  return (canvas.tokens?.placeables ?? []).some(token => {
-    if (token === attacker || token.document?.hidden || token.visible !== true || !token.actor
-      || token.document.disposition !== -disposition) return false;
-    // A GM's canvas visibility alone is insufficient: exclude creatures the attacker cannot see.
-    if (typeof MidiQOL.canSee !== "function" || MidiQOL.canSee(attacker, token) !== true) return false;
-    const distance = MidiQOL.getDistance(attacker, token, { wallsBlock: true });
-    return Number.isFinite(distance) && distance >= 0 && distance <= 5 * reach + 1e-7;
-  });
-}
-
-/** Public geometry and owner-only attacker sources; never collect private defender state. */
-export function collectRangedAdvisory(workflow) {
-  const data = emptyAdvisory();
-  if (beyondNormalRange(workflow)) data.reasons.push("Disadvantage: beyond normal range.");
-  if (nearbyVisibleFoe(workflow)) data.reasons.push("Possible disadvantage: a visible hostile creature is within 5 feet.");
-  for (const status of workflow.actor?.statuses ?? []) {
-    if (ATTACKER_CONDITIONS[status]) data.attackerReasons.push(ATTACKER_CONDITIONS[status]);
-  }
-  const actionType = workflow.activity?.getActionType?.(workflow.attackMode) ?? workflow.activity?.actionType;
-  data.attackerReasons.push(...attackFlagReasons(workflow.actor, actionType, workflow.activity));
-  data.attackerReasons = [...new Set(data.attackerReasons)];
+  data.reasons = [...new Set(data.reasons)];
   return data;
 }
 
@@ -122,8 +56,26 @@ export function collectRangedAdvisory(workflow) {
 export function restoreManualRangedModes(config, builtRoll, builtIndex = 0) {
   const explicit = config?.[MANUAL_OPTIONS];
   const attackMode = builtRoll?.options?.attackMode ?? config?.attackMode;
-  if (!Array.isArray(explicit) || !isRangedAttack({ activity: config.subject, attackMode })) return;
+  if (!Array.isArray(explicit)) return;
   const workflow = config.workflow;
+  if (workflow && !workflow.hardwipeRangedAutomaticState) {
+    workflow.hardwipeRangedAutomaticState = {
+      config: savedModes(config),
+      rolls: (config.rolls ?? []).map(roll => savedModes(roll.options)),
+      tracker: structuredClone(workflow.attackRollModifierTracker?.toJSON?.())
+    };
+  }
+  if (!isRangedAttack({ activity: config.subject, attackMode })) {
+    if (workflow?.hardwipeRangedManualApplied) {
+      const automatic = workflow.hardwipeRangedAutomaticState;
+      restoreModes(config, automatic.config);
+      if (automatic.tracker) workflow.attackRollModifierTracker.restore(structuredClone(automatic.tracker));
+      if (builtRoll) restoreModes(builtRoll.options, automatic.rolls[builtIndex] ?? {});
+      workflow.hardwipeRangedManualApplied = false;
+      workflow.hardwipeRangedAdvisory = undefined;
+    }
+    return;
+  }
   const top = config[MANUAL_TOP] ?? {};
   for (const mode of ["advantage", "disadvantage"]) {
     if (Object.hasOwn(top, mode)) config[mode] = top[mode];
@@ -133,6 +85,9 @@ export function restoreManualRangedModes(config, builtRoll, builtIndex = 0) {
   // A thrown mode can be selected after Midi evaluated the activity as melee.
   // Rebuild only mode state; preserve critical/fumble and minimum/maximum modifiers.
   if (workflow && !workflow.hardwipeRangedManualApplied) {
+    // Capture the real evaluated attribution before removing automatic mode changes.
+    // Keep this snapshot separate from the tracker used for the player's chosen roll.
+    workflow.hardwipeRangedAdvisory = collectRangedAdvisory(workflow, attackMode);
     const tracker = workflow.attackRollModifierTracker;
     if (tracker?.toJSON && tracker?.restore) {
       const state = tracker.toJSON();
@@ -146,35 +101,15 @@ export function restoreManualRangedModes(config, builtRoll, builtIndex = 0) {
       tracker.restore(state);
       tracker.processKeys(config);
     }
-    try {
-      workflow.hardwipeRangedAdvisory = collectRangedAdvisory({
-        actor: workflow.actor, item: workflow.item, activity: config.subject, token: workflow.token,
-        targets: workflow.targets, attackMode, longRangeAttack: workflow.longRangeAttack,
-        hardwipeDirectWall: workflow.hardwipeDirectWall
-      });
-    } catch (error) {
-      workflow.hardwipeRangedAdvisory = emptyAdvisory();
-      console.warn(`${ID} | Ranged reminders could not be collected`, error);
-    }
   }
   if (workflow) workflow.hardwipeRangedManualApplied = true;
-  const nativeModifiers = new Set();
   const rolls = builtRoll ? [[builtIndex, builtRoll]] : (config.rolls ?? []).entries();
   for (const [index, roll] of rolls) {
     roll.options ??= {};
     for (const mode of ["advantage", "disadvantage"]) {
       const saved = explicit[index] ?? {};
-      if (!Object.hasOwn(saved, mode) && roll.options[mode]) nativeModifiers.add(mode);
       if (Object.hasOwn(saved, mode)) roll.options[mode] = saved[mode];
       else delete roll.options[mode];
-    }
-  }
-  const advisory = workflow?.hardwipeRangedAdvisory;
-  if (advisory) {
-    advisory.attackerReasons ??= [];
-    for (const mode of nativeModifiers) {
-      const reminder = `${mode === "advantage" ? "Advantage" : "Disadvantage"}: configured system attack modifier.`;
-      if (!advisory.attackerReasons.includes(reminder)) advisory.attackerReasons.push(reminder);
     }
   }
 }
@@ -201,17 +136,8 @@ export class RangedAttackManager {
     if (this._initialized) return;
     this._initialized = true;
     this._registerWrappers();
-    Hooks.on("midi-qol.preCheckAttackAdvantage", workflow => {
-      if (!isRangedAttack({ activity: workflow.activity, attackMode: workflow.hardwipeRangedPendingMode })) return;
-      workflow.hardwipeRangedManualApplied = true;
-      // Failure to collect a reminder must never restore automatic roll-mode changes.
-      try { workflow.hardwipeRangedAdvisory = collectRangedAdvisory(workflow); }
-      catch (error) {
-        workflow.hardwipeRangedAdvisory = emptyAdvisory();
-        console.warn(`${ID} | Ranged reminders could not be collected`, error);
-      }
-      return false;
-    });
+    // Midi must evaluate its normal rules and conditional flags. The native
+    // preRollAttackV2 hook below snapshots attribution and restores manual mode.
     // Runs after the evaluated roll exists, before hit checks and any GM approval wait.
     Hooks.on("midi-qol.preCheckHits", workflow => this._record(workflow));
   }
@@ -235,6 +161,7 @@ export class RangedAttackManager {
           manager._activeConfigs.add(config);
           if (config.workflow) {
             config.workflow.hardwipeRangedManualApplied = false;
+            config.workflow.hardwipeRangedAutomaticState = undefined;
             config.workflow.hardwipeRangedAdvisory = undefined;
             config.workflow.hardwipeRangedPendingMode = config.attackMode ?? this.attackMode;
           }
@@ -259,8 +186,9 @@ export class RangedAttackManager {
   }
 
   static _onPostBuild(config, roll, index, options = {}) {
+    const wasManual = config.workflow?.hardwipeRangedManualApplied;
     restoreManualRangedModes(config, roll, index);
-    if (!isRangedAttack({ activity: config.subject, attackMode: roll.options?.attackMode ?? config.attackMode })) return;
+    if (!wasManual && !isRangedAttack({ activity: config.subject, attackMode: roll.options?.attackMode ?? config.attackMode })) return;
     // Previews and fast-forward builds need a refreshed default after changing attack mode.
     // Final dialog builds already have the explicit clicked mode from _finalizeConfig.
     if (!this._finalizingDialogs.has(options.app) && Array.isArray(config[MANUAL_OPTIONS])) {
@@ -271,7 +199,10 @@ export class RangedAttackManager {
   static async _record(workflow) {
     if (!workflow.attackRoll || !workflow.chatCard) return;
     const card = workflow.chatCard;
-    const data = workflow.hardwipeRangedAdvisory ?? emptyAdvisory();
+    const finalMode = workflow.attackRoll.options?.attackMode ?? workflow.attackMode;
+    const finalType = workflow.activity?.getActionType?.(finalMode) ?? workflow.activity?.actionType;
+    const data = finalType === workflow.activity?.actionType
+      ? workflow.hardwipeRangedAdvisory ?? emptyAdvisory() : emptyAdvisory();
     try {
       if (!workflow.hardwipeRangedManualApplied
         || !isRangedAttack({ activity: workflow.activity, attackMode: workflow.attackRoll.options?.attackMode ?? workflow.attackMode })) {
@@ -279,14 +210,14 @@ export class RangedAttackManager {
         if (card.getFlag(ID, FLAG)) await card.unsetFlag(ID, FLAG);
         return;
       }
-      // Public chat flags are readable by other clients. Keep named attacker sources only
-      // on the rolling client; their snapshot survives rerenders, never leaks NPC state.
-      this._attackerAdvisories.set(card.id, [...(data.attackerReasons ?? [])]);
+      // Public chat flags are readable by other clients. Keep evaluated source names only
+      // on the rolling client; their snapshot survives rerenders, never publishes NPC or defender state.
+      this._attackerAdvisories.set(card.id, [...(data.reasons ?? [])]);
       if (this._attackerAdvisories.size > 200) this._attackerAdvisories.delete(this._attackerAdvisories.keys().next().value);
-      const publicData = { version: 2, reasons: data.reasons ?? [], manual: true };
+      const publicData = { version: 3, manual: true };
       if (JSON.stringify(card.getFlag(ID, FLAG)) !== JSON.stringify(publicData)) await card.setFlag(ID, FLAG, publicData);
     } catch (error) {
-      console.warn(`${ID} | Ranged reminders could not be attached to the attack card`, error);
+      console.warn(`${ID} | Midi attribution could not be attached to the attack card`, error);
     }
   }
 
@@ -294,18 +225,17 @@ export class RangedAttackManager {
     const root = html?.querySelector ? html : html?.[0];
     root?.querySelectorAll(".hardwipe-ranged-advisory").forEach(node => node.remove());
     const data = message.getFlag(ID, FLAG);
-    if (!root || !data?.manual || message.visible === false || message.isContentVisible === false
+    if (!root || data?.version !== 3 || !data.manual || message.visible === false || message.isContentVisible === false
       || message.isRollVisible === false || (message.blind && !game.user.isGM)) return;
     const content = root.querySelector(".message-content");
     if (!content) return;
     const actor = ChatMessage.getSpeakerActor(message.speaker);
-    const reasons = Array.isArray(data.reasons) ? [...data.reasons] : [];
+    const reasons = [];
     if (game.user.isGM || actor?.isOwner) {
       reasons.push(...(this._attackerAdvisories.get(message.id) ?? []));
     }
-    // Old cards must also lose the unconditional banner without rewriting chat history.
-    const identified = [...new Set(reasons.filter(reason => typeof reason === "string"
-      && reason.trim() && !LEGACY_GENERIC_REASONS.has(reason)))];
+    // Older flags were built from guesses. Discard them without rewriting chat history.
+    const identified = [...new Set(reasons.filter(reason => typeof reason === "string" && reason.trim()))];
     if (!identified.length) return;
     const box = root.ownerDocument.createElement("aside");
     box.className = "hardwipe-ranged-advisory";

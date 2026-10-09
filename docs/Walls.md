@@ -65,6 +65,42 @@ The marker identifies the five-foot section. Melee needs reach; ranged attacks r
 
 Escape, movement, switching controlled characters, or changing scenes cancels selection. Creature targets are cleared for that use. An intervening intact wall blocks selecting another wall behind it; hidden secret doors and out-of-vision walls cannot be selected. Direct targeting covers ordinary weapon attacks, not spell attacks or area templates.
 
+## Spell and area Wall Effects — development preview
+
+Hardwipe bundles Walled Regions for native area placement and wall clipping. Open an area item's **Wall Effects** tab, check **Enable Walled Regions**, and choose the mode in the existing wall-interaction dropdown. The same choices are available in a placed Region's **Wall Effects** section.
+
+| Item configuration | Private GM wall review |
+| --- | --- |
+| <img src="media/wall-effects-item-preview.webp" alt="Unreleased preview: Wall Effects tab with Damage walls — Half selected" width="420"> | <img src="media/wall-area-review-preview.webp" alt="Unreleased preview: original roll 30 becomes 15, loses 5 armor, and proposes 10 damage per section with Apply or Ignore" width="295"> |
+
+| Mode | Area behavior | Wall durability |
+| --- | --- | --- |
+| Global default | Uses the configured default | No area wall damage |
+| Do not block template | Original area passes through walls | No area wall damage |
+| Block template | Area stops at walls | No area wall damage |
+| Reflect/Spread template | Existing Walled Regions reflection or spread | No area wall damage |
+| Damage walls — Normal | Area stops at standing physical walls | Proposes the full damage roll |
+| Damage walls — Half | Area stops at standing physical walls | Proposes half the damage roll, rounded down |
+
+For a Fireball-style effect, choose **Damage walls — Half**. Walls do not make a creature saving throw. Hardwipe starts with the original damage roll, applies the selected wall multiplier, checks the damage threshold, then subtracts armor. With threshold **10** and armor **5**:
+
+| Original roll | Mode | Damage checked against threshold | HP lost per exposed section |
+| ---: | --- | ---: | ---: |
+| 18 | Half | 9 | 0 |
+| 20 | Half | 10 | 5 |
+| 30 | Half | 15 | 10 |
+| 30 | Normal | 30 | 25 |
+
+Each exposed five-foot section receives one proposed impact. Overlapping placements in the same cast do not hit a section twice. An intact wall shields walls behind it, including walls that have optical glimpse gaps. Destroying the front wall does not send that same blast onward to another wall.
+
+Damage modes always use physical walls; the optical Wall Type selector is disabled for these modes. Circles, cones, lines, and rectangles are supported. **Emanations and rings require manual wall damage** in this version and display a warning when placed. Their ordinary spell damage can still be rolled.
+
+The GM receives one private **Apply damage / Ignore** review for the cast, including all affected sections. Wall HP, surface marks, and geometry wait for approval. Changing the source area, damage roll, wall settings, or blockers invalidates the old proposal. A pending instantaneous area is retained so the GM can verify it; remove it after review when finished. **Undo last wall damage** restores the cast's wall changes together.
+
+Use this bundled implementation with standalone Walled Regions and Walled Templates disabled. Existing `walled-regions` item and Region flags remain compatible. The source and bundled licenses are in [vendor/NOTICE.md](../vendor/NOTICE.md).
+
+This is an unreleased development addition. It requires the matching Ready Set Midi build with pending-area retention. Direct non-area spell attacks against walls remain outside the wall-targeting tool's supported actions.
+
 ## Damage opens a glimpse before a breach
 
 ![Damaged wall with actual vision and light opening in a synthetic scene](media/wall-glimpse-current.png)

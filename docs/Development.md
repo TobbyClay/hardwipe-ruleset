@@ -20,23 +20,45 @@ The **0.7.41 / Ready Set Midi 14.0.10.2** source cohort is under review in the r
 
 <img src="media/ranged-advisory-current.webp" alt="Actual audited preview card with identified advantage and disadvantage sources" width="350">
 
-The source review must travel with the **tested companion bundle**, not a fresh rebuild from stale workspace output. Its SHA256 is:
+The source review must travel with the **matching tested companion bundle** in [preview](../preview/README.md). Its JavaScript SHA256 is:
 
 ```text
-FB6BA1AB4F49A601CBE8D4DF3C4F4F2BD87F8730A1B229209158EE977E2D0FF6
+40CBB1E42A49565A1EAABE4488B0B9B05E21740A29EC17CB49BB4AB4A201D7FD
 ```
 
-The audited `scripts/hardwipe-ranged.js` SHA256 is:
+The current `scripts/hardwipe-ranged.js` SHA256, after the actual-Midi-attribution correction, is:
 
 ```text
-5015687A93E49E96172F947C4EE40201EBEC2DF70967501C12C427DCEFC98B15
+C4614DC76ABC87D465A998C2FF45D9444945454CB20EA9CF9B2144D4962F4AA0
 ```
 
 The preview manifest names version 0.7.41 and companion 14.0.10.2. Those public release assets do **not** exist yet. Do not use the development manifest as an installer until a coherent release publishes both verified packages and updates the release metadata.
 
 ## Verification scope
 
-The audited cohort has source checks and disposable Foundry GM/Player runtime evidence for the exercised workflows. The most recent ranged advisory acceptance includes **16 source cases** and native GM/Player checks for identified sources, no-source silence, unchanged roll mode, and privacy. This is bounded verification, not an assertion that every module combination or possible scenario passes.
+### Wall Effects integration, 2026-10-09
+
+The later local development cohort bundles Walled Regions and adds Normal/Half wall-damage modes. It also corrects native multi-area placement counting and retains placed-area identities with full workflow snapshots disabled. This is a local preview, not a published release or installer update.
+
+Its matching tested Ready Set Midi JavaScript SHA256 is:
+
+```text
+40CBB1E42A49565A1EAABE4488B0B9B05E21740A29EC17CB49BB4AB4A201D7FD
+```
+
+This hash supersedes the earlier companion hash **for the Wall Effects preview only**. Keep both records with their respective audit scope. Native Foundry 14.367 / D&D5e 6.0.5 GM and Player checks cover normal and half damage, threshold boundaries, private approval, Ignore, stale and duplicate decisions, reload, optical gaps, breaches, grouped undo, multiple origins, overlapping areas, and the existing Spread mode. The geometry suite has 16 passing cases; the production placement-count helper has six passing cases. Emanations and rings remain manual wall-damage cases; a native ring cast verified the warning.
+
+### Actual Midi attribution correction, 2026-10-09
+
+The ranged advisory now consumes Ready Set Midi's evaluated `attackRollModifierTracker.attribution` before removing automatic roll-mode changes. It no longer cancels that calculation, inspects actor statuses, treats a conditional expression as truthy, recomputes range/nearby geometry, or invents a generic system-modifier reminder. False conditions and absent attribution produce no box. Manual options, keyboard choices, and native dialog buttons remain authoritative. Older guessed advisories are hidden.
+
+Native GM/Player checks exercised no-source silence, false and true conditional flags, named active-effect attribution, combined advantage/disadvantage, suppression, unlabelled native modes, explicit and dialog choices, required GM approval with unchanged HP, and melee-to-Thrown-to-melee restoration. The long-range fixture returned no Midi attribution in this configuration; its box remained hidden. Thrown mode cannot borrow a calculation made for melee. Source labels stay local to the rolling client and disappear after reload.
+
+Six pure adapter tests and the existing sixteen wall-geometry tests pass. All 118 JavaScript entry files checked pass syntax validation; six placement-count helper checks pass. The current native advisory screenshot replaces the earlier guessed-source image. The older sixteen-case advisory audit describes superseded inference behavior and must not be used as acceptance for this implementation.
+
+### Earlier preview audit
+
+The audited cohort has source checks and disposable Foundry GM/Player runtime evidence for the exercised workflows. Its earlier advisory checks are superseded by the actual-attribution correction above. This is bounded verification, not an assertion that every module combination or possible scenario passes.
 
 The original 0.7.40 publication records **11 checks** and a restart/redraw of **202 messages**. Keep that historical release evidence separate from the later preview audit.
 

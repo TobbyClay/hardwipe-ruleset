@@ -28,7 +28,7 @@ Montages put multiple native captures side by side. A montage illustrates separa
 | Published file | Capture version | Native subject and processing |
 | --- | --- | --- |
 | [cyberware-sheet-current.webp](media/cyberware-sheet-current.webp) | Audited preview (local 0.7.41 capture) | Player character sheet, paper doll, and slots; cropped. Original hover tooltip retained. |
-| [ranged-advisory-current.webp](media/ranged-advisory-current.webp) | Audited preview (local 0.7.41 capture) | Complete ranged attack and detected-source advisory; cropped from the player chat view. |
+| [ranged-advisory-current.webp](media/ranged-advisory-current.webp) | Audited preview (local 0.7.41 capture) | Native ranged attack with actual Midi attribution, replacing the earlier inferred-source capture; cropped from the player chat view. |
 | [wall-config-current.webp](media/wall-config-current.webp) | Audited preview (local 0.7.41 capture) | Compact Hardwipe controls at the bottom of the native wall editor; cropped. |
 | [wall-types-manager.webp](media/wall-types-manager.webp) | 0.7.24 | Native wall-type manager with armor, HP, and threshold fields; cropped. |
 | [heat-threat-broadcast.webp](media/heat-threat-broadcast.webp) | 0.7.40 | Threat broadcast rising, critical, Lockdown, and reduced-Heat card montage. |
@@ -66,6 +66,8 @@ The **rest recording** contains genuine native motion and one real Hit Die expen
 The **wall glimpse** is a prepared damaged-stage example at 10/40 wall HP using the native appearance helpers. The screenshot shows the GM canvas view of that prepared state; it is not a player-login test or a recording of an attack being applied.
 
 ## Reading these examples
+
+The later **Wall Effects development preview** adds three actual native captures from the same disposable GM/Player world on 2026-10-09. `wall-effects-item-preview.webp` shows the item dropdown with Half selected; `wall-effects-region-preview.webp` shows a saved Region override with Normal selected; `wall-area-review-preview.webp` shows the private GM review for a player cast, with original damage 30 and proposed section loss 10. They were cropped from full 1280 × 900 screenshots. No UI was recreated, and no campaign data is present. These images do not identify a published release.
 
 - **Private views are labeled.** GM review, concentration requests, and some roll-request details are shown to explain those interfaces; their presence in this public guide does not change in-game visibility.
 - **Only the rest GIF demonstrates motion.** Heat, turn prompts, and other gallery images are still screenshots; their montages show separate native states rather than an animation recording.
