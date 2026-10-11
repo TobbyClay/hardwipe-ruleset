@@ -385,7 +385,7 @@ export class HeatManager {
 
     const direction = (HEAT_STATE_RANK[nextStatus] ?? 0) > (HEAT_STATE_RANK[previousStatus] ?? 0) ? "Up" : "Down";
     const key = `HARDWIPE.Heat.Transition.${direction}.${nextStatus}`;
-    const sceneName = this._escapeHTML(scene?.name ?? "");
+    const sceneName = scene?.name ?? "";
     const stateTitle = this._escapeHTML(game.i18n.localize(`${key}.Title`));
     const content = `
       <div class="hardwipe-chat-card hardwipe-heat-state-card is-${nextStatus} is-${direction.toLowerCase()}">

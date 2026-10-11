@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import {collectRangedAdvisory,restoreManualRangedModes} from '../scripts/hardwipe-ranged.js';
+import {collectRangedAdvisory,expectedMode,restoreManualRangedModes} from '../scripts/hardwipe-ranged.js';
 const activity={attack:{type:{value:'ranged'}},actionType:'rwak'};
 const workflow=attribution=>({activity,attackRollModifierTracker:{attribution}});
 test('No evaluated Midi attribution means no reasons, regardless of actor data',()=>{
@@ -9,6 +9,13 @@ test('No evaluated Midi attribution means no reasons, regardless of actor data',
 test('Only evaluated ADV, DIS and suppression labels are copied',()=>{
  const w=workflow({ADV:{'attack.rwak':'Optical Targeting - Ranged attacks'},DIS:{range:'Long Range'},NOADV:{jammer:'Optics Jammer'},CRIT:{effect:'Critical'}});
  assert.deepEqual(collectRangedAdvisory(w).reasons,['Advantage: Optical Targeting - Ranged attacks','Disadvantage: Long Range','Advantage prevented: Optics Jammer']);
+});
+test('Sources keep their type for the readout, and the expected mode follows the cancel and block rules',()=>{
+ const w=workflow({ADV:{a:'Optical Targeting - Advantage Attack (Ranged Weapon)'},DIS:{range:'Long Range'}});
+ assert.deepEqual(collectRangedAdvisory(w).sources,[{type:'ADV',name:'Optical Targeting - Advantage Attack (Ranged Weapon)'},{type:'DIS',name:'Long Range'}]);
+ const s=(...types)=>types.map(type=>({type,name:type}));
+ assert.equal(expectedMode([]),0);assert.equal(expectedMode(s('ADV')),1);assert.equal(expectedMode(s('DIS')),-1);
+ assert.equal(expectedMode(s('ADV','DIS')),0);assert.equal(expectedMode(s('ADV','DIS','NODIS')),1);assert.equal(expectedMode(s('ADV','NOADV')),0);
 });
 test('Manual buttons, options and keybindings never become source hints',()=>{
  const w=workflow({ADV:Object.fromEntries(['workflowOptions','options','keyPress','forcedKeyPress','config-buttons'].map(key=>[key,key]))});assert.deepEqual(collectRangedAdvisory(w).reasons,[]);

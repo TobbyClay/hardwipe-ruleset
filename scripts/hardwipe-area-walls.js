@@ -7,6 +7,7 @@ const ID = "hardwipe-ruleset";
 const STATE = "coverAttack";
 const HISTORY = "coverHistory";
 const LEDGER = "coverDamageLedger";
+const LEDGER_LIMIT = 500;
 const clone = value => foundry.utils.deepClone(value);
 const stable = value => {
   if (value instanceof Set) return stable([...value].sort());
@@ -247,7 +248,9 @@ export class AreaWallManager {
         if (!(impact.applied > 0)) continue;
         Object.assign(cover, clone(record.metadata));
         cover.sections[record.section] = { ...clone(cover.sections[record.section] ?? {}), hp: impact.after, max: Number(cover.max),
-          impact: clone(cover.sections[record.section]?.impact ?? record.impact) };
+          impact: clone(cover.sections[record.section]?.impact ?? record.impact),
+          hits: [...clone(cover.sections[record.section]?.hits ?? []), { x: record.impact?.x, y: record.impact?.y, damage: impact.applied }]
+            .filter(hit => Number.isFinite(hit.x) && Number.isFinite(hit.y)).slice(-12) };
         if (impact.after <= 0) { breaches.push(record); delete cover.sections[record.section]; }
       }
       let plan;
@@ -275,7 +278,7 @@ export class AreaWallManager {
       for (const phase of ["before", "after"]) for (const name of ["walls", "tiles"]) appearance[phase][name].push(...plan[phase][name]);
     }
     ledger.push({ key: receiptKey, at: Date.now(), sourceMessageId: message.id, damage, sections: records.length });
-    const sceneUpdate = { _id: scene.id, [`flags.${ID}.${LEDGER}`]: ledger };
+    const sceneUpdate = { _id: scene.id, [`flags.${ID}.${LEDGER}`]: ledger.slice(-LEDGER_LIMIT) };
     if (appearance.before.walls.length) sceneUpdate[`flags.${ID}.${HISTORY}`] = [...clone(scene.getFlag(ID, HISTORY) ?? []), {
       version: 2, id: foundry.utils.randomID(), at: Date.now(), userId: game.user.id, workflowId, ledgerKey: receiptKey, ...clone(appearance)
     }].slice(-20);

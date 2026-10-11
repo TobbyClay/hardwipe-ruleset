@@ -168,8 +168,10 @@ function render(message, html) {
   const element = html?.querySelector ? html : html?.[0];
   if (!element) return;
   if (isConcentrationSave(message)) return collapseSave(message, element);
-  const data = message.flags?.[MODULE_ID]?.[FLAG];
-  if (!data || !message.isContentVisible) return;
+  const stored = message.flags?.[MODULE_ID]?.[FLAG];
+  if (!stored || !message.isContentVisible) return;
+  // Flags come from the posting client: the numbers are read as numbers before they reach the card's HTML.
+  const data = { ...stored, dc: Number(stored.dc) || null, damage: Number(stored.damage) || null };
   const content = element.querySelector(".message-content");
   if (!content || content.querySelector(":scope > .hardwipe-concprg")) return;
   const actor = speakerActor(message);

@@ -16,6 +16,11 @@ import { registerRestReceipts } from "./hardwipe-rest-receipt.js";
 import { registerConcentrationCards } from "./hardwipe-concentration.js";
 import { registerMessageCards } from "./hardwipe-message-cards.js";
 import { RangedAttackManager } from "./hardwipe-ranged.js";
+import { registerAssembly } from "./hardwipe-assembly.js";
+import { registerDamageSync } from "./hardwipe-attack-cards.js";
+import { applyNpcSavesDefault, registerNpcSaves } from "./hardwipe-npc-saves.js";
+import { registerEffectChoice } from "./hardwipe-effect-choice.js";
+import { registerSaveCards } from "./hardwipe-check-cards.js";
 
 export const MODULE_ID = "hardwipe-ruleset";
 export const MODULE_TITLE = "Hardwipe Ruleset";
@@ -39,6 +44,12 @@ Hooks.once("init", async () => {
   CyberwareManager.registerCategories();
   CoverManager.registerSettings();
   CoverManager.registerControls();
+  // First of the chat hooks: later render hooks can tell a card is still being assembled.
+  registerAssembly();
+  registerDamageSync();
+  registerNpcSaves();
+  registerEffectChoice();
+  registerSaveCards();
   AttackReviewManager.registerSettings();
   RangedAttackManager.registerHooks();
   AttackReviewManager.registerHooks();
@@ -67,5 +78,6 @@ Hooks.once("ready", () => {
   AttackReviewManager.initialize();
   HardwipeSheet.initialize();
   ShortRestManager.initialize();
+  void applyNpcSavesDefault();
   console.log(`${MODULE_TITLE} | Ready`);
 });

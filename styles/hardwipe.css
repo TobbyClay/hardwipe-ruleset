@@ -2176,7 +2176,9 @@ button.hardwipe-save-button:disabled { opacity: 0.5; cursor: progress; }
 .hardwipe-save-dc { color: var(--hw-save); font: 700 15px var(--hw-font-disp); white-space: nowrap; text-shadow: 0 0 2px var(--hw-save); }
 .hardwipe-save-rows { display: grid; font-size: 10px; }
 .hardwipe-save-head,
-.hardwipe-save-row { display: grid; grid-template-columns: minmax(0, 1fr) 54px 62px; align-items: center; gap: 6px; }
+.hardwipe-save-row { display: grid; grid-template-columns: minmax(0, 1fr) 76px 62px; align-items: center; gap: 6px; }
+.hardwipe-save-head > span { white-space: nowrap; }
+.hardwipe-save-head > span:nth-child(2) { text-align: center; }
 .hardwipe-save-head { padding: 0 4px 4px; color: #5c6a70; border-bottom: 1px solid #1f262b; font: 700 8px var(--hw-font-disp); letter-spacing: 0.14em; text-transform: uppercase; }
 .hardwipe-save-head > span:last-child { text-align: right; }
 .hardwipe-save-row { padding: 5px 4px; border-bottom: 1px solid #141a1e; }
@@ -2264,10 +2266,6 @@ button.hardwipe-save-button:disabled { opacity: 0.5; cursor: progress; }
 /* Critical damage: cyan double frame. */
 .hardwipe-damage-summary.is-crit .hardwipe-damage-box { border: 3px double var(--hw-cyan); box-shadow: 0 0 2px rgba(70, 230, 220, 0.7); }
 
-/* One-shot arrival (JS adds these only on a card that was just rolled). */
-.hardwipe-settling .rsr-multiroll > .total > .rsm-modified-total { opacity: 0.25; }
-.hardwipe-settled .rsr-multiroll > .total:not(.ignored) { animation: hardwipe-settle-pop 0.4s ease-out 1; }
-@keyframes hardwipe-settle-pop { from { box-shadow: 0 0 2px var(--hw-verdict, var(--hw-phos)); } }
 .hardwipe-glitch .rsr-multiroll > .total:not(.ignored) { animation: hardwipe-box-glitch 0.7s steps(1) var(--hw-glitch-delay, 0ms) 1 both; }
 @keyframes hardwipe-box-glitch {
   0%, 100% { transform: none; text-shadow: none; }
@@ -3907,4 +3905,225 @@ button.hardwipe-web-tab:not([aria-selected="true"]):hover { color: var(--hw-hi);
 
 @media (prefers-reduced-motion: reduce) {
   :is(.hwsh, .hwh, .hwt), :is(.hwsh, .hwh, .hwt) *, :is(.hwsh, .hwh, .hwt) *::before, :is(.hwsh, .hwh, .hwt) *::after, .hwh::before { animation: none !important; }
+}
+
+/* ==========================================================================
+ * 0.7.43 roll mode scan: the ranged advantage/disadvantage advisory under the attack roll.
+ * One row per detected source, and the mode they call for beside the title.
+ * ========================================================================== */
+.hwra {
+  --hwra-adv: #8fe8bb;
+  --hwra-dis: #ff7a8a;
+  --hwra-block: var(--hw-warn);
+  --hwra-rail: var(--hw-line-2);
+  margin: 6px 0 0;
+  padding: 0;
+  color: var(--hw-phos);
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid var(--hw-line);
+  border-left: 2px solid var(--hwra-rail);
+  border-radius: 0;
+  font: 11px/1.3 var(--hw-font-mono);
+  text-align: left;
+  white-space: normal;
+}
+.hwra.is-adv { --hwra-rail: var(--hwra-adv); }
+.hwra.is-dis { --hwra-rail: var(--hwra-dis); }
+
+.hwra-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 22px;
+  padding: 2px 4px 2px 8px;
+  background: rgba(143, 207, 176, 0.06);
+  border-bottom: 1px solid var(--hw-line);
+}
+.hwra-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--hw-dim);
+  font: 700 10px var(--hw-font-disp);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+.hwra-title::before { content: ""; width: 6px; height: 6px; background: var(--hwra-rail); box-shadow: 0 0 2px var(--hwra-rail); }
+.hwra-call { display: inline-flex; align-items: center; gap: 6px; margin-left: auto; cursor: help; }
+.hwra-k { color: var(--hw-dim-2); font: 700 9px var(--hw-font-disp); letter-spacing: 0.16em; text-transform: uppercase; }
+.hwra-mode {
+  --hwra-c: var(--hw-dim);
+  padding: 2px 7px;
+  color: #05100c;
+  background: var(--hwra-c);
+  font: 700 10px/1 var(--hw-font-disp);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+.hwra-mode.is-adv { --hwra-c: var(--hwra-adv); box-shadow: 0 0 2px var(--hwra-adv); }
+.hwra-mode.is-dis { --hwra-c: var(--hwra-dis); box-shadow: 0 0 2px var(--hwra-dis); }
+.hwra-mode.is-norm { color: var(--hw-hi); background: transparent; box-shadow: inset 0 0 0 1px var(--hw-line-2); }
+
+.hwra-list { display: grid; gap: 1px; margin: 0; padding: 4px 0; list-style: none; }
+.hwra-src {
+  --hwra-c: var(--hwra-adv);
+  display: grid;
+  grid-template-columns: 64px minmax(0, 1fr);
+  align-items: start;
+  gap: 8px;
+  margin: 0;
+  padding: 3px 8px;
+}
+.hwra-src.is-dis { --hwra-c: var(--hwra-dis); }
+.hwra-src.is-block { --hwra-c: var(--hwra-block); }
+.hwra-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  height: 18px;
+  color: var(--hwra-c);
+  background: color-mix(in srgb, var(--hwra-c) 12%, transparent);
+  border: 1px solid color-mix(in srgb, var(--hwra-c) 55%, transparent);
+  font: 700 10px/1 var(--hw-font-disp);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.hwra-chip > i { font-size: 9px; }
+.hwra-name { display: grid; min-width: 0; padding-top: 1px; }
+.hwra-name > b {
+  overflow: hidden;
+  color: var(--hw-hi);
+  font: 700 12px/1.25 var(--hw-font-disp);
+  letter-spacing: 0.04em;
+  text-overflow: ellipsis;
+}
+.hwra-name > small { color: var(--hw-dim); font-size: 10px; line-height: 1.3; overflow-wrap: anywhere; }
+/* A source cancelled by a block reads struck through, its chip dimmed. */
+.hwra-src.is-void .hwra-chip { opacity: 0.45; }
+.hwra-src.is-void .hwra-name > b { text-decoration: line-through; text-decoration-color: color-mix(in srgb, var(--hwra-block) 80%, transparent); }
+
+/* Folded cards keep only the attack line. */
+.chat-message.is-folded .hwra { display: none !important; }
+
+/* ==========================================================================
+ * 0.7.43 attack cards appear complete: kept out of the log while they assemble.
+ * ========================================================================== */
+.chat-message.hardwipe-assembling { display: none !important; }
+/* Ready Set Midi's one-line NPC save request: the card's save button covers it. */
+.chat-message.hardwipe-midi-prompt { display: none !important; }
+
+/* Checks and saves: Ready Set Midi 14.0.10.2 shows its advantage chevrons over the total on hover with a
+ * stronger rule than the one that hid them; the card's own switch does that job. */
+.chat-message.hardwipe-check-message .rsr-overlay,
+.chat-message.hardwipe-check-message button.dice-roll:is(:hover, :focus-visible) .rsr-overlay { display: none !important; }
+
+/* dnd5e marks the attack roll hit or miss against the target's AC; on Hardwipe cards the verdict (the GM's
+ * ruling, cover included) says that, and the icon could contradict it. */
+.chat-message.hardwipe-attack-message .midi-qol-attack-roll button.dice-roll > .icons { display: none; }
+
+/* CRIT on the damage line: the advantage switch's look, in the critical colour. */
+button.hardwipe-adv-btn.is-crit { --hw-adv: var(--hw-c-critical, var(--hw-cyan)); }
+.hardwipe-roll-card .rsr-title > .hardwipe-crit-switch,
+.hardwipe-roll-card .midi-roll-label > .hardwipe-crit-switch { order: 2; align-self: center; }
+.hardwipe-crit-switch.is-static button.hardwipe-adv-btn.is-crit:not(.is-on) { opacity: 0.4; }
+
+/* Applied damage that followed a changed roll. */
+.hardwipe-apply-adjusted { color: var(--hw-dim); font-style: normal; letter-spacing: 0.06em; text-transform: none; cursor: help; }
+
+/* ==========================================================================
+ * 0.7.44 saving throw: the dial. A gauge on the left: the DC at the top of the arc, the reading right of
+ * it (cleared) or left of it (short), a bonus added afterwards in violet, Δ and the verdict in the middle;
+ * with no DC the arc is the roll's own range and the middle is the total. Beside it: SAVING THROW and the
+ * ability, the source, the roll box (both dice of an advantage roll side by side), + and the switch.
+ * A natural 20 pegs the reading into a redline; a natural 1 cracks the gauge. Their motion plays once,
+ * on a fresh card (.is-arriving), and never with reduced motion.
+ * ========================================================================== */
+.hwsv {
+  --hwsv-acc: var(--hw-phos);
+  --hwsv-r: var(--hwsv-acc);
+  --hwsv-mod: #d69bff;
+  --hwsv-red: var(--hw-alert);
+  position: relative;
+  display: grid;
+  grid-template-columns: 112px minmax(0, 1fr);
+  gap: 10px;
+  margin: 4px 0 2px;
+  padding: 8px 9px 9px 6px;
+  color: var(--hw-hi);
+  font-family: var(--hw-font-mono);
+  background: radial-gradient(circle at 62px 66px, color-mix(in srgb, var(--hwsv-glow, var(--hwsv-r)) 10%, transparent), transparent 72px), rgba(8, 11, 13, 0.98);
+  border: 1px solid rgba(143, 207, 176, 0.2);
+  border-top: 2px solid var(--hwsv-acc);
+  clip-path: polygon(10px 0, 100% 0, 100% 100%, 0 100%, 0 10px);
+}
+.hwsv.is-success { --hwsv-r: var(--hw-c-success, var(--hw-phos)); }
+.hwsv.is-failure { --hwsv-r: var(--hw-c-failure, var(--hw-alert)); }
+.hwsv:is(.is-redline, .is-cracked) { --hwsv-glow: var(--hwsv-red); }
+.hwsv-dial { display: grid; align-content: start; justify-items: center; gap: 4px; min-width: 0; }
+.hwsv-gauge { display: block; width: 112px; height: 92px; overflow: visible; }
+.hwsv-side { display: grid; align-content: start; min-width: 0; }
+.hwsv-kind { color: var(--hwsv-acc); font: 700 9.5px var(--hw-font-disp); letter-spacing: 0.2em; text-transform: uppercase; }
+.hwsv-title { margin-top: 2px; color: var(--hw-hi); font: 700 16px/1.05 var(--hw-font-disp); letter-spacing: 0.04em; text-transform: uppercase; overflow-wrap: break-word; }
+.hwsv-mod { padding: 1px 6px; color: var(--hwsv-mod); border: 1px solid color-mix(in srgb, var(--hwsv-mod) 45%, transparent); font: 700 10px/1.5 var(--hw-font-mono); white-space: nowrap; cursor: help; }
+.hwsv-ctl { display: flex; align-items: center; justify-content: flex-end; gap: 6px; margin-top: 10px; }
+.hwsv-ctl > .rsr-addon-bonus-btn { position: static; flex: none; margin: 0; color: var(--hwsv-mod); font-size: 15px; opacity: 0.8; transform: none; }
+.hwsv-ctl > .rsr-addon-bonus-btn:hover { color: var(--hwsv-mod); opacity: 1; text-shadow: 0 0 4px var(--hwsv-mod); }
+.hwsv > .hardwipe-roll-drawer { grid-column: 1 / -1; margin: 2px 0 0; }
+.chat-message.is-folded .hwsv > .hardwipe-roll-drawer { display: none !important; }
+/* The roll box: one total, or both dice of an advantage roll side by side (the kept one first), each
+ * natural-die badge clear of the next total. */
+.hwsv .hwsv-roll { margin: 15px 0 0; }
+.chat-message .hwsv .hardwipe-check-roll button.dice-roll { justify-content: flex-start; width: auto; max-width: 100%; padding: 10px 12px 2px 0; background: none; border: 0; }
+.chat-message .hwsv .hardwipe-check-roll .rsr-multiroll { flex: none; justify-content: flex-start; gap: 16px; width: auto; }
+.chat-message .hwsv .hardwipe-check-roll .rsr-multiroll::before,
+.chat-message .hwsv .hardwipe-check-roll .rsr-multiroll::after,
+.chat-message .hwsv .hardwipe-check-roll .rsr-multiroll > .total::before,
+.chat-message .hwsv .hardwipe-check-roll .rsr-multiroll > .total::after { display: none; }
+.chat-message .hwsv .hardwipe-check-roll .rsr-multiroll > .total { min-width: 44px; height: 30px; padding: 0 9px; font-size: 19px; border: 1px solid var(--hwsv-r); box-shadow: 0 0 2px color-mix(in srgb, var(--hwsv-r) 60%, transparent); }
+.chat-message .hwsv .hardwipe-check-roll .rsr-multiroll > .total:not(.ignored) { order: -1; }
+.chat-message .hwsv .hardwipe-check-roll .rsr-multiroll > .total.ignored { min-width: 36px; height: 25px; font-size: 14px; border: 1px dashed rgba(198, 255, 230, 0.45); box-shadow: none; opacity: 0.7; filter: none; }
+.chat-message .hwsv .hardwipe-check-roll .rsr-multiroll > .total.ignored .d20die { --hw-d20: #4a5250; transform: scale(0.85); }
+.chat-message .hwsv .hardwipe-check-roll .rsr-multiroll > .total.ignored .d20die .roll { color: #c8d2ce; }
+.chat-message .hwsv .hardwipe-check-roll button.dice-roll > .hardwipe-drawer-caret { position: static; margin: 0 0 0 16px; transform: none; }
+/* The gauge. */
+.hwsv-track { fill: none; stroke: #172024; stroke-width: 10; stroke-dasharray: 3 2; }
+.hwsv-seg { fill: none; stroke: var(--hwsv-r); stroke-width: 10; stroke-dasharray: 3 2; filter: drop-shadow(0 0 1px var(--hwsv-r)); }
+.hwsv-bonus { fill: none; stroke: var(--hwsv-mod); stroke-width: 10; stroke-dasharray: 3 2; filter: drop-shadow(0 0 1px var(--hwsv-mod)); }
+.hwsv-gate { stroke: var(--hw-hi); stroke-width: 2; filter: drop-shadow(0 0 2px var(--hw-hi)); }
+.hwsv-dc-label { fill: var(--hw-hi); font: 700 9px var(--hw-font-mono); text-anchor: middle; }
+.hwsv-end { fill: var(--hw-dim-2); font: 700 8px var(--hw-font-mono); text-anchor: middle; }
+.hwsv-big { fill: var(--hwsv-r); font: 700 27px var(--hw-font-disp); text-anchor: middle; filter: drop-shadow(0 0 1px var(--hwsv-r)); }
+.hwsv-big.is-total { fill: var(--hw-hi); filter: none; }
+.hwsv-word { fill: var(--hwsv-r); font: 700 8.5px var(--hw-font-disp); letter-spacing: 0.28em; text-anchor: middle; }
+/* Natural 20: the redline. The far end of the arc is a red zone, the reading pegs into it, the needle
+ * sits in the red, and Δ runs hot with the critical split. */
+.hwsv-hot { fill: none; stroke: var(--hwsv-red); stroke-width: 10; stroke-dasharray: 3 2; filter: drop-shadow(0 0 3px var(--hwsv-red)); }
+.hwsv-band { fill: none; stroke: var(--hwsv-red); stroke-width: 3; filter: drop-shadow(0 0 3px var(--hwsv-red)); }
+.hwsv-tick { stroke: var(--hwsv-red); stroke-width: 1.5; }
+.hwsv-redline { fill: var(--hwsv-red); font: 700 7.5px var(--hw-font-disp); letter-spacing: 0.22em; text-anchor: end; text-transform: uppercase; }
+.hwsv-needle { stroke: #fff; stroke-width: 2.5; stroke-linecap: round; filter: drop-shadow(0 0 2px var(--hwsv-red)) drop-shadow(0 0 4px var(--hwsv-red)); transform-box: view-box; transform-origin: 56px 72px; }
+.hwsv.is-redline .hwsv-big { fill: #fff; filter: drop-shadow(0 0 2px var(--hwsv-red)); }
+.hwsv.is-redline .hwsv-big.hwsv-split-a { fill: var(--hw-magenta); opacity: 0.85; filter: none; }
+.hwsv.is-redline .hwsv-big.hwsv-split-b { fill: var(--hw-cyan); opacity: 0.85; filter: none; }
+/* Natural 1: the gauge cracks. Dead segments, a crack across the glass, the number cut and knocked aside. */
+.hwsv-dead { fill: none; stroke: #080b0d; stroke-width: 11; }
+.hwsv-crack polyline { fill: none; stroke: rgba(234, 255, 244, 0.6); stroke-width: 0.9; stroke-linejoin: bevel; }
+.hwsv-crack polyline.is-thin { stroke: rgba(234, 255, 244, 0.38); stroke-width: 0.6; }
+.hwsv-crack circle { fill: rgba(234, 255, 244, 0.8); }
+.hwsv-big.hwsv-slice-a { fill: var(--hw-cyan); filter: none; }
+.hwsv-big.hwsv-slice-b { fill: var(--hw-magenta); filter: none; }
+/* One-shot arrival: the needle swings up and bounces off the limiter while the red zone flashes; the
+ * cracked gauge stutters and the number jitters. */
+.hwsv.is-arriving .hwsv-needle { animation: hwsv-limiter 1.1s cubic-bezier(0.3, 1.6, 0.5, 1) var(--hwsv-elapsed, 0ms) both; }
+.hwsv.is-arriving .hwsv-redzone { animation: hwsv-flash 0.35s steps(1) var(--hwsv-elapsed, 0ms) 3 both; }
+.hwsv.is-arriving.is-cracked .hwsv-arc { animation: hwsv-stutter 0.9s steps(1) var(--hwsv-elapsed, 0ms) both; }
+.hwsv.is-arriving.is-cracked .hwsv-middle { animation: hwsv-jitter 0.9s steps(1) var(--hwsv-elapsed, 0ms) both; }
+@keyframes hwsv-limiter { 0% { transform: rotate(-150deg); } 55% { transform: rotate(0deg); } 66% { transform: rotate(-9deg); } 76% { transform: rotate(0deg); } 84% { transform: rotate(-4deg); } 92%, 100% { transform: rotate(0deg); } }
+@keyframes hwsv-flash { 0% { opacity: 0.25; } 50% { opacity: 1; } }
+@keyframes hwsv-stutter { 0% { opacity: 1; } 12% { opacity: 0.15; } 20% { opacity: 1; } 34% { opacity: 0.35; } 42% { opacity: 1; } 58% { opacity: 0.05; } 66%, 100% { opacity: 1; } }
+@keyframes hwsv-jitter { 0% { transform: translate(0, 0); } 15% { transform: translate(-2px, 1px); } 30% { transform: translate(2px, -1px); } 45% { transform: translate(-1px, 0); } 60%, 100% { transform: translate(0, 0); } }
+@media (prefers-reduced-motion: reduce) {
+  .hwsv, .hwsv * { animation: none !important; }
 }

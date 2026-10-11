@@ -28,7 +28,7 @@ Montages put multiple native captures side by side. A montage illustrates separa
 | Published file | Capture version | Native subject and processing |
 | --- | --- | --- |
 | [cyberware-sheet-current.webp](media/cyberware-sheet-current.webp) | Audited preview (local 0.7.41 capture) | Player character sheet, paper doll, and slots; cropped. Original hover tooltip retained. |
-| [ranged-advisory-current.webp](media/ranged-advisory-current.webp) | Audited preview (local 0.7.41 capture) | Native ranged attack with actual Midi attribution, replacing the earlier inferred-source capture; cropped from the player chat view. |
+| [ranged-advisory-current.webp](media/ranged-advisory-current.webp) | 0.7.43 | Native ranged attack with the roll mode scan (actual Midi attribution); cropped from the player chat view. |
 | [wall-config-current.webp](media/wall-config-current.webp) | Audited preview (local 0.7.41 capture) | Compact Hardwipe controls at the bottom of the native wall editor; cropped. |
 | [wall-types-manager.webp](media/wall-types-manager.webp) | 0.7.24 | Native wall-type manager with armor, HP, and threshold fields; cropped. |
 | [heat-threat-broadcast.webp](media/heat-threat-broadcast.webp) | 0.7.40 | Threat broadcast rising, critical, Lockdown, and reduced-Heat card montage. |
@@ -42,6 +42,30 @@ Montages put multiple native captures side by side. A montage illustrates separa
 | [shield-choice-current.webp](media/shield-choice-current.webp) | Audited preview (local 0.7.41 capture) | Native Shield Block / Take damage prompt; cropped. |
 | [shield-hud.webp](media/shield-hud.webp) | 0.7.40 | Durability and broken-shield HUD cards; cropped to exclude an older Heat card. |
 | [plain-rolls.webp](media/plain-rolls.webp) | 0.7.39 | Plain and flavored formula rolls; cropped from the native roll-card montage. |
+
+## 0.7.43 captures
+
+Native captures from the disposable 0.7.43 QA world on 2026-10-11, with separate GM and player clients; cropped to the card or canvas area and converted to WebP.
+
+| Published file | Subject |
+| --- | --- |
+| [attack-applied-log.webp](media/attack-applied-log.webp) | GM view of a confirmed hit after the damage changed and critical dice were added: the Auto application, adjusted, with Undo. |
+| [effect-choice.webp](media/effect-choice.webp) | Ready Set Midi's effect chooser for Bestow Curse, on the caster's client. |
+| [wall-damage-holes.webp](media/wall-damage-holes.webp) | GM canvas, test lights behind a damaged test wall: one hit of 30 (left) and three hits of 8–10 (right), applied through the GM review. |
+
+## 0.7.44 captures
+
+Native captures from the disposable 0.7.44 QA world on 2026-10-11, player client unless noted, with the dice fixed through Foundry's random source so each state is reproducible; cropped to the message and converted to WebP. The two animations are APNG recordings of the card's own CSS animation, stepped frame by frame.
+
+| Published file | Subject |
+| --- | --- |
+| [save-card-modifier.webp](media/save-card-modifier.webp) | Wisdom save against a spell: 11, then a 1d4 (3) added with Ready Set Midi's + button, 14 against DC 13. |
+| [save-card-advantage.webp](media/save-card-advantage.webp) | Wisdom save with advantage: 18 kept, 6 dropped, against DC 13. |
+| [save-card-failed.webp](media/save-card-failed.webp) | Constitution save against a weapon's poison: 6 against DC 11. |
+| [save-card-no-dc.webp](media/save-card-no-dc.webp) | Dexterity save rolled from the sheet: 14 on the roll's own 3–22 scale. |
+| [save-dial-redline.png](media/save-dial-redline.png) | Animated (APNG): natural 20, the needle swinging into the redline. |
+| [save-dial-crack.png](media/save-dial-crack.png) | Animated (APNG): natural 1, the gauge stuttering and cracking. |
+| [spell-npc-save-button.webp](media/spell-npc-save-button.webp) | GM view of a spell card waiting for an NPC's save, with the Roll save button. Replaces the 0.7.43 capture, which was taken before a style fix and showed the DC over the button's label. |
 
 ## Fresh guide screenshots and recording
 

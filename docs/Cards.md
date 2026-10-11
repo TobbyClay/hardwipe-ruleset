@@ -72,7 +72,7 @@ Skills, abilities, saves, initiative, and concentration saves share readable rol
   <tr>
     <td valign="top"><a href="media/check-skill.webp"><img src="media/check-skill.webp" alt="Skill check: Advantage shows the kept and dropped dice." width="280"></a><br><strong>Skill check</strong><br>Advantage shows the kept and dropped dice.</td>
     <td valign="top"><a href="media/check-ability.webp"><img src="media/check-ability.webp" alt="Ability check: Disadvantage retains a visible account of the roll." width="280"></a><br><strong>Ability check</strong><br>Disadvantage retains a visible account of the roll.</td>
-    <td valign="top"><a href="media/check-save.webp"><img src="media/check-save.webp" alt="Saving throw: The ability and total are easy to identify." width="280"></a><br><strong>Saving throw</strong><br>The ability and total are easy to identify.</td>
+    <td valign="top"><a href="media/save-card-modifier.webp"><img src="media/save-card-modifier.webp" alt="Saving throw: a dial with the DC at the top, the reading and Δ, and the verdict." width="280"></a><br><strong>Saving throw (0.7.44)</strong><br>A dial: the DC at the top, the reading right or left of it, Δ and Saved or Failed in the middle; a bonus shows in violet.</td>
   </tr>
   <tr>
     <td valign="top"><a href="media/check-initiative.webp"><img src="media/check-initiative.webp" alt="Initiative: The initiative result uses the same roll language." width="280"></a><br><strong>Initiative</strong><br>The initiative result uses the same roll language.</td>
@@ -233,9 +233,9 @@ Pick the mission’s presentation when starting it. Each style covers rising Hea
 
 ## Ranged source advisory
 
-<a href="media/ranged-advisory-current.webp"><img src="media/ranged-advisory-current.webp" alt="Audited preview: a ranged attack shows sources actually evaluated by Ready Set Midi" width="294"></a>
+<a href="media/ranged-advisory-current.webp"><img src="media/ranged-advisory-current.webp" alt="Roll mode scan under a ranged attack: the sources found and the mode to roll" width="302"></a>
 
-*Native capture: audited preview.* Only sources actually evaluated by Ready Set Midi appear beneath the roll. No evaluated source means no box. The roller or GM chooses the roll mode; the advisory does not change it. [Ranged hints and their limits →](Combat.md#ranged-hints-name-the-actual-source)
+*Native capture: 0.7.43.* The **roll mode scan** sits right under the attack roll. Each source evaluated by Ready Set Midi gets a row: ADV, DIS, or a block (NO ADV / NO DIS), with the source above the rule it comes from; a blocked source is struck through. Beside the title, **Roll** names the mode the sources call for: ADV, DIS, or Straight when advantage and disadvantage cancel. Only sources actually evaluated by Ready Set Midi appear. No evaluated source means no box. The roller or GM chooses the roll mode; the advisory does not change it. [Ranged hints and their limits →](Combat.md#ranged-hints-name-the-actual-source)
 
 ## Make the cards readable at your table
 

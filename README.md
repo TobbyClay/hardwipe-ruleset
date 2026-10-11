@@ -1,50 +1,83 @@
 # Hardwipe Ruleset
 
-**Cyberware, firefights, and a character sheet that feels like street tech.**
+**D&D5e, rewired for a cyberpunk table.**
 
-Hardwipe adapts D&D5e in Foundry for a Cyberpunk game: implants share your real inventory, walls become physical cover, and combat plays through software-inspired chat cards.
+Hardwipe is a Foundry VTT module for running a Cyberpunk-flavoured game on the D&D5e system. Implants live in your real inventory, walls are physical cover that can be shot apart, the GM rules on every attack before it lands, and every roll arrives in chat as a piece of software: readable at a glance, and honest about what happened.
 
 [Install](#install) · [Player guide](docs/Players.md) · [GM guide](docs/GM.md) · [Card gallery](docs/Cards.md) · [Rules reference](docs/Reference.md)
 
-> **Release status:** the public installer is **0.7.40**, paired with Ready Set Midi **14.0.10.1**. Screenshots marked **audited preview** show the next tested source revision, including the compact wall editor and source-specific ranged hints. See [development status](docs/Development.md) before using unreleased source.
+> **Which version is this?** This README describes **0.7.44**, which pairs with **Ready Set Midi 14.0.10.2**. The installer published on GitHub is still **0.7.40** (with Ready Set Midi 14.0.10.1) until a newer release goes up. Install both modules from the same release.
 
 ## Your body is your loadout
 
 ![Cyberware sheet with the body scan, equipped implants, charges, and enabled, disabled, and damaged states](docs/media/cyberware-current.png)
 
-Ten body regions, real inventory items, visible charges, and clear implant states. Installed, working cyberware supplies its passive effects; active cyberware exposes its normal D&D5e activities beside your weapons. SC – Item Rarity Colors carries its configured colors into the slots.
+Ten body regions, each holding real inventory items. Installed, working cyberware applies its passive effects; active cyberware puts its D&D5e activities next to your weapons. Charges, damage and service states are visible at a glance, and SC – Item Rarity Colors carries its rarity colours into the slots.
 
 [Set up cyberware →](docs/Cyberware.md) · [Choose a personal paper doll →](docs/Cyberware.md#personal-paper-dolls)
 
-## Rest at the safehouse
-
-<img src="docs/media/rest-medscan-live.gif" alt="Live Foundry recording: the med-scan animates and one Hit Die raises HP from 22 to 24" width="420">
-
-Roll **one Hit Die at a time** inside the rest dialog. Watch HP recover, inspect each result, use eligible rest abilities, then send one combined receipt to chat. Queued implant swaps complete when the rest and service requirements are met.
-
-[Take a rest →](docs/Rests.md) · [Static dialog capture](docs/media/rest-current.png)
-
-## Roll, review, resolve
+## Every attack lands in one piece
 
 | Player attack | Private GM review |
 | --- | --- |
-| <img src="docs/media/attack-hit.webp" alt="Weapon attack with verdict, damage, and dice drawer" width="300"> | <img src="docs/media/attack-review-gm.webp" alt="GM confirmation card with per-target decisions" width="300"> |
+| <img src="docs/media/attack-applied-log.webp" alt="Confirmed hit with critical damage, and the applied damage logged on the card with Undo" width="300"> | <img src="docs/media/attack-review-gm.webp" alt="GM confirmation card with per-target decisions" width="300"> |
 
-The player sees the roll. The GM confirms the target outcomes. Damage and on-hit effects wait for that decision. Shield Block uses the normal reaction and records durability and damage through.
+When a player attacks, the GM sees the total, the target's AC (cover included) and the margin, and confirms **Hit**, **Critical** or **Miss** for each target. Damage and on-hit effects wait for that call.
 
-[Combat and shields →](docs/Combat.md) · [Edge, Strikes, and Downed →](docs/Players.md#edge-strikes-and-downed)
+- **No flicker.** The attack card stays out of the chat log while Ready Set Midi rolls, checks hits and rolls damage, then appears once, complete, reading *Awaiting GM*. The GM's review appears with it.
+- **Damage you can take back.** Damage applied by the workflow is logged on the card as **Auto**, with an **Undo** that restores the hit points. The damage row (×1, ½, ×2, Targets) logs its applications the same way.
+- **Rolls you can change.** Switch a pending attack to advantage, add a bonus, reroll a die or roll critical damage, and everything downstream follows. The GM gets a fresh review, a wall proposal still waiting for the GM is re-posted, and damage that was already applied is adjusted by the difference (*Auto · adjusted*). Undo still restores the original hit points. A natural 20 that only arrives with advantage counts as a critical.
+- **CRIT on the damage line.** The roller can roll critical damage (the damage dice again) until the GM rules; the GM can at any time. The GM's review notes when the roller added crit dice.
+
+[Combat, damage and shields →](docs/Combat.md) · [Edge, Strikes and Downed →](docs/Players.md#edge-strikes-and-downed)
+
+## Saving throws on a dial
+
+| Saved by a bonus | Natural 20 | Natural 1 |
+| --- | --- | --- |
+| <img src="docs/media/save-card-modifier.webp" alt="Wisdom save against Mind Spike: 11, plus 3 from a 1d4 added afterwards, makes 14 against DC 13; the bonus is a violet slice of the dial; Saved by 1" width="250"> | <img src="docs/media/save-dial-redline.png" alt="Animated: a natural 20 swings the needle into the dial's red zone, where it bounces off the limiter; Saved by 7" width="250"> | <img src="docs/media/save-dial-crack.png" alt="Animated: a natural 1 makes the dial stutter, then it stays cracked with dead segments and the result knocked out of line; Failed by 10" width="250"> |
+
+A saving throw reads like a gauge. The DC sits at the top of the arc. The reading sweeps right of it by how much the save cleared, or falls short to the left, and the middle shows the difference over **Saved** or **Failed**. Beside the dial are what forced the save, the roll, the **+** button and the DIS / ADV switch.
+
+- **Bonuses after the roll.** **+** adds Bless, Guidance or any formula. The bonus shows as a violet chip and a violet slice of the arc, and the verdict re-reads.
+- **Advantage and disadvantage.** Both dice sit side by side, the kept one first and the dropped one dashed. The switch changes the roll after the fact.
+- **Natural 20 and natural 1.** A natural 20 pegs the reading into a redline and the needle bounces off the limiter. A natural 1 cracks the gauge. The motion plays once, on a fresh roll, and never with reduced motion turned on.
+- **No DC.** A save rolled from the sheet has no verdict. The arc runs from the lowest total the character could roll to the highest, and the middle shows the total.
+
+## Spells and features that ask for saves
+
+| GM rolls NPC saves from the card | One effect, chosen by the caster |
+| --- | --- |
+| <img src="docs/media/spell-npc-save-button.webp" alt="Spell card waiting for a Wisdom save, with the Roll save button" width="300"> | <img src="docs/media/effect-choice.webp" alt="Ready Set Midi's effect chooser listing the six Bestow Curse options" width="230"> |
+
+A spell, implant or weapon that forces a save lists every target with **Waiting**, **Saved** or **Failed**. Whoever owns a target that still has to roll gets a **Roll save** button in the ability's colour. The GM gets the same button for the NPC targets.
+
+- **NPC saves wait for the GM.** On first load, Hardwipe switches Ready Set Midi's **Roll NPC saves** from *Auto* to *Chat Message*, once per world. Without that switch, Midi rolls NPC saves the instant a spell lands and the button never appears. Midi's own one-line save request is hidden, because the card's button replaces it. If you prefer automatic NPC saves, switch the setting back; Hardwipe will not change it again.
+- **Effects that are alternatives stay alternatives.** Some activities carry one effect per option: Bestow Curse has a curse per ability, Blindness/Deafness has both conditions. When an activity carries several effects for its targets, the caster now picks the one that lands, instead of Midi applying all of them. The world setting **Choose one effect when an activity has several** turns this off.
+
+[Saving throws in detail →](docs/Combat.md#saving-throws)
+
+## Know why a shot had advantage
+
+<img src="docs/media/ranged-advisory-current.webp" alt="Ranged attack card with the roll mode scan listing advantage and disadvantage sources and the mode to roll" width="300">
+
+You choose the roll mode for ranged attacks. Under the attack roll, the **roll mode scan** lists every advantage or disadvantage source Ready Set Midi actually evaluated, with the rule each came from, and says which mode to roll: **ADV**, **DIS** or **Straight**. Advantage and disadvantage cancel, and a blocked source is struck through. If nothing was found, no box appears.
+
+[Ranged hints and their limits →](docs/Combat.md#ranged-hints-name-the-actual-source)
 
 ## Cover that changes the fight
 
-| Configure a wall | Review an impact |
+| Configure a wall | Damage you can see through |
 | --- | --- |
-| <img src="docs/media/wall-config-current.webp" alt="Audited preview: compact wall durability controls at the bottom of the native editor" width="340"> | <img src="docs/media/wall-impact-breach-review-0.7.39.webp" alt="Wall hit, breach, cover held, and GM review cards" width="530"> |
+| <img src="docs/media/wall-config-current.webp" alt="Compact wall durability controls at the bottom of the native wall editor" width="320"> | <img src="docs/media/wall-damage-holes.webp" alt="Light through a wall: one wide hole from a big hit, three small holes from three smaller hits" width="300"> |
 
-Walls supply ranged cover. Give them a type, HP, armor, and a damage threshold. Players can target a wall directly; the GM chooses **Apply damage** or **Ignore**. Cracks reveal light and vision before destruction opens a five-foot breach.
+Walls provide ranged cover. Give them a type, HP per five-foot section, armor and a damage threshold. Shots that miss because of cover hit the wall; players can also target a wall section directly. Either way, the GM approves the damage with **Apply damage** or **Ignore**.
+
+- **Each hit leaves its own hole.** A big hit makes one wide hole, and several small hits make several small, scattered ones. The holes let sight and light through, so players can glimpse what's behind. The wall still stops movement and shots until a section reaches zero and opens a five-foot breach.
+- **Undo last wall damage** restores HP, holes and breached geometry together.
+- **Area spells** (development preview) can damage walls through the integrated Walled Regions effects, with the same GM approval.
 
 [Configure and fight around walls →](docs/Walls.md)
-
-**Development preview:** integrated Walled Regions adds **Damage walls — Normal / Half** beside Reflect/Spread in the Wall Effects dropdown. Area impacts use the original roll, wall threshold, and armor, then wait for a separate GM Apply/Ignore decision. [See the configuration and actual review card →](docs/Walls.md#spell-and-area-wall-effects--development-preview)
 
 ## Concentration is a running program
 
@@ -52,21 +85,29 @@ Walls supply ranged cover. Give them a type, HP, armor, and a damage threshold. 
 | --- | --- | --- |
 | <img src="docs/media/conc-interrupt.webp" alt="Concentration interrupt requesting a Constitution save" width="255"> | <img src="docs/media/conc-held.webp" alt="Concentration program recovered after a successful save" width="255"> | <img src="docs/media/conc-lost.webp" alt="Concentration crash after a failed save" width="255"> |
 
-A damage interrupt asks for a save. Success restores the program; failure displays a crash. Spells, implants, checks, gear, features, and rest receipts each have their own readable card language.
+Taking damage while concentrating interrupts the running program and asks for a Constitution save. A success recovers it; a failure crashes it.
 
-[Browse every card family →](docs/Cards.md) · [Concentration controls →](docs/Combat.md#concentration)
+[Concentration controls →](docs/Combat.md#concentration)
+
+## Rest at the safehouse
+
+<img src="docs/media/rest-medscan-live.gif" alt="Live Foundry recording: the med-scan animates and one Hit Die raises HP from 22 to 24" width="420">
+
+Spend Hit Dice one at a time and watch the med-scan climb. Use rest abilities like Arcane Recovery from the same window, then send one receipt to chat. Queued implant swaps complete when the rest and service requirements are met.
+
+[Take a rest →](docs/Rests.md)
 
 ## Raise the Heat
 
 <img src="docs/media/heat-police-scanner.webp" alt="Mission Heat police-scanner style with radar and escalation meter" width="720">
 
-A scene-level Heat meter tracks escalation. Pick **Threat broadcast**, **Corrupted feed**, or **Police scanner** for the mission, with three separate turn-start styles and configurable card colors. Motion respects reduced-motion preferences.
+A scene-level Heat meter tracks how loud the crew has been. Each mission picks how Heat is announced: **Threat broadcast**, **Corrupted feed** or **Police scanner**. A world setting picks one of three turn-start card styles. Card colours are configurable, and motion stops for anyone with reduced motion turned on.
 
 [Mission Heat and interface settings →](docs/GM.md#mission-heat)
 
 ## Install
 
-Tested public release: **Foundry VTT 14.367 · D&D5e 6.0.5 · Ready Set Midi 14.0.10.1**.
+Built and tested on **Foundry VTT 14.367 · D&D5e 6.0.5 · Ready Set Midi 14.0.10.2**.
 
 1. In Foundry Setup, open **Add-on Modules → Install Module**.
 2. Paste this manifest:
@@ -75,8 +116,10 @@ Tested public release: **Foundry VTT 14.367 · D&D5e 6.0.5 · Ready Set Midi 14.
    https://github.com/TobbyClay/hardwipe-ruleset/releases/latest/download/module.json
    ```
 
-3. Install the matching **Ready Set Midi** fork and its dependencies. Enable Hardwipe Ruleset, Ready Set Midi, libWrapper, socketlib, and DAE.
-4. Use the **Hardwipe Character** sheet. Disable standalone Midi-QOL and Ready Set Roll when using the fork.
+3. Install the **Ready Set Midi** build from the same release, plus libWrapper, socketlib and DAE. Enable all five with Hardwipe Ruleset.
+4. Disable standalone Midi-QOL and Ready Set Roll; the fork replaces both. Give characters the **Hardwipe Character** sheet.
+
+**What Hardwipe changes in your world on first load:** Ready Set Midi's **Roll NPC saves** moves from *Auto* to *Chat Message*, once, so the GM rolls NPC saves from the card. You'll see a notice when it happens.
 
 [Downloads and release notes](https://github.com/TobbyClay/hardwipe-ruleset/releases/latest) · [Detailed setup and troubleshooting](docs/GM.md#installation-and-first-run) · [Report a problem](https://github.com/TobbyClay/hardwipe-ruleset/issues)
 
@@ -85,12 +128,12 @@ Tested public release: **Foundry VTT 14.367 · D&D5e 6.0.5 · Ready Set Midi 14.
 | I want to… | Open |
 | --- | --- |
 | Play a character, use actions, or understand Edge and Strikes | [Player guide](docs/Players.md) |
-| Install or swap implants, use rarity colors, or change the doll | [Cyberware](docs/Cyberware.md) |
-| Roll Hit Dice, recover slots, or understand a rest receipt | [Rests](docs/Rests.md) |
-| Review attacks, use shields, roll saves, or maintain concentration | [Combat](docs/Combat.md) |
+| Install or swap implants, use rarity colours, or change the doll | [Cyberware](docs/Cyberware.md) |
+| Roll Hit Dice, recover slots, or read a rest receipt | [Rests](docs/Rests.md) |
+| Review attacks, apply and undo damage, roll saves, or keep concentration | [Combat](docs/Combat.md) |
 | Give walls HP, set thresholds, target sections, or undo a breach | [Walls](docs/Walls.md) |
-| Configure a world, Mission Heat, colors, text, or folding | [GM guide](docs/GM.md) |
-| Compare every visual card family | [Card gallery](docs/Cards.md) |
-| Read exact cover rules, integration fields, or limitations | [Rules reference](docs/Reference.md) |
+| Set up a world, Mission Heat, colours, text size, or folding | [GM guide](docs/GM.md) |
+| See every card family side by side | [Card gallery](docs/Cards.md) |
+| Look up exact cover rules, integration fields, or known limits | [Rules reference](docs/Reference.md) |
 
-All images are actual Foundry captures from synthetic development scenes, with cropping or resizing for readability. Capture versions and preview distinctions are listed in the [media notes](docs/Media.md). They illustrate the interface; they are not a claim that every possible module combination has been tested.
+Every image here is a real Foundry capture from a synthetic test world, cropped or resized for reading. The [media notes](docs/Media.md) list which version each one comes from. They show the interface; they don't promise that every combination of modules has been tested.
