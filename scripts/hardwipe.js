@@ -21,6 +21,8 @@ import { registerDamageSync } from "./hardwipe-attack-cards.js";
 import { applyNpcSavesDefault, registerNpcSaves } from "./hardwipe-npc-saves.js";
 import { registerEffectChoice } from "./hardwipe-effect-choice.js";
 import { registerSaveCards } from "./hardwipe-check-cards.js";
+import { registerRollTracker } from "./hardwipe-roll-tracker.js";
+import { RollTrackerApp } from "./hardwipe-roll-tracker-app.js";
 
 export const MODULE_ID = "hardwipe-ruleset";
 export const MODULE_TITLE = "Hardwipe Ruleset";
@@ -61,6 +63,7 @@ Hooks.once("init", async () => {
   registerRestReceipts();
   registerConcentrationCards();
   registerMessageCards();
+  registerRollTracker(RollTrackerApp);
 
   await foundry.applications.handlebars.loadTemplates([
     "modules/hardwipe-ruleset/templates/heat-hud.hbs",

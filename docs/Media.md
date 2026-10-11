@@ -67,6 +67,20 @@ Native captures from the disposable 0.7.44 QA world on 2026-10-11, player client
 | [save-dial-crack.png](media/save-dial-crack.png) | Animated (APNG): natural 1, the gauge stuttering and cracking. |
 | [spell-npc-save-button.webp](media/spell-npc-save-button.webp) | GM view of a spell card waiting for an NPC's save, with the Roll save button. Replaces the 0.7.43 capture, which was taken before a style fix and showed the DC over the button's label. |
 
+## 0.7.45 captures
+
+Native captures from the disposable 0.7.45 QA world on 2026-10-11, GM client: the test world's chat log read in with **Import chat log**, then a live session of player and GM rolls ("The Catwalk Job"), some with the d20 fixed through Foundry's random source to force natural 1s and 20s. Cropped to the window or element and converted to WebP.
+
+| Published file | Subject |
+| --- | --- |
+| [roll-tracker-overview.webp](media/roll-tracker-overview.webp) | Roll Tracker overview for one session: totals, leaderboard and awards. |
+| [roll-tracker-player.webp](media/roll-tracker-player.webp) | A player's profile: tiles, d20 faces, roll types, combat and spells. |
+| [roll-tracker-compare.webp](media/roll-tracker-compare.webp) | The player against the GM, metric by metric. |
+| [roll-tracker-dice.webp](media/roll-tracker-dice.webp) | Each player's d20 faces with the fairness verdict, and the dice bag. |
+| [roll-tracker-moments.webp](media/roll-tracker-moments.webp) | Natural 1s and 20s with the GM's notes. |
+| [roll-tracker-prompts.webp](media/roll-tracker-prompts.webp) | The GM's note prompts beside the chat: a natural 20 attack being described, a natural 1 save waiting. |
+| [roll-tracker-recap.webp](media/roll-tracker-recap.webp) | The session recap card in chat. |
+
 ## Fresh guide screenshots and recording
 
 These native captures were prepared on **2026-10-09** in the local **0.7.41 audited-preview QA build**. This label does not identify a public release. Filenames are relative to this repository.
