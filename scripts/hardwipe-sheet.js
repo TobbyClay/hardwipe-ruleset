@@ -46,6 +46,12 @@ export class HardwipeSheet {
         HardwipeSheet._observeCallouts(this);
       }
 
+      _onClose(options) {
+        super._onClose(options);
+        this._hardwipeCalloutObserver?.disconnect();
+        this._hardwipeCalloutObserver = null;
+      }
+
       _attachFrameListeners() {
         super._attachFrameListeners();
         // Delegate to the persistent frame so partial tab renders never duplicate listeners.

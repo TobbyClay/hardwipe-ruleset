@@ -74,10 +74,20 @@ export class WallAppearance {
     Hooks.on("refreshTile", tile => this.refreshTile(tile));
     Hooks.on("visibilityRefresh", () => this.refreshVisibility());
     Hooks.on("sightRefresh", () => this.refreshVisibility());
+    for (const hook of ["canvasReady", "createTile", "deleteTile", "updateTile"]) Hooks.on(hook, () => { this._scars = null; });
   }
 
+  static _scars = null;
+  static _visibilityFrame = null;
+
+  /** Once a frame, however many perception hooks ask: only the scene's scar Tiles need a vision test. */
   static refreshVisibility() {
-    for (const tile of canvas.tiles?.placeables ?? []) this.refreshTile(tile);
+    if (this._visibilityFrame !== null) return;
+    this._visibilityFrame = requestAnimationFrame(() => {
+      this._visibilityFrame = null;
+      this._scars ??= (canvas.tiles?.placeables ?? []).filter(tile => tile.document.getFlag(ID, "wallWear")?.kind === "scar");
+      for (const tile of this._scars) if (!tile.destroyed) this.refreshTile(tile);
+    });
   }
 
   static refreshTile(tile) {

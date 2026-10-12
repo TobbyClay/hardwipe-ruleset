@@ -19,6 +19,10 @@ Hardwipe does not replace the upstream author's copyright or license.
 - Font Awesome SVG icons: CC BY 4.0, Fonticons, Inc. Existing attribution and
   license text are retained in `walled-regions/assets/LICENSE.txt`.
 
+Hardwipe also bundles the Rajdhani typeface (Copyright 2014 Indian Type Foundry),
+latin and latin-ext subsets from Google Fonts, under the SIL Open Font License 1.1;
+the full text is in `../assets/fonts/OFL.txt`.
+
 Original module source, tests, documentation, development tooling, and release
 manifests are not modified by this bundled copy. Development-only tests and
 standalone changelog pop-ups are excluded from Hardwipe's runtime bundle.

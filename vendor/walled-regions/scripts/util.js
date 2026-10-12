@@ -34,7 +34,7 @@ export function configureWallModeControls(element) {
   const note = root.querySelector("[data-hardwipe-physical-walls]") ?? mode.ownerDocument.createElement("p");
   note.className = "hint";
   note.dataset.hardwipePhysicalWalls = "true";
-  note.textContent = "Damage modes use physical walls. Vision and lighting gaps do not carry blast damage. Circles, cones, lines, and rectangles are supported; emanations and rings require manual wall damage.";
+  note.textContent = game.i18n.localize("walledregions.MeasuredTemplateConfiguration.damage-hint");
   restriction.closest(".form-group")?.appendChild(note);
   const update = () => {
     const physical = mode.value === "damage-normal" || mode.value === "damage-half";

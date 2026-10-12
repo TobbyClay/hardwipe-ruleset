@@ -59,7 +59,7 @@ export class WallTargeting {
       const tools = controls.tokens?.tools;
       if (!tools) return;
       tools["hardwipe-target-wall"] = {
-        name: "hardwipe-target-wall", title: "Target wall", icon: "fas fa-crosshairs-simple",
+        name: "hardwipe-target-wall", title: "HARDWIPE.WallTarget.Tool", icon: "fas fa-crosshairs-simple",
         order: Math.max(0, ...Object.values(tools).map(tool => Number(tool.order) || 0)) + 1,
         visible: true, button: true, onChange: () => this.startSelection()
       };
@@ -132,10 +132,14 @@ export class WallTargeting {
     if (!this._view) return;
     this._abort = new AbortController();
     const options = { capture: true, signal: this._abort.signal };
+    let frame = null, latest = null;
     this._view.addEventListener("pointermove", event => {
       if (!this._picking) return;
-      const candidate = this._candidate(this._point(event));
-      this._draw(candidate);
+      latest = this._point(event);
+      frame ??= requestAnimationFrame(() => {
+        frame = null;
+        if (this._picking && latest) this._draw(this._candidate(latest));
+      });
     }, options);
     this._view.addEventListener("pointerdown", event => {
       if (!this._picking || event.button !== 0) return;
@@ -146,7 +150,7 @@ export class WallTargeting {
       this._selection = candidate;
       this._picking = false;
       this._draw(candidate);
-      ui.notifications.info("Wall section selected. Use a weapon from your character sheet to attack it. Escape cancels.");
+      ui.notifications.info(game.i18n.localize("HARDWIPE.WallTarget.Selected"));
     }, options);
     this._view.addEventListener("pointerup", event => {
       if (this._blockClick) { event.preventDefault(); event.stopImmediatePropagation(); }
@@ -176,10 +180,10 @@ export class WallTargeting {
 
   static startSelection() {
     if (this._selection || this._picking) { this.clear(); return; }
-    if (!this._cover?._enabled()) { ui.notifications.warn("Enable wall cover before targeting a wall."); return; }
-    if (!this._attacker()) { ui.notifications.warn("Control one character you own before targeting a wall."); return; }
+    if (!this._cover?._enabled()) { ui.notifications.warn(game.i18n.localize("HARDWIPE.WallTarget.Disabled")); return; }
+    if (!this._attacker()) { ui.notifications.warn(game.i18n.localize("HARDWIPE.WallTarget.NoAttacker")); return; }
     this._picking = true;
-    ui.notifications.info("Click a visible wall section, then use a weapon from your character sheet.");
+    ui.notifications.info(game.i18n.localize("HARDWIPE.WallTarget.Pick"));
   }
 
   static clear() {
@@ -203,7 +207,8 @@ export class WallTargeting {
       if (hit?.wallId !== candidate.wall.id) continue;
       const distance = Math.hypot(hit.x - origin.x, hit.y - origin.y);
       const near = { x: hit.x + (origin.x - hit.x) / Math.max(1, distance) * 2, y: hit.y + (origin.y - hit.y) / Math.max(1, distance) * 2 };
-      if (!game.user.isGM && !canvas.visibility.testVisibility(near, { tolerance: 0, object: attacker })) continue;
+      // Without token vision everything is visible (Foundry's test then answers true only for GMs).
+      if (!game.user.isGM && canvas.scene?.tokenVision !== false && !canvas.visibility.testVisibility(near, { tolerance: 0, object: attacker })) continue;
       return { sceneId: scene.id, attackerId: attacker.id, wallId: candidate.wall.id, impact: { x: hit.x, y: hit.y }, attackerShape: shape(attacker), wallCoordinates: [...candidate.wall.c] };
     }
     return null;
@@ -291,7 +296,7 @@ export class WallTargeting {
     const hit = die !== 1 && (naturalCritical || record.attackTotal >= record.targetAC);
     const state = { ...copy(direct), version: 1, mode: "direct", workflowId: message.uuid, records: [record], targets: [], attackRoll: workflow.attackRoll.toJSON(), hit, pending: false };
     await message.setFlag(ID, FLAG, state);
-    if (!hit) ui.notifications.info("The attack missed the wall. No wall damage was proposed.");
+    if (!hit) ui.notifications.info(game.i18n.localize("HARDWIPE.WallTarget.Missed"));
   }
 
   static async _onDamage(workflow) {
@@ -316,7 +321,7 @@ export class WallTargeting {
     }
     const review = await ChatMessage.create({
       content: this._cover._wallCard("review", { attacker: message.alias || message.author.name, weapon: workflow.item.name, impacts: [impact] }),
-      whisper: game.users.contents.filter(user => user.isGM).map(user => user.id),
+      whisper: game.users.contents.filter(user => user.isGM).map(user => user.id), speaker: message.speaker,
       flags: { [ID]: { coverReview: { sourceMessageId: message.id } } }
     });
     await message.setFlag(ID, FLAG, { ...message.getFlag(ID, FLAG), reviewPosted: true, reviewMessageId: review.id });

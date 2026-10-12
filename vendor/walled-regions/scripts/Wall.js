@@ -8,6 +8,7 @@ PIXI
 
 import { log } from "./util.js";
 import { coreUsesRegions, measurementPlaceables } from "./compatibility.js";
+import { scheduleRegionEffectiveData } from "./Region.js";
 
 // Hook wall modification to enable template shape changes.
 
@@ -129,7 +130,8 @@ function measurementBounds(placeable) {
 
 function refreshMeasurement(placeable) {
   if ( coreUsesRegions() ) {
-    if ( game.user.isActiveGM ) void placeable.syncEffectiveRegionData?.();
+    // Hardwipe: only Regions that use Wall Effects; one coalesced refresh per Region for a batch of walls.
+    if ( game.user.isActiveGM && placeable.usesWalledRegionBehavior ) scheduleRegionEffectiveData(placeable.document);
     return;
   }
 

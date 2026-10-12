@@ -98,7 +98,7 @@ export class ShieldManager {
     if (!result?.absorbed || this._workflowApplications.has(key)
       || !this._attackPermission(card, actor, permission.attackKey, { workflow: true, targetUuid: token.document.uuid }).allowed) return;
     this._workflowApplications.add(key);
-    MidiQOL.modifyDamageBy({ damageItem, value: -Math.min(amount, result.absorbed), type: "none", reason: "Shield Block" });
+    MidiQOL.modifyDamageBy({ damageItem, value: -Math.min(amount, result.absorbed), type: "none", reason: game.i18n.localize("HARDWIPE.Shield.Block") });
     this._refreshDamageReceipt(actor, damageItem);
     // Bound completed-card bookkeeping without disturbing a live request.
     if (this._workflowApplications.size > 256) this._workflowApplications.delete(this._workflowApplications.values().next().value);
@@ -163,11 +163,11 @@ export class ShieldManager {
     const shield = this.get(actor);
     const absorb = Math.min(shield.hp, payload.amount);
     const accepted = await foundry.applications.api.DialogV2.confirm({
-      window: { title: `${actor.name}: Shield Block` },
-      content: `<p>${escapeHTML(actor.name)} will take <strong>${payload.amount}</strong> damage after saves and defenses.</p>
-        <p>Spend your reaction and <strong>${absorb} shield HP</strong> to absorb that amount?</p>`,
+      window: { title: game.i18n.format("HARDWIPE.Shield.AskTitle", { name: actor.name }) },
+      content: `<p>${game.i18n.format("HARDWIPE.Shield.AskDamage", { name: escapeHTML(actor.name), amount: `<strong>${Number(payload.amount)}</strong>` })}</p>
+        <p>${game.i18n.format("HARDWIPE.Shield.AskSpend", { absorb: `<strong>${Number(absorb)}</strong>` })}</p>`,
       yes: { label: game.i18n.localize("HARDWIPE.Shield.Block"), icon: "fas fa-shield-halved" },
-      no: { label: "Take damage", icon: "fas fa-check" },
+      no: { label: game.i18n.localize("HARDWIPE.Shield.TakeDamage"), icon: "fas fa-check" },
       rejectClose: false
     });
     if (!accepted) return false;
@@ -609,13 +609,13 @@ export class ShieldManager {
     if (!message) return { allowed: true };
     const canonical = message.id ? game.messages.get(message.id) : message;
     const snapshot = message.flags?.[MODULE_ID]?.attackReview;
-    if (!canonical) return snapshot ? { allowed: false, reason: "This attack card is no longer available." } : { allowed: true };
+    if (!canonical) return snapshot ? { allowed: false, reason: game.i18n.localize("HARDWIPE.Shield.CardGone") } : { allowed: true };
     const review = canonical.flags?.[MODULE_ID]?.attackReview;
-    if (!review) return snapshot ? { allowed: false, reason: "This attack review is no longer current." } : { allowed: true };
+    if (!review) return snapshot ? { allowed: false, reason: game.i18n.localize("HARDWIPE.Shield.ReviewStale") } : { allowed: true };
     if (review.unavailable) return { allowed: false, reason: game.i18n.localize("HARDWIPE.Attack.ReviewUnavailable") };
     if (review.status !== "resolved") return { allowed: false, reason: game.i18n.localize("HARDWIPE.Attack.ApplyPending") };
     if ((snapshot?.attackKey && snapshot.attackKey !== review.attackKey) || (expectedKey && expectedKey !== review.attackKey)) {
-      return { allowed: false, reason: "This attack review is no longer current." };
+      return { allowed: false, reason: game.i18n.localize("HARDWIPE.Shield.ReviewStale") };
     }
     const hit = (review.targets ?? []).some(target => {
       if (targetUuid && target.uuid !== targetUuid) return false;
@@ -627,9 +627,9 @@ export class ShieldManager {
       && (targetUuid ? entry.targetUuid === targetUuid : entry.actorUuid === actor?.uuid));
     const automatic = review.application === "gm" || (review.application === "workflow" && (route?.automatic ?? this._workflowAppliesDamage(actor)));
     if (hit && automatic && !workflow) {
-      return { allowed: false, reason: "Shield Block is offered before this attack applies damage." };
+      return { allowed: false, reason: game.i18n.localize("HARDWIPE.Shield.OfferedBefore") };
     }
-    return hit ? { allowed: true, attackKey: review.attackKey } : { allowed: false, reason: "This attack did not hit this character." };
+    return hit ? { allowed: true, attackKey: review.attackKey } : { allowed: false, reason: game.i18n.localize("HARDWIPE.Shield.NotHit") };
   }
 
   static _getMessageDamages(message) {
@@ -720,7 +720,7 @@ export class ShieldManager {
       return document?.actor?.uuid === actor.uuid || document?.uuid === actor.uuid;
     });
     if (matches.length > 1 && matches.some(target => target.critBonusDetail?.length)) {
-      ui.notifications.warn("Choose the exact target token to block this critical attack.");
+      ui.notifications.warn(game.i18n.localize("HARDWIPE.Shield.PickToken"));
       return false;
     }
     const extra = matches.length === 1 && matches[0].outcome === "critical" ? matches[0].critBonusDetail ?? [] : [];

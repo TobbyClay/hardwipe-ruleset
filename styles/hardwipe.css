@@ -1520,6 +1520,8 @@ li.item:has(> .item-row .midi-info-icon) > .hardwipe-inventory-actions { --hardw
 .hardwipe-wall-actions .hardwipe-hud-btn.hardwipe-cover-confirm { flex: 2 1 auto; }
 .hardwipe-wall-actions .hardwipe-hud-btn.hardwipe-cover-dismiss { flex: 1 1 auto; }
 .hardwipe-wall-card.is-resolved .hardwipe-chat-meta { display: none; }
+.hardwipe-wall-card .hardwipe-wall-area-rule { display: block; font-size: 11px; line-height: 1.4; letter-spacing: 0.02em; text-transform: none; color: rgba(198, 255, 230, 0.78); }
+.hardwipe-wall-card .hardwipe-wall-area-rule::before { display: none; }
 /* An ignored proposal greys out the loss it would have caused. */
 .hardwipe-wall-card:has(.hardwipe-wall-stamp.is-closed) .hardwipe-wall-loss { background: rgba(198, 255, 230, 0.12); box-shadow: none; }
 .hardwipe-wall-card:has(.hardwipe-wall-stamp.is-closed) .hardwipe-wall-hp > b > em { color: var(--hw-dim); text-decoration: line-through; text-shadow: none; }
@@ -4127,3 +4129,10 @@ button.hardwipe-adv-btn.is-crit { --hw-adv: var(--hw-c-critical, var(--hw-cyan))
 @media (prefers-reduced-motion: reduce) {
   .hwsv, .hwsv * { animation: none !important; }
 }
+
+/* Wall cards on the restyled chat cards: a resolved review drops "Awaiting GM decision"; the area rule line stays a readable sentence. */
+.hardwipe-chat-card.hardwipe-wall-card.is-resolved[data-hw-kind] > .hardwipe-chat-meta:not(.hardwipe-wall-area-rule) { display: none; }
+.hardwipe-chat-card.hardwipe-wall-card[data-hw-kind] > .hardwipe-chat-meta.hardwipe-wall-area-rule { display: block; font: 500 11.5px/1.4 var(--hw-font-disp); letter-spacing: 0.02em; text-transform: none; color: rgba(198, 255, 230, 0.8); }
+
+/* Looping card animations pause while their message is scrolled out of view. */
+.chat-message.hardwipe-offscreen, .chat-message.hardwipe-offscreen *, .chat-message.hardwipe-offscreen *::before, .chat-message.hardwipe-offscreen *::after { animation-play-state: paused !important; }

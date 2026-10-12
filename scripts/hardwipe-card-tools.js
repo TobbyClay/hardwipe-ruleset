@@ -13,8 +13,31 @@ import { usesOf } from "./hardwipe-implant-cards.js";
 const folds = new Map(); // Message id -> folded (true) or opened (false), as this viewer chose.
 const FOLD_SWEEP_MS = 30000;
 
+const watched = new Set();
+let visibility = null;
+
+/** Pause a message's looping animations while it is out of view (with a margin, so it is already moving on arrival). */
+function watchMotion(element) {
+  if (!element || watched.has(element) || typeof IntersectionObserver !== "function") return;
+  visibility ??= new IntersectionObserver(entries => {
+    for (const entry of entries) entry.target.classList.toggle("hardwipe-offscreen", !entry.isIntersecting);
+  }, { rootMargin: "300px 0px" });
+  watched.add(element);
+  visibility.observe(element);
+}
+
+/** Re-rendered messages replace their element; stop watching the old ones. */
+function pruneMotion() {
+  for (const element of watched) {
+    if (element.isConnected) continue;
+    visibility?.unobserve(element);
+    watched.delete(element);
+  }
+}
+
 export function registerCardTools() {
   Hooks.on("preCreateChatMessage", message => snapshot(message));
+  Hooks.on("renderChatMessageHTML", (message, html) => watchMotion(html?.querySelector ? html : html?.[0]));
   // After the card renderers (registered at setup before this), so the cards are built.
   Hooks.once("setup", () => Hooks.on("dnd5e.renderChatMessage", (message, html) => foldControl(message, html)));
   Hooks.once("ready", () => {
@@ -107,6 +130,7 @@ function setFold(element, message, folded, chosen) {
 
 /** Fold cards that have aged past the setting, unless the viewer is reading further up the log. */
 function foldSweep() {
+  pruneMotion();
   if (!foldAfterMinutes()) return;
   for (const log of document.querySelectorAll("#chat .chat-log, .chat-popout .chat-log")) {
     const fromBottom = log.scrollHeight - log.scrollTop - log.clientHeight;

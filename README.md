@@ -6,7 +6,7 @@ Hardwipe is a Foundry VTT module for running a Cyberpunk-flavoured game on the D
 
 [Install](#install) · [Player guide](docs/Players.md) · [GM guide](docs/GM.md) · [Card gallery](docs/Cards.md) · [Rules reference](docs/Reference.md)
 
-> **Which version is this?** This README describes **0.7.45**, which pairs with **Ready Set Midi 14.0.10.2**. The installer published on GitHub is still **0.7.40** (with Ready Set Midi 14.0.10.1) until a newer release goes up. Install both modules from the same release.
+> **Which version is this?** This README describes **0.7.46**, which pairs with **Ready Set Midi 14.0.10.2**. The installer published on GitHub is still **0.7.40** (with Ready Set Midi 14.0.10.1) until a newer release goes up. Install both modules from the same release.
 
 ## Your body is your loadout
 
@@ -75,7 +75,7 @@ Walls provide ranged cover. Give them a type, HP per five-foot section, armor an
 
 - **Each hit leaves its own hole.** A big hit makes one wide hole, and several small hits make several small, scattered ones. The holes let sight and light through, so players can glimpse what's behind. The wall still stops movement and shots until a section reaches zero and opens a five-foot breach.
 - **Undo last wall damage** restores HP, holes and breached geometry together.
-- **Area spells** (development preview) can damage walls through the integrated Walled Regions effects, with the same GM approval.
+- **Area spells damage walls.** Fireballs, cones, lines, cubes, emanations and rings hit every wall section they reach, set per spell or as a default for each shape, with the same GM approval.
 
 [Configure and fight around walls →](docs/Walls.md)
 

@@ -104,7 +104,7 @@ export class CoverManager {
     WallTypes.registerSettings();
     if (game.settings.settings.has(`${MODULE_ID}.wallCoverEnabled`)) return;
     game.settings.register(MODULE_ID, "wallCoverEnabled", {
-      name: "Automatic wall cover", hint: "Use scene walls for ranged cover, weapon impacts, and area wall damage.",
+      name: "HARDWIPE.Cover.Setting", hint: "HARDWIPE.Cover.SettingHint",
       scope: "world", config: true, type: Boolean, default: true
     });
   }
@@ -277,7 +277,15 @@ export class CoverManager {
     const destination = shapeOf(target);
     if (!source || !destination) return empty;
     const scene = sceneOf(attacker);
-    const walls = scene.walls?.contents ?? scene.walls ?? [];
+    // Every shot runs from the attacker's center to a point in the target's square: only walls overlapping
+    // that box can block it.
+    const left = Math.min(source.center.x, destination.x), right = Math.max(source.center.x, destination.x + destination.width);
+    const top = Math.min(source.center.y, destination.y), bottom = Math.max(source.center.y, destination.y + destination.height);
+    const walls = (scene.walls?.contents ?? scene.walls ?? []).filter(wall => {
+      const c = wall.c;
+      return Array.isArray(c) && Math.max(c[0], c[2]) >= left - 1 && Math.min(c[0], c[2]) <= right + 1
+        && Math.max(c[1], c[3]) >= top - 1 && Math.min(c[1], c[3]) <= bottom + 1;
+    });
     const filter = wall => isBlocking(wall, attacker, target);
     let blocked = 0;
     const impacts = [];
@@ -397,7 +405,7 @@ export class CoverManager {
     }
     const review = await ChatMessage.create({
       content: this._wallCard("review", { attacker: message.alias || message.author.name, weapon: workflow.item.name, impacts }),
-      whisper: gmIds, flags: { [MODULE_ID]: { coverReview: { sourceMessageId: message.id } } }
+      whisper: gmIds, speaker: message.speaker, flags: { [MODULE_ID]: { coverReview: { sourceMessageId: message.id } } }
     });
     await message.setFlag(MODULE_ID, STATE_FLAG, { ...message.getFlag(MODULE_ID, STATE_FLAG), reviewPosted: true, reviewMessageId: review.id });
   }
@@ -716,7 +724,7 @@ export class CoverManager {
     return this._enqueue(async () => {
       const history = copy(scene?.getFlag(MODULE_ID, HISTORY_FLAG) ?? []);
       const entry = history.at(-1);
-      if (!entry) { ui.notifications.info("There is no wall damage to undo in this scene."); return false; }
+      if (!entry) { ui.notifications.info(game.i18n.localize("HARDWIPE.Cover.UndoNone")); return false; }
       if (entry.version === 2) {
         for (const name of ["walls", "tiles"]) {
           for (const expected of entry.after[name]) {
@@ -729,7 +737,7 @@ export class CoverManager {
         const operations = WallAppearance.operations(scene, { before: entry.after, after: entry.before });
         operations.push({ action: "update", documentName: "Scene", updates: [{ _id: scene.id, [`flags.${MODULE_ID}.${HISTORY_FLAG}`]: history.slice(0, -1) }] });
         await this._batch(operations);
-        ui.notifications.info("Last wall damage restored.");
+        ui.notifications.info(game.i18n.localize("HARDWIPE.Cover.UndoDone"));
         return true;
       }
       if (scene.walls.get(entry.original._id)) throw new Error("The original wall ID is already in use; undo stopped.");
@@ -742,7 +750,7 @@ export class CoverManager {
       operations.push({ action: "create", documentName: "Wall", parent: scene, keepId: true, data: [entry.original], hardwipeWallWear: true });
       operations.push({ action: "update", documentName: "Scene", updates: [{ _id: scene.id, [`flags.${MODULE_ID}.${HISTORY_FLAG}`]: history.slice(0, -1) }] });
       await this._batch(operations);
-      ui.notifications.info("Last wall breach restored.");
+      ui.notifications.info(game.i18n.localize("HARDWIPE.Cover.UndoBreachDone"));
       return true;
     });
   }
@@ -870,7 +878,7 @@ export class CoverManager {
       const loss = Math.round(Math.min(1, Math.max(0, (impact.before - impact.after) / max)) * 100);
       const chip = (value, key, extra = "") => `<span class="hardwipe-wall-chip ${extra}"><b>${escape(value)}</b>${t(key)}</span>`;
       return `<div class="hardwipe-wall-impact">${head}
-        <div class="hardwipe-wall-math">${chip(impact.rolled, "Rolled")}${impact.belowThreshold ? `<span class="hardwipe-wall-op">&lt;</span>${chip(impact.damageThreshold, "Threshold")}` : `<span class="hardwipe-wall-op">−</span>${chip(impact.armor, "Armor")}`}<span class="hardwipe-wall-op">=</span>${chip(impact.applied, "Damage", "is-total")}</div>
+        <div class="hardwipe-wall-math">${chip(impact.rolled, impact.area ? "Blast" : "Rolled")}${impact.belowThreshold ? `<span class="hardwipe-wall-op">&lt;</span>${chip(impact.damageThreshold, "Threshold")}` : `<span class="hardwipe-wall-op">−</span>${chip(impact.armor, "Armor")}`}<span class="hardwipe-wall-op">=</span>${chip(impact.applied, "Damage", "is-total")}</div>
         ${impact.belowThreshold ? `<p class="hardwipe-wall-held">${t("BelowThreshold")}</p>` : impact.damageThreshold > 0 ? `<p class="hardwipe-wall-held">${t("Threshold")}: ${escape(impact.damageThreshold)}</p>` : ""}
         <div class="hardwipe-wall-bar" style="--keep: ${keep}%; --loss: ${loss}%" role="meter" aria-valuemin="0" aria-valuemax="${escape(max)}" aria-valuenow="${escape(impact.after)}"><span class="hardwipe-wall-keep"></span><span class="hardwipe-wall-loss"></span></div>
         <div class="hardwipe-wall-hp"><span>${t("SectionHP")}</span><b>${escape(impact.before)}<i class="fas fa-arrow-right-long" inert></i><em>${escape(impact.after)}</em></b><span>/ ${escape(max)}</span></div>
@@ -888,6 +896,7 @@ export class CoverManager {
 
   static async _announce(content, scene, source) {
     const data = { content, flags: { [MODULE_ID]: { coverResult: { sceneId: scene.id, sourceMessageId: source?.id } } } };
+    if (source?.speaker) data.speaker = source.speaker;
     if (source?.whisper?.length) data.whisper = [...source.whisper];
     if (source?.blind) data.blind = true;
     return ChatMessage.create(data);

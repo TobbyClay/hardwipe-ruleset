@@ -67,6 +67,17 @@ Native captures from the disposable 0.7.44 QA world on 2026-10-11, player client
 | [save-dial-crack.png](media/save-dial-crack.png) | Animated (APNG): natural 1, the gauge stuttering and cracking. |
 | [spell-npc-save-button.webp](media/spell-npc-save-button.webp) | GM view of a spell card waiting for an NPC's save, with the Roll save button. Replaces the 0.7.43 capture, which was taken before a style fix and showed the DC over the button's label. |
 
+## 0.7.46 captures
+
+Native captures from the disposable 0.7.46 QA world on 2026-10-12: a lab scene with two concrete walls (40 HP, armor 5, threshold 10), and a player casting fixed-damage (30) area spells through the real usage dialog and template placement. GM client unless noted. Cropped to the window or card and converted to WebP.
+
+| Published file | Subject |
+| --- | --- |
+| [wall-area-item.webp](media/wall-area-item.webp) | An emanation spell's Wall Effects tab with Damage walls — Half. |
+| [wall-area-review.webp](media/wall-area-review.webp) | The private GM review for a player's Fireball: 30 rolled, 15 to the walls, 10 per section after armor. |
+| [wall-area-result.webp](media/wall-area-result.webp) | The applied result in the player's chat. |
+| [wall-area-defaults.webp](media/wall-area-defaults.webp) | Default Shape Settings with a circle default of Damage walls — Half. |
+
 ## 0.7.45 captures
 
 Native captures from the disposable 0.7.45 QA world on 2026-10-12, GM client unless noted: the test world's chat log read in, then a live session ("Blackwall Run") of player and GM rolls, some with the d20 fixed through Foundry's random source to force natural 1s and 20s. Cropped to the window or element and converted to WebP.

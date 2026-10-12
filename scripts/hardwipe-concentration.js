@@ -107,11 +107,21 @@ function sameSpeaker(left, right) {
   return !!a.actor && a.actor === b.actor;
 }
 
+// A request and its save sit close together in the log; links are looked for within this many messages.
+const LINK_WINDOW = 200;
+
+/** The messages after (or before, nearest first) a message, within the link window. */
+function around(message, after) {
+  const messages = game.messages.contents;
+  let index = -1;
+  for (let i = messages.length - 1; i >= 0; i--) if (messages[i].id === message.id) { index = i; break; }
+  if (index < 0) return [];
+  return after ? messages.slice(index + 1, index + 1 + LINK_WINDOW) : messages.slice(Math.max(0, index - LINK_WINDOW), index).reverse();
+}
+
 /** The Concentration save rolled for a request: the next one for that speaker, before any newer request. */
 function linkedSave(request) {
-  const messages = game.messages.contents;
-  for (let i = messages.indexOf(request) + 1; i < messages.length; i++) {
-    const message = messages[i];
+  for (const message of around(request, true)) {
     if (!sameSpeaker(message, request)) continue;
     if (message.flags?.[MODULE_ID]?.[FLAG]) return null;
     if (isConcentrationSave(message)) return message;
@@ -121,15 +131,12 @@ function linkedSave(request) {
 
 /** A newer concentration request for the same speaker, posted before this one was answered. */
 function superseded(request) {
-  const messages = game.messages.contents;
-  return messages.slice(messages.indexOf(request) + 1).some(message => sameSpeaker(message, request) && message.flags?.[MODULE_ID]?.[FLAG]);
+  return around(request, true).some(message => sameSpeaker(message, request) && message.flags?.[MODULE_ID]?.[FLAG]);
 }
 
 /** The request a Concentration save answers, if it was rolled for one. */
 function linkedRequest(save) {
-  const messages = game.messages.contents;
-  for (let i = messages.indexOf(save) - 1; i >= 0; i--) {
-    const message = messages[i];
+  for (const message of around(save, false)) {
     if (!sameSpeaker(message, save)) continue;
     if (isConcentrationSave(message)) return null;
     const kind = message.flags?.[MODULE_ID]?.[FLAG]?.kind;

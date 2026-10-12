@@ -14,18 +14,14 @@ import { MODULE_ID, MODULE_KEY, FLAGS, LABELS, TEMPLATES, bundledRegionsEnabled 
 import { Settings } from "./settings.js";
 import { normalizeShapeType } from "./compatibility.js";
 
-const unsupportedShapeWarnings = new WeakMap();
-
-function warnUnsupportedDamageShapes(item, shapes) {
+/**
+ * Hardwipe: Walled Templates cannot clip emanations or rings, so they get no template flags. A damage mode
+ * chosen on the item still applies to them: copy it so the cast proposes structural wall damage.
+ */
+function copyNativeDamageMode(item, flags) {
   const mode = readDocumentFlag(item, MODULE_ID, FLAGS.WALLS_BLOCK);
-  if (!itemUsesWalledTemplates(item) || !["damage-normal", "damage-half"].includes(mode)) return;
-  const unsupported = [...new Set(shapes.filter(shape => !Settings.KEYS.DEFAULT_SNAPPING[normalizeShapeType(shape)]))];
-  if (!unsupported.length) return;
-  const previous = unsupportedShapeWarnings.get(item);
-  const signature = unsupported.join(", ");
-  if (previous?.signature === signature && Date.now() - previous.time < 1000) return;
-  unsupportedShapeWarnings.set(item, { signature, time: Date.now() });
-  ui.notifications.warn(`Hardwipe: wall damage is unavailable for ${signature} areas in ${item.name}. Those shapes require manual wall damage; supported shapes are circles, cones, lines, and rectangles.`);
+  if ( !item || !itemUsesWalledTemplates(item) || !["damage-normal", "damage-half"].includes(mode) ) return;
+  flags[MODULE_ID] = { ...(flags[MODULE_ID] ?? {}), [FLAGS.ENABLED]: true, [FLAGS.WALLS_BLOCK]: mode };
 }
 
 export const PATCHES = {};
@@ -135,7 +131,7 @@ function preCreateActivityTemplate(activity, templateData) {
   if ( !flags[FLAGS.ENABLED] ) return;
   const shape = normalizeShapeType(templateData.t);
   if ( !Settings.KEYS.DEFAULT_SNAPPING[shape] ) {
-    warnUnsupportedDamageShapes(item, [shape]);
+    copyNativeDamageMode(item, templateData.flags);
     return;
   }
 
@@ -227,10 +223,13 @@ function postUseActivity(activity, usageConfig, results) {
 
 function createMeasuredTemplate(activity, regions) {
   for ( const regionData of regions ) {
-    warnUnsupportedDamageShapes(activity.item, (regionData.shapes ?? []).filter(shape => !shape.hole).map(shape => shape.type));
     const shape = regionData.shapes?.find(s => !s.hole);
-    if ( !shape || !Settings.KEYS.DEFAULT_SNAPPING[normalizeShapeType(shape.type)] ) continue;
+    if ( !shape ) continue;
     regionData.flags ??= {};
+    if ( !Settings.KEYS.DEFAULT_SNAPPING[normalizeShapeType(shape.type)] ) {
+      copyNativeDamageMode(activity.item, regionData.flags);
+      continue;
+    }
     preCreateActivityTemplate(activity, {
       item: activity.item,
       t: shape.type,
