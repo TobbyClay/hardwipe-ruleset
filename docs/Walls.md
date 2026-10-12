@@ -50,6 +50,8 @@ For ranged weapon attacks, a partial-cover miss within **5 points below final AC
 
 The private review shows raw damage, threshold/armor context, section HP, proposed loss, and a breach warning. **Apply damage** changes HP and geometry; **Ignore** closes the proposal without changing the wall. This applies even to attacks rolled by the GM. A roll alone never changes wall durability.
 
+If the attack or damage roll changes while the proposal is still waiting (a reroll, a bonus, critical dice), the attacker's client withdraws it and posts a new one from the current rolls. Once the GM has applied or ignored it, the proposal stands: to change wall damage already applied, use **Undo last wall damage** and roll again.
+
 Repeated approvals cannot apply one impact twice. Moved tokens, changed geometry, or changed durability can make a proposal stale and stop application. Pending review remains available after reload. Direct wall approval requires the GM to view that scene.
 
 ## Target a wall directly
@@ -105,13 +107,17 @@ This is an unreleased development addition. It requires the matching Ready Set M
 
 ![Damaged wall with actual vision and light opening in a synthetic scene](media/wall-glimpse-current.png)
 
+<img src="media/wall-damage-holes.webp" alt="Light through a damaged wall: one wide hole from a big hit, three small holes from smaller hits" width="420">
+
+Every hit that damages a section leaves its own hole, sized by the damage it did: a hit for a quarter of the section's HP opens a narrow hole, a hit for three quarters opens about two thirds of the section. The first hole sits on the impact; later ones scatter across the section, clear of the holes already there, so a big hit reads as one wide hole and several small hits as several small ones. Each hole gets its own surface mark, heavier as the section's HP falls. Every client draws the same holes.
+
 | Section HP | Surface | Vision and light | Movement and shots |
 | --- | --- | --- | --- |
 | Full | Intact | Original restrictions | Physical wall remains |
-| Damaged, above half | Scar or crack | Original restrictions | Physical wall remains |
-| Half or less | Cracked | 10% slit in the struck section | Physical wall remains |
-| Quarter or less | Heavier damage | 20% slit | Physical wall remains |
+| Damaged | A mark per hit | A hole per hit, sized by its damage | Physical wall remains |
 | Zero | Five-foot breach | Destroyed interval open | Destroyed interval removed |
+
+Sections damaged before 0.7.43 have no per-hit record and read as a single hit for all the damage taken.
 
 These are genuine Foundry vision and light openings. Players can glimpse tokens and illumination through the crack using normal vision rules. **Seeing through damage does not allow shooting through it** while the physical wall remains. Surface marks follow current vision and do not reveal unseen damage through explored fog.
 

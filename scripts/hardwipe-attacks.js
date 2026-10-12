@@ -1,8 +1,10 @@
 import { MODULE_ID, escapeHTML, plainActivityLabel } from "./hardwipe-state.js";
 import { HardwipeRules } from "./hardwipe-rules.js";
 import {
-  aggregateCriticalDamage, bindBrief, briefHTML, decorateRollCard, fallenTargets, insertAfterDamage, markDamageTypes, stampHTML, propertyChipsHTML, rarityClasses, recordSaveTargets, saveBlock, saveState
+  aggregateCriticalDamage, bindBrief, briefHTML, decorateRollCard, fallenTargets, insertAfterDamage, markDamageTypes, stampHTML, propertyChipsHTML, rarityClasses, recordSaveTargets,
+  recordWorkflowDamage, rollCriticalDice, saveBlock, saveState
 } from "./hardwipe-attack-cards.js";
+import { settleCard } from "./hardwipe-assembly.js";
 import { isSpellCard, renderSpellCard } from "./hardwipe-spell-cards.js";
 import { isImplantCard, renderImplantCard } from "./hardwipe-implant-cards.js";
 import { isCheckCard, renderCheckCard } from "./hardwipe-check-cards.js";
@@ -82,6 +84,42 @@ export class AttackReviewManager {
     // The caster's client records who must save, so every client can list them while they roll.
     Hooks.on("midi-qol.preCheckSaves", workflow => recordSaveTargets(workflow));
     Hooks.on("midi-qol.RollComplete", workflow => recordSaveTargets(workflow));
+    // The card appears complete: once it waits on the GM (below), on saves, on a click, or when it is done.
+    Hooks.on("midi-qol.RollComplete", async workflow => {
+      await settleCard(workflow?.chatCard);
+      try { await recordWorkflowDamage(workflow); }
+      catch (error) { console.warn(`${MODULE_ID} | Applied damage could not be logged on the card`, error); }
+    });
+    Hooks.on("midi-qol.preWaitForSaves", workflow => settleCard(workflow?.chatCard));
+    Hooks.on("midi-qol.AttackRollComplete", workflow => {
+      if (!rollsDamageAtOnce(workflow)) return settleCard(workflow?.chatCard);
+    });
+    this._keepDamageOnAttackChanges();
+  }
+
+  /**
+   * Ready Set Midi writes an attack roll to its card as the card's only roll. After the fact (the advantage
+   * switch, a bonus, a die reroll) that drops the damage already rolled: the card loses its damage, its
+   * apply row and undo log, and the wall check rejects it. A fresh attack clears the damage first, so a
+   * workflow that still holds damage is being altered: keep the damage on the card.
+   */
+  static _keepDamageOnAttackChanges() {
+    if (!globalThis.MidiQOL?.Workflow?.prototype?.displayAttackRoll || !globalThis.libWrapper) return;
+    libWrapper.register(MODULE_ID, "MidiQOL.Workflow.prototype.displayAttackRoll", async function(wrapped, ...args) {
+      const held = [this.damageRolls, this.otherDamageRolls, this.bonusDamageRolls].some(rolls => rolls?.length);
+      if (!held) return wrapped(...args);
+      const own = Object.hasOwn(this, "performThrottledUpdate");
+      const update = this.performThrottledUpdate;
+      this.performThrottledUpdate = function(card, data, ...rest) {
+        if (Array.isArray(data?.rolls)) data = { ...data, rolls: this.chatRolls ?? data.rolls };
+        return update.call(this, card, data, ...rest);
+      };
+      try { return await wrapped(...args); }
+      finally {
+        if (own) this.performThrottledUpdate = update;
+        else delete this.performThrottledUpdate;
+      }
+    }, "WRAPPER");
   }
 
   static async _onUpdateCard(message, changes) {
@@ -170,7 +208,7 @@ export class AttackReviewManager {
       const total = Number(captured?.total ?? workflow.attackTotal);
       const ac = Number(captured?.ac ?? token.actor.system?.attributes?.ac?.value);
       const isHit = workflow.hitTargets.has(token) || workflow.hitTargetsEC.has(token);
-      const suggestion = suggestOutcome({ isHit, isCritical: workflow.isCritical, isFumble: workflow.isFumble, melee, total, ac });
+      const suggestion = suggestOutcome({ isHit, isCritical: workflow.isCritical || naturalCritical(workflow), isFumble: workflow.isFumble, melee, total, ac });
       const playerName = workflow.hitDisplayData?.[uuid]?.playerName || token.name;
       entries.push({ token, uuid, name: token.name, playerName, img: token.document.texture?.src ?? token.actor.img, total, ac, ...suggestion,
         cover: coverSnapshot(workflow, token) });
@@ -235,6 +273,7 @@ export class AttackReviewManager {
     const card = workflow.chatCard;
     this._pending.get(card?.id)?.resolve(null);
     this._pending.delete(card?.id);
+    await settleCard(card);
     try { if (card) await card.setFlag(MODULE_ID, `${CARD_FLAG}.unavailable`, true); }
     catch (error) { console.warn(`${MODULE_ID} | Could not record unavailable approval`, error); }
     ui.notifications.error(game.i18n.localize("HARDWIPE.Attack.ReviewUnavailable"));
@@ -265,6 +304,7 @@ export class AttackReviewManager {
     if (!pending || pending.workflow !== workflow) return;
     // The player sees the damage roll while the GM decides; it is applied only after the decision.
     await workflow.displayDamageRolls();
+    await settleCard(card);
     await this._hold(workflow, card, pending);
   }
 
@@ -278,6 +318,7 @@ export class AttackReviewManager {
     const card = workflow?.chatCard;
     const pending = card && this._pending.get(card.id);
     if (!pending || pending.workflow !== workflow) return;
+    await settleCard(card);
     await this._hold(workflow, card, pending);
   }
 
@@ -313,7 +354,7 @@ export class AttackReviewManager {
         workflow.hitTargetsEC.delete(entry.token);
       } else {
         workflow.hitTargets.add(entry.token);
-        if (outcome === "critical" && !workflow.isCritical) critTokens.push(entry.token);
+        if (outcome === "critical" && !workflow.isCritical && !workflow.hardwipeCritDamage) critTokens.push(entry.token);
       }
       const target = stateTarget(state, entry.uuid);
       if (target) target.outcome = outcome;
@@ -558,8 +599,9 @@ export class AttackReviewManager {
     syncReviewTotals(element, data, card);
     const damage = element.querySelector(".hardwipe-review-damage");
     const total = Number(card?.flags?.[MIDI]?.damageTotal);
+    const crit = (card?.rolls ?? []).some(roll => roll.options?.[MODULE_ID]?.critical);
     if (damage) damage.innerHTML = Number.isFinite(total) && total > 0
-      ? `<i class="fas fa-droplet" inert></i>${escapeHTML(game.i18n.format("HARDWIPE.Attack.DamageRolled", { total }))}`
+      ? `<i class="fas fa-droplet" inert></i>${escapeHTML(game.i18n.format(crit ? "HARDWIPE.Attack.DamageRolledCrit" : "HARDWIPE.Attack.DamageRolled", { total }))}`
       : `<i class="fas fa-hourglass-half" inert></i>${escapeHTML(game.i18n.localize("HARDWIPE.Attack.DamagePending"))}`;
     if (data.decision) {
       element.querySelector(".hardwipe-review-card")?.classList.add("is-resolved");
@@ -632,6 +674,14 @@ function suggestOutcome({ isHit, isCritical, isFumble, melee, total, ac }) {
   return { suggested: "miss", locked: false, reason: Number.isFinite(ac) ? "" : "cover" };
 }
 
+/**
+ * A natural critical on the attack roll as it stands. Midi fixes the workflow's critical state from its
+ * first damage roll, so a natural 20 that only arrives with retroactive advantage would read as a hit.
+ */
+function naturalCritical(workflow) {
+  return !workflow.isFumble && !!workflow.attackRoll?.isCritical;
+}
+
 function stateTarget(state, uuid) {
   return state.targets?.find?.(target => target.uuid === uuid);
 }
@@ -647,23 +697,14 @@ function attackKey(workflow) {
     !!workflow?.isCritical, !!workflow?.isFumble, [...(workflow?.targets ?? [])].map(token => token.document.uuid).sort()]);
 }
 
-/** Roll the damage dice again (no modifiers) for a critical decided after the damage roll. */
-async function rollCriticalDice(damageRolls) {
-  const results = [];
-  for (const roll of damageRolls) {
-    const dice = (roll.dice ?? []).filter(die => die.number > 0 && die.faces > 0);
-    if (!dice.length) continue;
-    const formula = dice.map(die => `${die.number}d${die.faces}`).join(" + ");
-    const type = roll.options?.type ?? "none";
-    const extra = await new CONFIG.Dice.DamageRoll(formula, {}, { type, properties: roll.options?.properties ?? [], [MODULE_ID]: { critical: true } }).evaluate();
-    results.push({ type, value: extra.total, roll: extra });
-  }
-  if (!results.length) return null;
-  return {
-    total: results.reduce((sum, part) => sum + part.value, 0),
-    detail: results.map(({ type, value, roll }) => ({ type, value, properties: new Set(roll.options.properties ?? []) })),
-    rolls: results.map(part => part.roll)
-  };
+/** Midi rolls this workflow's damage without a click once the attack is in (Hardwipe's review counts pending targets as hits). */
+function rollsDamageAtOnce(workflow) {
+  if (!workflow?.activity?.hasDamage && !workflow?.otherActivity?.hasDamage) return false;
+  let config = null;
+  try { config = globalThis.MidiQOL?.configSettings?.(); } catch { config = null; }
+  const mode = game.user.isGM ? config?.gmAutoDamage : config?.autoRollDamage;
+  if (!mode || mode === "none") return false;
+  return mode === "always" || workflow.hitTargets?.size > 0 || workflow.hitTargetsEC?.size > 0;
 }
 
 /** Keep Midi's legacy preview fields consistent with the recalculated target detail. */

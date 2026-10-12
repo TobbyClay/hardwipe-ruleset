@@ -9,6 +9,7 @@ const MODULE_ID = "hardwipe-ruleset";
 const STATE_FLAG = "coverAttack";
 const HISTORY_FLAG = "coverHistory";
 const LEDGER_FLAG = "coverDamageLedger";
+const LEDGER_LIMIT = 500;
 const copy = value => foundry.utils.deepClone(value);
 const documentOf = token => token?.document ?? token;
 const sceneOf = token => documentOf(token)?.parent;
@@ -179,6 +180,53 @@ export class CoverManager {
       if (this._enabled() && context.workflow?.hardwipeCoverImpacts?.length && context.currentMode !== "none") context.autoRollDamage = "always";
     });
     Hooks.on("midi-qol.DamageRollComplete", workflow => this._onDamage(workflow));
+    // A reroll, a bonus or CRIT after the proposal: propose again from the card's new rolls.
+    Hooks.on("updateChatMessage", (message, changes) => {
+      if ("rolls" in changes && message.author?.id === game.user.id) void this._refreshProposal(message);
+    });
+  }
+
+  static _refreshing = new Set();
+
+  /**
+   * The attacker's client. A wall proposal still waiting for the GM is checked against the card's rolls
+   * when the GM applies it, so a changed attack or damage roll would leave it unusable. While the attack's
+   * workflow is live here, withdraw the old proposal and post a new one from the current rolls. Once the
+   * GM has applied or ignored it, the proposal stands.
+   */
+  static async _refreshProposal(message) {
+    const state = message.getFlag(MODULE_ID, STATE_FLAG);
+    if (!state?.pending || !state.reviewPosted || state.confirmedBy || state.dismissedBy || this._refreshing.has(message.id)) return;
+    let workflow = null;
+    try { workflow = globalThis.MidiQOL?.Workflow?.getWorkflow?.(message.uuid) ?? null; } catch { workflow = null; }
+    if (!workflow || workflow.aborted || workflow.chatCard?.id !== message.id) return;
+    const rolls = message.rolls ?? [];
+    const signature = list => stableJSON(list.map(roll => coverRollSignatureData((this._rollFromData(roll) ?? roll).toJSON())));
+    const damage = rolls.filter(roll => roll.options?.["midi-qol"]?.rollType === "defaultDamage");
+    const attack = rolls.filter(roll => roll.options?.["midi-qol"]?.rollType === "attack");
+    if (state.mode === "area") {
+      if (stableJSON(AreaWallManager._rollData(AreaWallManager._rolls(message))) === stableJSON(state.damageRolls)) return;
+    } else if (signature(damage) === signature(state.damageRolls ?? []) && (!state.attackRoll || signature(attack) === signature([state.attackRoll]))) return;
+    this._refreshing.add(message.id);
+    try {
+      const review = game.messages.get(state.reviewMessageId);
+      if (review?.isOwner) await review.delete();
+      if (state.mode === "area") {
+        await message.unsetFlag(MODULE_ID, STATE_FLAG);
+        await AreaWallManager.onDamage(workflow);
+      } else if (state.mode === "direct") {
+        await message.unsetFlag(MODULE_ID, STATE_FLAG);
+        await WallTargeting._onAttack(workflow);
+        await WallTargeting._onDamage(workflow);
+      } else {
+        await this._persistAttack(workflow);
+        await this._onDamage(workflow);
+      }
+    } catch (error) {
+      this._report(error);
+    } finally {
+      this._refreshing.delete(message.id);
+    }
   }
 
   static _registerReviewHooks() {
@@ -563,7 +611,7 @@ export class CoverManager {
       if (record.wallCoordinates && stableJSON(wall?.c) !== stableJSON(record.wallCoordinates)) throw new Error("The wall moved after the shot. The wall impact was not applied.");
       const material = wall?.getFlag(MODULE_ID, "cover");
       if (!material || material.ballistic === false || !finite(material.max) || Number(material.max) <= 0) {
-        const ledger = [...(scene.getFlag(MODULE_ID, LEDGER_FLAG) ?? []), { key: ledgerKey, at: Date.now(), wallId: wall.id, damage: 0 }];
+        const ledger = [...(scene.getFlag(MODULE_ID, LEDGER_FLAG) ?? []), { key: ledgerKey, at: Date.now(), wallId: record.wallId, damage: 0 }].slice(-LEDGER_LIMIT);
         await this._batch([{ action: "update", documentName: "Scene", updates: [{ _id: scene.id, [`flags.${MODULE_ID}.${LEDGER_FLAG}`]: ledger }] }]);
         await this._announce(this._wallCard("held", { attacker: attacker?.name, weapon: activity.item.name,
           impacts: [{ target: target.name, direct, indestructible: true }] }), scene, message);
@@ -573,7 +621,7 @@ export class CoverManager {
       const { applied } = assessed;
       const section = this._section(wall, current.impact, material, scene);
       if (!applied) {
-        const ledger = [...(scene.getFlag(MODULE_ID, LEDGER_FLAG) ?? []), { key: ledgerKey, at: Date.now(), wallId: wall.id, damage: 0 }];
+        const ledger = [...(scene.getFlag(MODULE_ID, LEDGER_FLAG) ?? []), { key: ledgerKey, at: Date.now(), wallId: record.wallId, damage: 0 }].slice(-LEDGER_LIMIT);
         await this._batch([{ action: "update", documentName: "Scene", updates: [{ _id: scene.id, [`flags.${MODULE_ID}.${LEDGER_FLAG}`]: ledger }] }]);
         await this._announce(this._wallCard("held", { attacker: attacker?.name, weapon: activity.item.name,
           impacts: [{ target: target.name, direct, material: material.material, section: Number(section.key) + 1, ...assessed,
@@ -583,8 +631,9 @@ export class CoverManager {
       const remaining = Math.max(0, section.hp - applied);
       const cover = { ...copy(material), ...section.metadata, sections: { ...copy(material.sections ?? {}) } };
       cover.sections[section.key] = { ...(cover.sections[section.key] ?? {}), hp: remaining, max: Number(material.max),
-        impact: copy(cover.sections[section.key]?.impact ?? { x: current.impact.x, y: current.impact.y }) };
-      const ledger = [...(scene.getFlag(MODULE_ID, LEDGER_FLAG) ?? []), { key: ledgerKey, at: Date.now(), wallId: wall.id, damage: applied }];
+        impact: copy(cover.sections[section.key]?.impact ?? { x: current.impact.x, y: current.impact.y }),
+        hits: [...copy(cover.sections[section.key]?.hits ?? []), { x: current.impact.x, y: current.impact.y, damage: applied }].slice(-12) };
+      const ledger = [...(scene.getFlag(MODULE_ID, LEDGER_FLAG) ?? []), { key: ledgerKey, at: Date.now(), wallId: wall.id, damage: applied }].slice(-LEDGER_LIMIT);
       const sceneUpdate = { _id: scene.id, [`flags.${MODULE_ID}.${LEDGER_FLAG}`]: ledger };
       let operations;
       let breached = false;

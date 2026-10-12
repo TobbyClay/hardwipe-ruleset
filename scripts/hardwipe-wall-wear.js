@@ -6,6 +6,21 @@ const isPoint = point => Number.isFinite(point?.x) && Number.isFinite(point?.y);
 const lengthOf = c => Math.hypot(c[2] - c[0], c[3] - c[1]);
 const rounded = point => ({ x: Math.round(point.x), y: Math.round(point.y) });
 const coordinates = (a, b) => [a.x, a.y, b.x, b.y];
+// Every hit leaves its own hole, sized by the damage it did, as a fraction of the section: small hits
+// make small holes and big hits disproportionately large ones (a hit for three quarters of a
+// section's HP opens about two thirds of it), so several small hits read as several small holes.
+const holeSize = share => clamp(0.05 + 0.9 * Math.pow(clamp(share, 0, 1), 1.6), 0.05, 0.8);
+const HITS_KEPT = 12;
+
+/** A stable 0..1 value from a string, so every client places the same hole in the same place. */
+function seeded(text) {
+  let hash = 2166136261;
+  for (let index = 0; index < text.length; index++) {
+    hash ^= text.charCodeAt(index);
+    hash = Math.imul(hash, 16777619);
+  }
+  return ((hash >>> 0) % 100000) / 100000;
+}
 
 /**
  * Plan optical wall segments and surface scars without changing the wall or its
@@ -78,24 +93,50 @@ export function planWallWear(wallData, cover, scene) {
     const sectionLength = high - low;
     if (sectionLength <= EPSILON) continue;
     const impact = isPoint(section?.impact) ? section.impact : null;
-    const projectedImpact = impact ? (impact.x - start.x) * unit.x + (impact.y - start.y) * unit.y : (low + high) / 2;
-    const center = clamp(projectedImpact, low, high);
+    const along = point => clamp((point.x - start.x) * unit.x + (point.y - start.y) * unit.y, low, high);
     const ratio = hp / max;
     const stage = ratio <= 0.25 ? 3 : ratio <= 0.5 ? 2 : 1;
-    result.scars.push({ key, hp, max, stage, center: pointAt(center), length: sectionLength, rotation: Math.atan2(unit.y, unit.x) });
-    if (stage === 1) continue;
+    const rotation = Math.atan2(unit.y, unit.x);
+    // Sections damaged before holes were recorded per hit read as one hit for all the damage taken.
+    const recorded = Array.isArray(section?.hits) ? section.hits.filter(hit => isPoint(hit) && Number(hit.damage) > 0).slice(-HITS_KEPT) : [];
+    const hits = recorded.length ? recorded : [{ ...(impact ?? pointAt((low + high) / 2)), damage: max - hp }];
 
     // Keep intact section ends, including corners, after integer rounding.
     // Very short walls show scars only, rather than opening endpoint leaks.
     const guard = Math.max(2, sectionLength * 0.02);
-    if (sectionLength <= guard * 2) continue;
-    const width = Math.min(sectionLength * (stage === 3 ? 0.2 : 0.1), sectionLength - guard * 2);
-    const gapStart = clamp(center - width / 2, low + guard, high - guard - width);
-    const gapEnd = gapStart + width;
-    const p = rounded(pointAt(gapStart));
-    const q = rounded(pointAt(gapEnd));
-    if (!lengthOf(coordinates(p, q))) continue;
-    intervals.push({ key, low: gapStart, high: gapEnd, start: p, end: q });
+    const span = sectionLength - guard * 2;
+    if (span <= EPSILON) {
+      result.scars.push({ key, hp, max, stage, center: pointAt((low + high) / 2), length: sectionLength, rotation });
+      continue;
+    }
+    const placed = [];
+    hits.forEach((hit, index) => {
+      const width = Math.min(span, sectionLength * holeSize(Number(hit.damage) / max));
+      const lowest = low + guard + width / 2, highest = high - guard - width / 2;
+      const seed = `${key}:${index}:${Math.round(hit.x)}:${Math.round(hit.y)}:${hit.damage}`;
+      let middle;
+      if (!placed.length) {
+        // The first hole sits on the impact, nudged a little.
+        middle = along(hit) + (seeded(seed) * 2 - 1) * sectionLength * 0.08;
+      } else {
+        // Later holes scatter: of a few seeded spots, the one with the most solid wall between it and the holes there.
+        let best = -Infinity;
+        for (let candidate = 0; candidate < 7; candidate++) {
+          const spot = lowest + seeded(`${seed}:${candidate}`) * Math.max(0, highest - lowest);
+          const room = Math.min(...placed.map(other => Math.abs(other.middle - spot) - (other.width + width) / 2));
+          if (room > best) { best = room; middle = spot; }
+        }
+      }
+      middle = clamp(middle, lowest, Math.max(lowest, highest));
+      placed.push({ middle, width });
+      result.scars.push({ key, hp, max, stage, center: pointAt(middle), length: clamp(width * 1.8, sectionLength * 0.3, sectionLength), rotation });
+      const gapStart = clamp(middle - width / 2, low + guard, high - guard - width);
+      const gapEnd = gapStart + width;
+      const p = rounded(pointAt(gapStart));
+      const q = rounded(pointAt(gapEnd));
+      if (!lengthOf(coordinates(p, q))) return;
+      intervals.push({ key, low: gapStart, high: gapEnd, start: p, end: q });
+    });
   }
 
   intervals.sort((a, b) => a.low - b.low);

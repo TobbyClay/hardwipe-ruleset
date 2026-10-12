@@ -15,7 +15,15 @@ function restoreModes(target, saved) {
 }
 
 function emptyAdvisory() {
-  return { version: 3, reasons: [], manual: true };
+  return { version: 3, reasons: [], sources: [], manual: true };
+}
+
+/** The roll mode the detected sources call for: 1 advantage, -1 disadvantage, 0 straight (none, or both cancelling). */
+export function expectedMode(sources = []) {
+  const has = type => sources.some(source => source?.type === type);
+  const advantage = has("ADV") && !has("NOADV");
+  const disadvantage = has("DIS") && !has("NODIS");
+  return advantage === disadvantage ? 0 : advantage ? 1 : -1;
 }
 
 /** Identify ranged activities without treating an ordinary melee-capable weapon as ranged. */
@@ -45,10 +53,12 @@ export function collectRangedAdvisory(workflow, attackMode = workflow?.attackMod
   for (const [type, label] of Object.entries(MODIFIER_LABELS)) {
     for (const [source, displayName] of Object.entries(attribution[type] ?? {})) {
       if (MANUAL_SOURCES.has(source) || typeof displayName !== "string" || !displayName.trim()) continue;
-      data.reasons.push(`${label}: ${displayName.trim()}`);
+      const reason = `${label}: ${displayName.trim()}`;
+      if (data.reasons.includes(reason)) continue;
+      data.reasons.push(reason);
+      data.sources.push({ type, name: displayName.trim() });
     }
   }
-  data.reasons = [...new Set(data.reasons)];
   return data;
 }
 
@@ -212,7 +222,7 @@ export class RangedAttackManager {
       }
       // Public chat flags are readable by other clients. Keep evaluated source names only
       // on the rolling client; their snapshot survives rerenders, never publishes NPC or defender state.
-      this._attackerAdvisories.set(card.id, [...(data.reasons ?? [])]);
+      this._attackerAdvisories.set(card.id, [...(data.sources ?? [])]);
       if (this._attackerAdvisories.size > 200) this._attackerAdvisories.delete(this._attackerAdvisories.keys().next().value);
       const publicData = { version: 3, manual: true };
       if (JSON.stringify(card.getFlag(ID, FLAG)) !== JSON.stringify(publicData)) await card.setFlag(ID, FLAG, publicData);
@@ -230,30 +240,70 @@ export class RangedAttackManager {
     const content = root.querySelector(".message-content");
     if (!content) return;
     const actor = ChatMessage.getSpeakerActor(message.speaker);
-    const reasons = [];
-    if (game.user.isGM || actor?.isOwner) {
-      reasons.push(...(this._attackerAdvisories.get(message.id) ?? []));
-    }
     // Older flags were built from guesses. Discard them without rewriting chat history.
-    const identified = [...new Set(reasons.filter(reason => typeof reason === "string" && reason.trim()))];
-    if (!identified.length) return;
-    const box = root.ownerDocument.createElement("aside");
-    box.className = "hardwipe-ranged-advisory";
-    box.setAttribute("aria-label", "Detected attack modifiers");
-    box.style.cssText = "margin-top:8px;padding:8px 10px;border:1px solid currentColor;border-radius:4px;font-size:0.85em;line-height:1.4";
-    const title = root.ownerDocument.createElement("strong");
-    title.textContent = "Advantage / disadvantage";
-    box.append(title);
-    if (identified.length) {
-      const list = root.ownerDocument.createElement("ul");
-      list.style.cssText = "margin:4px 0 0;padding-left:18px";
-      for (const reason of identified) {
-        const item = root.ownerDocument.createElement("li");
-        item.textContent = reason;
-        list.append(item);
-      }
-      box.append(list);
+    const sources = (game.user.isGM || actor?.isOwner ? this._attackerAdvisories.get(message.id) ?? [] : [])
+      .filter(source => MODIFIER_LABELS[source?.type] && typeof source.name === "string" && source.name.trim());
+    if (!sources.length) return;
+    const box = this._readout(root.ownerDocument, message, sources);
+    // The readout belongs to the attack roll: it sits right under it, above the damage.
+    const section = content.querySelector(".midi-qol-attack-roll");
+    (section ?? content).append(box);
+  }
+
+  /**
+   * One row per detected source (what it does, then its name and the rule it comes from), and the mode those
+   * sources call for, beside the title: advantage and disadvantage together cancel to a straight roll.
+   */
+  static _readout(doc, message, sources) {
+    const t = (key, data) => data ? game.i18n.format(`HARDWIPE.Advisory.${key}`, data) : game.i18n.localize(`HARDWIPE.Advisory.${key}`);
+    const el = (tag, className, text) => {
+      const node = doc.createElement(tag);
+      if (className) node.className = className;
+      if (text !== undefined) node.textContent = text;
+      return node;
+    };
+    const icon = name => {
+      const node = el("i", `fas ${name}`);
+      node.inert = true;
+      return node;
+    };
+    const MODE = { 1: "adv", 0: "norm", [-1]: "dis" };
+    const expected = MODE[expectedMode(sources)];
+    const box = el("aside", `hardwipe-ranged-advisory hwra is-${expected}`);
+    box.setAttribute("aria-label", t("Label"));
+
+    const head = el("header", "hwra-head");
+    const call = el("span", `hwra-call is-${expected}`);
+    call.append(el("span", "hwra-k", t("Rules")), el("span", `hwra-mode is-${expected}`, t(`Short.${expected}`)));
+    const cancel = expected === "norm" && sources.some(s => s.type === "ADV") && sources.some(s => s.type === "DIS");
+    call.dataset.tooltip = cancel ? t("Cancel") : t(`Should.${expected}`);
+    head.append(el("span", "hwra-title", t("Title")), call);
+
+    const list = el("ul", "hwra-list");
+    const ROW = {
+      ADV: ["adv", "fa-chevrons-up", "Adv"],
+      DIS: ["dis", "fa-chevrons-down", "Dis"],
+      NOADV: ["block", "fa-ban", "NoAdv"],
+      NODIS: ["block", "fa-ban", "NoDis"]
+    };
+    for (const { type, name } of sources) {
+      const [kind, glyph, label] = ROW[type];
+      // Ready Set Midi names a source "<effects> - <rule>"; the effect leads, the rule sits under it.
+      const split = name.lastIndexOf(" - ");
+      const source = split > 0 ? name.slice(0, split) : name;
+      const rule = split > 0 ? name.slice(split + 3) : "";
+      const row = el("li", `hwra-src is-${kind}`);
+      // A blocked advantage (or disadvantage) still shows, struck through.
+      if (sources.some(s => s.type === `NO${type}`)) row.classList.add("is-void");
+      const chip = el("span", "hwra-chip");
+      chip.append(icon(glyph), el("span", "", t(`Mode.${label}`)));
+      const text = el("span", "hwra-name");
+      text.append(el("b", "", source));
+      if (rule) text.append(el("small", "", rule));
+      row.append(chip, text);
+      list.append(row);
     }
-    content.append(box);
+    box.append(head, list);
+    return box;
   }
 }

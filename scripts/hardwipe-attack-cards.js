@@ -1,4 +1,5 @@
 import { MODULE_ID, StrikesManager, escapeHTML } from "./hardwipe-state.js";
+import { isAssembling } from "./hardwipe-assembly.js";
 
 /**
  * Presentation shared by Hardwipe's chat cards: damage-type colours on every Ready Set Midi card,
@@ -104,10 +105,11 @@ export function decorateRollCard(message, element, { pending = false, saves = nu
   settleRolls(message, results, tone);
 }
 
-/* One-shot arrival: on a card that was just rolled, the d20 badges flicker before settling and damage
- * totals count up; a natural 1 glitches the attack box once. Each effect has a fixed end time, so
- * Ready Set Midi re-rendering a fresh card mid-effect continues it rather than restarting it, and
- * cards loaded later (a reload, scrolling back) never animate. Skipped with reduced motion. */
+/* One-shot arrival: a natural 1 glitches the attack box once. Numbers never animate: a card shows its
+ * final values from the first frame. Each effect has a fixed end time, so Ready Set Midi re-rendering a
+ * fresh card mid-effect continues it rather than restarting it, and cards loaded later (a reload,
+ * scrolling back) never animate. The window opens when the card first appears, not while it is still
+ * being assembled out of the log. Skipped with reduced motion. */
 const FRESH_MS = 20000;
 const settling = new Map(); // "<message id>:<part>" -> end time on this client.
 
@@ -119,6 +121,7 @@ export function arrivalWindow(message, part, duration) {
 function settleWindow(message, part, duration) {
   const key = `${message.id}:${part}`;
   const now = Date.now();
+  if (!settling.has(key) && isAssembling(message)) return 0;
   if (!settling.has(key)) {
     if (now - (message.timestamp ?? 0) > FRESH_MS) return 0;
     settling.set(key, now + duration);
@@ -129,63 +132,13 @@ function settleWindow(message, part, duration) {
 function settleRolls(message, results, tone) {
   if (!results || globalThis.matchMedia?.("(prefers-reduced-motion: reduce)").matches) return;
   const attack = results.querySelector(":scope > .midi-qol-attack-roll > button.dice-roll");
-  const badges = [...(attack?.querySelectorAll(".d20die .roll") ?? [])];
-  if (badges.length) {
-    const left = settleWindow(message, "d20", 550);
-    if (left) flicker(attack, badges, left);
-    if (tone === "fumble") {
-      const glitch = settleWindow(message, "glitch", 1250);
-      if (glitch) {
-        attack.classList.add("hardwipe-glitch");
-        attack.style.setProperty("--hw-glitch-delay", `${Math.max(0, glitch - 700)}ms`);
-        setTimeout(() => attack.classList.remove("hardwipe-glitch"), glitch);
-      }
-    }
+  if (!attack || tone !== "fumble") return;
+  const glitch = settleWindow(message, "glitch", 1250);
+  if (glitch) {
+    attack.classList.add("hardwipe-glitch");
+    attack.style.setProperty("--hw-glitch-delay", `${Math.max(0, glitch - 700)}ms`);
+    setTimeout(() => attack.classList.remove("hardwipe-glitch"), glitch);
   }
-  for (const summary of results.querySelectorAll(".hardwipe-damage-summary[data-key]")) {
-    const left = settleWindow(message, summary.dataset.key, 650);
-    if (left) countUp(summary.querySelector(".hardwipe-damage-box > strong"), left, 650);
-  }
-}
-
-/** The d20 flicker for a single roll button (check cards). */
-export function settleD20(message, button) {
-  if (!button || globalThis.matchMedia?.("(prefers-reduced-motion: reduce)").matches) return;
-  const badges = [...button.querySelectorAll(".d20die .roll")];
-  const left = badges.length ? settleWindow(message, "d20", 550) : 0;
-  if (left) flicker(button, badges, left);
-}
-
-function flicker(button, badges, left) {
-  const values = badges.map(node => node.textContent);
-  const end = performance.now() + left;
-  button.classList.add("hardwipe-settling");
-  const tick = () => {
-    // The card is built before it joins the log, so run to the end time whether or not it is attached yet.
-    if (performance.now() >= end) {
-      badges.forEach((node, index) => { node.textContent = values[index]; });
-      button.classList.remove("hardwipe-settling");
-      button.classList.add("hardwipe-settled");
-      return;
-    }
-    for (const node of badges) node.textContent = String(1 + Math.floor(Math.random() * 20));
-    setTimeout(tick, 45);
-  };
-  tick();
-}
-
-function countUp(node, left, duration) {
-  const target = Number(node?.textContent);
-  if (!node || !Number.isFinite(target)) return;
-  const end = performance.now() + left;
-  const step = () => {
-    const remaining = end - performance.now();
-    if (remaining <= 0) { node.textContent = String(target); return; }
-    const progress = 1 - remaining / duration;
-    node.textContent = String(Math.round(target * (1 - Math.pow(1 - progress, 3))));
-    requestAnimationFrame(step);
-  };
-  step();
 }
 
 /** 1 for advantage, -1 for disadvantage, 0 otherwise. */
@@ -249,8 +202,10 @@ function attackDrawer(message, results, { locked = false } = {}) {
   const text = [...title.childNodes].find(node => node.nodeType === Node.TEXT_NODE && node.textContent.trim());
   if (text) text.textContent = game.i18n.localize("HARDWIPE.Attack.DrawerAttack");
   const bonus = title.querySelector(":scope > .rsr-addon-bonus-btn");
+  // A bonus added after the GM's ruling would change a total the ruling no longer matches.
+  if (locked) bonus?.remove();
   const control = advControlHTML(message, roll, button.dataset.rsmRollKey || "attack:0", { locked });
-  if (bonus) bonus.insertAdjacentHTML("beforebegin", control);
+  if (bonus?.isConnected) bonus.insertAdjacentHTML("beforebegin", control);
   else title.insertAdjacentHTML("beforeend", control);
 }
 
@@ -332,6 +287,8 @@ function combineSection(message, section, rolls, key, pending, critical = false,
   const groups = damageGroups(rolls);
   const total = groups.reduce((sum, group) => sum + Math.max(0, group.total), 0);
   const color = blendDamageColor(groups.map(group => ({ type: group.type, value: group.total })));
+  critical ||= isCriticalDamage(rolls);
+  const critSwitch = kind === "defaultDamage" && isAttackCard(message);
   const legend = groups.map(group => {
     const swatch = DAMAGE_COLORS[group.type] ? ` style="--hw-dmg: ${DAMAGE_COLORS[group.type]}"` : "";
     return `<span class="hardwipe-damage-type" data-type="${escapeHTML(group.type)}"${swatch}><i inert></i>${escapeHTML(group.total)} ${escapeHTML(damageLabel(group.type))}</span>`;
@@ -340,7 +297,8 @@ function combineSection(message, section, rolls, key, pending, critical = false,
   const split = groups.filter(group => group.total > 0).map(group => `<i data-type="${escapeHTML(group.type)}"
       style="--hw-dmg: ${DAMAGE_COLORS[group.type] ?? "#cfd8e0"}; flex-grow: ${group.total}"
       data-tooltip="${escapeHTML(`${group.total} ${damageLabel(group.type)}`)}"></i>`).join("");
-  const crit = critical ? `<span class="hardwipe-roll-chip is-crit">${escapeHTML(game.i18n.localize("HARDWIPE.Attack.ChipCritical"))}</span>` : "";
+  const crit = critSwitch ? critSwitchHTML(message, critical)
+    : critical ? `<span class="hardwipe-roll-chip is-crit">${escapeHTML(game.i18n.localize("HARDWIPE.Attack.ChipCritical"))}</span>` : "";
   section.classList.add("hardwipe-damage-combined");
   const summary = document.createElement("div");
   summary.className = `hardwipe-damage-summary${critical ? " is-crit" : ""}`;
@@ -353,10 +311,19 @@ function combineSection(message, section, rolls, key, pending, critical = false,
   section.classList.toggle("is-healing", groups.every(group => HEALING.has(group.type)));
   const canApply = game.user.isGM || message.isAuthor;
   const rows = groups.map(group => rollRowHTML(damageLabel(group.type), group.rolls, DAMAGE_COLORS[group.type], canApply ? applyButtonsHTML(group, pending) : "", group.type));
+  const source = { kinds: [kind] };
   const drawer = rollDrawer(message, "damage", `<div class="hardwipe-drawer-rolls">${rows.join("")}</div>`, key);
   const label = section.querySelector(":scope > .rsr-title, :scope > .midi-roll-label");
-  label?.querySelector(":scope > .hardwipe-roll-chip")?.remove();
-  if (crit) label?.insertAdjacentHTML("beforeend", crit);
+  label?.querySelectorAll(":scope > :is(.hardwipe-roll-chip, .hardwipe-crit-switch)").forEach(node => node.remove());
+  const labelBonus = label?.querySelector(":scope > .rsr-addon-bonus-btn");
+  if (crit && labelBonus) labelBonus.insertAdjacentHTML("beforebegin", crit);
+  else if (crit) label?.insertAdjacentHTML("beforeend", crit);
+  label?.querySelector(":scope > .hardwipe-crit-switch button[data-hw-crit]")?.addEventListener("click", event => {
+    event.preventDefault();
+    event.stopPropagation();
+    event.currentTarget.disabled = true;
+    void rollCritDamage(message);
+  });
   if (label) label.after(summary);
   else section.prepend(summary);
   summary.after(drawer);
@@ -364,7 +331,7 @@ function combineSection(message, section, rolls, key, pending, critical = false,
   if (canApply) {
     const healing = section.classList.contains("is-healing");
     const landing = landingTargets(message, kind, saves);
-    const row = applyRow(message, key, groups, pending, healing, landing.length || !healing ? landing : speakerTarget(message));
+    const row = applyRow(message, key, groups, pending, healing, landing.length || !healing ? landing : speakerTarget(message), source);
     drawer.after(row);
     const log = applyLog(message, key);
     if (log) row.after(log);
@@ -385,8 +352,9 @@ function combineSection(message, section, rolls, key, pending, critical = false,
     const holder = button.closest(".hardwipe-apply");
     const label = `${button.textContent.trim()} ${damageLabel(holder.dataset.type)}`;
     const parts = JSON.parse(holder.dataset.parts);
+    const heal = HEALING.has(holder.dataset.type);
     void applyParts(parts,
-      Number(button.dataset.multiplier), { message, key, label });
+      Number(button.dataset.multiplier), { message, key, label, source: heal ? null : { ...source, type: holder.dataset.type } });
   }));
 }
 
@@ -444,7 +412,7 @@ function damageTargets() {
  * Set Midi's "Apply damage to" setting; `targets` ([{ token, multiplier }]) names them instead. Each
  * token's hit points before and after are logged on the card, so the application can be undone.
  */
-async function applyParts(parts, multiplier, { message = null, key = "", label = "", targets = null } = {}) {
+async function applyParts(parts, multiplier, { message = null, key = "", label = "", targets = null, source = null } = {}) {
   const canonical = message?.id ? game.messages.get(message.id) : message;
   const review = canonical?.flags?.[MODULE_ID]?.attackReview;
   if (message && (!canonical || !canonical.isContentVisible || review?.unavailable || (review && review.status !== "resolved")))
@@ -469,9 +437,10 @@ async function applyParts(parts, multiplier, { message = null, key = "", label =
     const [value, temp] = hp();
     await actor.applyDamage(damage(token), { multiplier: factor });
     const [after, afterTemp] = hp();
-    records.push({ uuid: token.uuid, name: token.name ?? actor.name, dv: after - value, dt: afterTemp - temp });
+    records.push({ uuid: token.uuid, name: token.name ?? actor.name, dv: after - value, dt: afterTemp - temp, m: factor });
   }
-  if (message) await logApplication(message, key, label, records);
+  const tracked = source && parts.every(part => !HEALING.has(part.type));
+  if (message) await logApplication(message, key, label, records, tracked ? { ...source, parts: plainParts(parts) } : {});
 }
 
 /** Match native respectProperties grouping before per-description resistance rounding. */
@@ -528,7 +497,7 @@ function speakerTarget(message) {
  * Targets, which applies the total to the card's own targets (hits, or failed and half-damage saves).
  * Mistakes are undone from the applied log. Locked while the attack or its saves are unresolved.
  */
-function applyRow(message, key, groups, pending, healing, landing) {
+function applyRow(message, key, groups, pending, healing, landing, source = null) {
   const t = name => game.i18n.localize(`HARDWIPE.Cards.${name}`);
   const total = groups.reduce((sum, group) => sum + Math.max(0, group.total), 0);
   const parts = groups.flatMap(damageGroupParts);
@@ -555,19 +524,19 @@ function applyRow(message, key, groups, pending, healing, landing) {
     else if (mode === "temp") void applyParts([{ value: total, type: "temphp" }], 1, options);
     else if (mode === "targets") {
       const targets = landing.map(target => ({ token: foundry.utils.fromUuidSync(target.uuid), multiplier: target.multiplier })).filter(entry => entry.token);
-      void applyParts(parts, 1, { ...options, targets });
+      void applyParts(parts, 1, { ...options, targets, source });
     }
-    else void applyParts(parts, { full: 1, double: 2, half: 0.5 }[mode], options);
+    else void applyParts(parts, { full: 1, double: 2, half: 0.5 }[mode], { ...options, source });
   });
   return row;
 }
 
 /* Applied log: each use of the damage row or the drawer's buttons is recorded on the card (flag `applied`),
  * shown to GMs and to whoever applied it, with Undo restoring the hit points it changed. */
-async function logApplication(message, key, label, targets) {
+async function logApplication(message, key, label, targets, extra = {}) {
   if (!targets.length || !message.canUserModify?.(game.user, "update")) return;
   const list = [...(message.getFlag(MODULE_ID, "applied") ?? [])];
-  list.push({ id: foundry.utils.randomID(), key, label, by: game.user.id, at: Date.now(), targets, undone: false });
+  list.push({ id: foundry.utils.randomID(), key, label, by: game.user.id, at: Date.now(), targets, undone: false, ...extra });
   await message.setFlag(MODULE_ID, "applied", list.slice(-30));
 }
 
@@ -586,9 +555,12 @@ function applyLog(message, key) {
   log.innerHTML = entries.map(entry => {
     const who = game.users.get(entry.by)?.name ?? "";
     const targets = entry.targets.map(target => `<span class="${target.dv < 0 || target.dt < 0 ? "is-loss" : "is-gain"}">${escapeHTML(target.name)} ${escapeHTML(hpChange(target))}</span>`).join("");
-    const undo = !entry.undone && (game.user.isGM || entry.by === game.user.id)
+    // Undo only where this user can restore every target it changed.
+    const restorable = entry.targets.every(target => foundry.utils.fromUuidSync(target.uuid)?.actor?.isOwner);
+    const undo = !entry.undone && restorable && (game.user.isGM || entry.by === game.user.id)
       ? `<button type="button" data-undo="${escapeHTML(entry.id)}" data-tooltip="${escapeHTML(game.i18n.localize("HARDWIPE.Cards.UndoTip"))}"><i class="fas fa-rotate-left" inert></i>${escapeHTML(game.i18n.localize("HARDWIPE.Cards.Undo"))}</button>` : "";
-    return `<div class="hardwipe-apply-entry${entry.undone ? " is-undone" : ""}"><b>${escapeHTML(entry.label)}</b><span class="hardwipe-apply-who">${targets}</span>
+    const adjusted = entry.adjusted && !entry.undone ? ` <em class="hardwipe-apply-adjusted" data-tooltip="${escapeHTML(game.i18n.localize("HARDWIPE.Cards.AdjustedTip"))}">${escapeHTML(game.i18n.localize("HARDWIPE.Cards.Adjusted"))}</em>` : "";
+    return `<div class="hardwipe-apply-entry${entry.undone ? " is-undone" : ""}"><b>${escapeHTML(entry.label)}${adjusted}</b><span class="hardwipe-apply-who">${targets}</span>
       <small>${escapeHTML(entry.undone ? game.i18n.localize("HARDWIPE.Cards.Undone") : who)}</small>${undo}</div>`;
   }).join("");
   log.addEventListener("click", event => {
@@ -600,6 +572,191 @@ function applyLog(message, key) {
     void undoApplication(message, button.dataset.undo);
   });
   return log;
+}
+
+/* ---------------------------------------------------------------------------------------------
+ * Critical damage and changed rolls.
+ * ------------------------------------------------------------------------------------------- */
+
+/** Damage rolled as a critical (natural, a GM's Critical, or the CRIT switch). */
+function isCriticalDamage(rolls) {
+  return rolls.some(roll => roll.options?.isCritical || roll.options?.[MODULE_ID]?.critical);
+}
+
+function isAttackCard(message) {
+  return message.flags?.["midi-qol"]?.d20AttackRoll !== undefined || Array.isArray(message.flags?.[MODULE_ID]?.attackReview?.targets);
+}
+
+/**
+ * CRIT on the damage line, beside its bonus button: lit once the damage is critical. The roller may
+ * switch it on until the GM has ruled; the GM may always. Switching it on rolls the damage dice again
+ * and adds them, as a critical does.
+ */
+function critSwitchHTML(message, critical) {
+  const review = message.flags?.[MODULE_ID]?.attackReview;
+  const open = !Array.isArray(review?.targets) || review.status === "pending";
+  const live = !critical && !review?.unavailable && (game.user.isGM || (message.isAuthor && open));
+  const t = name => game.i18n.localize(`HARDWIPE.Cards.${name}`);
+  const tip = critical ? t("CritActive") : live ? t("CritApply") : message.isAuthor && !open ? t("AdvLocked") : t("AdvReadOnly");
+  return `<span class="hardwipe-adv hardwipe-crit-switch${live ? "" : " is-static"}">
+    <button type="button" class="hardwipe-adv-btn is-crit${critical ? " is-on" : ""}"${live ? ' data-hw-crit="1"' : " disabled"}
+      aria-pressed="${critical}" data-tooltip="${escapeHTML(tip)}" aria-label="${escapeHTML(tip)}"><i class="fas fa-burst" inert></i><span>${escapeHTML(t("Crit"))}</span></button>
+  </span>`;
+}
+
+/** Roll the damage dice again (no modifiers): a critical's extra dice. */
+export async function rollCriticalDice(damageRolls) {
+  const results = [];
+  for (const roll of damageRolls) {
+    const dice = (roll.dice ?? []).filter(die => die.number > 0 && die.faces > 0);
+    if (!dice.length) continue;
+    const formula = dice.map(die => `${die.number}d${die.faces}`).join(" + ");
+    const type = roll.options?.type ?? "none";
+    const extra = await new CONFIG.Dice.DamageRoll(formula, {}, {
+      type, properties: roll.options?.properties ?? [], [MODULE_ID]: { critical: true }, "midi-qol": { rollType: "defaultDamage" }
+    }).evaluate();
+    results.push({ type, value: extra.total, roll: extra });
+  }
+  if (!results.length) return null;
+  return {
+    total: results.reduce((sum, part) => sum + part.value, 0),
+    detail: results.map(({ type, value, roll }) => ({ type, value, properties: new Set(roll.options.properties ?? []) })),
+    rolls: results.map(part => part.roll)
+  };
+}
+
+const critBusy = new Set();
+
+/**
+ * The CRIT switch. With the attack's workflow live on this client the extra dice join its damage, so the
+ * GM's decision applies them; otherwise they are added to the card, and damage already applied is
+ * adjusted by the GM's client (below).
+ */
+export async function rollCritDamage(message) {
+  const card = game.messages.get(message?.id);
+  if (!card || critBusy.has(card.id) || !(game.user.isGM || card.isAuthor)) return;
+  critBusy.add(card.id);
+  try {
+    const rolls = damageRolls(card, "defaultDamage");
+    if (!rolls.length || isCriticalDamage(rolls)) return;
+    const bonus = await rollCriticalDice(rolls);
+    if (!bonus) return;
+    let workflow = null;
+    try { workflow = globalThis.MidiQOL?.Workflow?.getWorkflow?.(card.uuid) ?? null; } catch { workflow = null; }
+    if (workflow && !workflow.aborted && workflow.chatCard?.id === card.id && typeof workflow.addDamageRolls === "function") {
+      // The GM's later Critical must not add a second set of dice.
+      workflow.hardwipeCritDamage = true;
+      await workflow.addDamageRolls(bonus.rolls);
+      await workflow.displayDamageRolls();
+    } else {
+      await card.update({ rolls: [...card.rolls, ...bonus.rolls].map(roll => roll.toJSON()) });
+    }
+  } catch (error) {
+    console.error(`${MODULE_ID} | Critical damage could not be rolled`, error);
+    ui.notifications.error(game.i18n.localize("HARDWIPE.Cards.CritFailed"));
+  } finally {
+    critBusy.delete(card.id);
+  }
+}
+
+/** Plain, serialisable damage parts, as an application stores them. */
+function plainParts(parts) {
+  return parts.map(part => ({ value: Number(part.value) || 0, type: part.type, properties: [...(part.properties ?? [])] }));
+}
+
+/** The parts an application covers, as the card's rolls stand now. */
+function currentParts(message, entry) {
+  return entry.kinds.flatMap(kind => damageGroups(damageRolls(message, kind)))
+    .filter(group => !entry.type || group.type === entry.type)
+    .flatMap(group => plainParts(damageGroupParts(group)));
+}
+
+const partsKey = parts => JSON.stringify(parts.map(part => [part.type, Number(part.value) || 0]).sort());
+
+/** HP an actor loses to these parts at this multiplier: dnd5e's resistances, immunities and threshold included. */
+function landed(actor, parts, multiplier) {
+  const damages = aggregateCriticalDamage(parts.map(part => ({ value: part.value, type: part.type, properties: new Set(part.properties ?? []) })));
+  const result = actor.calculateDamage(damages, { multiplier });
+  return result ? Number(result.amount) || 0 : 0;
+}
+
+/**
+ * The attacker's client, when Ready Set Midi has applied an attack's damage itself: the application joins
+ * the card's applied log (Auto), with Undo, like a damage-row application.
+ */
+export async function recordWorkflowDamage(workflow) {
+  const card = game.messages.get(workflow?.chatCard?.id ?? workflow?.itemCardId);
+  if (!card || !card.canUserModify?.(game.user, "update") || !workflow.damageList?.length) return;
+  const marker = `${workflow.attackRollCount ?? 0}:${workflow.damageRollCount ?? 0}`;
+  if (workflow.hardwipeDamageLogged === marker) return;
+  workflow.hardwipeDamageLogged = marker;
+  let mode = null;
+  try { mode = globalThis.MidiQOL?.configSettings?.()?.autoApplyDamage; } catch { mode = null; }
+  const targets = [];
+  for (const item of workflow.damageList) {
+    const token = item.targetUuid ? foundry.utils.fromUuidSync(item.targetUuid) : null;
+    const actor = token?.actor ?? (item.actorUuid ? foundry.utils.fromUuidSync(item.actorUuid) : null);
+    const applies = ["yes", "yesCard", "yesCardMisses"].includes(mode) || (mode === "yesCardNPC" && actor?.type !== "character");
+    if (!applies || !token) continue;
+    const dv = (Number(item.newHP) - Number(item.oldHP)) || 0;
+    const dt = (Number(item.newTempHP) - Number(item.oldTempHP)) || 0;
+    if (dv || dt) targets.push({ uuid: token.uuid, name: token.name ?? actor?.name ?? "", dv, dt, m: 1 });
+  }
+  if (!targets.length) return;
+  // Save damage depends on each save; the attack's own and bonus damage land whole on a hit.
+  const source = { kinds: ["defaultDamage", "bonusDamage"], auto: true };
+  await logApplication(card, "damage", game.i18n.localize("HARDWIPE.Cards.LogAuto"), targets, { ...source, parts: currentParts(card, source) });
+}
+
+const syncing = new Map(); // Message id -> the adjustment running for it on this client.
+
+/**
+ * The active GM's client: when a card's damage rolls change (a reroll, a bonus, CRIT) after damage was
+ * applied, each recorded application is adjusted by the difference, per target, through dnd5e's damage
+ * calculation; the log entry keeps the full change, so Undo still restores the original hit points.
+ */
+async function syncAppliedDamage(message) {
+  const list = foundry.utils.deepClone(message.getFlag(MODULE_ID, "applied") ?? []);
+  let changed = false;
+  const notes = [];
+  for (const entry of list) {
+    if (entry.undone || !Array.isArray(entry.parts) || !Array.isArray(entry.kinds)) continue;
+    const parts = currentParts(message, entry);
+    if (!parts.length || partsKey(parts) === partsKey(entry.parts)) continue;
+    for (const target of entry.targets) {
+      const actor = foundry.utils.fromUuidSync(target.uuid)?.actor;
+      if (!actor?.isOwner) continue;
+      const multiplier = Number(target.m ?? 1) || 1;
+      const delta = landed(actor, parts, multiplier) - landed(actor, entry.parts, multiplier);
+      if (!delta) continue;
+      const hp = () => [Number(actor.system.attributes?.hp?.value) || 0, Number(actor.system.attributes?.hp?.temp) || 0];
+      const [value, temp] = hp();
+      await actor.applyDamage(delta);
+      const [after, afterTemp] = hp();
+      target.dv += after - value;
+      target.dt += afterTemp - temp;
+      notes.push(`${target.name} ${delta > 0 ? "−" : "+"}${Math.abs(delta)}`);
+    }
+    entry.parts = parts;
+    entry.adjusted = (entry.adjusted ?? 0) + 1;
+    changed = true;
+  }
+  if (!changed) return;
+  await message.setFlag(MODULE_ID, "applied", list);
+  if (notes.length) ui.notifications.info(game.i18n.format("HARDWIPE.Cards.AdjustedNote", { changes: notes.join(", ") }));
+}
+
+export function registerDamageSync() {
+  Hooks.on("updateChatMessage", (message, changes) => {
+    if (!("rolls" in changes) || !game.user.isGM || game.users.activeGM?.id !== game.user.id) return;
+    if (!message.getFlag(MODULE_ID, "applied")?.some(entry => !entry.undone && Array.isArray(entry.parts))) return;
+    // One adjustment at a time per card: rapid rerolls settle in order.
+    const previous = syncing.get(message.id) ?? Promise.resolve();
+    const next = previous.then(() => syncAppliedDamage(game.messages.get(message.id) ?? message))
+      .catch(error => console.error(`${MODULE_ID} | Applied damage could not follow the changed roll`, error));
+    syncing.set(message.id, next);
+    void next.finally(() => { if (syncing.get(message.id) === next) syncing.delete(message.id); });
+  });
 }
 
 /** Undo one logged application: give back (or take back) the hit points it changed on each token. */
