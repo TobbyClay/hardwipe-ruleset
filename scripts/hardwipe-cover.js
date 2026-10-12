@@ -104,7 +104,7 @@ export class CoverManager {
     WallTypes.registerSettings();
     if (game.settings.settings.has(`${MODULE_ID}.wallCoverEnabled`)) return;
     game.settings.register(MODULE_ID, "wallCoverEnabled", {
-      name: "Automatic wall cover", hint: "Use scene walls for ranged cover, weapon impacts, and area wall damage.",
+      name: "HARDWIPE.Cover.Setting", hint: "HARDWIPE.Cover.SettingHint",
       scope: "world", config: true, type: Boolean, default: true
     });
   }
@@ -277,7 +277,15 @@ export class CoverManager {
     const destination = shapeOf(target);
     if (!source || !destination) return empty;
     const scene = sceneOf(attacker);
-    const walls = scene.walls?.contents ?? scene.walls ?? [];
+    // Every shot runs from the attacker's center to a point in the target's square: only walls overlapping
+    // that box can block it.
+    const left = Math.min(source.center.x, destination.x), right = Math.max(source.center.x, destination.x + destination.width);
+    const top = Math.min(source.center.y, destination.y), bottom = Math.max(source.center.y, destination.y + destination.height);
+    const walls = (scene.walls?.contents ?? scene.walls ?? []).filter(wall => {
+      const c = wall.c;
+      return Array.isArray(c) && Math.max(c[0], c[2]) >= left - 1 && Math.min(c[0], c[2]) <= right + 1
+        && Math.max(c[1], c[3]) >= top - 1 && Math.min(c[1], c[3]) <= bottom + 1;
+    });
     const filter = wall => isBlocking(wall, attacker, target);
     let blocked = 0;
     const impacts = [];
@@ -716,7 +724,7 @@ export class CoverManager {
     return this._enqueue(async () => {
       const history = copy(scene?.getFlag(MODULE_ID, HISTORY_FLAG) ?? []);
       const entry = history.at(-1);
-      if (!entry) { ui.notifications.info("There is no wall damage to undo in this scene."); return false; }
+      if (!entry) { ui.notifications.info(game.i18n.localize("HARDWIPE.Cover.UndoNone")); return false; }
       if (entry.version === 2) {
         for (const name of ["walls", "tiles"]) {
           for (const expected of entry.after[name]) {
@@ -729,7 +737,7 @@ export class CoverManager {
         const operations = WallAppearance.operations(scene, { before: entry.after, after: entry.before });
         operations.push({ action: "update", documentName: "Scene", updates: [{ _id: scene.id, [`flags.${MODULE_ID}.${HISTORY_FLAG}`]: history.slice(0, -1) }] });
         await this._batch(operations);
-        ui.notifications.info("Last wall damage restored.");
+        ui.notifications.info(game.i18n.localize("HARDWIPE.Cover.UndoDone"));
         return true;
       }
       if (scene.walls.get(entry.original._id)) throw new Error("The original wall ID is already in use; undo stopped.");
@@ -742,7 +750,7 @@ export class CoverManager {
       operations.push({ action: "create", documentName: "Wall", parent: scene, keepId: true, data: [entry.original], hardwipeWallWear: true });
       operations.push({ action: "update", documentName: "Scene", updates: [{ _id: scene.id, [`flags.${MODULE_ID}.${HISTORY_FLAG}`]: history.slice(0, -1) }] });
       await this._batch(operations);
-      ui.notifications.info("Last wall breach restored.");
+      ui.notifications.info(game.i18n.localize("HARDWIPE.Cover.UndoBreachDone"));
       return true;
     });
   }

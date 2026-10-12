@@ -124,6 +124,7 @@ function settleWindow(message, part, duration) {
   if (!settling.has(key) && isAssembling(message)) return 0;
   if (!settling.has(key)) {
     if (now - (message.timestamp ?? 0) > FRESH_MS) return 0;
+    if (settling.size > 200) for (const [entry, end] of settling) if (end < now) settling.delete(entry);
     settling.set(key, now + duration);
   }
   return Math.max(0, settling.get(key) - now);
@@ -692,12 +693,15 @@ export async function recordWorkflowDamage(workflow) {
   workflow.hardwipeDamageLogged = marker;
   let mode = null;
   try { mode = globalThis.MidiQOL?.configSettings?.()?.autoApplyDamage; } catch { mode = null; }
+  // An attack's damage lands only on the targets it still hits once the GM has ruled; Midi calculates it for all of them.
+  const attack = !!workflow.attackRoll;
+  const hit = new Set([...(workflow.hitTargets ?? []), ...(workflow.hitTargetsEC ?? [])].map(target => (target?.document ?? target)?.uuid));
   const targets = [];
   for (const item of workflow.damageList) {
     const token = item.targetUuid ? foundry.utils.fromUuidSync(item.targetUuid) : null;
     const actor = token?.actor ?? (item.actorUuid ? foundry.utils.fromUuidSync(item.actorUuid) : null);
     const applies = ["yes", "yesCard", "yesCardMisses"].includes(mode) || (mode === "yesCardNPC" && actor?.type !== "character");
-    if (!applies || !token) continue;
+    if (!applies || !token || (attack && !hit.has(token.uuid))) continue;
     const dv = (Number(item.newHP) - Number(item.oldHP)) || 0;
     const dt = (Number(item.newTempHP) - Number(item.oldTempHP)) || 0;
     if (dv || dt) targets.push({ uuid: token.uuid, name: token.name ?? actor?.name ?? "", dv, dt, m: 1 });
@@ -1008,6 +1012,7 @@ export async function enrichDescription(item) {
   if (!source) return "";
   const key = `${item.uuid}:${item._stats?.modifiedTime ?? 0}:${source.length}`;
   if (!enriched.has(key)) {
+    if (enriched.size >= 100) enriched.delete(enriched.keys().next().value);
     const TextEditor = foundry.applications.ux?.TextEditor?.implementation ?? globalThis.TextEditor;
     enriched.set(key, TextEditor.enrichHTML(source, { relativeTo: item, rollData: item.getRollData?.() ?? {}, secrets: item.isOwner }));
   }
@@ -1095,7 +1100,8 @@ export function saveState(message, element) {
   const savedFinal = new Set(midi.saveUuids ?? []);
   const failedFinal = new Set(midi.failedSaveUuids ?? []);
   const rolls = new Map();
-  for (const entry of game.messages) {
+  // Oldest first, so a later save for the same token replaces an earlier one.
+  for (const entry of messagesAfter(message).reverse()) {
     if (entry.type !== "save" || entry.flags?.dnd5e?.originatingMessage !== message.id || !entry.speaker?.token) continue;
     const { scene, token } = entry.speaker;
     const key = scene ? `Scene.${scene}.Token.${token}` : token;
@@ -1113,6 +1119,16 @@ export function saveState(message, element) {
   }
   const pending = targets.filter(target => target.status === "pending");
   return { ability, dc, targets, pending, done: targets.length - pending.length, half: activity?.damage?.onSave === "half" };
+}
+
+/**
+ * The messages posted after a card, newest first. A card's saves and checks always follow it, so the scan stops
+ * at the card instead of reading the whole log on every render.
+ */
+export function messagesAfter(message) {
+  const list = game.messages.contents, out = [];
+  for (let index = list.length - 1; index >= 0 && list[index].id !== message.id; index--) out.push(list[index]);
+  return out;
 }
 
 function targetsFromSaveDisplay(element) {

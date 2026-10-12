@@ -528,7 +528,7 @@ export class AttackReviewManager {
     if (!current()) return;
     const state = foundry.utils.deepClone(card.getFlag(MODULE_ID, CARD_FLAG) ?? { version: 1, targets: [] });
     state.unavailable = true;
-    state.unavailableReason = "The attacker's live workflow is unavailable. Roll the attack again so saves and Shield Block can resolve.";
+    state.unavailableReason = game.i18n.localize("HARDWIPE.Attack.WorkflowGone");
     if (!current()) return;
     await card.setFlag(MODULE_ID, CARD_FLAG, state);
     ui.notifications.error(state.unavailableReason);

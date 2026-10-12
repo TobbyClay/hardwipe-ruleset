@@ -4133,3 +4133,6 @@ button.hardwipe-adv-btn.is-crit { --hw-adv: var(--hw-c-critical, var(--hw-cyan))
 /* Wall cards on the restyled chat cards: a resolved review drops "Awaiting GM decision"; the area rule line stays a readable sentence. */
 .hardwipe-chat-card.hardwipe-wall-card.is-resolved[data-hw-kind] > .hardwipe-chat-meta:not(.hardwipe-wall-area-rule) { display: none; }
 .hardwipe-chat-card.hardwipe-wall-card[data-hw-kind] > .hardwipe-chat-meta.hardwipe-wall-area-rule { display: block; font: 500 11.5px/1.4 var(--hw-font-disp); letter-spacing: 0.02em; text-transform: none; color: rgba(198, 255, 230, 0.8); }
+
+/* Looping card animations pause while their message is scrolled out of view. */
+.chat-message.hardwipe-offscreen, .chat-message.hardwipe-offscreen *, .chat-message.hardwipe-offscreen *::before, .chat-message.hardwipe-offscreen *::after { animation-play-state: paused !important; }

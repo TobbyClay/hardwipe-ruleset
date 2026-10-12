@@ -1,6 +1,6 @@
 import { escapeHTML, plainActivityLabel } from "./hardwipe-state.js";
 import { CyberwareManager } from "./hardwipe-cyberware.js";
-import { abilityColor, actionStrip, bindBrief, briefHTML, decorateRollCard, placeActions, rarityClasses, saveBlock, saveState } from "./hardwipe-attack-cards.js";
+import { abilityColor, actionStrip, bindBrief, briefHTML, decorateRollCard, messagesAfter, placeActions, rarityClasses, saveBlock, saveState } from "./hardwipe-attack-cards.js";
 import { cardUses, effectsHTML } from "./hardwipe-implant-cards.js";
 
 /**
@@ -77,7 +77,7 @@ export function renderGearCard(message, element) {
  * messages into the card it came from, so the card lists them.
  */
 function checkResults(message) {
-  const rolls = game.messages.filter(entry => entry.type === "check" && entry.id !== message.id && entry.isContentVisible
+  const rolls = messagesAfter(message).reverse().filter(entry => entry.type === "check" && entry.isContentVisible
     && sameCheckSpeaker(message, entry)
     && (entry.flags?.dnd5e?.originatingMessage === message.id || entry._source?.system?.origin === message.id));
   if (!rolls.length) return null;
