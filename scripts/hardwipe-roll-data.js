@@ -293,18 +293,24 @@ function logGamma(z) {
 }
 
 /**
- * Superlatives across entities: [{ id, entities: [ids], value, detail }]. Entities need enough
- * rolls for the averages and rates to mean something.
+ * Superlatives across entities: [{ id, entities, value, detail, runner: { entities, value } | null }]. Ties
+ * share the award; the runner-up is the next distinct score. Entities need enough rolls for the averages
+ * and rates to mean something.
  */
 export function awards(entries) {
   const out = [];
-  const pick = (id, score, { min = () => true, lowest = false, detail = () => "" } = {}) => {
+  const same = (a, b) => Math.abs(a - b) < 1e-9;
+  const pick = (id, score, { min = () => true, lowest = false, detail = () => "", floor = 0 } = {}) => {
     const scored = entries.filter(entry => min(entry.stats)).map(entry => ({ entry, value: score(entry.stats) }))
-      .filter(item => Number.isFinite(item.value) && (lowest || item.value > 0));
+      .filter(item => Number.isFinite(item.value) && (lowest || item.value > floor));
     if (!scored.length) return;
-    const best = lowest ? Math.min(...scored.map(item => item.value)) : Math.max(...scored.map(item => item.value));
-    const winners = scored.filter(item => Math.abs(item.value - best) < 1e-9);
-    out.push({ id, entities: winners.map(item => item.entry.id), value: best, detail: detail(winners[0].entry.stats) });
+    const values = [...new Set(scored.map(item => item.value))].sort((a, b) => lowest ? a - b : b - a);
+    const holders = value => scored.filter(item => same(item.value, value)).map(item => item.entry.id);
+    const winners = scored.filter(item => same(item.value, values[0]));
+    out.push({
+      id, entities: holders(values[0]), value: values[0], detail: detail(winners[0].entry.stats),
+      runner: values.length > 1 ? { entities: holders(values[1]), value: values[1] } : null
+    });
   };
   const enough = stats => stats.d20.n >= 10;
   pick("golden", stats => stats.d20.avg, { min: enough });
@@ -316,8 +322,12 @@ export function awards(entries) {
   pick("sharpshooter", stats => stats.atk.rate, { min: stats => stats.atk.hit + stats.atk.miss >= 3 });
   pick("spells", stats => stats.cast.n);
   pick("will", stats => stats.save.rate, { min: stats => stats.save.known >= 3 });
+  pick("smooth", stats => stats.check.rate, { min: stats => stats.check.known >= 3 });
   pick("medic", stats => stats.heal.total);
   pick("quick", stats => stats.init.avg, { min: stats => stats.init.n >= 2 });
   pick("hot", stats => stats.d20.hot, { min: stats => stats.d20.hot >= 3 });
+  pick("cold", stats => stats.d20.cold, { min: stats => stats.d20.cold >= 3 });
+  pick("busy", stats => stats.rolls);
+  pick("downed", stats => stats.evt.downed + stats.evt.flatlined);
   return out;
 }

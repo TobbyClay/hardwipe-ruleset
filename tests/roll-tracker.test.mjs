@@ -101,4 +101,15 @@ test("awards need enough rolls, and ties are shared", () => {
   const list = [entry("a", 15, 12), entry("b", 15, 12), entry("c", 19, 4)];
   const golden = awards(list).find(award => award.id === "golden");
   assert.deepEqual(golden.entities, ["a", "b"]);
+  assert.equal(golden.runner, null);
+});
+
+test("awards name a runner-up, the next distinct score", () => {
+  const entry = (id, avgFace) => ({ id, stats: summarize(Array.from({ length: 12 }, (_, index) => ({ k: `${id}${index}`, t: index, u: id, c: "atk", n: avgFace, v: avgFace, f: { 20: 1 } }))) });
+  const list = [entry("a", 15), entry("b", 12), entry("c", 12), entry("d", 9)];
+  const golden = awards(list).find(award => award.id === "golden");
+  assert.deepEqual(golden.entities, ["a"]);
+  assert.deepEqual(golden.runner, { entities: ["b", "c"], value: 12 });
+  const cursed = awards(list).find(award => award.id === "cursed");
+  assert.deepEqual([cursed.entities, cursed.runner.entities], [["d"], ["b", "c"]]);
 });

@@ -69,17 +69,20 @@ Native captures from the disposable 0.7.44 QA world on 2026-10-11, player client
 
 ## 0.7.45 captures
 
-Native captures from the disposable 0.7.45 QA world on 2026-10-11, GM client: the test world's chat log read in with **Import chat log**, then a live session of player and GM rolls ("The Catwalk Job"), some with the d20 fixed through Foundry's random source to force natural 1s and 20s. Cropped to the window or element and converted to WebP.
+Native captures from the disposable 0.7.45 QA world on 2026-10-12, GM client unless noted: the test world's chat log read in, then a live session ("Blackwall Run") of player and GM rolls, some with the d20 fixed through Foundry's random source to force natural 1s and 20s. Cropped to the window or element and converted to WebP.
 
 | Published file | Subject |
 | --- | --- |
-| [roll-tracker-overview.webp](media/roll-tracker-overview.webp) | Roll Tracker overview for one session: totals, leaderboard and awards. |
-| [roll-tracker-player.webp](media/roll-tracker-player.webp) | A player's profile: tiles, d20 faces, roll types, combat and spells. |
-| [roll-tracker-compare.webp](media/roll-tracker-compare.webp) | The player against the GM, metric by metric. |
-| [roll-tracker-dice.webp](media/roll-tracker-dice.webp) | Each player's d20 faces with the fairness verdict, and the dice bag. |
-| [roll-tracker-moments.webp](media/roll-tracker-moments.webp) | Natural 1s and 20s with the GM's notes. |
-| [roll-tracker-prompts.webp](media/roll-tracker-prompts.webp) | The GM's note prompts beside the chat: a natural 20 attack being described, a natural 1 save waiting. |
-| [roll-tracker-recap.webp](media/roll-tracker-recap.webp) | The session recap card in chat. |
+| [roll-tracker-overview.webp](media/roll-tracker-overview.webp) | High Rollers overview: counters, ranking, Friday Night Firefight, awards, per-session charts. |
+| [roll-tracker-player.webp](media/roll-tracker-player.webp) | Players tab: a player's character screen. |
+| [roll-tracker-compare.webp](media/roll-tracker-compare.webp) | Compare tab: a player against the GM. |
+| [roll-tracker-dice.webp](media/roll-tracker-dice.webp) | Dice tab: d20 faces per player and the dice bag. |
+| [roll-tracker-moments.webp](media/roll-tracker-moments.webp) | Moments tab: natural 1s and 20s with the GM's notes. |
+| [roll-tracker-prompts.webp](media/roll-tracker-prompts.webp) | The GM's note prompts beside the chat. |
+| [roll-tracker-session.webp](media/roll-tracker-session.webp) | The Jack in session dialog. |
+| [roll-tracker-sessions.webp](media/roll-tracker-sessions.webp) | The session log with one session's times being edited. |
+| [roll-tracker-recap-dialog.webp](media/roll-tracker-recap-dialog.webp) | Post recap: headline and subhead beside the Screamsheet preview. |
+| [roll-tracker-recap.webp](media/roll-tracker-recap.webp) | The posted Screamsheet in chat (1.5× capture). |
 
 ## Fresh guide screenshots and recording
 

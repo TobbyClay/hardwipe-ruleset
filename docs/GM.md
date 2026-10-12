@@ -57,39 +57,61 @@ Fresh rolls have short entry animations; old cards do not replay them after relo
 
 ## Roll Tracker
 
-<img src="media/roll-tracker-player.webp" alt="Roll Tracker player profile: tiles, d20 faces against a fair die, roll types, combat with hits and misses, and spells by level" width="900">
+<img src="media/roll-tracker-overview.webp" alt="Roll Tracker overview: headline counters for rolls and spells, the ranking, the Friday Night Firefight strip, awards and per-session charts" width="900">
 
-Open **Game Settings → Hardwipe Ruleset → Roll Tracker**. The window shows one session or the whole campaign (the **Show** menu), in six tabs:
+Open **Game Settings → Hardwipe Ruleset → Roll Tracker** (the window is called High Rollers). The **Show** menu picks one session, the unfiled rolls, or the whole campaign. The counters at the top are always that scope's rolls and spells cast, with the change on the session before.
 
 | Tab | What it shows |
 | --- | --- |
-| Overview | Totals for the session, a leaderboard per player (rolls, d20 average with a luck gauge, natural 20s and 1s, hit rate, damage, spells, saves), awards, and the latest noted moments. **Post recap to chat** (GM) posts the totals, awards and moments as a card. |
-| Players | One player, the party, or one character: d20 faces against a fair die, roll types, attacks, damage by type, spells by level and the most cast, saves by ability, the most rolled skills, initiative, death saves, concentration, downs, flatlines, Edge, and every d20 in order. |
-| Compare | Any two of them side by side, metric by metric, with both d20 distributions overlaid. |
-| Dice | Every d20 face each player threw, dropped advantage dice included, with a fairness test once there are 60 or more, and a dice bag by die type. |
-| Moments | Every natural 1 and 20. The GM writes or edits notes here; players read them. |
-| Sessions | GM only. Rename, view or delete a session, end the one in play, read in the chat log, or export everything as JSON. |
+| Overview | The ranking by d20 average (role tag, characters, rolls, spells, natural 20s and 1s, the last ten d20s), the Friday Night Firefight strip (attacks and hit rate, crits, damage and the best hit, healing, downs), awards with their runners-up, the latest noted moments, and rolls and spells per session. |
+| Players | A character screen for each player or character: rolls, spells, natural 20s and 1s and the best roll; accuracy, damage, magic, saves, checks and the hot streak around the d20 average; d20 faces with a one-line read on them; spells cast, per-session rolls and spells, and roll types. The arrows step through players. |
+| Compare | Two players, the party or single characters, item-comparison style: player 1's numbers with green or red arrows against player 2, and who wins on how many stats. |
+| Dice | Every d20 face each player threw, dropped advantage dice included, with a fairness verdict once there are 60 or more, and a dice bag by die type. |
+| Moments | Every natural 1 and 20 with the GM's note. The GM writes or edits notes here; players read them. |
+| Sessions | GM only: the session log, described below. |
 
-| Compare | Dice |
+| Players | Compare |
 | --- | --- |
-| <img src="media/roll-tracker-compare.webp" alt="Roll Tracker compare: a player against the GM, metric by metric, with tug bars" width="440"> | <img src="media/roll-tracker-dice.webp" alt="Roll Tracker dice: each player's d20 faces and a dice bag by die type" width="440"> |
+| <img src="media/roll-tracker-player.webp" alt="Players tab: a player's character screen with attribute hexes around the d20 average" width="440"> | <img src="media/roll-tracker-compare.webp" alt="Compare tab: two item-comparison cards with green and red arrows" width="440"> |
 
-**How rolls are counted.** The active GM's client records each roll as it reaches chat, and records it again if the card changes (retroactive advantage, a bonus, a resolved hit), so nothing counts twice. A roll counts for the player who owns the character, else for whoever rolled; NPC rolls count for the GM. Attacks count as hits or misses from their targets; untargeted attacks count as neither. Saves and checks count as made or failed when they have a DC. If the GM was away, rolls posted meanwhile are read in when the GM next loads. **Import chat log** reads in older rolls, sorts them into sessions by time, and skips any already recorded.
+### Sessions
 
-**Natural 1s and 20s.** A box beside the chat asks the GM what was happening. **Enter** or the quill saves the note, **Esc** or × skips it, and up to three wait at a time. Skipped rolls can be noted later under Moments. Only fresh rolls ask, never rolls read in from the log.
+<img src="media/roll-tracker-session.webp" alt="Jack in dialog: start a new session with a name, date, start time and number, or continue the last one" width="440">
 
-<img src="media/roll-tracker-prompts.webp" alt="Two note prompts beside the chat: a natural 20 attack being described, and a natural 1 save" width="380">
+When the GM loads the world and nothing was rolled in the last hour, **Jack in** asks about tonight: start a new session (name, date, start time and number), or continue the last one. **Later** changes nothing. The same dialog opens from **New session** in the Sessions tab, and from **Start session** when no session is in play.
+
+Rolls are filed by time. A new session ends the one before it at its last roll. **End session** closes the one in play; rolls after that wait as **unfiled** until a session's times cover them. The play button on a finished session makes it the session in play again.
+
+<img src="media/roll-tracker-sessions.webp" alt="Session log with one session open for editing: name, number, date, start and end, and a note on how many entries the new times take in" width="900">
+
+The pencil opens a session's name, number, date, start and end. Before saving, the editor says how many entries the new times take in or leave out; saving re-files every roll by time. **Import chat log** reads in older rolls: they join the session that covers them, and rolls outside every session form new sessions split at four-hour breaks. **Export** saves everything as JSON. Deleting a session removes its stats and notes; the chat log is never touched.
+
+### Natural 1s and 20s
+
+A box beside the chat asks the GM what was happening. **Enter** or the check mark saves the note, **Esc** or × skips it, and up to three wait at a time. Skipped rolls can be noted later under Moments. Only fresh rolls ask, never rolls read in from the log.
+
+<img src="media/roll-tracker-prompts.webp" alt="Note prompts beside the chat for a natural 1 attack, a natural 20 check and a natural 1 check" width="360">
+
+### Post recap and Show players
+
+<img src="media/roll-tracker-recap-dialog.webp" alt="Recap dialog: headline and subhead fields beside a live preview of the Screamsheet" width="640">
+
+**Post recap** opens the Screamsheet for the scope on screen. The headline and subhead are written from the session's awards and can be edited; the rest (the lead natural 20 and its note, the numbers, the story, quotes from the street, the top awards with runners-up and a classified ad) is built from the data. Posting sends it to chat for everyone.
+
+**Show players** opens the tracker on every connected player's screen, on the tab and session the GM is looking at, even when players can't open it themselves. A banner says who opened it; dismissing the banner keeps the window.
+
+**How rolls are counted.** The active GM's client records each roll as it reaches chat, and records it again if the card changes (retroactive advantage, a bonus, a resolved hit), so nothing counts twice. A roll counts for the player who owns the character, even when the GM rolled it, else for whoever rolled; NPC rolls count for the GM. Role tags are each character's highest-level class. Attacks count as hits or misses from their targets; saves and checks count as made or failed when they have a DC. If the GM was away, rolls posted meanwhile are read in when the GM next loads.
 
 **Settings** (Hardwipe Ruleset section):
 
 | Setting | Default | Effect |
 | --- | --- | --- |
 | Roll Tracker: record rolls | On | Turns recording off without losing what is recorded. |
+| Roll Tracker: ask about the session at login | On | The Jack in dialog at login. |
 | Roll Tracker: ask for a note on natural 1s and 20s | Every natural 1 and 20 | Or players' rolls only, or never. |
-| Roll Tracker: players can open it | On | Players see the same window without Sessions and without note editing. Rolls someone else made privately (GM roll, blind or self) are left out of their numbers. |
-| Roll Tracker: new session after a break of (hours) | 4 | The first roll after a break this long starts a new session. |
+| Roll Tracker: players can open it | On | Players see every tab but Sessions, without note editing, and without rolls someone else made privately. Show players opens it for them either way. |
 
-The tracker stores its data in two world settings: the session in play, written about a second after rolls arrive, and the finished sessions, written only when sessions change. Ending, deleting and importing change only the tracker, never the chat log. Clearing the chat log at the end of a session keeps every stat.
+The tracker keeps its data in two world settings: the session in play with the unfiled rolls, written about a second after rolls arrive, and the finished sessions, written only when sessions change.
 
 ## When something looks wrong
 

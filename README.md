@@ -105,19 +105,19 @@ A scene-level Heat meter tracks how loud the crew has been. Each mission picks h
 
 [Mission Heat and interface settings →](docs/GM.md#mission-heat)
 
-## Every roll, on the record
+## High Rollers: every roll, on the record
 
-| The session at a glance | Natural 1s and 20s, in the GM's words |
+| The session at a glance | The Screamsheet recap |
 | --- | --- |
-| <img src="docs/media/roll-tracker-overview.webp" alt="Roll Tracker overview: tiles for rolls, d20 average, natural 20s and 1s, attacks, damage, spells and saves; a leaderboard per player with a luck gauge; awards such as Golden dice and Heavy hitter" width="420"> | <img src="docs/media/roll-tracker-moments.webp" alt="Roll Tracker moments: each natural 1 and 20 with who rolled it, what it was, and the GM's note" width="420"> |
+| <img src="docs/media/roll-tracker-overview.webp" alt="Roll Tracker overview in the game-menu style: rolls and spells cast as headline counters, a ranking table with role tags and each player's last ten d20s, the Friday Night Firefight strip, awards with runners-up, and rolls and spells per session" width="520"> | <img src="docs/media/roll-tracker-recap.webp" alt="The Screamsheet recap card in chat: a newsprint front page with headline, the lead natural 20 quote, the session's numbers, the story, quotes from the street, awards and a classified ad" width="230"> |
 
-**Game Settings → Hardwipe Ruleset → Roll Tracker** counts every roll that reaches chat, per player and per play session: d20 average and luck, natural 1s and 20s, attacks and hit rate, damage and the biggest hit, healing, spells cast by level, saves, checks, initiative, and Hardwipe's downs, flatlines and Edge.
+**Game Settings → Hardwipe Ruleset → Roll Tracker** counts every roll that reaches chat, per player and per session: rolls and spells cast, d20 average, natural 1s and 20s, attacks and hit rate, damage and the biggest hit, healing, saves, checks, initiative, and Hardwipe's downs, flatlines and Edge.
 
-- **Players and characters.** Each player has a profile with their d20 faces, roll types, combat, spells, saves and every d20 in order. A roll counts for the player whose character made it, even when the GM rolled it for them.
-- **Head to head.** Put any two players, the GM, the whole party or single characters side by side.
-- **Awards.** Golden dice, Cursed dice, Crit magnet, Heavy hitter, Sharpshooter, Spellslinger and more. The GM can post a session recap to chat.
-- **Natural 1s and 20s.** A small box beside the chat asks the GM what was happening. The note stays with the roll, under Moments and in the recap.
-- **Sessions.** A new session starts after a break (4 hours by default), or when the GM ends one. The GM can rename sessions, delete them, export them, or read in rolls already in the chat log.
+- **The GM runs the sessions.** When the GM loads the world after a break, a dialog asks whether tonight is a new session and what to call it. Every session's name, number and times stay editable, and the rolls follow the times.
+- **Players and characters.** Each player gets a character screen: their numbers as attribute hexes around their d20 average, their d20 faces, spells, rolls per session and roll types. Compare puts any two side by side, item-comparison style.
+- **Awards.** Sixteen of them, from Golden dice and Crit magnet to Fumble factory and Glass jaw, each with its runner-up.
+- **Natural 1s and 20s.** A small box beside the chat asks the GM what was happening; the note stays with the roll.
+- **Post recap and Show players.** The GM posts the session as a Screamsheet to chat, or opens the tracker on every player's screen.
 
 [Roll Tracker guide →](docs/GM.md#roll-tracker)
 
