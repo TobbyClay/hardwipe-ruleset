@@ -67,22 +67,36 @@ The marker identifies the five-foot section. Melee needs reach; ranged attacks r
 
 Escape, movement, switching controlled characters, or changing scenes cancels selection. Creature targets are cleared for that use. An intervening intact wall blocks selecting another wall behind it; hidden secret doors and out-of-vision walls cannot be selected. Direct targeting covers ordinary weapon attacks, not spell attacks or area templates.
 
-## Spell and area Wall Effects — development preview
+## Area spells damage walls
 
-Hardwipe bundles Walled Regions for native area placement and wall clipping. Open an area item's **Wall Effects** tab, check **Enable Walled Regions**, and choose the mode in the existing wall-interaction dropdown. The same choices are available in a placed Region's **Wall Effects** section.
-
-| Item configuration | Private GM wall review |
+| Set it on the spell | The GM's review |
 | --- | --- |
-| <img src="media/wall-effects-item-preview.webp" alt="Unreleased preview: Wall Effects tab with Damage walls — Half selected" width="420"> | <img src="media/wall-area-review-preview.webp" alt="Unreleased preview: original roll 30 becomes 15, loses 5 armor, and proposes 10 damage per section with Apply or Ignore" width="295"> |
+| <img src="media/wall-area-item.webp" alt="Wall Effects tab of an emanation spell with Damage walls — Half selected and the note on physical walls" width="420"> | <img src="media/wall-area-review.webp" alt="Private GM review of a Fireball: the area rolled 30, walls take 15, minus 5 armor proposes 10 damage to sections 1 to 8, with Apply damage and Ignore" width="295"> |
+
+Hardwipe bundles Walled Regions for area placement and wall clipping. Open an area spell's **Wall Effects** tab, check **Enable Walled Regions**, and set **Walls** to **Damage walls — Half** (a Fireball-style blast) or **Damage walls — Normal**. A placed Region's **Wall Effects** section has the same choices.
+
+**A default for every spell of a shape.** Open **Game Settings → Hardwipe Ruleset → Default Shape Settings**, pick the shape's tab (circle, cone, ray or rectangle), and set **Walls Block** to a damage mode. Every spell of that shape left on **Use global default** then damages walls, with no per-spell setup.
+
+<img src="media/wall-area-defaults.webp" alt="Default Shape Settings, Circle tab: Walls Block set to Damage walls — Half" width="560">
 
 | Mode | Area behavior | Wall durability |
 | --- | --- | --- |
-| Global default | Uses the configured default | No area wall damage |
+| Global default | Uses the shape's default | Damage when that default is a damage mode |
 | Do not block template | Original area passes through walls | No area wall damage |
 | Block template | Area stops at walls | No area wall damage |
 | Reflect/Spread template | Existing Walled Regions reflection or spread | No area wall damage |
 | Damage walls — Normal | Area stops at standing physical walls | Proposes the full damage roll |
 | Damage walls — Half | Area stops at standing physical walls | Proposes half the damage roll, rounded down |
+
+Every dnd5e area shape can damage walls:
+
+| Shape | Walls it reaches |
+| --- | --- |
+| Circle (sphere, cylinder), cone, line, cube | Walls inside the area with a clear line to its point of origin. An intact wall shields the walls behind it. |
+| Emanation (an aura around the caster) | Walls inside the area with a clear line to any point of the caster's space, so a wall beside the caster is hit even where its center can't see it. |
+| Ring | The walls inside the ring's band, wherever they face. |
+
+Emanations and rings keep their full drawn area on the map, because Walled Regions can't trim those shapes; which creatures they catch follows Ready Set Midi's auto-target setting. Emanations and rings take their damage mode from the spell itself; the per-shape defaults cover circles, cones, lines and cubes.
 
 For a Fireball-style effect, choose **Damage walls — Half**. Walls do not make a creature saving throw. Hardwipe starts with the original damage roll, applies the selected wall multiplier, checks the damage threshold, then subtracts armor. With threshold **10** and armor **5**:
 
@@ -93,15 +107,15 @@ For a Fireball-style effect, choose **Damage walls — Half**. Walls do not make
 | 30 | Half | 15 | 10 |
 | 30 | Normal | 30 | 25 |
 
-Each exposed five-foot section receives one proposed impact. Overlapping placements in the same cast do not hit a section twice. An intact wall shields walls behind it, including walls that have optical glimpse gaps. Destroying the front wall does not send that same blast onward to another wall.
+Each exposed five-foot section receives one proposed impact. Overlapping placements in the same cast do not hit a section twice. An intact wall shields walls behind it, including walls that have optical glimpse gaps. Destroying the front wall does not send that same blast onward to another wall. Damage modes always use physical walls; the optical Wall Type selector is disabled for these modes.
 
-Damage modes always use physical walls; the optical Wall Type selector is disabled for these modes. Circles, cones, lines, and rectangles are supported. **Emanations and rings require manual wall damage** in this version and display a warning when placed. Their ordinary spell damage can still be rolled.
+<img src="media/wall-area-result.webp" alt="Player's chat after approval: Wall hit, the Fireball's sections 1 to 8 at 30 of 40 HP" width="295">
 
-The GM receives one private **Apply damage / Ignore** review for the cast, including all affected sections. Wall HP, surface marks, and geometry wait for approval. Changing the source area, damage roll, wall settings, or blockers invalidates the old proposal. A pending instantaneous area is retained so the GM can verify it; remove it after review when finished. **Undo last wall damage** restores the cast's wall changes together.
+The GM receives one private **Apply damage / Ignore** review for the cast, including all affected sections, under the caster's name. Wall HP, surface marks, and geometry wait for approval. Changing the source area, the damage roll, wall settings, or blockers invalidates the old proposal; for an emanation, so does the caster moving. A pending instantaneous area is retained so the GM can verify it; remove it after review when finished. **Undo last wall damage** restores the cast's wall changes together.
 
 Use this bundled implementation with standalone Walled Regions and Walled Templates disabled. Existing `walled-regions` item and Region flags remain compatible. The source and bundled licenses are in [vendor/NOTICE.md](../vendor/NOTICE.md).
 
-This is an unreleased development addition. It requires the matching Ready Set Midi build with pending-area retention. Direct non-area spell attacks against walls remain outside the wall-targeting tool's supported actions.
+Area wall damage requires Ready Set Midi 14.0.10.2, which keeps a pending instantaneous area on the map until the GM decides. Direct non-area spell attacks against walls remain outside the wall-targeting tool's supported actions.
 
 ## Damage opens a glimpse before a breach
 

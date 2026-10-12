@@ -131,3 +131,33 @@ test("bounded processing refuses an oversized blast instead of silently omitting
   assert.equal(expose([wall("very-long", [100, -1000000, 100, 1000000])], [region({ sourcePolygons: [rectangle(90, 0, 110, 10)] })]).length, 1);
   assert.throws(() => expose([wall("complex", [100, 0, 100, 400])], [region()], { maximumWork: 1 }), /too complex/);
 });
+
+test("an emanation reaches a wall from any point of the caster's space, not only its center", () => {
+  // The caster's space is 0..100; a short blocker hides the far wall from the center only.
+  const corner = { x: 99, y: 1 }, center = { x: 50, y: 50 };
+  const emanation = region({ exposure: "footprint", origins: [center, corner], sourcePolygons: [rectangle(-100, -100, 300, 300)] });
+  const walls = [wall("screen", [120, 20, 120, 80]), wall("far", [200, 40, 200, 60])];
+  assert.ok(expose(walls, [emanation]).some(hit => hit.wallId === "far"));
+  assert.ok(!expose(walls, [region({ origin: center, sourcePolygons: [rectangle(-100, -100, 300, 300)] })]).some(hit => hit.wallId === "far"));
+});
+
+test("an emanation still respects full cover around the whole space", () => {
+  const emanation = region({ exposure: "footprint", origins: [{ x: 50, y: 50 }, { x: 1, y: 1 }, { x: 99, y: 99 }],
+    sourcePolygons: [rectangle(-100, -100, 300, 300)] });
+  const hits = expose([wall("front", [150, -100, 150, 300]), wall("behind", [250, -100, 250, 300])], [emanation]);
+  assert.ok(hits.length > 0 && hits.every(hit => hit.wallId === "front"));
+});
+
+test("a ring damages the walls inside its band, none in the hollow, and nothing shields them", () => {
+  const ring = region({ exposure: "occupancy", origins: [], origin: null,
+    sourcePolygons: [rectangle(-300, -300, 300, 300), rectangle(-200, -200, 200, 200, true)] });
+  const hits = expose([wall("band", [250, -300, 250, 300]), wall("hollow", [0, -100, 0, 100]), wall("outside", [400, -300, 400, 300])], [ring]);
+  assert.deepEqual([...new Set(hits.map(hit => hit.wallId))], ["band"]);
+  assert.equal(hits.length, 6);
+});
+
+test("an area without a usable origin is refused unless it is an occupancy area", () => {
+  assert.throws(() => expose([wall("front", [100, 0, 100, 100])], [region({ origin: null })]), /no valid origin/);
+  assert.throws(() => expose([wall("front", [100, 0, 100, 100])], [region({ origins: [{ x: Number.NaN, y: 0 }] })]), /no valid origin/);
+  assert.equal(expose([wall("front", [100, 0, 100, 100])], [region({ origin: null, exposure: "occupancy" })]).length, 1);
+});

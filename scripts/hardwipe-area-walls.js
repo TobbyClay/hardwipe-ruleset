@@ -151,7 +151,7 @@ export class AreaWallManager {
       const impacts = this._impacts({ ...source, records, damage });
       const review = await ChatMessage.create({
         content: this._card("review", { attacker: canonical.alias || canonical.author.name, weapon: source.item.name, impacts, damage }),
-        whisper: game.users.contents.filter(user => user.isGM).map(user => user.id),
+        whisper: game.users.contents.filter(user => user.isGM).map(user => user.id), speaker: canonical.speaker,
         flags: { [ID]: { coverReview: { sourceMessageId: canonical.id } } }
       });
       await canonical.setFlag(ID, STATE, { ...canonical.getFlag(ID, STATE), reviewPosted: true, reviewMessageId: review.id });
@@ -216,8 +216,9 @@ export class AreaWallManager {
     const presentation = [...grouped.values()].map(impact => ({ ...impact, sections: impact.sections.sort((a, b) => a - b) }));
     const content = this._cover._wallCard(kind, { attacker, weapon, impacts: presentation });
     const multipliers = [...new Set(impacts.map(impact => impact.multiplier))];
-    const label = multipliers.length === 1 ? (multipliers[0] === 0.5 ? "Half wall damage" : "Normal wall damage") : "Configured wall damage per area";
-    const explanation = `<div class="hardwipe-chat-meta">${escape(label)} · Original roll ${escape(damage)} · Round down, then threshold and armor. Walls make no save.</div>`;
+    const mode = multipliers.length > 1 ? "Mixed" : multipliers[0] === 0.5 ? "Half" : "Normal";
+    const line = key => escape(game.i18n.format(`HARDWIPE.Cover.Area.${key}`, { damage, half: Math.floor(damage / 2) }));
+    const explanation = `<div class="hardwipe-chat-meta hardwipe-wall-area-rule">${line(mode)} ${line("Rule")}</div>`;
     return content.replace(/(<div class="hardwipe-wall-impact)/, `${explanation}$1`);
   }
 

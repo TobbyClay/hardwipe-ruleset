@@ -324,7 +324,7 @@ export class RollTrackerApp extends foundry.applications.api.ApplicationV2 {
       <section>
         <h3 class="hwhr-rb"><span>${e(tr("Ranking"))}</span><small>${e(tr("RankingHint"))}</small></h3>
         <div class="hwhr-tablewrap"><table class="hwhr-table"><thead><tr>${cols}</tr></thead><tbody>${rows}</tbody></table></div>
-        <h3 class="hwhr-rb"><span>${e(tr("Firefight"))}</span><small>${e(tr("FirefightHint"))}</small></h3>${firefight}
+        <h3 class="hwhr-rb"><span>${e(tr("Firefight"))}</span><small>${e(tr(view.scope === "all" ? "FirefightHintAll" : view.scope === "unfiled" ? "FirefightHintUnfiled" : "FirefightHint"))}</small></h3>${firefight}
         ${cards ? `<h3 class="hwhr-rb"><span>${e(tr("Awards"))}</span><small>${e(tr("AwardsHint"))}</small></h3><div class="hwhr-awards">${cards}</div>` : ""}
         ${moments.length ? `<h3 class="hwhr-rb"><span>${e(tr("LatestMoments"))}</span></h3>${this.#momentList(view, moments, { compact: true })}` : ""}
       </section>
@@ -639,6 +639,8 @@ export class SessionDialog extends foundry.applications.api.ApplicationV2 {
     actions: { later: SessionDialog.#later }
   };
 
+  #bound = false;
+
   async _renderHTML() {
     const sessions = allSessions();
     const latest = sessions[0] ?? null;
@@ -671,14 +673,15 @@ export class SessionDialog extends foundry.applications.api.ApplicationV2 {
 
   _replaceHTML(result, content) {
     content.innerHTML = result;
-    const fields = content.querySelector(".hwhr-jack-fields");
+    // One listener for the dialog's life; it reads the current render's fields each time.
     const sync = () => {
       const choice = content.querySelector("input[name=choice]:checked")?.value;
+      const fields = content.querySelector(".hwhr-jack-fields");
       fields?.classList.toggle("is-off", choice !== "new");
       for (const input of fields?.querySelectorAll("input") ?? []) input.disabled = choice !== "new";
       for (const option of content.querySelectorAll(".hwhr-opt")) option.classList.toggle("is-on", option.querySelector("input").checked);
     };
-    content.addEventListener("change", sync);
+    if (!this.#bound) { this.element.addEventListener("change", sync); this.#bound = true; }
     sync();
   }
 
@@ -769,9 +772,11 @@ export class RecapDialog extends foundry.applications.api.ApplicationV2 {
   };
 
   #copy = null;
+  #view = null;
+  #bound = false;
 
   async _renderHTML() {
-    const view = buildView(this.options.scope ?? null);
+    const view = this.#view = buildView(this.options.scope ?? null);
     this.#copy ??= recapCopy(view);
     return `<div class="hwhr hwhr-recap">
       <div class="hwhr-recap-form">
@@ -786,11 +791,13 @@ export class RecapDialog extends foundry.applications.api.ApplicationV2 {
 
   _replaceHTML(result, content) {
     content.innerHTML = result;
-    content.addEventListener("input", event => {
+    if (this.#bound) return;
+    this.#bound = true;
+    this.element.addEventListener("input", event => {
       if (!event.target.matches("[name=headline], [name=dek]")) return;
-      this.#copy = { headline: content.querySelector("[name=headline]").value, dek: content.querySelector("[name=dek]").value };
-      const preview = content.querySelector(".hwhr-recap-preview");
-      if (preview) preview.innerHTML = screamsheet(buildView(this.options.scope ?? null), this.#copy);
+      this.#copy = { headline: this.element.querySelector("[name=headline]").value, dek: this.element.querySelector("[name=dek]").value };
+      const preview = this.element.querySelector(".hwhr-recap-preview");
+      if (preview) preview.innerHTML = screamsheet(this.#view ??= buildView(this.options.scope ?? null), this.#copy);
     });
   }
 

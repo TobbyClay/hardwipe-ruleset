@@ -17,6 +17,7 @@ PATCHES.BASIC = {};
 
 const SYNC_OPTION = `${MODULE_ID}.syncRegionEffectiveData`;
 const PENDING_REGION_SYNCS = new Map();
+const DELETING_REGIONS = new Set();
 const WT_MEASUREMENT_OVERLAY = Symbol(`${MODULE_ID}.measurementOverlay`);
 
 function preCreateRegionHook(regionD, _data, _options, _userId) {
@@ -64,7 +65,14 @@ function updateRegionHook(regionD, change, options, _userId) {
   scheduleRegionEffectiveData(regionD);
 }
 
+function preDeleteRegionHook(regionD, _options, _userId) {
+  DELETING_REGIONS.add(regionD.id);
+  cancelScheduledRegionSync(regionD);
+  setTimeout(() => DELETING_REGIONS.delete(regionD.id), 5000);
+}
+
 function deleteRegionHook(regionD, options, _userId) { // eslint-disable-line no-unused-vars
+  DELETING_REGIONS.delete(regionD.id);
   if ( !game.user.isActiveGM ) return;
   cancelScheduledRegionSync(regionD);
   const sourceId = readDocumentFlag(regionD, MODULE_ID, FLAGS.REGION.SOURCE_ID);
@@ -81,6 +89,7 @@ PATCHES.BASIC.HOOKS = {
   preCreateRegion: preCreateRegionHook,
   createRegion: createRegionHook,
   updateRegion: updateRegionHook,
+  preDeleteRegion: preDeleteRegionHook,
   deleteRegion: deleteRegionHook
 };
 
@@ -192,13 +201,16 @@ export function isManagedWalledRegionDocument(regionD, { includeStored = true } 
   const sourceShape = readDocumentFlag(regionD, MODULE_ID, FLAGS.REGION.SOURCE_SHAPE);
   if ( typeof wallsBlock !== "undefined" ) return true;
   if ( typeof wallRestriction !== "undefined" ) return true;
+  // Hardwipe: earlier builds stamped geometry flags on unrelated Regions when a nearby wall changed. Only a
+  // Region created or configured with Wall Effects carries a role; geometry flags alone don't make one managed.
+  if ( typeof readDocumentFlag(regionD, MODULE_ID, FLAGS.REGION.ROLE) === "undefined" ) return false;
   if ( typeof sourceShape !== "undefined" ) return true;
   if ( !includeStored ) return false;
   return Array.isArray(readDocumentFlag(regionD, MODULE_ID, FLAGS.REGION.SOURCE_SHAPES))
     || Array.isArray(readDocumentFlag(regionD, MODULE_ID, FLAGS.REGION.EFFECTIVE_SHAPES));
 }
 
-function scheduleRegionEffectiveData(regionD) {
+export function scheduleRegionEffectiveData(regionD) {
   if ( !regionD?.id ) return;
   cancelScheduledRegionSync(regionD);
   const timeoutId = setTimeout(() => {
@@ -230,6 +242,8 @@ function buildEffectiveRegionDataForDocument(regionD) {
  */
 export function computeRegionGeometry(regionD) {
   if (!regionD) return null;
+  const native = nativeShapeAreas(regionD);
+  if (native) return freezeGeometrySnapshot(nativeGeometrySnapshot(regionD, native));
   const sourceShapes = getSourceShapeData(regionD);
   const effective = WalledTemplateShape.shapeCodeRegister.size
     ? buildEffectiveRegionDataFromSourceShapes(regionD, sourceShapes)
@@ -247,7 +261,7 @@ export function computeRegionGeometry(regionD) {
     sourceAreas: sourceShapes.filter(shape => !shape.hole).map(shape => {
       const sourceShape = normalizeShapeType(shape.type);
       const model = instantiateRegionShapeData(shape, regionD);
-      const shapeOrigin = ["circle", "cone", "ray", "rect"].includes(sourceShape)
+      const shapeOrigin = CLIPPED_SHAPES.includes(sourceShape)
         ? (model ? getShapeOrigin(model, shape, model.polygons ?? []) : pointFromXY(shape)) : null;
       const areaShapes = [shape, ...sourceShapes.filter(candidate => candidate.hole)];
       return {
@@ -273,6 +287,83 @@ export function computeRegionGeometry(regionD) {
     }
   };
   return freezeGeometrySnapshot(snapshot);
+}
+
+const CLIPPED_SHAPES = ["circle", "cone", "ray", "rect"];
+
+/**
+ * Hardwipe: emanations and rings are not clipped by Walled Templates, but their wall damage still needs
+ * scene polygons. Read them from the placed Region's own native shapes. An emanation spreads from every
+ * point of its creature's space; a ring damages what it covers. Null when the Region is a clipped shape.
+ */
+function nativeShapeAreas(regionD) {
+  const live = [...(regionD.shapes ?? [])];
+  const primary = live.find(shape => !shape.hole);
+  if (!primary || CLIPPED_SHAPES.includes(normalizeShapeType(primary.type))) return null;
+  const holes = live.filter(shape => shape.hole);
+  const holePolygons = holes.flatMap(shape => nativePolygons(shape, true));
+  return live.filter(shape => !shape.hole).map(shape => {
+    const sourceShape = normalizeShapeType(shape.type);
+    let exposure = "occupancy", origins = [];
+    if (sourceShape === "emanation") {
+      exposure = "footprint";
+      origins = footprintOrigins(shape.base);
+    } else if (CLIPPED_SHAPES.includes(sourceShape)) {
+      const origin = shape.origin ?? pointFromXY(shape);
+      if (origin) { exposure = "origin"; origins = [{ x: origin.x, y: origin.y }]; }
+    }
+    return {
+      sourceShape, exposure, origins, origin: origins[0] ?? null,
+      sourceShapes: [shape, ...holes].map(data => data.toObject?.(true) ?? foundry.utils.deepClone(data)),
+      sourcePolygons: [...nativePolygons(shape, false), ...holePolygons]
+    };
+  });
+}
+
+function nativePolygons(shape, hole) {
+  return [...(shape?.polygons ?? [])].map(polygon => ({ points: [...polygon.points], hole: hole || polygon.isPositive === false }));
+}
+
+/** The center of a creature's space and up to eight of its corners, pulled one pixel inside. */
+function footprintOrigins(base) {
+  const points = [];
+  for (const polygon of base?.polygons ?? []) {
+    for (let index = 0; index + 1 < polygon.points.length; index += 2) points.push({ x: polygon.points[index], y: polygon.points[index + 1] });
+  }
+  if (!points.length) throw new Error("The emanation has no creature space to spread from.");
+  const center = { x: points.reduce((sum, p) => sum + p.x, 0) / points.length, y: points.reduce((sum, p) => sum + p.y, 0) / points.length };
+  const step = Math.max(1, Math.ceil(points.length / 8));
+  const corners = points.filter((_, index) => index % step === 0).slice(0, 8).map(p => {
+    const distance = Math.hypot(p.x - center.x, p.y - center.y);
+    return distance > 1 ? { x: p.x + (center.x - p.x) / distance, y: p.y + (center.y - p.y) / distance } : { ...center };
+  });
+  return [center, ...corners];
+}
+
+function nativeGeometrySnapshot(regionD, areas) {
+  const wallMode = readDocumentFlag(regionD, MODULE_ID, FLAGS.WALLS_BLOCK) ?? "walled";
+  const polygons = areas.flatMap(area => area.sourcePolygons);
+  return {
+    sourceShape: areas[0].sourceShape,
+    sourceShapes: areas.flatMap(area => area.sourceShapes.slice(0, 1)),
+    shapes: serializeRegionShapes(regionD.shapes),
+    sourcePolygons: polygons,
+    sourceAreas: areas,
+    polygons,
+    wallMode,
+    normalizedWallMode: normalizeWallMode(wallMode),
+    damageMultiplier: wallDamageMultiplier(wallMode),
+    origin: areas[0].origin,
+    elevation: { bottom: regionD.elevation?.bottom ?? null, top: regionD.elevation?.top ?? null,
+      topInclusive: Boolean(regionD.elevation?.topInclusive) },
+    level: [...(regionD.levels ?? [])][0] ?? null,
+    levels: [...(regionD.levels ?? [])],
+    originUuid: readDocumentFlag(regionD, "dnd5e", "origin") ?? null,
+    flags: {
+      dnd5e: foundry.utils.deepClone(regionD.flags?.dnd5e ?? {}),
+      "midi-qol": foundry.utils.deepClone(regionD.flags?.["midi-qol"] ?? {})
+    }
+  };
 }
 
 function shapesToPlainPolygons(shapes, regionD) {
@@ -314,11 +405,16 @@ function buildEffectiveRegionDataFromSourceShapes(regionD, sourceShapes) {
 }
 
 async function syncRegionEffectiveData(regionD) {
-  if (!regionD?.id || regionD.parent?.regions?.get(regionD.id) !== regionD) return;
+  if (!regionD?.id || DELETING_REGIONS.has(regionD.id) || regionD.parent?.regions?.get(regionD.id) !== regionD) return;
   const effectiveData = buildEffectiveRegionDataForDocument(regionD);
   if ( !effectiveData ) return;
 
   const nextShapes = getEffectiveRegionShapesForData(regionD, effectiveData);
+  // Hardwipe: nothing to write when the stored geometry already matches; a nearby wall edit often changes nothing.
+  if ( readDocumentFlag(regionD, MODULE_ID, FLAGS.REGION.SOURCE_SHAPE) === effectiveData.sourceShape
+    && foundry.utils.objectsEqual(readDocumentFlag(regionD, MODULE_ID, FLAGS.REGION.SOURCE_SHAPES) ?? null, effectiveData.sourceShapes)
+    && foundry.utils.objectsEqual(readDocumentFlag(regionD, MODULE_ID, FLAGS.REGION.EFFECTIVE_SHAPES) ?? null, effectiveData.shapes)
+    && regionD.shapes.length === nextShapes.length ) return;
 
   const update = {
     shapes: nextShapes,
@@ -327,10 +423,14 @@ async function syncRegionEffectiveData(regionD) {
     [`flags.${MODULE_ID}.${FLAGS.REGION.EFFECTIVE_SHAPES}`]: effectiveData.shapes
   };
 
-  if (regionD.parent?.regions?.get(regionD.id) !== regionD) return;
+  if (DELETING_REGIONS.has(regionD.id) || regionD.parent?.regions?.get(regionD.id) !== regionD) return;
   // Persist the source metadata and resulting shapes together. A second awaited
   // update could otherwise run after deletion or expose mismatched metadata.
-  return regionD.update(update, { [SYNC_OPTION]: true, diff: false });
+  return regionD.update(update, { [SYNC_OPTION]: true, diff: false }).catch(error => {
+    // Hardwipe: the Region was deleted while this update was in flight; there is nothing left to refresh.
+    if ( !regionD.parent?.regions?.has(regionD.id) ) return;
+    throw error;
+  });
 }
 
 export function refreshPreviewEffectiveRegionData(regionD) {

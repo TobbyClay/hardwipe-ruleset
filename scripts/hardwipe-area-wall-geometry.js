@@ -109,8 +109,23 @@ function rayCut(origin, endpoint, a, b) {
   return distance >= 0 && t > EPSILON && t < 1 - EPSILON ? t : null;
 }
 
-/** Find positive-length area contact visible from the original blast origin. Endpoint-only touches miss. */
-function visibleContact(section, polygons, origin, blockers, wallId, budget) {
+/** True when an intact physical wall stands between an origin and a contact point. */
+function occluded(origin, contact, blockers, wallId, budget) {
+  for (const blocker of blockers) {
+    if (blocker.id === wallId) continue;
+    budget.step();
+    const hit = segmentIntersection(origin, contact, point(blocker.c[0], blocker.c[1]), point(blocker.c[2], blocker.c[3]));
+    if (hit && hit.t > EPSILON && hit.t < 1 - EPSILON) return true;
+  }
+  return false;
+}
+
+/**
+ * Find positive-length area contact the blast reaches. Endpoint-only touches miss. With origins, the
+ * contact must be visible from at least one of them (one point for a burst, the caster's space for an
+ * emanation). Without origins (a ring), the area damages whatever it covers.
+ */
+function visibleContact(section, polygons, origins, blockers, wallId, budget) {
   const cuts = [0, 1];
   for (const polygon of polygons) {
     for (let i = 0; i < polygon.vertices.length; i++) {
@@ -121,12 +136,12 @@ function visibleContact(section, polygons, origin, blockers, wallId, budget) {
   }
   // Exposure changes at rays through blocker endpoints. Partitioning there also
   // catches a thin visible slice of a section rather than sampling only its center.
-  for (const blocker of blockers) {
+  for (const blocker of origins.length ? blockers : []) {
     if (blocker.id === wallId) continue;
-    budget.step(3);
+    budget.step(1 + 2 * origins.length);
     const crossing = segmentIntersection(section.a, section.b, point(blocker.c[0], blocker.c[1]), point(blocker.c[2], blocker.c[3]));
     if (crossing) cuts.push(crossing.t);
-    for (const endpoint of [point(blocker.c[0], blocker.c[1]), point(blocker.c[2], blocker.c[3])]) {
+    for (const origin of origins) for (const endpoint of [point(blocker.c[0], blocker.c[1]), point(blocker.c[2], blocker.c[3])]) {
       const t = rayCut(origin, endpoint, section.a, section.b);
       if (t !== null) cuts.push(t);
     }
@@ -137,16 +152,17 @@ function visibleContact(section, polygons, origin, blockers, wallId, budget) {
     const contact = lerp(section.a, section.b, (cuts[i - 1] + cuts[i]) / 2);
     budget.step(polygons.reduce((total, polygon) => total + polygon.vertices.length, 0));
     if (!inArea(contact, polygons)) continue;
-    let occluded = false;
-    for (const blocker of blockers) {
-      if (blocker.id === wallId) continue;
-      budget.step();
-      const hit = segmentIntersection(origin, contact, point(blocker.c[0], blocker.c[1]), point(blocker.c[2], blocker.c[3]));
-      if (hit && hit.t > EPSILON && hit.t < 1 - EPSILON) { occluded = true; break; }
-    }
-    if (!occluded) return contact;
+    if (!origins.length || origins.some(origin => !occluded(origin, contact, blockers, wallId, budget))) return contact;
   }
   return null;
+}
+
+/** Blast origins of one area: none for an occupancy area (a ring), else at least one finite point. */
+function areaOrigins(region) {
+  if (region.exposure === "occupancy") return [];
+  const origins = Array.isArray(region.origins) && region.origins.length ? region.origins : [region.origin];
+  if (origins.length > 16 || !origins.every(origin => [origin?.x, origin?.y].every(Number.isFinite))) throw new Error("The damaging area has no valid origin.");
+  return origins.map(origin => point(origin.x, origin.y));
 }
 
 /** One result per section per cast. Overlapping regions use the largest configured multiplier once. */
@@ -159,20 +175,21 @@ export function exposedAreaWallSections({ regions, walls, sectionPixels, levelRa
   // Native D&D5e may put several separately placed spell areas into one Region.
   // Each positive source shape needs its own origin and blocker visibility.
   const areas = regions.flatMap(region => {
-    if (Array.isArray(region.sourceAreas) && region.sourceAreas.length) return region.sourceAreas.map(area => ({ ...region, origin: area.origin, sourcePolygons: area.sourcePolygons }));
+    if (Array.isArray(region.sourceAreas) && region.sourceAreas.length) return region.sourceAreas.map(area => ({ ...region, origin: area.origin,
+      origins: area.origins, exposure: area.exposure, sourcePolygons: area.sourcePolygons }));
     if ((region.sourceShapes ?? []).filter(shape => !shape.hole).length > 1) throw new Error("This multi-area Region has no per-area origins. No wall damage was applied.");
     return [region];
   });
   if (areas.length > 128 || walls.length > 10000) throw new Error("The area wall calculation contains too many areas or walls.");
   for (const region of areas) {
     if (![0.5, 1].includes(region.damageMultiplier)) continue;
-    if (![region.origin?.x, region.origin?.y].every(Number.isFinite)) throw new Error("The damaging area has no valid origin.");
+    const origins = areaOrigins(region);
     const sources = region.sourcePolygons ?? region.polygons ?? [];
     if (sources.length > 512 || sources.reduce((total, polygon) => total + (polygon.points?.length ?? 0), 0) > 20000) throw new Error("The damaging area has too many polygon vertices.");
     const polygons = sources.map(poly => ({ hole: Boolean(poly.hole), vertices: vertices(poly) }));
     if (!polygons.some(poly => !poly.hole)) throw new Error("The damaging area has no supported source shape.");
     const bounds = box(polygons.filter(poly => !poly.hole).flatMap(poly => poly.vertices));
-    const propagationBounds = box([point(bounds.left, bounds.top), point(bounds.right, bounds.bottom), region.origin]);
+    const propagationBounds = box([point(bounds.left, bounds.top), point(bounds.right, bounds.bottom), ...origins]);
     const blockers = walls.filter(wall => isPhysicalAreaWall(wall, region, levelRanges)
       && boxesTouch(box([point(wall.c[0], wall.c[1]), point(wall.c[2], wall.c[3])]), propagationBounds));
     for (const wall of blockers) {
@@ -181,7 +198,7 @@ export function exposedAreaWallSections({ regions, walls, sectionPixels, levelRa
         if (!boxesTouch(box([section.a, section.b]), bounds)) continue;
         const key = `${wall.id}:${section.key}`, existing = exposed.get(key);
         if (existing?.multiplier >= region.damageMultiplier) continue;
-        const impact = visibleContact(section, polygons, region.origin, blockers, wall.id, budget);
+        const impact = visibleContact(section, polygons, origins, blockers, wall.id, budget);
         if (!impact) continue;
         exposed.set(key, { wallId: wall.id, section: section.key, impact, center: section.center, length: section.length,
           multiplier: region.damageMultiplier, metadata: section.metadata });

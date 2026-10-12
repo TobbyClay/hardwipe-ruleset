@@ -316,7 +316,7 @@ export class WallTargeting {
     }
     const review = await ChatMessage.create({
       content: this._cover._wallCard("review", { attacker: message.alias || message.author.name, weapon: workflow.item.name, impacts: [impact] }),
-      whisper: game.users.contents.filter(user => user.isGM).map(user => user.id),
+      whisper: game.users.contents.filter(user => user.isGM).map(user => user.id), speaker: message.speaker,
       flags: { [ID]: { coverReview: { sourceMessageId: message.id } } }
     });
     await message.setFlag(ID, FLAG, { ...message.getFlag(ID, FLAG), reviewPosted: true, reviewMessageId: review.id });

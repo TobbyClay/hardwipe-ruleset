@@ -397,7 +397,7 @@ export class CoverManager {
     }
     const review = await ChatMessage.create({
       content: this._wallCard("review", { attacker: message.alias || message.author.name, weapon: workflow.item.name, impacts }),
-      whisper: gmIds, flags: { [MODULE_ID]: { coverReview: { sourceMessageId: message.id } } }
+      whisper: gmIds, speaker: message.speaker, flags: { [MODULE_ID]: { coverReview: { sourceMessageId: message.id } } }
     });
     await message.setFlag(MODULE_ID, STATE_FLAG, { ...message.getFlag(MODULE_ID, STATE_FLAG), reviewPosted: true, reviewMessageId: review.id });
   }
@@ -870,7 +870,7 @@ export class CoverManager {
       const loss = Math.round(Math.min(1, Math.max(0, (impact.before - impact.after) / max)) * 100);
       const chip = (value, key, extra = "") => `<span class="hardwipe-wall-chip ${extra}"><b>${escape(value)}</b>${t(key)}</span>`;
       return `<div class="hardwipe-wall-impact">${head}
-        <div class="hardwipe-wall-math">${chip(impact.rolled, "Rolled")}${impact.belowThreshold ? `<span class="hardwipe-wall-op">&lt;</span>${chip(impact.damageThreshold, "Threshold")}` : `<span class="hardwipe-wall-op">−</span>${chip(impact.armor, "Armor")}`}<span class="hardwipe-wall-op">=</span>${chip(impact.applied, "Damage", "is-total")}</div>
+        <div class="hardwipe-wall-math">${chip(impact.rolled, impact.area ? "Blast" : "Rolled")}${impact.belowThreshold ? `<span class="hardwipe-wall-op">&lt;</span>${chip(impact.damageThreshold, "Threshold")}` : `<span class="hardwipe-wall-op">−</span>${chip(impact.armor, "Armor")}`}<span class="hardwipe-wall-op">=</span>${chip(impact.applied, "Damage", "is-total")}</div>
         ${impact.belowThreshold ? `<p class="hardwipe-wall-held">${t("BelowThreshold")}</p>` : impact.damageThreshold > 0 ? `<p class="hardwipe-wall-held">${t("Threshold")}: ${escape(impact.damageThreshold)}</p>` : ""}
         <div class="hardwipe-wall-bar" style="--keep: ${keep}%; --loss: ${loss}%" role="meter" aria-valuemin="0" aria-valuemax="${escape(max)}" aria-valuenow="${escape(impact.after)}"><span class="hardwipe-wall-keep"></span><span class="hardwipe-wall-loss"></span></div>
         <div class="hardwipe-wall-hp"><span>${t("SectionHP")}</span><b>${escape(impact.before)}<i class="fas fa-arrow-right-long" inert></i><em>${escape(impact.after)}</em></b><span>/ ${escape(max)}</span></div>
@@ -888,6 +888,7 @@ export class CoverManager {
 
   static async _announce(content, scene, source) {
     const data = { content, flags: { [MODULE_ID]: { coverResult: { sceneId: scene.id, sourceMessageId: source?.id } } } };
+    if (source?.speaker) data.speaker = source.speaker;
     if (source?.whisper?.length) data.whisper = [...source.whisper];
     if (source?.blind) data.blind = true;
     return ChatMessage.create(data);
