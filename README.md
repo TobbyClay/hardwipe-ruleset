@@ -16,7 +16,7 @@ Ten body regions, each holding real inventory items. Installed, working cyberwar
 
 [Set up cyberware →](docs/Cyberware.md) · [Choose a personal paper doll →](docs/Cyberware.md#personal-paper-dolls)
 
-## Every attack lands in one piece
+## Attack Rolls are now stylish
 
 | Player attack | Private GM review |
 | --- | --- |
