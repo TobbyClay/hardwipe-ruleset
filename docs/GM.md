@@ -4,7 +4,7 @@
 
 ## Installation and first run
 
-The public pair is **Hardwipe 0.7.40 + Ready Set Midi 14.0.10.1**, tested on **Foundry 14.367 / D&D5e 6.0.5**. Install both together from the [release page](https://github.com/TobbyClay/hardwipe-ruleset/releases/latest).
+The public pair is **Hardwipe 0.7.47 + Ready Set Midi 14.0.10.2**, tested on **Foundry 14.367 / D&D5e 6.0.5**. Install both together from the [release page](https://github.com/TobbyClay/hardwipe-ruleset/releases/latest).
 
 | Install | Manifest |
 | --- | --- |

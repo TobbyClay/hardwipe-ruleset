@@ -1,12 +1,14 @@
 # Ready Set Midi companion for Hardwipe
 
-`ready-set-midi-14.0.10.2-hardwipe.zip` is the Ready Set Midi 14.0.10.2 build that Hardwipe 0.7.46 and later are tested with. It supports both halves of Hardwipe's wall work and carries two fixes:
+Hardwipe ships with its own Ready Set Midi 14.0.10.2 build. The zip is not stored in this repository: it is attached to each [Hardwipe release](https://github.com/TobbyClay/hardwipe-ruleset/releases/latest) as `ready-set-midi-14.0.10.2.zip`, with `ready-set-midi-module.json`. Hardwipe's manifest installs it as a dependency. This folder holds what rebuilds and verifies it.
+
+The build supports both halves of Hardwipe's wall work and carries two fixes:
 
 - **Ranged wall cover:** the `midi-qol.computeCoverBonus`, `computeTargetAC`, `targetHitResolved`, `wallCoverRange` and `coverAutoRollDamage` hooks, with `MidiQOL.hardwipeCoverBridgeVersion = 1`.
 - **Area spells damage walls:** the spell card records the placed area even with Save to Chat Card off. It counts several placed areas, and keeps a pending instantaneous area on the map until the GM rules on its wall damage. With **auto-remove instantaneous templates** on, the area is then removed as soon as the GM decides; before, it stayed on the map.
 - **No turn-change error:** at a combatant's turn start, Foundry 14 marks the reaction (and bonus-action) marker expired while Ready Set Midi deleted it at the same instant. The GM saw "dnd5ereaction000 does not exist in the EmbeddedCollection" at every turn change. Ready Set Midi now deletes the marker once Foundry has marked it expired. Combat end and rests still remove it directly, and Times Up setups are unchanged.
 
-Install it in place of any other Ready Set Midi or Midi-QOL build, with libWrapper, socketlib and DAE. Don't enable standalone Walled Regions or Walled Templates alongside Hardwipe. It is not a public release asset. See [development status](../docs/Development.md) and the [wall guide](../docs/Walls.md).
+Install it from the same release as Hardwipe, in place of any other Ready Set Midi or Midi-QOL build, with libWrapper, socketlib and DAE. Don't enable standalone Walled Regions or Walled Templates alongside Hardwipe. See [development status](../docs/Development.md) and the [wall guide](../docs/Walls.md).
 
 ## How it was built
 
@@ -15,6 +17,7 @@ Install it in place of any other Ready Set Midi or Midi-QOL build, with libWrapp
 2. It adds the twelve hunks of `Workflow.wall-effects.patch` in their compiled form.
 3. It adds the reviewed-area removal and the reaction and bonus-action marker fixes, each commented in place.
 4. Each hunk must match exactly once.
+5. It points the build's manifest `download` at the release it ships with.
 
 ```text
 python -I merge-companion.py <cover-bridge ready-set-midi folder> <output folder>

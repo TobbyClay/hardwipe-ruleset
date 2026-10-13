@@ -4,7 +4,7 @@
 
 ## What Foundry installs today
 
-The public release is **Hardwipe Ruleset 0.7.40** with **Ready Set Midi 14.0.10.1**. The documentation update does not create a new release, replace release assets, or install a module into an existing world. The default-branch manifest remains the public release manifest.
+The public release is **Hardwipe Ruleset 0.7.47** with **Ready Set Midi 14.0.10.2**; both are attached to the [release](https://github.com/TobbyClay/hardwipe-ruleset/releases/latest), and Hardwipe's manifest installs the companion as a dependency. The 0.7.41 audited preview below is historical; everything in it shipped in 0.7.47.
 
 ## Audited preview
 
@@ -20,7 +20,7 @@ The **0.7.41 / Ready Set Midi 14.0.10.2** source cohort is under review in the r
 
 <img src="media/ranged-advisory-current.webp" alt="Actual audited preview card with identified advantage and disadvantage sources" width="350">
 
-Hardwipe 0.7.47 travels with the **tested companion bundle** in [preview](../preview/README.md), rebuilt by `preview/merge-companion.py`:
+Hardwipe 0.7.47 ships with the **tested companion**, attached to the release and rebuilt by [`preview/merge-companion.py`](../preview/README.md):
 - the cover-bridge build;
 - the wall-effects changes;
 - removal of reviewed instantaneous areas once the GM decides;
@@ -44,7 +44,7 @@ C4614DC76ABC87D465A998C2FF45D9444945454CB20EA9CF9B2144D4962F4AA0
 
 Git normalizes that file to LF without changing its code. The repository blob SHA256 is `3F40B1099E17CB3CD0D146F28BE4B29D4CE328BA20DCF64B2A0ED212B62A1C16`.
 
-The preview manifest names version 0.7.41 and companion 14.0.10.2. Those public release assets do **not** exist yet. Do not use the development manifest as an installer until a coherent release publishes both verified packages and updates the release metadata.
+The 0.7.41 preview manifest was never published as an installer; its features shipped in **0.7.47** with Ready Set Midi 14.0.10.2.
 
 ## Verification scope
 

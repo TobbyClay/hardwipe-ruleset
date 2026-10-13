@@ -6,7 +6,7 @@ Hardwipe is a Foundry VTT module for running a Cyberpunk-flavoured game on the D
 
 [Install](#install) · [Player guide](docs/Players.md) · [GM guide](docs/GM.md) · [Braindance](docs/Braindance.md) · [Card gallery](docs/Cards.md) · [Rules reference](docs/Reference.md)
 
-> **Which version is this?** This README describes **0.7.47**, which pairs with **Ready Set Midi 14.0.10.2**. The installer published on GitHub is still **0.7.40** (with Ready Set Midi 14.0.10.1) until a newer release goes up. Install both modules from the same release.
+> **Which version is this?** This README describes **0.7.47**, which pairs with **Ready Set Midi 14.0.10.2**. It is the installer published on GitHub; the [release](https://github.com/TobbyClay/hardwipe-ruleset/releases/latest) carries both modules. Install them together.
 
 ## Your body is your loadout
 

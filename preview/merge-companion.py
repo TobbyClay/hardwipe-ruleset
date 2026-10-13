@@ -8,11 +8,12 @@ Added, as compiled hunks that must each match exactly once:
   the same instant (that race showed the GM "dnd5ereaction000 does not exist" at every turn change).
 Usage: python -I merge.py <cover-bridge module dir> <out module dir>
 """
-import hashlib, shutil, sys
+import hashlib, re, shutil, sys
 from pathlib import Path
 
 src, out = Path(sys.argv[1]), Path(sys.argv[2])
 BASE_SHA = "cea0bbb749fa570d49af2404ddeb2f51f6580f141b08e3a58a25c021472ff38b"
+RELEASE_DOWNLOAD = "https://github.com/TobbyClay/hardwipe-ruleset/releases/download/v0.7.47/ready-set-midi-14.0.10.2.zip"
 
 HUNKS = [
 ("count helper", '''// src/module/Workflow.ts
@@ -173,4 +174,10 @@ if out.exists():
     shutil.rmtree(out)
 shutil.copytree(src, out)
 (out / "ready-set-midi.js").write_bytes(text.encode("utf-8"))
+# Foundry installs the companion from the Hardwipe release it ships with, so its manifest names that release.
+manifest = (out / "module.json").read_text(encoding="utf-8")
+download = re.search(r'"download": "([^"]*)"', manifest)
+assert download, "module.json has no download URL"
+manifest = manifest.replace(download.group(0), f'"download": "{RELEASE_DOWNLOAD}"')
+(out / "module.json").write_text(manifest, encoding="utf-8")
 print("merged", hashlib.sha256(text.encode("utf-8")).hexdigest())
