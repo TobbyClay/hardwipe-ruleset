@@ -3,18 +3,26 @@
     "archive": "ready-set-midi-14.0.10.2-hardwipe.zip",
     "version": "14.0.10.2",
     "files": 119,
-    "archiveSha256": "6880A777F41BD63BC2F00CA06DC4B0C5354FA9A47C78CE833A6BC58AC0A92C80",
-    "bytes": 2322652,
-    "javascriptSha256": "2A9B6075DBFC9118CBD8A1E89F2C0CC31DB946D3D59A53ED1551EBF40657B933",
+    "archiveSha256": "5C1DDDAA7A01A0FC73719E860BDFC168CA8AD5E242C330EF013EE75983E76C1D",
+    "bytes": 2323246,
+    "javascriptSha256": "AE2B209D700C2B07B0AF49FD512D8B19925BDD692244BED310FC3D8D1E2594C0",
     "baseJavascriptSha256": "CEA0BBB749FA570D49AF2404DDEB2F51F6580F141B08E3A58A25C021472FF38B",
-    "recipe": "merge-companion.py: the cover-bridge base bundle plus the twelve compiled hunks of Workflow.wall-effects.patch"
+    "recipe": "merge-companion.py: the cover-bridge base bundle plus the twelve compiled hunks of Workflow.wall-effects.patch, removal of reviewed instantaneous areas once decided, and ordered expiry of the reaction and bonus-action markers"
   },
-  "testedWith": ["hardwipe-ruleset 0.7.46", "hardwipe-ruleset 0.7.47"],
-  "replaces": {
-    "archive": "ready-set-midi-14.0.10.2-wall-effects-preview.zip",
-    "archiveSha256": "B397FDBCFB04331C7F956DD89AEA36C251FF18F80F29335EA165542A9D9297B8",
-    "javascriptSha256": "40CBB1E42A49565A1EAABE4488B0B9B05E21740A29EC17CB49BB4AB4A201D7FD",
-    "reason": "It had the area changes but none of Hardwipe's ranged-cover hooks."
-  },
-  "status": "Tested companion for Hardwipe 0.7.46 and later. Not a public release asset."
+  "testedWith": ["hardwipe-ruleset 0.7.47"],
+  "replaces": [
+    {
+      "archive": "ready-set-midi-14.0.10.2-hardwipe.zip (first combined build)",
+      "archiveSha256": "6880A777F41BD63BC2F00CA06DC4B0C5354FA9A47C78CE833A6BC58AC0A92C80",
+      "javascriptSha256": "2A9B6075DBFC9118CBD8A1E89F2C0CC31DB946D3D59A53ED1551EBF40657B933",
+      "reason": "The GM saw 'dnd5ereaction000 does not exist' at turn changes, and reviewed instantaneous areas stayed on the map with auto-remove on."
+    },
+    {
+      "archive": "ready-set-midi-14.0.10.2-wall-effects-preview.zip",
+      "archiveSha256": "B397FDBCFB04331C7F956DD89AEA36C251FF18F80F29335EA165542A9D9297B8",
+      "javascriptSha256": "40CBB1E42A49565A1EAABE4488B0B9B05E21740A29EC17CB49BB4AB4A201D7FD",
+      "reason": "It had the area changes but none of Hardwipe's ranged-cover hooks."
+    }
+  ],
+  "status": "Tested companion for Hardwipe 0.7.47. Not a public release asset."
 }
