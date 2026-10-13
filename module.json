@@ -1,8 +1,8 @@
 {
   "id": "hardwipe-ruleset",
   "title": "Hardwipe Ruleset",
-  "description": "Hardwipe cyberware, wall cover and breaches, integrated Wall Effects for areas, Shield Block, Strikes, Edge, and scene Mission Heat.",
-  "version": "0.7.46",
+  "description": "Hardwipe cyberware, wall cover and breaches, integrated Wall Effects for areas, Shield Block, Strikes, Edge, scene Mission Heat, and Braindance memories.",
+  "version": "0.7.47",
   "socket": true,
   "compatibility": {
     "minimum": "14.367",
@@ -29,7 +29,8 @@
     "conflicts": [
       { "id": "walled-regions", "type": "module" },
       { "id": "walled-templates", "type": "module" },
-      { "id": "walledtemplates", "type": "module" }
+      { "id": "walledtemplates", "type": "module" },
+      { "id": "braindance-suite", "type": "module", "reason": "Braindance is built into Hardwipe from 0.7.47. Restore any running memory, then disable Braindance Suite." }
     ],
     "requires": [
       {
@@ -55,7 +56,8 @@
     "styles/hardwipe.css",
     "styles/wall-types.css",
     "styles/short-rest.css",
-    "styles/roll-tracker.css"
+    "styles/roll-tracker.css",
+    "styles/braindance.css"
   ],
   "languages": [
     {
@@ -74,6 +76,6 @@
   ],
   "url": "https://github.com/TobbyClay/hardwipe-ruleset",
   "manifest": "https://github.com/TobbyClay/hardwipe-ruleset/releases/latest/download/module.json",
-  "download": "https://github.com/TobbyClay/hardwipe-ruleset/releases/download/v0.7.46/hardwipe-ruleset-0.7.46.zip",
+  "download": "https://github.com/TobbyClay/hardwipe-ruleset/releases/download/v0.7.47/hardwipe-ruleset-0.7.47.zip",
   "bugs": "https://github.com/TobbyClay/hardwipe-ruleset/issues"
 }

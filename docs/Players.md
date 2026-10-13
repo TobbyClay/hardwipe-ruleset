@@ -47,6 +47,10 @@ GM review and wall review are separate decisions. A shot that strikes cover neve
 
 Open **Short Rest**, roll Hit Dice one at a time, and finish when ready. The chat receives one receipt instead of one message per die. Closing early keeps healing already rolled but does not complete resource recovery or implant swaps. [See the full rest flow](Rests.md).
 
+## Inside a braindance
+
+When the GM puts you in a memory, your NPC sheet opens and your token changes; play it like your own. The bar at the top right switches editing layers (**Alt+L**) and **Scan** (**Alt+S**) reads a spot on the canvas for clues. Traces only show on their layer. Your comfort controls are under the brain button; **Alt+Shift+B** hides the visuals on your screen. See the [Braindance guide](Braindance.md).
+
 ## Make cards comfortable to read
 
 **Card text size** is your own preference: Normal, Large, or Extra large. **Fold settled cards after** keeps old results compact. Click a folded card or its header control to reopen it. Pending reviews and saves remain open. Reduced-motion preferences stop the decorative motion.

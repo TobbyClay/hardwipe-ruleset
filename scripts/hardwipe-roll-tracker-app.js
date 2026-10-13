@@ -317,7 +317,8 @@ export class RollTrackerApp extends foundry.applications.api.ApplicationV2 {
       <div><span>${e(tr("F.Crits"))}</span><b>${num(s.atk.crit)}</b></div>
       <div><span>${e(tr("F.Damage"))}</span><b>${num(s.dmg.total)}<small>${e(tr("F.Best", { n: num(s.dmg.max) }))}</small></b></div>
       <div><span>${e(tr("F.Healing"))}</span><b>${num(s.heal.total)}</b></div>
-      <div><span>${e(tr("F.Downed"))}</span><b>${num(s.evt.downed)}<small>${e(tr("F.Flatlined", { n: s.evt.flatlined }))}</small></b></div></div>`;
+      <div><span>${e(tr("F.Downed"))}</span><b>${num(s.evt.downed)}<small>${e(tr("F.Flatlined", { n: s.evt.flatlined }))}</small></b></div>${s.memory
+        ? `<div class="is-memory"><span>${e(tr("F.Memory"))}</span><b>${num(s.memory)}<small>${e(tr("F.MemoryHint"))}</small></b></div>` : ""}</div>`;
     const cards = awardList(view).slice(0, 9).map(award => this.#award(view, award)).join("");
     const moments = view.records.filter(record => nat(record) && view.notes[record.k]).slice(-3).reverse();
     return `<div class="hwhr-split">

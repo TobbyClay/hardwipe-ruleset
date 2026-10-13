@@ -113,6 +113,10 @@ A box beside the chat asks the GM what was happening. **Enter** or the check mar
 
 The tracker keeps its data in two world settings: the session in play with the unfiled rolls, written about a second after rolls arrive, and the finished sessions, written only when sessions change.
 
+## Braindance
+
+Run memories from the brain button in **Token Controls** (or **Alt+B**): pair player characters with NPCs, send sensory echoes, hide clues on the Visual, Audio and Thermal layers, mark and replay moments, and choose whether wall damage and Heat from the memory roll back when it ends. See the [Braindance guide](Braindance.md).
+
 ## When something looks wrong
 
 | Symptom | Check |

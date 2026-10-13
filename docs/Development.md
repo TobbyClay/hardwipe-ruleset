@@ -52,6 +52,10 @@ This hash supersedes the earlier companion hash **for the Wall Effects preview o
 
 **Superseded in 0.7.46:** emanations and rings now damage walls (an emanation from every point of the caster's space, a ring across its band), and the per-shape defaults offer the damage modes. Native player casts of every dnd5e area shape, GM approval, Ignore, breach, undo and a stale emanation were rechecked; the geometry suite has 20 passing cases. See `_release-audit/area-walls-0.7.46/QA-Report.md`.
 
+### Braindance, 0.7.47
+
+Braindance Suite 0.2.1 was merged into Hardwipe (`scripts/braindance/`, `scripts/hardwipe-braindance.js`, `styles/braindance.css`). It is verified on Foundry 14.367, D&D5e 6.0.5 and the merged Ready Set Midi companion, with separate GM and player clients. The checks covered entering a memory and recovering after a reload, attacks under GM review with BD stamps and Roll Tracker credit, all four echoes with mechanics and their expiry, clue placement and scans on every layer, timeline replay, and an exact rollback of a breach plus Heat. Coexistence with the standalone module was checked too. 45 new unit tests. See `_release-audit/braindance-0.7.47/QA-Report.md`.
+
 ### Actual Midi attribution correction, 2026-10-09
 
 The ranged advisory now consumes Ready Set Midi's evaluated `attackRollModifierTracker.attribution` before removing automatic roll-mode changes. It no longer cancels that calculation, inspects actor statuses, treats a conditional expression as truthy, recomputes range/nearby geometry, or invents a generic system-modifier reminder. False conditions and absent attribution produce no box. Manual options, keyboard choices, and native dialog buttons remain authoritative. Older guessed advisories are hidden.
