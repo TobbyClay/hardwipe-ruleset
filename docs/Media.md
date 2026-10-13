@@ -67,6 +67,19 @@ Native captures from the disposable 0.7.44 QA world on 2026-10-11, player client
 | [save-dial-crack.png](media/save-dial-crack.png) | Animated (APNG): natural 1, the gauge stuttering and cracking. |
 | [spell-npc-save-button.webp](media/spell-npc-save-button.webp) | GM view of a spell card waiting for an NPC's save, with the Roll save button. Replaces the 0.7.43 capture, which was taken before a style fix and showed the DC over the button's label. |
 
+## 0.7.47 captures
+
+Native captures from the disposable QA world on 2026-10-13: the wall lab scene, player QA Gunner paired with the synthetic NPC "BD Memory Merc" (a pistol and one implant), and two clues hidden by the GM. Separate GM and player clients; clicks, layer switches and scans used real input. Cropped where noted and converted to WebP.
+
+| Published file | Subject |
+| --- | --- |
+| [braindance-memory.webp](media/braindance-memory.webp) | Player screen in a memory during an Interference echo that affects rolls: NPC sheet badge, HUD and timeline, deck on Thermal, a thermal trace. |
+| [braindance-console-memory.webp](media/braindance-console-memory.webp) | GM console, top: memory name, moods, intensity, sheet glitch and Echoes affect rolls. Cropped to the window. |
+| [braindance-console.webp](media/braindance-console.webp) | GM console, lower: sensory echoes and the timeline with replay buttons. Cropped to the window. |
+| [braindance-trace.webp](media/braindance-trace.webp) | Player canvas on the Audio layer with an unfound clue's trace. Cropped. |
+| [braindance-clue-found.webp](media/braindance-clue-found.webp) | Player screen after a thermal scan: the found clue on the canvas, a BD-stamped check at disadvantage and the clue card. Cropped. |
+| [braindance-replay.webp](media/braindance-replay.webp) | Player screen during a replay: the REPLAY caption and the canvas panned to the marked view. |
+
 ## 0.7.46 captures
 
 Native captures from the disposable 0.7.46 QA world on 2026-10-12: a lab scene with two concrete walls (40 HP, armor 5, threshold 10), and a player casting fixed-damage (30) area spells through the real usage dialog and template placement. GM client unless noted. Cropped to the window or card and converted to WebP.

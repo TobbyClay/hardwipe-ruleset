@@ -8,6 +8,7 @@
  *   x DC or AC   o 1 success or hit, 0 failure or miss   r 1 critical   i item name   y item type
  *   l spell level   s ability, skill or tool key   d damage type   f dice rolled by faces   p 1 not public
  *   w d20 faces dropped by advantage or disadvantage   e Hardwipe event (downed, flatlined, edge)
+ *   q 1 rolled inside a braindance memory (the actor is then the participant's real character)
  */
 
 /** Kinds that roll a d20. */
@@ -85,9 +86,12 @@ function attackOutcome(message) {
 export function extractRecords(message, { userFor = (actor, author) => author } = {}) {
   const system = message.system ?? {};
   const own = message.flags?.[MODULE] ?? {};
-  const actorId = message.speaker?.actor || own.actorId || null;
+  // A memory form is a temporary actor: its rolls count for the participant's real character.
+  const memory = own.braindance?.originalId ? own.braindance : null;
+  const actorId = memory?.originalId || message.speaker?.actor || own.actorId || null;
   const base = { t: numberOr(message.timestamp, 0), u: userFor(actorId, message.author) ?? message.author ?? null, b: message.author ?? null, a: actorId };
   if ((message.whisper?.length ?? 0) > 0 || message.blind) base.p = 1;
+  if (memory) base.q = 1;
   const records = [];
   const push = (key, data) => records.push(clean({ k: `${message.id}.${key}`, ...base, ...data }));
 
@@ -157,7 +161,8 @@ export function summarize(records) {
     death: { n: 0, made: 0 }, conc: { n: 0, made: 0, known: 0 },
     check: { n: 0, made: 0, known: 0, bySkill: {} },
     init: { n: 0, sum: 0, best: null },
-    evt: { downed: 0, flatlined: 0, edge: 0 }
+    evt: { downed: 0, flatlined: 0, edge: 0 },
+    memory: 0
   };
   let hot = 0, cold = 0;
   for (const record of sorted) {
@@ -178,6 +183,7 @@ export function summarize(records) {
     }
     if (record.c === "evt") { if (record.e in s.evt) s.evt[record.e]++; continue; }
     s.rolls++;
+    if (record.q) s.memory++;
     for (const [faces, count] of Object.entries(record.f ?? {})) { bump(s.dice, faces, count); s.diceTotal += count; }
     if (D20_KINDS.has(record.c) && Number.isFinite(record.n)) {
       const n = record.n;

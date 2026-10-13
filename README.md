@@ -6,7 +6,7 @@ Hardwipe is a Foundry VTT module for running a Cyberpunk-flavoured game on the D
 
 [Install](#install) · [Player guide](docs/Players.md) · [GM guide](docs/GM.md) · [Card gallery](docs/Cards.md) · [Rules reference](docs/Reference.md)
 
-> **Which version is this?** This README describes **0.7.46**, which pairs with **Ready Set Midi 14.0.10.2**. The installer published on GitHub is still **0.7.40** (with Ready Set Midi 14.0.10.1) until a newer release goes up. Install both modules from the same release.
+> **Which version is this?** This README describes **0.7.47**, which pairs with **Ready Set Midi 14.0.10.2**. The installer published on GitHub is still **0.7.40** (with Ready Set Midi 14.0.10.1) until a newer release goes up. Install both modules from the same release.
 
 ## Your body is your loadout
 
@@ -121,6 +121,20 @@ A scene-level Heat meter tracks how loud the crew has been. Each mission picks h
 
 [Roll Tracker guide →](docs/GM.md#roll-tracker)
 
+## Braindance: play someone else's memory
+
+<img src="docs/media/braindance-memory.webp" alt="A player inside a memory: the NPC sheet with a braindance badge, the BD // LINKED HUD on the thermal layer, the editing deck and a thermal clue trace" width="720">
+
+The GM pairs each player character with an NPC and enters a memory. Players keep playing, with the NPC's full sheet, implants and token, under a synchronized overlay.
+
+- **Memory isn't reality.** Wall damage, breaches and Mission Heat from the memory roll back when it ends, unless the GM keeps them.
+- **Layers and clues.** Switch between Visual, Audio and Thermal, follow a clue's trace and scan it to reveal it.
+- **Sensory echoes that bite.** Panic, Disorientation, Interference and Overload can impose disadvantage or knock an implant offline.
+- **Timeline and replays.** Mark moments and rewind everyone to one.
+- **On the record.** Cards rolled in a memory carry a BD stamp, and the Roll Tracker credits the real character.
+
+[Braindance guide →](docs/Braindance.md)
+
 ## Install
 
 Built and tested on **Foundry VTT 14.367 · D&D5e 6.0.5 · Ready Set Midi 14.0.10.2**.
@@ -149,6 +163,7 @@ Built and tested on **Foundry VTT 14.367 · D&D5e 6.0.5 · Ready Set Midi 14.0.1
 | Review attacks, apply and undo damage, roll saves, or keep concentration | [Combat](docs/Combat.md) |
 | Give walls HP, set thresholds, target sections, or undo a breach | [Walls](docs/Walls.md) |
 | Set up a world, Mission Heat, colours, text size, or folding | [GM guide](docs/GM.md) |
+| Run a memory, hide clues, send echoes, or replay a moment | [Braindance](docs/Braindance.md) |
 | See every card family side by side | [Card gallery](docs/Cards.md) |
 | Look up exact cover rules, integration fields, or known limits | [Rules reference](docs/Reference.md) |
 
