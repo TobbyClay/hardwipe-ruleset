@@ -4,7 +4,7 @@
 
 Hardwipe is a Foundry VTT module for running a Cyberpunk-flavoured game on the D&D5e system. Implants live in your real inventory, walls are physical cover that can be shot apart, the GM rules on every attack before it lands, and every roll arrives in chat as a piece of software: readable at a glance, and honest about what happened.
 
-[Install](#install) · [Player guide](docs/Players.md) · [GM guide](docs/GM.md) · [Card gallery](docs/Cards.md) · [Rules reference](docs/Reference.md)
+[Install](#install) · [Player guide](docs/Players.md) · [GM guide](docs/GM.md) · [Braindance](docs/Braindance.md) · [Card gallery](docs/Cards.md) · [Rules reference](docs/Reference.md)
 
 > **Which version is this?** This README describes **0.7.47**, which pairs with **Ready Set Midi 14.0.10.2**. The installer published on GitHub is still **0.7.40** (with Ready Set Midi 14.0.10.1) until a newer release goes up. Install both modules from the same release.
 
@@ -125,13 +125,46 @@ A scene-level Heat meter tracks how loud the crew has been. Each mission picks h
 
 <img src="docs/media/braindance-memory.webp" alt="A player inside a memory: the NPC sheet with a braindance badge, the BD // LINKED HUD on the thermal layer, the editing deck and a thermal clue trace" width="720">
 
-The GM pairs each player character with an NPC and enters a memory. Players keep playing, with the NPC's full sheet, implants and token, under a synchronized overlay.
+The GM pairs each player character with an NPC and enters a memory. Players keep playing, with the NPC's full sheet, implants and token, under a synchronized overlay. When the memory ends, everyone gets their character back.
 
 - **Memory isn't reality.** Wall damage, breaches and Mission Heat from the memory roll back when it ends, unless the GM keeps them.
 - **Layers and clues.** Switch between Visual, Audio and Thermal, follow a clue's trace and scan it to reveal it.
 - **Sensory echoes that bite.** Panic, Disorientation, Interference and Overload can impose disadvantage or knock an implant offline.
 - **Timeline and replays.** Mark moments and rewind everyone to one.
 - **On the record.** Cards rolled in a memory carry a BD stamp, and the Roll Tracker credits the real character.
+
+| The GM hides clues on a layer | The player scans and finds one |
+| --- | --- |
+| <img src="docs/media/braindance-gm-clues.webp" alt="GM view during a memory: an audio clue (rings) labelled Muffled argument and a thermal clue (a heat bloom) labelled Burnt keycard" width="400"> | <img src="docs/media/braindance-clue-found.webp" alt="Player screen after a thermal scan: Burnt keycard on the canvas, a BD-stamped check at disadvantage and the Clue found card" width="400"> |
+| **The console** | **Hiding a clue** |
+| <img src="docs/media/braindance-console.webp" alt="Braindance console: the four sensory echoes with what each does, and the timeline with replay buttons" width="300"> | <img src="docs/media/braindance-clue-dialog.webp" alt="Hide a braindance clue dialog: clue name, what the participant learns, layer and scan radius" width="300"> |
+| **Every roll is stamped** | **…and credited to the real character** |
+| <img src="docs/media/braindance-stamp.webp" alt="A Perception check rolled in a memory with the BD stamp: The Afterlight tapes, BD Memory Merc · really QA Gunner" width="260"> | <img src="docs/media/braindance-tracker.webp" alt="Roll Tracker: QA Player ranked with QA Gunner, and Braindance 3 in memories on the firefight strip" width="400"> |
+
+### Set it up
+
+1. **Install Hardwipe 0.7.47 with its Ready Set Midi** (see [Install](#install)). Braindance is built in; there is nothing else to enable.
+2. **Coming from Braindance Suite?** Restore any running memory with it, then disable that module. While it is enabled, Hardwipe's Braindance stays switched off and tells the GM why.
+3. **Prepare the memory bodies.** Create or import the NPCs into the **Actors** directory; compendium NPCs must be imported first. Give them the weapons, spells and implants the players should have. Installed cyberware works like it does on a character.
+4. **Check who plays whom.** Each player character must be assigned to its player (**User Configuration → Character**) or owned by them.
+5. **Choose the echo default** (optional). **Game Settings → Hardwipe Ruleset → Braindance echoes affect rolls by default** decides whether echoes start with mechanical effects.
+6. **Hide clues ahead of time** (optional). Open Braindance from the **brain** button in **Token Controls** (or **Alt+B**). In **Clues in this scene**, press **Hide a clue**, click the spot on the map, then give it a name, what the participant learns, a layer and a scan radius.
+
+### Run a memory
+
+1. In the console, name the memory and pick a mood and intensity.
+2. Pair each player character with the NPC they become.
+3. Under **When the memory ends**, keep **Memory isn't reality** to roll walls and Heat back, or choose **Keep what happened**.
+4. Press **Enter memory**. Players' NPC sheets open and their tokens change on every scene.
+5. Play. Send echoes and mark moments from the console; replay a moment to rewind everyone to it.
+6. Press **Disconnect & restore**. Characters, sheets and tokens come back, and walls and Heat roll back if you chose that.
+
+| Key | Does |
+| --- | --- |
+| **Alt+B** | Open the Braindance console (GM controls, everyone's comfort settings) |
+| **Alt+L** | Next editing layer: Visual, Audio, Thermal |
+| **Alt+S** | Scan: the next click on the map reads that spot |
+| **Alt+Shift+B** | Hide or show the Braindance visuals on your own screen |
 
 [Braindance guide →](docs/Braindance.md)
 
