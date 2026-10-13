@@ -79,6 +79,10 @@ Native captures from the disposable QA world on 2026-10-13: the wall lab scene, 
 | [braindance-trace.webp](media/braindance-trace.webp) | Player canvas on the Audio layer with an unfound clue's trace. Cropped. |
 | [braindance-clue-found.webp](media/braindance-clue-found.webp) | Player screen after a thermal scan: the found clue on the canvas, a BD-stamped check at disadvantage and the clue card. Cropped. |
 | [braindance-replay.webp](media/braindance-replay.webp) | Player screen during a replay: the REPLAY caption and the canvas panned to the marked view. |
+| [braindance-gm-clues.webp](media/braindance-gm-clues.webp) | GM canvas during a memory: both hidden clues with their names and layer traces. Cropped. |
+| [braindance-clue-dialog.webp](media/braindance-clue-dialog.webp) | The Hide a clue dialog after a canvas click. Cropped to the dialog. |
+| [braindance-stamp.webp](media/braindance-stamp.webp) | A player's Perception check rolled in a memory, with the BD stamp. Cropped to the card. |
+| [braindance-tracker.webp](media/braindance-tracker.webp) | Roll Tracker overview: the player ranked with their real character, and the Braindance count on the firefight strip. Cropped. |
 
 ## 0.7.46 captures
 
