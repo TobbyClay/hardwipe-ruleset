@@ -2,7 +2,7 @@
 
 [← Overview](../README.md) · [Visual guides](Hardwipe-Guide.md) · [Development status](Development.md)
 
-This page collects the details needed for adjudication or integration. Start with the illustrated feature guides for ordinary use. Public installer: **0.7.40 / Ready Set Midi 14.0.10.1**. Audited preview changes are called out in [Development](Development.md).
+This page collects the details needed for adjudication or integration. Start with the illustrated feature guides for ordinary use. Public installer: **0.7.47 / Ready Set Midi 14.0.10.2**. Audited preview changes are called out in [Development](Development.md).
 
 ## Cover calculation
 
@@ -54,7 +54,7 @@ Use the managers instead of writing flags directly so ownership, queue, service,
 | Linked save result | Save message `flags.dnd5e.originatingMessage` |
 | Per-spell card color | Spell `flags["hardwipe-ruleset"].cardColor` |
 
-Ready Set Midi exposes `MidiQOL.hardwipeCoverBridgeVersion = 1` and the `midi-qol.computeCoverBonus`, `computeTargetAC`, `wallCoverRange`, `targetHitResolved`, and `coverAutoRollDamage` hooks. Canonical per-target resolution is persisted for GM verification. Use the companion build in [preview](../preview/README.md), which carries these hooks together with the area-spell changes; copying only a Hardwipe script is insufficient.
+Ready Set Midi exposes `MidiQOL.hardwipeCoverBridgeVersion = 1` and the `midi-qol.computeCoverBonus`, `computeTargetAC`, `wallCoverRange`, `targetHitResolved`, and `coverAutoRollDamage` hooks. Canonical per-target resolution is persisted for GM verification. Use the Ready Set Midi companion attached to the same Hardwipe release (rebuilt by [`preview/merge-companion.py`](../preview/README.md)), which carries these hooks together with the area-spell changes; copying only a Hardwipe script is insufficient.
 
 ## Limits that matter at the table
 

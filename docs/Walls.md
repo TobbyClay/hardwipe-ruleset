@@ -111,11 +111,11 @@ Each exposed five-foot section receives one proposed impact. Overlapping placeme
 
 <img src="media/wall-area-result.webp" alt="Player's chat after approval: Wall hit, the Fireball's sections 1 to 8 at 30 of 40 HP" width="295">
 
-The GM receives one private **Apply damage / Ignore** review for the cast, including all affected sections, under the caster's name. Wall HP, surface marks, and geometry wait for approval. Changing the source area, the damage roll, wall settings, or blockers invalidates the old proposal; for an emanation, so does the caster moving. A pending instantaneous area is retained so the GM can verify it; remove it after review when finished. **Undo last wall damage** restores the cast's wall changes together.
+The GM receives one private **Apply damage / Ignore** review for the cast, including all affected sections, under the caster's name. Wall HP, surface marks, and geometry wait for approval. Changing the source area, the damage roll, wall settings, or blockers invalidates the old proposal; for an emanation, so does the caster moving. A pending instantaneous area is retained so the GM can verify it. When Ready Set Midi's **auto-remove instantaneous templates** is on, the area is removed once the GM decides; otherwise remove it by hand as usual. **Undo last wall damage** restores the cast's wall changes together.
 
 Use this bundled implementation with standalone Walled Regions and Walled Templates disabled. Existing `walled-regions` item and Region flags remain compatible. The source and bundled licenses are in [vendor/NOTICE.md](../vendor/NOTICE.md).
 
-Area wall damage and ranged wall cover both need the Ready Set Midi companion build in [preview](../preview/README.md), the one that ships with each Hardwipe package. It records the placed area on the spell's card and keeps a pending instantaneous area on the map until the GM decides, and it carries Hardwipe's ranged-cover hooks. Direct non-area spell attacks against walls remain outside the wall-targeting tool's supported actions.
+Area wall damage and ranged wall cover both need the Ready Set Midi companion attached to the same Hardwipe release; Hardwipe's manifest installs it. It records the placed area on the spell's card and keeps a pending instantaneous area on the map until the GM decides, and it carries Hardwipe's ranged-cover hooks. Direct non-area spell attacks against walls remain outside the wall-targeting tool's supported actions.
 
 ## Damage opens a glimpse before a breach
 

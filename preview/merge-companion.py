@@ -1,15 +1,19 @@
-"""Build a merged Ready Set Midi 14.0.10.2 companion.
+"""Build Hardwipe's Ready Set Midi 14.0.10.2 companion.
 
-Base: the live install's bundle (Hardwipe cover bridge, JS sha cea0bbb7...).
-Added: only the wall-effects hunks of preview/Workflow.wall-effects.patch, in their
-compiled form as found in the tested preview bundle (JS sha 40cbb1e4...).
-Usage: python -I merge.py <live module dir> <out module dir>
+Base: the cover-bridge bundle (Hardwipe's ranged-cover hooks, JS sha cea0bbb7...).
+Added, as compiled hunks that must each match exactly once:
+- the wall-effects hunks of preview/Workflow.wall-effects.patch (as in the tested preview bundle, JS 40cbb1e4...);
+- an instantaneous area kept for a GM wall review is removed once the review is decided;
+- the reaction and bonus-action markers are deleted after Foundry marks them expired at the turn start, not in
+  the same instant (that race showed the GM "dnd5ereaction000 does not exist" at every turn change).
+Usage: python -I merge.py <cover-bridge module dir> <out module dir>
 """
-import hashlib, shutil, sys
+import hashlib, re, shutil, sys
 from pathlib import Path
 
 src, out = Path(sys.argv[1]), Path(sys.argv[2])
 BASE_SHA = "cea0bbb749fa570d49af2404ddeb2f51f6580f141b08e3a58a25c021472ff38b"
+RELEASE_DOWNLOAD = "https://github.com/TobbyClay/hardwipe-ruleset/releases/download/v0.7.47/ready-set-midi-14.0.10.2.zip"
 
 HUNKS = [
 ("count helper", '''// src/module/Workflow.ts
@@ -84,19 +88,67 @@ function getUsageButtons(message) {'''),
           const state = game.messages.get(this.itemCardId)?.flags?.["hardwipe-ruleset"]?.coverAttack;
           return state?.mode === "area" && state.pending;
         }, "hasPendingWallReview");
-        if (!hasPendingWallReview() && configSettings.autoRemoveInstantaneousTemplate && this.templateUuids.length > 0 && this.activity.duration?.units === "inst") {
+        // An area under a pending GM wall review stays for the GM to verify, then goes once the review is decided.
+        const removeWhenDecided = /* @__PURE__ */ __name((tUuid) => {
+          if (!hasPendingWallReview()) return void fromUuidSync(tUuid)?.delete()?.catch?.(() => {});
+          const cardId = this.itemCardId;
+          const stop = /* @__PURE__ */ __name(() => {
+            Hooks.off("updateChatMessage", updateHook);
+            Hooks.off("deleteChatMessage", deleteHook);
+          }, "stop");
+          const updateHook = Hooks.on("updateChatMessage", (message) => {
+            if (message.id !== cardId || hasPendingWallReview()) return;
+            stop();
+            void fromUuidSync(tUuid)?.delete()?.catch?.(() => {});
+          });
+          const deleteHook = Hooks.on("deleteChatMessage", (message) => {
+            if (message.id === cardId) stop();
+          });
+        }, "removeWhenDecided");
+        if (configSettings.autoRemoveInstantaneousTemplate && this.templateUuids.length > 0 && this.activity.duration?.units === "inst") {
           for (const tUuid of this.templateUuids) {
             if (!blfxActive) {
               const elapsed = Date.now() - (this.workflowStartTime ?? 0);
               let timeout = AAActive ? Math.max(elapsedTimeRequired - elapsed, 1) : 1;
               timeout = Math.max(elapsedTimeRequired, timeout);
               setTimeout(() => {
-                if (!hasPendingWallReview()) fromUuidSync(tUuid)?.delete();
+                removeWhenDecided(tUuid);
               }, timeout);
             } else {
               setTimeout(() => {
-                if (!hasPendingWallReview()) fromUuidSync(tUuid)?.delete();
+                removeWhenDecided(tUuid);
               }, elapsedTimeRequired);'''),
+("reaction marker expiry", '''  if (force || !installedModules.get("times-up")) {
+    await actor.effects.get(getStaticID("reaction"))?.delete();
+  }''', '''  if (force || !installedModules.get("times-up")) {
+    // At its holder's turn start Foundry marks this marker expired; deleting it here at the same moment made that
+    // update fail ("dnd5ereaction000 does not exist"). deleteExpiredActionMarker removes it once marked.
+    // Combat end and rests (force) still remove it directly.
+    const marker = actor.effects.get(getStaticID("reaction"));
+    if (marker && (force || !turnExpiringMarker(marker))) await marker.delete();
+  }'''),
+("bonus action marker expiry", '''  if (force || !installedModules.get("times-up")) {
+    await actor.effects.get(getStaticID("bonusaction"))?.delete();
+  }''', '''  if (force || !installedModules.get("times-up")) {
+    const marker = actor.effects.get(getStaticID("bonusaction"));
+    if (marker && (force || !turnExpiringMarker(marker))) await marker.delete();
+  }'''),
+("expired marker cleanup", '''  if (force) await actor.update({ flags: { [MODULE_ID]: { actions: { bonusActionsUsed: 0, bonus: false, "-=bonusActionCombatRound": null } } } });
+}
+function needsReactionCheck(actor) {''', '''  if (force) await actor.update({ flags: { [MODULE_ID]: { actions: { bonusActionsUsed: 0, bonus: false, "-=bonusActionCombatRound": null } } } });
+}
+function turnExpiringMarker(effect) {
+  return ["turnStart", "targetStart"].includes(effect?.duration?.expiry);
+}
+// Foundry marks turn-expiring markers expired at the turn start; the preferred GM then removes them, in that order.
+function deleteExpiredActionMarker(effect, changes) {
+  if (changes?.duration?.expired !== true) return;
+  if (effect.id !== getStaticID("reaction") && effect.id !== getStaticID("bonusaction")) return;
+  if (!preferredActiveGM()?.isSelf || installedModules.get("times-up")) return;
+  void effect.delete().catch(() => {});
+}
+Hooks.on("updateActiveEffect", deleteExpiredActionMarker);
+function needsReactionCheck(actor) {'''),
 ("auto-place count", '''            await this.setupTemplateCleanup(docToStore);
           }
           this.placedTemplateCount = templates.length;
@@ -122,4 +174,10 @@ if out.exists():
     shutil.rmtree(out)
 shutil.copytree(src, out)
 (out / "ready-set-midi.js").write_bytes(text.encode("utf-8"))
+# Foundry installs the companion from the Hardwipe release it ships with, so its manifest names that release.
+manifest = (out / "module.json").read_text(encoding="utf-8")
+download = re.search(r'"download": "([^"]*)"', manifest)
+assert download, "module.json has no download URL"
+manifest = manifest.replace(download.group(0), f'"download": "{RELEASE_DOWNLOAD}"')
+(out / "module.json").write_text(manifest, encoding="utf-8")
 print("merged", hashlib.sha256(text.encode("utf-8")).hexdigest())
