@@ -54,7 +54,7 @@ Use the managers instead of writing flags directly so ownership, queue, service,
 | Linked save result | Save message `flags.dnd5e.originatingMessage` |
 | Per-spell card color | Spell `flags["hardwipe-ruleset"].cardColor` |
 
-Ready Set Midi exposes `MidiQOL.hardwipeCoverBridgeVersion = 1` and the `midi-qol.computeCoverBonus`, `computeTargetAC`, `wallCoverRange`, `targetHitResolved`, and `coverAutoRollDamage` hooks. Canonical per-target resolution is persisted for GM verification. The companion's tested bundle is required for the audited preview; copying only a Hardwipe script is insufficient.
+Ready Set Midi exposes `MidiQOL.hardwipeCoverBridgeVersion = 1` and the `midi-qol.computeCoverBonus`, `computeTargetAC`, `wallCoverRange`, `targetHitResolved`, and `coverAutoRollDamage` hooks. Canonical per-target resolution is persisted for GM verification. Use the companion build in [preview](../preview/README.md), which carries these hooks together with the area-spell changes; copying only a Hardwipe script is insufficient.
 
 ## Limits that matter at the table
 

@@ -1,9 +1,31 @@
-# Tested development companion
+# Ready Set Midi companion for Hardwipe
 
-This folder preserves the exact Ready Set Midi companion used for the Hardwipe 0.7.41 development preview. It is not a published release or an update to the production installation. Use it only in a disposable development world.
+`ready-set-midi-14.0.10.2-hardwipe.zip` is the Ready Set Midi 14.0.10.2 build that Hardwipe 0.7.46 and later are tested with. It is the one companion build that supports both halves of Hardwipe's wall work:
 
-The ZIP contains the tested 14.0.10.2 runtime assets and manifest, with the freshly built JavaScript for multi-area placement and retained wall-review source regions. Every ZIP entry was compared to its packaging source. `verification.json` records the archive and JavaScript SHA256 values and the metadata provenance. The build source base still identifies 14.0.10, so coherent version/release/download metadata remains a publication prerequisite.
+- **Ranged wall cover:** the `midi-qol.computeCoverBonus`, `computeTargetAC`, `targetHitResolved`, `wallCoverRange` and `coverAutoRollDamage` hooks, with `MidiQOL.hardwipeCoverBridgeVersion = 1`.
+- **Area spells damage walls:** the spell card records the placed area even with Save to Chat Card off. It counts several placed areas, and keeps a pending instantaneous area on the map until the GM rules on its wall damage.
 
-Hardwipe's normal repository files contain the matching ruleset source. Do not enable standalone Walled Regions/Walled Templates alongside the integrated implementation. See [development status](../docs/Development.md) and [wall guide](../docs/Walls.md).
+Install it in place of any other Ready Set Midi or Midi-QOL build, with libWrapper, socketlib and DAE. Don't enable standalone Walled Regions or Walled Templates alongside Hardwipe. It is not a public release asset. See [development status](../docs/Development.md) and the [wall guide](../docs/Walls.md).
 
-`Workflow.wall-effects.patch` provides the readable source delta for the later Wall Effects integration, against the earlier audited local Workflow source (SHA256 `B3A4AFCC6B1701FA567EEB4C4EEC6DDBE918C17BCB62211C20F03D2ADD1AA21A`). The ZIP is the authoritative complete tested runtime; this narrow patch is not a standalone build recipe for the broader earlier companion corrections.
+## How it was built
+
+`merge-companion.py` rebuilds it exactly:
+1. It starts from the cover-bridge bundle (JavaScript SHA256 `cea0bbb7…`, checked by hash).
+2. It adds only the twelve hunks of `Workflow.wall-effects.patch`, in their compiled form.
+3. Each hunk must match exactly once.
+
+```text
+python -I merge-companion.py <cover-bridge ready-set-midi folder> <output folder>
+```
+
+`Workflow.wall-effects.patch` stays here as the readable TypeScript form of those hunks.
+
+## Verification
+
+Hashes are in `verification.json`. The build was tested on Foundry 14.367 with D&D5e 6.0.5, with separate GM and player clients:
+- **Area spells:** a Fireball against walls proposed eight sections, was applied 40 → 30, kept its area on the map while the review was pending, and was auto-removed on schedule when no walls were hit.
+- **Ranged cover:** +2 half cover from Hardwipe's hook, then a near miss into cover proposed and applied a wall hit.
+- **Hits:** a clean hit applied damage once.
+- **Braindance (0.7.47):** a full memory run on top of it.
+
+It replaces the earlier wall-effects preview build (zip `B397FDBC…`, JavaScript `40CBB1E4…`). That build had the area changes but none of the cover hooks.

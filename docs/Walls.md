@@ -115,7 +115,7 @@ The GM receives one private **Apply damage / Ignore** review for the cast, inclu
 
 Use this bundled implementation with standalone Walled Regions and Walled Templates disabled. Existing `walled-regions` item and Region flags remain compatible. The source and bundled licenses are in [vendor/NOTICE.md](../vendor/NOTICE.md).
 
-Area wall damage needs the Ready Set Midi companion build that records the placed area on the spell's card and keeps a pending instantaneous area on the map until the GM decides (the wall-effects build in [preview](../preview/README.md)). The Ready Set Midi 14.0.10.2 build that carries Hardwipe's ranged-cover hooks does not include that change yet; until one companion build has both, use the wall-effects build to test area wall damage. Direct non-area spell attacks against walls remain outside the wall-targeting tool's supported actions.
+Area wall damage and ranged wall cover both need the Ready Set Midi companion build in [preview](../preview/README.md), the one that ships with each Hardwipe package. It records the placed area on the spell's card and keeps a pending instantaneous area on the map until the GM decides, and it carries Hardwipe's ranged-cover hooks. Direct non-area spell attacks against walls remain outside the wall-targeting tool's supported actions.
 
 ## Damage opens a glimpse before a breach
 

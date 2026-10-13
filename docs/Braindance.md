@@ -55,7 +55,11 @@ Like a braindance editor, participants can switch between three layers from the 
 
 <img src="media/braindance-trace.webp" alt="An audio trace: concentric rings on the canvas below the deck, with the Audio layer selected" width="520">
 
-The GM hides clues with **Hide a clue** in the console: click the spot, then give it a name, what the participant learns, a layer and a scan radius. Participants see a clue's trace only on its layer. **Scan** (or **Alt+S**), then click the canvas:
+The GM hides clues with **Hide a clue** in the console: click the spot, then give it a name, what the participant learns, a layer and a scan radius. While a memory runs or the console is open, the GM sees every clue with its name. Participants see a clue's trace only on its layer.
+
+| The GM's view | Hiding a clue |
+| --- | --- |
+| <img src="media/braindance-gm-clues.webp" alt="GM view during a memory: an audio clue labelled Muffled argument and a thermal clue labelled Burnt keycard" width="420"> | <img src="media/braindance-clue-dialog.webp" alt="Hide a braindance clue dialog: clue name, what the participant learns, layer and scan radius" width="300"> | **Scan** (or **Alt+S**), then click the canvas:
 
 - **On the right layer and within the radius:** the clue is found. Its name appears on the canvas, and the participants and GM get a clue card with what was learned. The find goes on the timeline.
 - **A trace on another layer:** the scan says which layer to switch to.
@@ -82,6 +86,10 @@ The HUD shows how long the memory has run, with a strip of ticks for its moments
 Every card rolled by a memory form carries a **BD** stamp with the memory's name, the form and the real character ("BD Memory Merc · really QA Gunner"). Hardwipe cards keep their full behaviour.
 
 The [Roll Tracker](GM.md#roll-tracker) credits those rolls to the participant's real character, not to the temporary form, and tags them as memory rolls. The firefight strip shows a **Braindance** count when a session has any.
+
+| The stamp | The Roll Tracker |
+| --- | --- |
+| <img src="media/braindance-stamp.webp" alt="A Perception check rolled in a memory with the BD stamp: The Afterlight tapes, BD Memory Merc · really QA Gunner" width="260"> | <img src="media/braindance-tracker.webp" alt="Roll Tracker: QA Player ranked with QA Gunner, and Braindance 3 in memories on the firefight strip" width="460"> |
 
 ## Comfort controls
 

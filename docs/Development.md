@@ -20,11 +20,13 @@ The **0.7.41 / Ready Set Midi 14.0.10.2** source cohort is under review in the r
 
 <img src="media/ranged-advisory-current.webp" alt="Actual audited preview card with identified advantage and disadvantage sources" width="350">
 
-The source review must travel with the **matching tested companion bundle** in [preview](../preview/README.md). Its JavaScript SHA256 is:
+Hardwipe 0.7.46 and later travel with the **tested companion bundle** in [preview](../preview/README.md): the cover-bridge build plus the wall-effects changes, rebuilt by `preview/merge-companion.py`. Its JavaScript SHA256 is:
 
 ```text
-40CBB1E42A49565A1EAABE4488B0B9B05E21740A29EC17CB49BB4AB4A201D7FD
+2A9B6075DBFC9118CBD8A1E89F2C0CC31DB946D3D59A53ED1551EBF40657B933
 ```
+
+The 0.7.41 audit and the Wall Effects preview below used the earlier build `40CBB1E4…`, which lacked the ranged-cover hooks.
 
 The native QA Windows file `scripts/hardwipe-ranged.js` uses CRLF line endings; its SHA256 is:
 
