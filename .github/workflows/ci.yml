@@ -1,0 +1,50 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  tests:
+    name: Unit tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - run: node --test tests/*.test.mjs
+
+  syntax:
+    name: Script syntax
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      # Hardwipe's scripts are ES modules: parse each one as a module, because `node --check file.js` lets a syntax
+      # error in a file with import/export pass unreported. chat-portraits.js is a classic script, which --check does
+      # parse. vendor/ is upstream source kept as imported.
+      - name: Parse the scripts
+        run: |
+          status=0
+          while IFS= read -r -d '' file; do
+            node --input-type=module --check < "$file" || { echo "::error file=$file::$file does not parse as an ES module"; status=1; }
+          done < <(find scripts -name '*.js' -print0)
+          node --check chat-portraits.js || status=1
+          exit $status
+
+  module:
+    name: Manifest, language files and paths
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - run: node .github/scripts/check-module.mjs

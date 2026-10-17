@@ -46,6 +46,28 @@ Git normalizes that file to LF without changing its code. The repository blob SH
 
 The 0.7.41 preview manifest was never published as an installer; its features shipped in **0.7.47** with Ready Set Midi 14.0.10.2.
 
+## Automated checks
+
+Every pull request and every push to `main` runs [`.github/workflows/ci.yml`](../.github/workflows/ci.yml):
+
+- **Unit tests:** `node --test tests/*.test.mjs`.
+- **Script parsing:** every file under `scripts/` is parsed as an ES module, and `chat-portraits.js` as a classic script. Plain `node --check file.js` is not used for the modules: on Node 24 it lets a syntax error in a file with `import`/`export` pass unreported.
+- **Manifest, language files and paths** ([`.github/scripts/check-module.mjs`](../.github/scripts/check-module.mjs)):
+  - every file `module.json` lists exists;
+  - every language file parses, and no key is also the start of another key (Foundry would drop the whole file);
+  - every `modules/hardwipe-ruleset/…` path in the scripts exists.
+
+  Names must match exactly, case included, because Foundry servers on Linux are case-sensitive.
+
+Run them before pushing, from the repository root, with Node 24:
+
+```bash
+node --test tests/*.test.mjs
+node .github/scripts/check-module.mjs
+```
+
+These checks don't replace runtime verification in Foundry; see the scope below.
+
 ## Verification scope
 
 ### Wall Effects integration, 2026-10-09
