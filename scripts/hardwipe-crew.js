@@ -566,7 +566,7 @@ function cardText(data) {
 /**
  * The CREW card in a style, from its words (plain text, escaped here).
  * - Combo cam: the crew's helmet-cam feeds (one, or two staggered side by side when a crewmate fired someone else's
- *   maneuver), a reticle, REC, the CREW COMBO counter and the name in big split-neon italic.
+ *   maneuver), REC, the CREW COMBO counter and the name in big split-neon italic.
  * - Glitch feed: a compact kill-feed line, who >> the move, with hazard tape and an EXECUTED stamp.
  */
 export function crewCardMarkup(style, data) {
@@ -590,7 +590,6 @@ export function crewCardMarkup(style, data) {
     <div class="hwcc-hud"><span class="hwcc-rec">rec</span><span>${e(data.link)}</span><span>${e(data.clock)}</span></div>
     <div class="hwcc-feeds">${feeds}
       <span class="hwcc-scan" aria-hidden="true"></span>
-      <span class="hwcc-reticle" aria-hidden="true"></span>
       <span class="hwcc-badge"><span>${e(data.combo)}</span></span>
       <div class="hwcc-caption"><div class="hwcc-type">${e(data.type)}</div><div class="hwcc-title">${e(data.maneuver)}</div></div>
     </div>

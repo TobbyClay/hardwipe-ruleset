@@ -72,7 +72,7 @@ Nothing watches the table: the crew says when it happens, and the firer presses 
 
 | Combo cam (the usual card) | When a crewmate fires it |
 | --- | --- |
-| <img src="media/crew-card-cam.png" alt="CREW card, Combo cam: REC, crew link, R1 · T1, Mags's camera feed with a reticle, Crew combo ×1, Strike, Entry Stack in large italic, Mags triggers Entry Stack" width="250"> | <img src="media/crew-card-cam-duo.png" alt="CREW card, Combo cam: two staggered camera feeds, CAM 01 · Juno and CAM 02 · Mags, Crew combo ×2, Overwatch, Spotter Mark" width="250"> |
+| <img src="media/crew-card-cam.png" alt="CREW card, Combo cam: REC, crew link, R1 · T1, Mags's camera feed, Crew combo ×1, Strike, Entry Stack in large italic, Mags triggers Entry Stack" width="250"> | <img src="media/crew-card-cam-duo.png" alt="CREW card, Combo cam: two staggered camera feeds, CAM 01 · Juno and CAM 02 · Mags, Crew combo ×2, Overwatch, Spotter Mark" width="250"> |
 
 The GM can switch the card to the compact **Glitch feed** instead.
 
