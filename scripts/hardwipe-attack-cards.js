@@ -1189,6 +1189,23 @@ export function saveBlock(message, state, { variant = "card" } = {}) {
   return block;
 }
 
+/** This actor's targets that still owe the card's save (for the Turn tab's "Waiting on you"). */
+export function pendingSaveTargets(message, actor) {
+  const state = saveState(message, null);
+  if (!state || !actor) return null;
+  const targets = state.pending.filter(target => {
+    const owner = foundry.utils.fromUuidSync(target.uuid)?.actor;
+    return !!owner && (owner === actor || owner.uuid === actor.uuid);
+  });
+  return targets.length ? { state, targets } : null;
+}
+
+/** Roll this actor's pending saves for a card, as its own Roll save button would. */
+export async function rollPendingSaves(message, actor, event) {
+  const found = pendingSaveTargets(message, actor);
+  if (found) await rollSaves(message, found.state, found.targets, event);
+}
+
 /** Roll each save as the target token itself, linked to this card, so Ready Set Midi resolves its waiting save. */
 async function rollSaves(message, state, targets, event) {
   for (const target of targets) {

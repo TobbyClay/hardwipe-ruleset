@@ -40,9 +40,9 @@ Separate attacks do not accumulate toward the threshold. Healing and temporary H
 
 ## Near misses can strike cover
 
-Ranged attacks sample physical walls between the attacker and target. Melee attacks ignore cover. Partial cover adds AC; full physical cover prevents the shot from hitting the character, including on a natural 20.
+Ranged attacks check the physical walls and creatures between the attacker and target, through any holes in the walls. Melee attacks ignore cover. Partial cover adds AC; full physical cover prevents the shot from hitting the character, including on a natural 20.
 
-For ranged weapon attacks, a partial-cover miss within **5 points below final AC** can strike the wall. Through full cover, compare the attack to **AC without cover minus 5**. A natural 1 never damages cover. The [rules reference](Reference.md#cover-calculation) gives the ray counts and a worked example.
+For ranged weapon attacks, a partial-cover miss within **5 points below final AC** can strike the wall. Through full cover, compare the attack to **AC without cover minus 5**. A natural 1 never damages cover. The [rules reference](Reference.md#cover-calculation) gives the line counts and a worked example.
 
 ## The GM approves every impact
 
@@ -133,7 +133,7 @@ Every hit that damages a section leaves its own hole, sized by the damage it did
 
 Sections damaged before 0.7.43 have no per-hit record and read as a single hit for all the damage taken.
 
-These are genuine Foundry vision and light openings. Players can glimpse tokens and illumination through the crack using normal vision rules. **Seeing through damage does not allow shooting through it** while the physical wall remains. Surface marks follow current vision and do not reveal unseen damage through explored fog.
+These are genuine Foundry vision and light openings. Players can glimpse tokens and illumination through the crack using normal vision rules. **Shots pass through the holes too**: cover counts only the wall's solid parts, so a hole in line with the target lowers its cover, and full cover can drop to half. A stray shot strikes solid wall beside the hole. Movement is still blocked, and area blasts still stop at the wall, until a section is breached. Surface marks follow current vision and do not reveal unseen damage through explored fog.
 
 At zero HP, Hardwipe removes that fixed five-foot interval and keeps the remaining segments. A short end section removes only the wall portion that exists. Door data, restrictions, direction, level membership, and adjacent section damage are preserved. Excess damage from the breach-causing shot never transfers to the character behind it.
 

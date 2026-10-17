@@ -1,0 +1,641 @@
+/* ==========================================================================
+   TURN TAB
+   A turn helper. The filigree box answers "where does my turn stand": the
+   action, bonus action and reaction chips, movement, and attacks left. One
+   native card per cost (Action, Bonus action, Reaction) lists what can be
+   spent on it; the Action card also holds the standard actions. Status cards
+   hold running programs, conditions, Edge and Strikes. The netlink strip lists the rolls the
+   character owes.
+   - gold marks what can be acted on;
+   - ok / warn / bad (shared Hardwipe tokens) mark state only.
+   ========================================================================== */
+
+.hardwipe-turn-tab {
+  --hw-turn-ok: var(--hardwipe-ok);
+  --hw-turn-warn: var(--hardwipe-warn);
+  --hw-turn-bad: var(--hardwipe-danger);
+  --hw-turn-line: var(--hardwipe-line);
+  --hw-turn-surface: var(--dnd5e-background-5, rgba(0, 0, 0, 0.05));
+  --hw-turn-caps: 700 var(--font-size-10, 10px) / 1.15 var(--dnd5e-font-roboto-condensed, "Roboto Condensed", sans-serif);
+  container-type: inline-size;
+  color: var(--color-text-primary);
+}
+
+/* ---- Deck: turn line, state chips, movement, attacks ---- */
+.hardwipe-turn-deck { display: flex; flex-direction: column; gap: 10px; padding: 0 14px 14px; }
+.hardwipe-turn-status {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 12px;
+  padding: 0 2px 8px;
+  color: var(--color-text-secondary);
+  border-bottom: var(--dnd5e-border-dotted, 1px dotted var(--hw-turn-line));
+  font: var(--hw-turn-caps);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.hardwipe-turn-status.is-idle { padding-bottom: 0; border-bottom: none; }
+.hardwipe-turn-round { color: var(--color-text-primary); font-size: var(--font-size-13, 13px); font-variant-numeric: tabular-nums; }
+.hardwipe-turn-position { font-variant-numeric: tabular-nums; }
+.hardwipe-turn-upnow > b { color: var(--color-text-primary); }
+.hardwipe-turn-status > .hardwipe-turn-live { margin-left: auto; color: var(--hw-turn-ok); font: var(--hw-turn-caps); letter-spacing: 0.06em; }
+.hardwipe-turn-standby > i { margin-right: 3px; font-size: 9px; }
+
+/* State chips: one per resource, with a state rail like the slot cards. Click to correct. */
+.hardwipe-turn-economy { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
+.hardwipe-turn-tab button.hardwipe-turn-slot {
+  --border: 1px solid var(--hw-turn-line);
+  --slot-state: transparent;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 4px;
+  width: 100%;
+  height: auto;
+  min-height: 54px;
+  margin: 0;
+  padding: 7px 8px 7px 13px;
+  overflow: hidden;
+  color: var(--color-text-primary);
+  background: var(--hw-turn-surface);
+  border: var(--border);
+  border-radius: 5px;
+  box-shadow: 0 0 6px var(--dnd5e-shadow-15, rgba(0, 0, 0, 0.15));
+  font: inherit;
+  line-height: 1;
+  text-align: left;
+  text-transform: none;
+  white-space: normal;
+  transition: box-shadow 250ms ease, border-color 250ms ease;
+}
+.hardwipe-turn-tab button.hardwipe-turn-slot::before {
+  content: "";
+  position: absolute;
+  inset: 7px auto 7px 5px;
+  width: 3px;
+  border-radius: 2px;
+  background: var(--slot-state);
+}
+.hardwipe-turn-tab button.hardwipe-turn-slot.is-ready { --slot-state: var(--hw-turn-ok); }
+.hardwipe-turn-tab button.hardwipe-turn-slot.is-partial { --slot-state: repeating-linear-gradient(to bottom, var(--hw-turn-warn) 0 4px, transparent 4px 7px); }
+/* Spent and standby chips recede, the way an empty socket does. */
+.hardwipe-turn-tab button.hardwipe-turn-slot:is(.is-spent, .is-standby) { background: transparent; box-shadow: none; }
+.hardwipe-turn-tab button.hardwipe-turn-slot.is-standby { --border: 1px dashed var(--hw-turn-line); }
+.hardwipe-turn-tab button.hardwipe-turn-slot:not(:disabled):hover {
+  --border: 1px solid color-mix(in srgb, var(--hardwipe-gold) 70%, transparent);
+  box-shadow: 0 0 10px color-mix(in srgb, var(--hardwipe-gold) 45%, transparent);
+}
+.hardwipe-turn-tab button.hardwipe-turn-slot:focus-visible { outline: 2px solid var(--hardwipe-gold); outline-offset: 2px; }
+.hardwipe-turn-tab button.hardwipe-turn-slot:disabled { cursor: default; }
+.hardwipe-turn-slot-label {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  max-width: 100%;
+  overflow: hidden;
+  color: var(--color-text-secondary);
+  font: var(--hw-turn-caps);
+  font-size: 9.5px;
+  letter-spacing: 0.06em;
+  text-overflow: ellipsis;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.hardwipe-turn-slot-label > i { color: var(--hardwipe-gold); font-size: 8px; }
+.hardwipe-turn-slot-state {
+  font: 700 var(--font-size-15, 15px) / 1.05 var(--dnd5e-font-roboto-condensed, "Roboto Condensed", sans-serif);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+.hardwipe-turn-slot.is-ready .hardwipe-turn-slot-state { color: var(--hw-turn-ok); text-shadow: 0 0 6px color-mix(in srgb, var(--hw-turn-ok) 35%, transparent); }
+.hardwipe-turn-slot.is-partial .hardwipe-turn-slot-state { color: var(--hw-turn-warn); font-size: var(--font-size-13, 13px); }
+.hardwipe-turn-slot.is-spent .hardwipe-turn-slot-state { color: var(--hardwipe-muted); text-decoration: line-through 1px; }
+.hardwipe-turn-slot.is-standby .hardwipe-turn-slot-state { color: var(--hardwipe-muted); opacity: 0.75; }
+
+/* Readouts: movement (its meter under the reading) and the Attack action. */
+.hardwipe-turn-meter-head { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; }
+.hardwipe-turn-movement .hardwipe-turn-meter-head { margin-bottom: 6px; }
+.hardwipe-turn-note { margin: 5px 0 0; color: var(--color-text-secondary); font-size: var(--font-size-11, 11px); }
+.hardwipe-turn-meta { color: var(--color-text-secondary); font: var(--hw-turn-caps); letter-spacing: 0.04em; text-transform: uppercase; }
+.hardwipe-turn-reading {
+  color: var(--color-text-primary);
+  font: 700 var(--font-size-14, 14px) / 1 var(--dnd5e-font-roboto, sans-serif);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.hardwipe-turn-reading > span { color: var(--color-text-secondary); font-size: var(--font-size-11, 11px); font-weight: 400; }
+
+.hardwipe-turn-cells { display: flex; gap: 3px; height: 10px; padding: 0 3px; }
+.hardwipe-turn-cells > i {
+  flex: 1 1 0;
+  min-width: 3px;
+  border: 1px solid color-mix(in srgb, var(--hw-turn-ok) 45%, transparent);
+  transform: skewX(-22deg);
+}
+.hardwipe-turn-cells > i.is-on {
+  background: var(--hw-turn-ok);
+  border-color: var(--hw-turn-ok);
+  box-shadow: 0 0 4px color-mix(in srgb, var(--hw-turn-ok) 55%, transparent);
+}
+/* At the budget the cells turn amber; past it the extra cells are red. */
+.hardwipe-turn-movement:is(.is-full, .is-over) .hardwipe-turn-cells > i.is-on {
+  background: var(--hw-turn-warn);
+  border-color: var(--hw-turn-warn);
+  box-shadow: 0 0 4px color-mix(in srgb, var(--hw-turn-warn) 55%, transparent);
+}
+.hardwipe-turn-cells > i.is-over { background: var(--hw-turn-bad); border-color: var(--hw-turn-bad); }
+.hardwipe-turn-movement.is-over .hardwipe-turn-reading > b { color: var(--hw-turn-bad); }
+.hardwipe-turn-movement.is-standby .hardwipe-turn-cells { opacity: 0.6; }
+.hardwipe-turn-dash-tag {
+  margin-left: auto;
+  padding: 2px 6px;
+  color: var(--hw-turn-ok);
+  border: 1px solid var(--hw-turn-ok);
+  border-radius: 3px;
+  font: var(--hw-turn-caps);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.hardwipe-turn-pips { display: inline-flex; flex: none; align-items: center; gap: 3px; padding: 0 2px; }
+.hardwipe-turn-pips > i {
+  width: 10px;
+  height: 7px;
+  border: 1px solid color-mix(in srgb, var(--hw-turn-ok) 55%, transparent);
+  transform: skewX(-22deg);
+}
+.hardwipe-turn-pips > i.is-on {
+  background: var(--hw-turn-ok);
+  border-color: var(--hw-turn-ok);
+  box-shadow: 0 0 4px color-mix(in srgb, var(--hw-turn-ok) 55%, transparent);
+}
+/* Attacks: a larger pip per attack in the Attack action, lit while it's still available. */
+.hardwipe-turn-attack-pips { gap: 4px; }
+.hardwipe-turn-attack-pips > i { width: 16px; height: 9px; }
+.hardwipe-turn-attacks.is-partial .hardwipe-turn-reading > b { color: var(--hw-turn-warn); }
+.hardwipe-turn-attacks.is-partial .hardwipe-turn-attack-pips > i.is-on { background: var(--hw-turn-warn); border-color: var(--hw-turn-warn); box-shadow: 0 0 4px color-mix(in srgb, var(--hw-turn-warn) 55%, transparent); }
+.hardwipe-turn-attacks.is-spent .hardwipe-turn-reading > b { color: var(--hardwipe-muted); }
+.hardwipe-turn-attacks.is-standby :is(.hardwipe-turn-reading, .hardwipe-turn-attack-pips) { opacity: 0.6; }
+.hardwipe-turn-source { margin-left: auto; color: var(--color-text-secondary); font: var(--hw-turn-caps); letter-spacing: 0.04em; text-transform: uppercase; }
+.hardwipe-turn-source > i { margin-right: 2px; color: var(--hardwipe-gold); font-size: 8px; }
+
+/* ---- Bands: a native card per cost, listing what can be spent on it ---- */
+.hardwipe-turn-band { margin-top: 10px; overflow: hidden; }
+.hardwipe-turn-band-head > h3 > i { margin-right: 3px; font-size: 0.8em; opacity: 0.8; }
+
+/* Options: a two-column grid of rows (one column on narrow sheets). */
+.hardwipe-turn-options { display: grid; grid-template-columns: repeat(auto-fill, minmax(215px, 1fr)); gap: 0 10px; padding: 4px 8px 6px; }
+.hardwipe-turn-option { min-width: 0; border-bottom: var(--dnd5e-border-dotted, 1px dotted var(--hw-turn-line)); }
+.hardwipe-turn-tab button.hardwipe-turn-use {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  height: auto;
+  min-height: 40px;
+  margin: 0;
+  padding: 4px 4px 4px 2px;
+  color: var(--color-text-primary);
+  border-radius: 3px;
+  font: inherit;
+  text-align: left;
+  text-transform: none;
+  white-space: normal;
+  transition: background 150ms ease, box-shadow 150ms ease;
+}
+.hardwipe-turn-tab button.hardwipe-turn-use:not(:disabled):hover {
+  background: color-mix(in srgb, var(--hardwipe-gold) 12%, transparent);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--hardwipe-gold) 55%, transparent);
+}
+.hardwipe-turn-tab button.hardwipe-turn-use:focus-visible { outline: 2px solid var(--hardwipe-gold); outline-offset: -1px; }
+.hardwipe-turn-tab button.hardwipe-turn-use:disabled { cursor: default; }
+.hardwipe-turn-use > img {
+  flex: none;
+  width: 30px;
+  height: 30px;
+  border: 1px solid var(--dnd5e-color-gold, #9f9275);
+  border-radius: 3px;
+  object-fit: cover;
+}
+.hardwipe-turn-option-body { display: flex; flex: 1; flex-direction: column; gap: 2px; min-width: 0; }
+.hardwipe-turn-option-name {
+  overflow: hidden;
+  font: 700 var(--font-size-12, 12px) / 1.15 var(--dnd5e-font-roboto-slab, serif);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.hardwipe-turn-option-name > em { color: var(--color-text-secondary); font-family: var(--dnd5e-font-roboto, sans-serif); font-style: normal; font-weight: 400; }
+.hardwipe-turn-option-meta {
+  overflow: hidden;
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-11, 11px);
+  line-height: 1.2;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.hardwipe-turn-option-meta > b { color: var(--hw-turn-warn); font: var(--hw-turn-caps); letter-spacing: 0.04em; text-transform: uppercase; }
+.hardwipe-turn-option.is-off .hardwipe-turn-option-meta > b { color: var(--hw-turn-bad); }
+.hardwipe-turn-option-tag {
+  flex: none;
+  padding: 1px 5px;
+  color: var(--color-text-secondary);
+  border: 1px solid var(--hw-turn-line);
+  border-radius: 3px;
+  font: var(--hw-turn-caps);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+/* A spent band, or an option that can't be used now, recedes; an offline implant recedes further. */
+.hardwipe-turn-option.is-dim > .hardwipe-turn-use { opacity: 0.5; }
+.hardwipe-turn-option.is-off > .hardwipe-turn-use { opacity: 0.4; filter: grayscale(0.7); }
+.hardwipe-turn-option.is-dim > .hardwipe-turn-use:not(:disabled):hover { opacity: 0.85; }
+
+/* Programs sub-list, with the spell slots it draws on. */
+.hardwipe-turn-subhead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 12px;
+  padding: 6px 10px 0;
+  color: var(--color-text-secondary);
+  font: var(--hw-turn-caps);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.hardwipe-turn-subhead > span > b { color: var(--hardwipe-gold); }
+.hardwipe-turn-subhead > .hardwipe-turn-slotrow:first-of-type { margin-left: auto; }
+.hardwipe-turn-slotrow { display: inline-flex; align-items: center; gap: 5px; }
+.hardwipe-turn-slotrow > small { color: var(--color-text-secondary); font: var(--hw-turn-caps); letter-spacing: 0.04em; text-transform: uppercase; }
+
+.hardwipe-turn-more > summary {
+  padding: 5px 10px 6px;
+  color: var(--color-text-secondary);
+  font: var(--hw-turn-caps);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+.hardwipe-turn-more > summary:hover { color: var(--hardwipe-gold); }
+.hardwipe-turn-outside { margin-top: 8px; }
+.hardwipe-turn-empty { margin: 0; padding: 6px 0; color: var(--color-text-secondary); font-size: var(--font-size-12, 12px); }
+.hardwipe-turn-band > .hardwipe-turn-empty { padding: 8px 10px; }
+
+/* Standard actions: rows like any option, an icon in place of the item image. A taken one stays lit. */
+.hardwipe-turn-move-icon {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  color: var(--hardwipe-gold);
+  border: 1px solid var(--dnd5e-color-gold, #9f9275);
+  border-radius: 3px;
+  font-size: 13px;
+}
+.hardwipe-turn-option.is-taken .hardwipe-turn-move-icon { color: var(--hw-turn-ok); background: color-mix(in srgb, var(--hw-turn-ok) 16%, transparent); border-color: var(--hw-turn-ok); }
+.hardwipe-turn-option.is-taken .hardwipe-turn-option-meta > b { color: var(--hw-turn-ok); }
+
+/* GM: ask this character for a check or a save. */
+.hardwipe-turn-tab button.hardwipe-btn.hardwipe-btn.hardwipe-turn-request { --hardwipe-control: 21px; padding: 0 7px; font-size: 10px; }
+.hardwipe-turn-status > .hardwipe-turn-request:first-child,
+.hardwipe-turn-status > .hardwipe-turn-standby + .hardwipe-turn-request,
+.hardwipe-turn-status > .hardwipe-turn-upnow + .hardwipe-turn-request,
+.hardwipe-turn-status > .hardwipe-turn-position + .hardwipe-turn-request { margin-left: auto; }
+
+/* Netlink: the rolls this character owes (roll calls, contests, card saves, concentration interrupts). A dark
+   terminal in both themes, like the chat cards. Plain display type for what to read and press, mono for the small
+   print; one colour per kind: red for a save owed now, amber for a roll call, cyan for a contest. */
+.hardwipe-netlink {
+  --nl-ink: #04080a;
+  --nl-line: rgba(143, 207, 176, 0.22);
+  --nl-edge: rgba(143, 207, 176, 0.55);
+  --nl-dim: rgba(198, 255, 230, 0.62);
+  --nl-hi: #eafff4;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  color: var(--nl-hi);
+  background: var(--nl-ink);
+  border: 1px solid var(--nl-edge);
+  clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 0 100%);
+  font-family: var(--hw-font-mono);
+}
+.hardwipe-netlink::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: repeating-linear-gradient(to bottom, rgba(0, 0, 0, 0.22) 0 1px, transparent 1px 3px);
+}
+.hardwipe-netlink-head {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 2px 10px;
+  padding: 4px 10px;
+  color: var(--nl-dim);
+  border-bottom: 1px solid var(--nl-line);
+  font-size: 11px;
+  line-height: 1.4;
+}
+.hardwipe-netlink.is-idle .hardwipe-netlink-head { border-bottom: 0; }
+.hardwipe-netlink-count { color: var(--hw-warn); }
+.hardwipe-netlink-cursor {
+  display: inline-block;
+  width: 7px;
+  height: 12px;
+  margin-left: 6px;
+  vertical-align: -2px;
+  background: var(--hw-phos);
+  animation: hardwipe-netlink-blink 1.1s steps(1) infinite;
+}
+
+.hardwipe-netlink-entry {
+  --k: var(--hw-warn);
+  display: grid;
+  grid-template-columns: 34px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px 8px 9px;
+  border-left: 3px solid var(--k);
+  border-bottom: 1px solid #141a1e;
+}
+.hardwipe-netlink-entry:last-of-type { border-bottom: 0; }
+.hardwipe-netlink-entry:is(.is-interrupt, .is-save) { --k: var(--hw-alert); background: rgba(255, 63, 95, 0.08); }
+.hardwipe-netlink-entry.is-contest { --k: var(--hw-cyan); }
+.hardwipe-netlink-entry.is-sent { --k: var(--hw-phos); grid-template-columns: 34px minmax(0, 1fr); }
+.hardwipe-netlink-hex {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 28px;
+  color: #05100c;
+  background: var(--k);
+  clip-path: polygon(25% 0, 75% 0, 100% 50%, 75% 100%, 25% 100%, 0 50%);
+  font: 700 11px var(--hw-font-disp);
+  letter-spacing: 0.02em;
+}
+.hardwipe-netlink-hex > i { font-size: 12px; }
+.hardwipe-netlink-body { display: grid; justify-items: start; gap: 2px; min-width: 0; }
+.hardwipe-netlink-kind {
+  padding: 0 5px;
+  color: var(--k);
+  border: 1px solid var(--k);
+  font: 700 10px/1.45 var(--hw-font-disp);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+.hardwipe-netlink-name {
+  max-width: 100%;
+  overflow: hidden;
+  color: var(--nl-hi);
+  font: 700 15px/1.15 var(--hw-font-disp);
+  letter-spacing: 0.04em;
+  text-overflow: ellipsis;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.hardwipe-netlink-meta {
+  max-width: 100%;
+  overflow: hidden;
+  color: var(--nl-dim);
+  font-size: 11px;
+  line-height: 1.4;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.hardwipe-netlink-meta > b { color: var(--nl-hi); font-weight: 700; }
+.hardwipe-netlink-meta > i { font-size: 9px; }
+.hardwipe-netlink-actions { display: grid; gap: 4px; }
+.hardwipe-netlink button.hardwipe-netlink-roll {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 100%;
+  height: auto;
+  min-height: 26px;
+  margin: 0;
+  padding: 4px 11px;
+  color: #05100c;
+  background: var(--k);
+  border: 1px solid var(--k);
+  border-radius: 0;
+  box-shadow: none;
+  clip-path: polygon(5px 0, 100% 0, 100% calc(100% - 5px), calc(100% - 5px) 100%, 0 100%, 0 5px);
+  font: 700 12px var(--hw-font-disp);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.hardwipe-netlink button.hardwipe-netlink-roll > i { font-size: 12px; }
+.hardwipe-netlink button.hardwipe-netlink-roll.is-alt { color: var(--k); background: transparent; }
+.hardwipe-netlink button.hardwipe-netlink-roll:hover:not(:disabled) { color: #05100c; background: var(--nl-hi); border-color: var(--nl-hi); }
+.hardwipe-netlink button.hardwipe-netlink-roll:focus-visible { outline: 1px solid var(--nl-hi); outline-offset: 2px; }
+.hardwipe-netlink button.hardwipe-netlink-roll:disabled { opacity: 0.5; cursor: progress; }
+.hardwipe-netlink button.hardwipe-netlink-more {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  width: 100%;
+  height: auto;
+  margin: 0;
+  padding: 6px 10px;
+  color: var(--nl-dim);
+  background: transparent;
+  border: 0;
+  border-top: 1px solid var(--nl-line);
+  border-radius: 0;
+  box-shadow: none;
+  font: 11px var(--hw-font-mono);
+  text-align: left;
+}
+.hardwipe-netlink button.hardwipe-netlink-more > b {
+  padding: 1px 8px;
+  color: var(--nl-hi);
+  border: 1px solid var(--nl-edge);
+  font: 700 10px var(--hw-font-disp);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+.hardwipe-netlink button.hardwipe-netlink-more:hover > b { color: #05100c; background: var(--nl-hi); }
+
+/* New rows type in once; an interrupt glitches as it lands. */
+.hardwipe-netlink-entry.is-fresh { animation: hardwipe-netlink-in 0.32s steps(5) both; }
+.hardwipe-netlink-entry.is-fresh.is-interrupt { animation: hardwipe-netlink-in 0.32s steps(5) both, hardwipe-netlink-glitch 0.5s steps(2) 0.32s 1; }
+.hardwipe-netlink-entry.is-sent { animation: hardwipe-netlink-in 0.32s steps(5) both; }
+@keyframes hardwipe-netlink-blink { 50% { opacity: 0; } }
+@keyframes hardwipe-netlink-in { from { clip-path: inset(0 100% 0 0); } to { clip-path: inset(0 0 0 0); } }
+@keyframes hardwipe-netlink-glitch {
+  0% { transform: translate(2px, 0); filter: hue-rotate(40deg); }
+  50% { transform: translate(-2px, 0); }
+  100% { transform: none; filter: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hardwipe-netlink-cursor, .hardwipe-netlink-entry { animation: none !important; }
+}
+
+/* Crew: primed Crew Maneuvers, in the CREW card's colour. Own rows carry the payoff; crew rows are reminders. */
+.hardwipe-turn-crew {
+  --hw-turn-crew: var(--hw-c-sys-crew, #ff6fb5);
+  /* Text in the crew colour, pulled toward the theme's ink so it reads on light and dark sheets alike. */
+  --hw-turn-crew-ink: color-mix(in srgb, var(--hw-turn-crew) 68%, var(--color-text-primary, #222));
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  padding: 6px 8px 7px 11px;
+  border: 1px solid color-mix(in srgb, var(--hw-turn-crew) 60%, transparent);
+  border-left: 3px solid var(--hw-turn-crew);
+  border-radius: 4px;
+  background: color-mix(in srgb, var(--hw-turn-crew) 9%, transparent);
+}
+.hardwipe-turn-crew-label { color: var(--hw-turn-crew-ink); font: var(--hw-turn-caps); letter-spacing: 0.08em; text-transform: uppercase; }
+.hardwipe-turn-crew-label > i { margin-right: 3px; font-size: 9px; }
+.hardwipe-turn-crew-row { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; min-height: 26px; }
+.hardwipe-turn-crew-row + .hardwipe-turn-crew-row { padding-top: 5px; border-top: var(--dnd5e-border-dotted, 1px dotted var(--hw-turn-line)); }
+/* Effect icons are often white SVGs: a dark tile keeps them visible on a light sheet. */
+.hardwipe-turn-crew-row > img { flex: none; width: 22px; height: 22px; padding: 2px; border: 0; border-radius: 3px; background: #14171b; }
+.hardwipe-turn-crew-what { display: flex; flex: 1; flex-direction: column; min-width: 0; }
+.hardwipe-turn-crew-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: var(--font-size-12, 12px); }
+.hardwipe-turn-crew-name > b { font: 700 var(--font-size-13, 13px) / 1.15 var(--dnd5e-font-roboto-slab, serif); }
+.hardwipe-turn-crew-primed {
+  margin-left: 4px;
+  padding: 1px 5px;
+  color: var(--hw-turn-crew-ink);
+  border: 1px solid color-mix(in srgb, var(--hw-turn-crew) 70%, transparent);
+  border-radius: 3px;
+  font: var(--hw-turn-caps);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.hardwipe-turn-crew-what > small { color: var(--color-text-secondary); font-size: var(--font-size-11, 11px); }
+.hardwipe-turn-crew-what > small > .is-warn { color: var(--hw-turn-warn); font-weight: 700; }
+.hardwipe-turn-crew-fire { display: flex; flex-basis: 100%; flex-wrap: wrap; gap: 4px; padding-left: 30px; }
+.hardwipe-turn-crew-fire:empty { display: none; }
+.hardwipe-turn-crew-fire button.hardwipe-btn.hardwipe-btn { --hardwipe-control: 22px; font-size: 10px; }
+.hardwipe-turn-crew-none { color: var(--color-text-secondary); font-style: italic; }
+.hardwipe-turn-crew-row.is-ally .hardwipe-turn-crew-name { white-space: normal; }
+/* The feature's description, up to three lines; the tooltip has all of it. */
+.hardwipe-turn-crew-what > .hardwipe-turn-crew-desc {
+  display: -webkit-box;
+  overflow: hidden;
+  color: var(--color-text-primary);
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+}
+
+/* ---- Status cards: running programs and conditions, Edge and Strikes ---- */
+.hardwipe-turn-card { margin-top: 10px; overflow: hidden; }
+.hardwipe-turn-programs,
+.hardwipe-turn-conditions { padding: 6px 10px 8px; }
+.hardwipe-turn-program {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 0;
+  border-bottom: var(--dnd5e-border-dotted, 1px dotted var(--hw-turn-line));
+}
+.hardwipe-turn-program:last-child { border-bottom: none; }
+.hardwipe-turn-program > img.gold-icon { --gold-icon-size: 26px; flex: none; width: 26px; height: 26px; }
+.hardwipe-turn-program-name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  font: 700 var(--font-size-13, 13px) / 1.15 var(--dnd5e-font-roboto-slab, serif);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.hardwipe-turn-program button.hardwipe-btn.hardwipe-btn { --hardwipe-control: 22px; font-size: 10px; }
+
+.hardwipe-turn-conditions { display: flex; flex-wrap: wrap; gap: 5px; }
+.hardwipe-turn-condition {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  min-height: 24px;
+  padding: 2px 4px 2px 3px;
+  color: var(--color-text-primary);
+  background: color-mix(in srgb, var(--hw-turn-warn) 10%, transparent);
+  border: 1px solid color-mix(in srgb, var(--hw-turn-warn) 50%, transparent);
+  border-radius: 3px;
+  font-size: var(--font-size-12, 12px);
+}
+.hardwipe-turn-condition > img { flex: none; width: 18px; height: 18px; border: 0; }
+.hardwipe-turn-tab button.hardwipe-turn-drop {
+  display: grid;
+  place-items: center;
+  width: 18px;
+  height: 18px;
+  min-height: 0;
+  margin: 0;
+  padding: 0;
+  color: var(--color-text-secondary);
+  border-radius: 2px;
+  font-size: 10px;
+}
+.hardwipe-turn-tab button.hardwipe-turn-drop:hover { color: var(--hw-turn-bad); background: color-mix(in srgb, var(--hw-turn-bad) 14%, transparent); }
+.hardwipe-turn-tab button.hardwipe-turn-drop:focus-visible { outline: 2px solid var(--hardwipe-gold); outline-offset: 1px; }
+
+.hardwipe-turn-resources { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.hardwipe-turn-edge,
+.hardwipe-turn-strikes { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 8px; min-width: 0; padding: 9px 10px; }
+.hardwipe-turn-strikes { border-left: var(--dnd5e-border-dotted, 1px dotted var(--hw-turn-line)); }
+.hardwipe-turn-edge-cell {
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  color: var(--hardwipe-muted);
+  border: 1px solid var(--hw-turn-line);
+  clip-path: polygon(5px 0, 100% 0, 100% calc(100% - 5px), calc(100% - 5px) 100%, 0 100%, 0 5px);
+  font-size: 10px;
+}
+.hardwipe-turn-edge.is-ready .hardwipe-turn-edge-cell {
+  color: var(--hw-turn-ok);
+  background: color-mix(in srgb, var(--hw-turn-ok) 16%, transparent);
+  border-color: var(--hw-turn-ok);
+}
+.hardwipe-turn-edge-value { font: 700 var(--font-size-14, 14px) / 1 var(--dnd5e-font-roboto, sans-serif); font-variant-numeric: tabular-nums; }
+.hardwipe-turn-edge-value > span { color: var(--color-text-secondary); font-size: var(--font-size-11, 11px); font-weight: 400; }
+.hardwipe-turn-resource-controls { display: inline-flex; flex-wrap: wrap; gap: 4px; margin-left: auto; }
+.hardwipe-turn-resource-controls button.hardwipe-btn.hardwipe-btn { --hardwipe-control: 22px; font-size: 10px; }
+
+.hardwipe-turn-strike-pips { display: inline-flex; gap: 6px; }
+.hardwipe-turn-tab button.hardwipe-turn-strike {
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  min-height: 0;
+  margin: 0;
+  padding: 0;
+  color: var(--hardwipe-muted);
+  background: transparent;
+  border: 1px solid var(--hw-turn-line);
+  border-radius: 0;
+  clip-path: polygon(5px 0, 100% 0, 100% calc(100% - 5px), calc(100% - 5px) 100%, 0 100%, 0 5px);
+  font-size: 10px;
+}
+.hardwipe-turn-tab button.hardwipe-turn-strike:not(.is-on) > i { font-size: 4px; }
+.hardwipe-turn-tab button.hardwipe-turn-strike.is-on { color: #fff; background: var(--hw-turn-bad); border-color: var(--hw-turn-bad); }
+.hardwipe-turn-tab button.hardwipe-turn-strike:not(:disabled):hover { border-color: var(--hardwipe-gold); }
+.hardwipe-turn-tab button.hardwipe-turn-strike:focus-visible { outline: 2px solid var(--hardwipe-gold); outline-offset: 2px; }
+.hardwipe-turn-tab button.hardwipe-turn-strike:disabled { cursor: default; }
+.hardwipe-turn-strikes-status { margin-left: auto; color: var(--color-text-secondary); font: var(--hw-turn-caps); letter-spacing: 0.06em; text-transform: uppercase; }
+.hardwipe-turn-strikes-status > b { color: var(--color-text-primary); font-variant-numeric: tabular-nums; }
+.hardwipe-turn-strikes.is-warn .hardwipe-turn-strikes-status { color: var(--hw-turn-warn); }
+.hardwipe-turn-strikes:is(.is-alert, .is-dead) .hardwipe-turn-strikes-status { color: var(--hw-turn-bad); }
+
+/* ---- Narrow sheets ---- */
+@container (max-width: 470px) {
+  .hardwipe-turn-deck { padding-inline: 10px; }
+  .hardwipe-turn-resources { grid-template-columns: minmax(0, 1fr); }
+  .hardwipe-turn-strikes { border-left: none; border-top: var(--dnd5e-border-dotted, 1px dotted var(--hw-turn-line)); }
+}

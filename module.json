@@ -27,10 +27,23 @@
       }
     ],
     "conflicts": [
-      { "id": "walled-regions", "type": "module" },
-      { "id": "walled-templates", "type": "module" },
-      { "id": "walledtemplates", "type": "module" },
-      { "id": "braindance-suite", "type": "module", "reason": "Braindance is built into Hardwipe from 0.7.47. Restore any running memory, then disable Braindance Suite." }
+      {
+        "id": "walled-regions",
+        "type": "module"
+      },
+      {
+        "id": "walled-templates",
+        "type": "module"
+      },
+      {
+        "id": "walledtemplates",
+        "type": "module"
+      },
+      {
+        "id": "braindance-suite",
+        "type": "module",
+        "reason": "Braindance is built into Hardwipe from 0.7.47. Restore any running memory, then disable Braindance Suite."
+      }
     ],
     "requires": [
       {
@@ -54,6 +67,9 @@
   "styles": [
     "styles/fonts.css",
     "styles/hardwipe.css",
+    "styles/cyberware-tab.css",
+    "styles/turn-tab.css",
+    "styles/requests.css",
     "styles/wall-types.css",
     "styles/short-rest.css",
     "styles/roll-tracker.css",

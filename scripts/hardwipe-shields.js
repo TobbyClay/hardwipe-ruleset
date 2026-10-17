@@ -5,6 +5,7 @@ import {
   resolveActor
 } from "./hardwipe-state.js";
 import { aggregateCriticalDamage } from "./hardwipe-attack-cards.js";
+import { TurnTracker } from "./hardwipe-turn.js";
 
 const SHIELD_FLAG = "shield";
 const DEFAULT_SHIELD_HP = 10;
@@ -826,7 +827,11 @@ export class ShieldManager {
   }
 
   static _hasReaction(actor) {
-    return !!globalThis.MidiQOL?.hasUsedReaction && !MidiQOL.hasUsedReaction(actor);
+    if (!globalThis.MidiQOL?.hasUsedReaction) return false;
+    // In a started combat the Turn panel's reaction decides: Midi's marker, or Hardwipe's ledger while Midi does not
+    // track reactions. Outside one, Midi's own count.
+    const now = TurnTracker.now(actor);
+    return now ? !TurnTracker.economy(actor, now).economy.reaction.spent : !MidiQOL.hasUsedReaction(actor);
   }
 
   static async _consumeReaction(actor) {

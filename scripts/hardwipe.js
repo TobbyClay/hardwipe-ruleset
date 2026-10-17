@@ -24,6 +24,10 @@ import { registerSaveCards } from "./hardwipe-check-cards.js";
 import { registerRollTracker } from "./hardwipe-roll-tracker.js";
 import { RecapDialog, RollTrackerApp, SessionDialog } from "./hardwipe-roll-tracker-app.js";
 import { registerBraindance, initializeBraindance } from "./hardwipe-braindance.js";
+import { TurnTracker } from "./hardwipe-turn.js";
+import { registerRequests } from "./hardwipe-requests.js";
+import { registerComms } from "./hardwipe-comms.js";
+import { CrewManager } from "./hardwipe-crew.js";
 
 export const MODULE_ID = "hardwipe-ruleset";
 export const MODULE_TITLE = "Hardwipe Ruleset";
@@ -39,6 +43,7 @@ Hooks.once("init", async () => {
   game.hardwipe.shields = ShieldManager.api;
   game.hardwipe.cyberware = CyberwareManager.api;
   game.hardwipe.cover = CoverManager.api;
+  game.hardwipe.crew = CrewManager.api;
 
   ShieldManager.initialize();
 
@@ -66,11 +71,16 @@ Hooks.once("init", async () => {
   registerMessageCards();
   registerRollTracker({ App: RollTrackerApp, SessionDialog, RecapDialog });
   registerBraindance();
+  TurnTracker.register();
+  registerRequests();
+  registerComms();
+  CrewManager.register();
 
   await foundry.applications.handlebars.loadTemplates([
     "modules/hardwipe-ruleset/templates/heat-hud.hbs",
     "modules/hardwipe-ruleset/templates/heat-config.hbs",
-    "modules/hardwipe-ruleset/templates/cyberware-tab.hbs"
+    "modules/hardwipe-ruleset/templates/cyberware-tab.hbs",
+    "modules/hardwipe-ruleset/templates/turn-tab.hbs"
   ]);
 });
 

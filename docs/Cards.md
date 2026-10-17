@@ -188,6 +188,8 @@ Completing the rest posts one combined receipt. Closing early produces an incomp
 
 *Native captures: 0.7.39.* Request a check or save from a party. Owners roll for their characters, and results replace the waiting buttons. The GM view can include information withheld from the player view. [GM roll tools and settings →](GM.md)
 
+Check and save requests are now drawn as a **roll call**, the same card the GM's Roll call window posts: one Roll button for your own characters, then each result with pass or fail when the DC is shown. Contests set two panels against each other. [Roll calls →](GM.md#roll-calls)
+
 ## Ordinary formula rolls
 
 <a href="media/plain-rolls.webp"><img src="media/plain-rolls.webp" alt="Native ordinary 2d6 plus 3 roll and flavored Hacking the Door Panel roll" width="660"></a>

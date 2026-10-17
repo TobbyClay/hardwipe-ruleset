@@ -20,7 +20,8 @@ const GROUPS = [
   },
   {
     id: "system", entries: [["sys-edge", "#8fcfb0"], ["sys-downed", "#ffc24d"], ["sys-flatlined", "#ff3f5f"], ["sys-shield", "#4cc6ff"],
-      ["sys-heat", "#ffc24d"], ["sys-calm", "#8fcfb0"], ["sys-lockdown", "#ff3f5f"], ["sys-wall", "#8fcfb0"], ["sys-breach", "#ff3f5f"], ["sys-review", "#ffc24d"]]
+      ["sys-heat", "#ffc24d"], ["sys-calm", "#8fcfb0"], ["sys-lockdown", "#ff3f5f"], ["sys-wall", "#8fcfb0"], ["sys-breach", "#ff3f5f"], ["sys-review", "#ffc24d"],
+      ["sys-crew", "#ff6fb5"]]
   },
   { id: "messages", entries: [["msg-roll", "#8fcfb0"], ["msg-turn", "#b48cff"], ["msg-request", "#ffc24d"]] },
   { id: "abilities", entries: Object.entries(ABILITY_DEFAULTS).map(([key, value]) => [`ability-${key}`, value]) },

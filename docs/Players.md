@@ -4,7 +4,7 @@
 
 ## Start on the character sheet
 
-Use **Hardwipe Character** as your character's sheet. Inventory, activities, effects, spells, and the ordinary D&D5e controls remain available. The chip tab opens your cyberware; the sidebar holds Edge and the Strikes tray.
+Use **Hardwipe Character** as your character's sheet. Inventory, activities, effects, spells, and the ordinary D&D5e controls remain available. The chip tab opens your cyberware and the hourglass tab your [turn](#read-your-turn); the sidebar holds Edge and the Strikes tray.
 
 ![Current character sheet and implant states](media/cyberware-current.png)
 
@@ -17,6 +17,53 @@ The example shows online implants, a disabled spine implant, and damaged dermal 
 An implant with an activity has a named action button on its **same inventory item**. Use it there or from Cyberware's detail panel. Activation cost and remaining charges are visible. Carried, disabled, and damaged implants cannot activate. Passive-only implants do not acquire an extra action.
 
 Use weapons, spells, tools, and features through their normal activities. Their cards keep the relevant controls; selecting a roll total opens the dice breakdown.
+
+## Read your turn
+
+<img src="media/turn-panel-current.png" alt="Turn tab at the start of your turn: the netlink strip with a Perception roll call, DC hidden; the action, bonus action and reaction ready, 0 of 30 ft moved, 2 of 2 attacks left, and the Action band with weapons and the standard actions" width="420">
+
+The hourglass tab is your **Turn** helper: where your turn stands, and what you can still do with it.
+
+- **Action, Bonus action, Reaction.** Three chips at the top read **Ready** or **Spent**. On someone else's turn your action and bonus action read **Standby**, but your reaction stays live. While you're working through the Attack action, the action reads **Attacking · 1 left**. Click a chip to correct it, for example after a Help that had nothing to click.
+- **Movement.** The distance you've moved this turn, read from your token's path, against your speed for the way you're moving. Difficult terrain counts what it costs. The cells turn amber at your limit and red past it.
+- **Attack action.** How many attacks you have left out of what one Attack action gives you (**2/2**, **1/2**, **0/2**), with the feature that grants them (Extra Attack, Two Extra Attacks, Thirsting Blade). Spell attacks aren't part of it.
+- **What you can use.** Below, one band per cost lists what you can spend it on: weapons in hand first, then implants, features and programs (with your spell slots beside them), each with to-hit or DC, damage and range. Click one to use it; hover its image for the full item. Consumables and tools fold away under **Gear**, and anything slower than a turn under **Outside combat**.
+- **What's greyed and why.** A spent band greys its options (mid-attack, only your weapons stay lit); using one anyway only warns you, since Action Surge exists. An option also says why it may not work now: **Not drawn**, **No uses left**, **No slots left**, an implant that's **Offline** or **Damaged**.
+- **Opportunity attacks.** Your equipped melee weapons also sit in the Reaction band. On someone else's turn, attacking with one from there spends your reaction.
+- **Standard actions.** At the foot of the Action band, one row each for Dash, Disengage, Dodge, Hide, Grapple and Shove, with what it does and what it would cost right now. Dash, Disengage and Hide fall back to your bonus action once the action is gone, as Cunning Action allows. Dash doubles your movement, Dodge puts **Dodging** on you until your next turn, and Hide rolls Stealth. Grapple and Shove take one attack of your Attack action and roll Athletics; with exactly one creature targeted they post a [contest](#roll-calls-and-contests) instead. Click a taken row again to take it back. Help, Ready, Search and the like have nothing to track, so just tell the table.
+- **Netlink.** The terminal strip above the chips lists the rolls the table is waiting on you for, each with a solid **Roll** button, so you don't have to dig through chat. Red is a save you owe right now (**Interrupt** for concentration, **Save** for a spell's save), amber a GM's **Roll call**, cyan a **Contest**. It says **DC 12**, or **DC hidden** when the GM keeps it to themselves. Saves you owe now come first; past the GM's limit the rest fold under **Show all**. After you roll, the strip shows **Sent to the GM** with your total for a few seconds. With nothing pending it reads *netlink idle*.
+- **Running programs and conditions.** What you're concentrating on, with **End program**, and every condition on you with **×** to clear it. Exhaustion comes off one level at a time; a condition that comes from an item, such as an implant, isn't cleared here.
+- **Edge & Strikes.** The same Edge and Strikes as the sidebar, with **Spend**, and **Recover · 1 Edge** while you're Downed.
+
+Everything resets when your turn starts; your reaction comes back then too. When Ready Set Midi counts reactions (its **Enforce Reactions** setting is anything but *Do not check*) or bonus actions (**Enforce Bonus Actions** prompts for characters or all actors), the chips follow Midi's markers, so they always match the icon on your token. Shield Block reads the same Reaction chip.
+
+### Roll calls and contests
+
+<img src="media/netlink-strip.png" alt="Netlink strip with four rolls: a concentration interrupt, a grapple to defend against with Athletics or Acrobatics, a Dexterity save roll call at DC 13, and an Athletics roll call with the DC hidden" width="420">
+
+The GM can post a **roll call**: a check or a save for one or more of you, with or without a DC on show. It's a convenience, not a gate. When the GM just says "roll Perception", roll from your sheet as usual; a roll call only keeps everyone's results in one place.
+
+- Press **Roll** on the card or on the netlink strip, or roll it from your sheet as usual: while a roll call waits on you for that skill, check or save, a matching roll from the sheet counts as your answer. The normal roll dialog opens, so advantage, bonuses and Edge work as usual. Your roll's own card folds to one dashed line under the roll call (**Answered on the roll call**); click it to open it again.
+- The card marks each of you **Waiting**, then **Pass** or **Fail** with the margin when the DC is shown, or **Rolled** when the GM keeps it hidden. A group check also says whether the crew passes: at least half of you must.
+- The GM can close a roll call, and it also closes on its own (by default at the end of the combat round it was posted in). It then leaves your strip, the card reads **Roll call closed**, and anyone who hadn't rolled shows **Skipped**.
+<img src="media/roll-call-contest.png" alt="Grapple contest card: Athletics 21 against the drone's Athletics 1, a +20 margin, and the GM's Apply Grappled button" width="300">
+
+- **Contests.** Grapple or Shove from the Turn tab with one creature targeted posts a contest card: your Athletics against its Athletics or Acrobatics (whoever controls it picks). When you defend, each button shows your bonus (**Athletics +5**, **Acrobatics +2**). The higher total wins and a tie goes to the defender; the card shows both totals and the margin, and the GM applies **Grappled** or **Prone** from it. With no target, or several, it's a plain Athletics roll.
+
+## Crew maneuvers
+
+A crew maneuver is a feature one character sets up and the rest of the crew pays off. What it does is written in the feature's description.
+
+| Your primed maneuver and a crewmate's | The CREW cards |
+| --- | --- |
+| <img src="media/crew-turn-tab.png" alt="Turn tab Crew group: Entry Stack primed with Fire · Heavy Pistol and stand down, and below it: Juno has set up Smoke Cover, with that feature's description" width="420"> | <img src="media/crew-cards.png" alt="Two CREW cards in chat: Juno triggers Smoke Cover, and Mags triggers Entry Stack, each with who triggered it" width="240"> |
+
+1. Use it from your Turn tab, where it's tagged **Crew**. Your token shows its icon.
+2. Your Turn tab's **Crew** group reads **Primed**, with a **Fire** button for each weapon you have drawn, or a **Trigger** button for a maneuver that doesn't end in an attack. Everyone else in the fight sees *Mags has set up Entry Stack:* and the feature's description.
+3. When the moment comes, press **Fire** or **Trigger**. The CREW card goes to chat, and an attack goes to the GM's review like any other. In combat the attack uses your reaction; if that's already spent, the row says so and Fire only warns.
+4. **×** stands down without using it.
+
+Nothing watches the table: the crew says when it happens, and you press the button. A maneuver lasts until the start of your next turn. One set up before a fight lasts until it's used or your first turn in the fight starts.
 
 ## Edge, Strikes, and Downed
 

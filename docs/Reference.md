@@ -6,14 +6,18 @@ This page collects the details needed for adjudication or integration. Start wit
 
 ## Cover calculation
 
-Ranged cover casts nine rays from the attacker's center to inset points across the target's footprint on the same scene level.
+With Ready Set Midi 14.0.10.3 or later, ranged cover uses its built-in calculation (Simple Cover 5e's rules), worked out during each attack only:
 
-| Blocked rays | Physical cover |
+| Check | Cover |
 | --- | --- |
-| 0–4 | No AC bonus |
-| 5–6 | Half cover: +2 AC |
-| 7–8 | Three-quarters cover: +5 AC |
-| 9 | Full physical cover: character cannot be hit through the wall |
+| From the attacker's best corner, lines to the four corners of the target's space: none blocked | No AC bonus |
+| One or two lines blocked by walls or creatures | Half cover: +2 AC |
+| Three or four lines blocked | Three-quarters cover: +5 AC |
+| Walls hide every visibility point of the target from the attacker's eyes | Full physical cover: character cannot be hit through the wall |
+
+Lines pass through the holes damage has opened in a wall: only the wall's solid parts block. Creatures between attacker and target block lines too (Ready Set Midi's *Creatures give cover* setting). The stray-shot impact point is where the attack's center line meets a wall, or, when that line goes through a hole, the nearest solid wall a blocked line meets.
+
+With an older Ready Set Midi, ranged cover casts nine rays from the attacker's center to inset points across the target's footprint on the same scene level: 0–4 blocked is no cover, 5–6 half, 7–8 three-quarters, 9 full physical cover. Those rays also pass through wall holes.
 
 <img src="media/wall-impact-breach-review-0.7.39.webp" alt="Cover held, wall impact, breach, and GM review examples" width="900">
 
@@ -29,7 +33,7 @@ Durability belongs to fixed five-foot intervals along the original wall. Thresho
 
 Cyberware regions hold one package each. Hands, Legs, Eyes, and Arms are paired packages. Hands, Legs, and Eyes swap during a short or long rest without a Ripperdoc; every other region needs one. Installed, enabled, undamaged cyberware applies its native effects and activities. Carried, disabled, and damaged cyberware does not.
 
-Shield Block spends the normal Midi reaction. Shield HP is saved on the equipment item, clamped to 0–10. Broken shields unequip; repaired shields require explicit re-equipping. NPC zero HP does not invoke character Strikes. Three Strikes remains Dead through normal rest and Edge recovery.
+Shield Block spends the normal Midi reaction, by forcing Midi's marker. In a started combat it is available only while the Turn panel's reaction reads Ready, so with Midi's Enforce Reactions on *Do not check* a reaction in Hardwipe's ledger also prevents it; outside combat Midi's count decides. Shield HP is saved on the equipment item, clamped to 0–10. Broken shields unequip; repaired shields require explicit re-equipping. NPC zero HP does not invoke character Strikes. Three Strikes remains Dead through normal rest and Edge recovery.
 
 ## Public integration surfaces
 
@@ -43,6 +47,7 @@ Use the managers instead of writing flags directly so ownership, queue, service,
 | `game.hardwipe.shields.damage(item, amount)` | Change shield HP through the manager |
 | `game.hardwipe.shields.heal(item, amount)` / `.repair(item)` | Recover shield durability |
 | `game.hardwipe.edge` / `.strikes` / `.heat` | Character resources and scene escalation |
+| `game.hardwipe.crew` | Crew maneuvers: `settings(item)`, `primed(actor)`, `trigger(actor, effectId)`, `cancel(actor, effectId)` |
 
 | Stored data | Location |
 | --- | --- |
@@ -51,8 +56,13 @@ Use the managers instead of writing flags directly so ownership, queue, service,
 | Wall durability | Wall `flags["hardwipe-ruleset"].cover` |
 | Wall history and duplicate receipts | Scene Hardwipe flags |
 | Saving-throw roster | Message `flags["hardwipe-ruleset"].saves` |
+| Crew maneuver | Feat `flags["hardwipe-ruleset"].crew`: `enabled`, `payoff` (`attack` or `card`); its description is the crew's reminder. Primed effect `flags["hardwipe-ruleset"].crew`: `item`, `payoff`, `stamp` (combat, round, turn, or null before a fight), with a copy of the description |
 | Linked save result | Save message `flags.dnd5e.originatingMessage` |
 | Per-spell card color | Spell `flags["hardwipe-ruleset"].cardColor` |
+| Turn panel ledger | Actor `flags["hardwipe-ruleset"].turnLedger`: `combat`, `round`, `turn`, `action`, `bonus`, `attacks`, `moves` (standard actions taken and what paid for them), `reaction`; cleared when the actor's turn starts |
+| Roll call | D&D5e `request` message with handler `hardwipe`; `flags["hardwipe-ruleset"].request`: `kind` (`each`, `group`, `contest`), `reason`, `dc`, `showDC`, and `roll` or `contest` (`action`, `challenger`, `defender`, `challengerRoll`, `defenderRolls`), plus `applied` once the GM applies a contest's condition. Answering rolls carry `flags.dnd5e.requestResult` and `flags["hardwipe-ruleset"].requestRoll` |
+| Closed, pinned, posted | Any request, save card or concentration interrupt: `flags["hardwipe-ruleset"].closed` (`reason`: `gm` or `timer`, `at`) once closed. Requests also carry `pinned` (kept past the timer) and `posted` (`combat`, `round`, `turn` when posted during combat) |
+| Attacks per Attack action (override) | Feature or working implant `flags["hardwipe-ruleset"].attacksPerAction`; the highest of this and Extra Attack-style features wins |
 
 Ready Set Midi exposes `MidiQOL.hardwipeCoverBridgeVersion = 1` and the `midi-qol.computeCoverBonus`, `computeTargetAC`, `wallCoverRange`, `targetHitResolved`, and `coverAutoRollDamage` hooks. Canonical per-target resolution is persisted for GM verification. Use the Ready Set Midi companion attached to the same Hardwipe release (rebuilt by [`preview/merge-companion.py`](../preview/README.md)), which carries these hooks together with the area-spell changes; copying only a Hardwipe script is insufficient.
 

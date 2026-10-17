@@ -39,7 +39,44 @@ The **Turn start card** setting selects Ticker strip, Initiative timeline, or Te
 
 <img src="media/party-requests-0.7.39.webp" alt="Party roll request cards with member results and roll buttons" width="900">
 
-Native party roll requests use matching cards, showing the requested roll, DC when visible, each member's result, and outstanding Roll buttons. Request visibility still follows the system's permissions and message mode.
+Native party roll requests use matching cards, showing the requested roll, DC when visible, each member's result, and outstanding Roll buttons. A party sheet's check or save request is drawn as a [roll call](#roll-calls); a rest request keeps its own card. Request visibility still follows the system's permissions and message mode.
+
+## Roll calls
+
+The **Roll call** window asks one or more characters or NPCs for a check or a save mid-scene, and its card collects the results. It is optional: players rolling from their sheets works exactly as before, and nothing waits on a roll call.
+
+| <img src="media/roll-call-composer.png" alt="Roll call window: three participants, Dexterity save picked, DC 13 typed with Players see the DC on, resolved as Group, and a reason" width="330"> | <img src="media/roll-call-group.png" alt="Group roll call card: Dexterity saving throw DC 13 with two passes, one fail, and Team passes" width="300"> |
+| --- | --- |
+
+- **Open it** with **Alt+R** (rebind it under *Configure Controls*), the bullhorn in the token controls, or **Request roll** on a character's Turn tab (opens for that character). Opening it again adds the selected tokens to the open window.
+- **Who rolls.** The selected tokens when you open it; **Add selected** adds more, **×** removes one.
+- **Roll.** Quick picks for what comes up mid-fight (Athletics, Acrobatics, Perception, Stealth, Insight, Constitution, Dexterity and Wisdom saves), or any skill, ability check or saving throw from the list.
+- **DC.** Type it; leave it empty for no DC. **Players see the DC** starts from D&D5e's *Challenge visibility* setting. With it off, players see **Rolled** instead of Pass or Fail, and the DC is hidden on their roll's card too. You always see the DC and the verdicts.
+- **Resolve as** **Each** (everyone passes or fails on their own), **Group** (the crew passes when at least half pass), or **Contest** (exactly two participants: the first rolls the roll above, the second picks one of up to two opponent rolls; the higher total wins, a tie goes to the defender).
+- **Reason** is optional and shows on the card.
+
+On the card, a participant no active player owns (an NPC, or a character whose player isn't connected) gets a Roll button for you. A matching roll made from a sheet (same character, same skill, check or save) also answers an open roll call, so players who roll the usual way still count. The answering rolls fold to one line under the card. A contest's Roll buttons show the roller's bonus. When a Grapple or Shove contest goes to the challenger, **Apply Grappled** or **Knock Prone** puts the condition on the defender.
+
+### The comms queue
+
+<img src="media/comms-queue.png" alt="Queue tab of the Roll call window: a concentration interrupt that closes when resolved, a grapple contest and a Dexterity save roll call that close at the end of round 3, with Roll, Pin and Close buttons" width="420">
+
+The Roll call window's **Queue** tab lists everything the table still owes: open roll calls and contests, saves on spell and attack cards, and concentration interrupts. Each row shows who still owes it (● online, ○ offline player) and when it closes.
+
+- **Close** (×) takes it off every player's netlink strip. A roll call or contest then takes no more rolls, and its card reads **Roll call closed** with the missing rows marked **Skipped**. A save or an interrupt only leaves the strip and the queue; its card and Ready Set Midi carry on.
+- **Roll** appears when an NPC or an offline player's character still owes the roll.
+- **Pin** keeps a roll call open past its timer.
+- **Close all** clears the queue, after a confirmation.
+
+Roll calls and contests also close on their own. Three world settings control this:
+
+| Setting | Default | Choices |
+| --- | --- | --- |
+| Roll calls close in combat | At the end of the round they were posted | end of the turn they were posted, when combat ends, never |
+| Roll calls close out of combat | After 10 minutes | after 30 minutes, never |
+| Waiting on you shows at most | 3, the rest under more | 5, all |
+
+Saves on cards and concentration interrupts never close on a timer; they leave once resolved, or when you close them. The active GM's client does the closing, including for old unanswered roll calls still in the recent log when the world loads.
 
 ## Colors, text, folding, and motion
 
@@ -112,6 +149,21 @@ A box beside the chat asks the GM what was happening. **Enter** or the check mar
 | Roll Tracker: players can open it | On | Players see every tab but Sessions, without note editing, and without rolls someone else made privately. Show players opens it for them either way. |
 
 The tracker keeps its data in two world settings: the session in play with the unfiled rolls, written about a second after rolls arrive, and the finished sessions, written only when sessions change.
+
+## Crew maneuvers
+
+Any feat can be a crew maneuver:
+
+1. On its **Details** tab, turn on **Crew maneuver** and choose **When fired**: *One weapon attack (reaction)* or *Post the card only*.
+2. Give it the activity that sets it up, such as a utility activity on a bonus action. Using that activity primes it on the character.
+3. Write its **description** for the rest of the crew: they read *Mags has set up Entry Stack:* followed by it on their Turn tab. Say what sets it off and what happens.
+4. Give it to characters like any other feature.
+
+<img src="media/crew-setup.png" alt="Entry Stack's Details tab with the Crew maneuver fieldset: Crew maneuver ticked and When fired set to One weapon attack (reaction)" width="420">
+
+For example, **Entry Stack**: a *Stack up* utility activity on a bonus action, *When fired* set to one weapon attack, and the description *"Stack up beside a closed door. When an ally opens it, use your reaction to make one weapon attack through the doorway, at the same moment as the ally."*
+
+Players fire their own maneuvers from the Turn tab (see the [player guide](Players.md#crew-maneuvers)); you can press **Fire**, **Trigger** or **×** on a character's Turn tab for them. Your client removes a primed maneuver when its owner's next turn starts, or when the combat it was set up in is deleted. The CREW card's colour is under **Card colours**.
 
 ## Braindance
 
