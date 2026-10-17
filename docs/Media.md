@@ -156,13 +156,17 @@ Captured on **2026-10-15** from the local, unreleased Turn tab and roll calls (0
 
 ## Crew maneuvers capture
 
-Captured on **2026-10-16** from the local Crew Maneuvers branch in a private copy of the disposable QA world, with a GM and two player clients, dark theme. *Entry Stack* and *Smoke Cover* are test features written for the capture; Mags and Juno are synthetic characters.
+Captured on **2026-10-17** from the local Crew Maneuvers branch in a private copy of the disposable QA world, with a GM and two player clients, dark theme. *Entry Stack*, *Smoke Cover* and *Spotter Mark* are test features written for the capture; Mags and Juno are synthetic characters with stand-in Foundry portrait art.
 
 | Published file | Subject |
 | --- | --- |
-| [crew-setup.png](media/crew-setup.png) | GM view: Entry Stack's Details tab with **Crew maneuver** on and **When fired** set to one weapon attack; cropped to the header and the fieldset. |
-| [crew-turn-tab.png](media/crew-turn-tab.png) | Mags's Turn tab, out of combat: her primed Entry Stack with Fire · Heavy Pistol and ×, and Juno's primed Smoke Cover with its description; cropped. |
-| [crew-cards.png](media/crew-cards.png) | Chat: the CREW cards for Smoke Cover (card only) and Entry Stack (followed by the attack, not shown); cropped from the player's log. |
+| [crew-setup.png](media/crew-setup.png) | GM view: Entry Stack's Details tab in edit mode, Type *Crew Maneuver* and Crew Maneuver Type *Strike*; cropped. |
+| [crew-types.png](media/crew-types.png) | GM view: the Crew maneuver types window with the three default types and an added *Overwatch*. |
+| [crew-turn-tab.png](media/crew-turn-tab.png) | Mags's Turn tab, out of combat: Entry Stack armed, with Fire · Heavy Pistol and stand down; cropped to the panel. |
+| [crew-turn-incoming.png](media/crew-turn-incoming.png) | Mags's Turn tab: Juno's Spotter Mark (Overwatch, fired by the rest of the crew) with Mags's Fire button; cropped. |
+| [crew-card-cam.png](media/crew-card-cam.png) | Chat, Combo cam: Mags's Entry Stack in round 1, turn 1. |
+| [crew-card-cam-duo.png](media/crew-card-cam-duo.png) | Chat, Combo cam: Mags firing Juno's Spotter Mark, two staggered feeds; cropped above the log's scroll button. |
+| [crew-card-feed.png](media/crew-card-feed.png) | Chat, Glitch feed: the same Entry Stack card after the style was switched. |
 
 ## Reading these examples
 

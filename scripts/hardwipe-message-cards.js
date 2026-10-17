@@ -19,7 +19,7 @@ const pad = n => String(Math.max(0, Math.trunc(Number(n) || 0))).padStart(2, "0"
 // Kind -> icon. The kind also picks the colour (--hw-c-sys-<kind> / --hw-c-msg-<kind>).
 const SYSTEM_ICONS = {
   edge: "fa-bolt", downed: "fa-heart-crack", flatlined: "fa-skull", shield: "fa-shield-halved", breach: "fa-burst",
-  heat: "fa-temperature-arrow-up", calm: "fa-temperature-arrow-down", lockdown: "fa-lock", wall: "fa-block-brick", review: "fa-gavel", crew: "fa-people-group"
+  heat: "fa-temperature-arrow-up", calm: "fa-temperature-arrow-down", lockdown: "fa-lock", wall: "fa-block-brick", review: "fa-gavel"
 };
 const ROLL_KINDS = { hitDie: ["hitDie", "fa-heart-pulse"], hitPoints: ["hitPoints", "fa-heart"], generic: ["formula", "fa-calculator"], recharge: ["recharge", "fa-battery-half"] };
 export const HEAT_STYLES = ["broadcast", "feed", "scanner"];
