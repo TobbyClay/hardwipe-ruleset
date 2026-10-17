@@ -124,6 +124,7 @@ test("the CREW card: one camera for its owner, two staggered for a crewmate, a k
   assert.equal(solo.match(/class="hwcc-feed"/g).length, 1);
   const duo = crewCardMarkup("cam", { ...words, setter: juno, firer: mags });
   assert.match(duo, /is-cam is-duo/);
+  assert.doesNotMatch(duo, /reticle/);
   assert.equal(duo.match(/class="hwcc-feed"/g).length, 2);
   assert.match(duo, /cam 01 · &lt;b&gt;Juno&lt;\/b&gt;/);
   assert.doesNotMatch(duo, /<b>Juno<\/b>/);
