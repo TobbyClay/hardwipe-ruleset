@@ -38,11 +38,11 @@
       {{/if}}
     </div>
 
-    <section class="hardwipe-netlink {{#unless waiting.count}}is-idle{{/unless}}" role="group" aria-label="{{labels.waiting}}">
+    {{#if waiting.show}}
+    <section class="hardwipe-netlink" role="group" aria-label="{{labels.waiting}}">
       <header class="hardwipe-netlink-head">
         <span>&gt; netlink://{{waiting.handle}}</span>
-        {{#if waiting.count}}<span class="hardwipe-netlink-count">{{waiting.countLabel}}</span>
-        {{else}}<span>{{labels.netIdle}}<i class="hardwipe-netlink-cursor" inert></i></span>{{/if}}
+        {{#if waiting.count}}<span class="hardwipe-netlink-count">{{waiting.countLabel}}</span>{{/if}}
       </header>
       {{#if waiting.sent}}
       <div class="hardwipe-netlink-entry is-sent">
@@ -73,47 +73,38 @@
         aria-expanded="{{waiting.expanded}}"><span>&gt; {{waiting.moreLabel}}</span><b>{{waiting.toggleLabel}}</b></button>
       {{/if}}
     </section>
+    {{/if}}
 
     {{#if crew.show}}
-    <div class="hardwipe-turn-crew" role="group" aria-label="{{crew.label}}">
-      <span class="hardwipe-turn-crew-label"><i class="fas fa-people-group" inert></i> {{crew.label}}</span>
-      {{#each crew.own}}
-      <div class="hardwipe-turn-crew-row is-own" data-effect-id="{{effectId}}">
-        <img src="{{img}}" alt="">
-        <span class="hardwipe-turn-crew-what">
-          <span class="hardwipe-turn-crew-name"><b>{{name}}</b> <span class="hardwipe-turn-crew-primed">{{primed}}</span></span>
-          <small>{{#if cost}}<span class="{{costTone}}">{{cost}}</span> · {{/if}}{{hint}}</small>
+    <section class="hardwipe-crewlink" role="group" aria-label="{{crew.label}}">
+      <header class="hardwipe-crewlink-head">
+        <span><i class="fas fa-people-group" inert></i> &gt; crewlink://{{crew.handle}}</span>
+        <span class="hardwipe-crewlink-count">{{crew.count}}</span>
+      </header>
+      {{#each crew.rows}}
+      <div class="hardwipe-crewlink-entry {{#if own}}is-own{{else}}is-ally{{/if}} {{tone}}" data-effect-id="{{effectId}}">
+        <span class="hardwipe-crewlink-hex"><img src="{{img}}" alt=""></span>
+        <span class="hardwipe-crewlink-body">
+          <span class="hardwipe-crewlink-kind">{{#if own}}<i class="hardwipe-crewlink-led" inert></i>{{/if}}{{tag}}</span>
+          <span class="hardwipe-crewlink-name">{{{title}}}</span>
+          {{#if text}}<span class="hardwipe-crewlink-text {{#if clamp}}is-clamped{{/if}}" {{#if clamp}}data-tooltip="{{text}}"{{/if}}>{{text}}</span>{{/if}}
         </span>
         {{#if canCancel}}
-        <button type="button" class="unbutton always-interactive hardwipe-turn-drop" data-action="hardwipeTurn" data-turn-action="crew-cancel" data-effect-id="{{effectId}}"
-          aria-label="{{cancel}}: {{name}}" data-tooltip="{{cancel}}"><i class="fas fa-xmark" inert></i></button>
+        <button type="button" class="unbutton always-interactive hardwipe-crewlink-drop" data-action="hardwipeTurn" data-turn-action="crew-cancel" data-effect-id="{{effectId}}"
+          aria-label="{{cancelLabel}}" data-tooltip="{{cancelLabel}}"><i class="fas fa-xmark" inert></i></button>
         {{/if}}
-        <span class="hardwipe-turn-crew-fire">
-          {{#if attack}}
-          {{#each weapons}}
-          <button type="button" class="always-interactive hardwipe-btn is-primary" data-action="hardwipeTurn" data-turn-action="crew-trigger"
-            data-effect-id="{{../effectId}}" data-item-id="{{itemId}}" data-activity-id="{{activityId}}" {{#unless ../canTrigger}}disabled{{/unless}}
-            aria-label="{{../fire}}: {{name}}{{#if meta}} · {{meta}}{{/if}}" data-tooltip="{{meta}}"><i class="fas fa-crosshairs" inert></i> {{../fire}} · {{name}}</button>
-          {{else}}
-          <small class="hardwipe-turn-crew-none">{{noWeapon}}</small>
+        {{#if buttons.length}}
+        <span class="hardwipe-crewlink-actions">
+          {{#each buttons}}
+          <button type="button" class="always-interactive hardwipe-crewlink-fire" data-action="hardwipeTurn" data-turn-action="crew-trigger"
+            data-effect-id="{{../effectId}}" data-setter="{{setter}}" data-kind="{{kind}}" data-item-id="{{itemId}}" data-activity-id="{{activityId}}"
+            {{#if tooltip}}data-tooltip="{{tooltip}}"{{/if}}><i class="fas {{icon}}" inert></i> {{label}}</button>
           {{/each}}
-          {{else}}
-          <button type="button" class="always-interactive hardwipe-btn is-primary" data-action="hardwipeTurn" data-turn-action="crew-trigger"
-            data-effect-id="{{effectId}}" {{#unless canTrigger}}disabled{{/unless}}><i class="fas fa-bolt" inert></i> {{triggerLabel}}</button>
-          {{/if}}
         </span>
+        {{/if}}
       </div>
       {{/each}}
-      {{#each crew.allies}}
-      <div class="hardwipe-turn-crew-row is-ally">
-        <img src="{{img}}" alt="">
-        <span class="hardwipe-turn-crew-what">
-          <span class="hardwipe-turn-crew-name">{{{setUp}}}</span>
-          {{#if description}}<small class="hardwipe-turn-crew-desc" data-tooltip="{{description}}">{{description}}</small>{{/if}}
-        </span>
-      </div>
-      {{/each}}
-    </div>
+    </section>
     {{/if}}
 
     {{#if inCombat}}

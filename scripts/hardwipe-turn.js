@@ -1,6 +1,6 @@
 import { MODULE_ID, EdgeManager, StrikesManager, DownedManager, canControlActor, plainActivityLabel, responsibleFor } from "./hardwipe-state.js";
 import { CyberwareManager } from "./hardwipe-cyberware.js";
-import { CrewManager, crewData, crewSettings } from "./hardwipe-crew.js";
+import { CrewManager, crewData } from "./hardwipe-crew.js";
 import { pendingSaveTargets, rollPendingSaves } from "./hardwipe-attack-cards.js";
 import { pendingConcentration, rollConcentrationRequest } from "./hardwipe-concentration.js";
 import { RollRequestComposer, abilityAbbr, createRequest, parseRoll, pendingFor, rollFor, rollName } from "./hardwipe-requests.js";
@@ -242,9 +242,9 @@ export class TurnTracker {
     for (const hook of ["createActiveEffect", "updateActiveEffect", "deleteActiveEffect"]) {
       Hooks.on(hook, effect => { if (crewData(effect)) this._refreshAll(); });
     }
-    // A crew maneuver's name, description or settings are what the other crew members' reminders show.
+    // A crew maneuver's name, description or type are what the other crew members' reminders show.
     Hooks.on("updateItem", (item, changes) => {
-      if (crewSettings(item) || foundry.utils.hasProperty(changes, `flags.${MODULE_ID}.crew`)) this._refreshAll();
+      if (CrewManager.rule(item) || foundry.utils.hasProperty(changes, "system.type")) this._refreshAll();
     });
     Hooks.on("updateToken", (token, changes) => {
       if (["x", "y", "elevation", "_movementHistory", "movementAction"].some(key => key in changes)) this._refreshActor(token.actor);
@@ -426,21 +426,29 @@ export class TurnTracker {
   }
 
   /**
-   * Fire a primed Crew Maneuver. An attack payoff then rolls the chosen weapon; in combat it costs the reaction, which
-   * only warns when spent, like the bands.
+   * Fire a primed Crew Maneuver: this character's own (no setter), or a crewmate's that the crew may fire (the setter's
+   * UUID). A weapon payoff then rolls this character's weapon and, in combat, costs the reaction (which only warns
+   * when spent, like the bands); an activity payoff uses the feature's activity, which costs what it says.
    */
   static async crewTrigger(actor, target, event, sheet) {
-    const item = actor.items.get(target.dataset.itemId);
-    const activity = item?.system.activities?.get(target.dataset.activityId) ?? null;
-    if (target.dataset.itemId && !activity) return;
+    const { effectId, setter, itemId, activityId, kind } = target.dataset;
+    const item = actor.items.get(itemId);
+    const activity = item?.system.activities?.get(activityId) ?? null;
+    if (itemId && !activity) return;
     const now = this.now(actor);
-    if (activity && now && this.economy(actor, now).economy.reaction.spent) {
+    const weapon = kind === "weapon";
+    if (weapon && now && this.economy(actor, now).economy.reaction.spent) {
       ui.notifications.warn(game.i18n.format("HARDWIPE.Turn.AlreadySpent", { slot: game.i18n.localize("HARDWIPE.Turn.Slot.reaction") }));
     }
-    if (!await CrewManager.trigger(actor, target.dataset.effectId) || !activity) return;
-    if (now) this._pending.set(activity.uuid, "reaction");
+    const fired = setter ? await CrewManager.fireAsCrew(await fromUuid(setter), effectId, actor) : await CrewManager.trigger(actor, effectId);
+    if (!fired || !activity) return;
+    if (weapon && now) this._pending.set(activity.uuid, "reaction");
+    if (kind === "activity") CrewManager._payoffUses.add(activity.uuid);
     try { return await activity.use({ event }, { options: { sheet } }); }
-    finally { this._pending.delete(activity.uuid); }
+    finally {
+      this._pending.delete(activity.uuid);
+      CrewManager._payoffUses.delete(activity.uuid);
+    }
   }
 
   /** Use an option from a band. A spent band only warns: Action Surge and GM rulings exist. */
@@ -582,13 +590,16 @@ export class TurnTracker {
     });
     const { shown, more, expanded } = limitWaiting(ordered, waitingLimit(), netlinkOpen);
     const sent = this._sent.get(actor.uuid);
+    const sentNow = sent && sent.until > Date.now() ? sent : null;
     return {
+      // Nothing waiting and nothing just sent: no strip at all.
+      show: ordered.length > 0 || !!sentNow,
       items: shown, count: ordered.length, more, expanded,
       handle: actor.name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "") || "unit",
       countLabel: ordered.length === 1 ? net("CountOne") : net("Count", { count: ordered.length }),
       moreLabel: expanded ? net("AllShown", { count: ordered.length }) : net("More", { count: more }),
       toggleLabel: net(expanded ? "ShowFewer" : "ShowAll"),
-      sent: sent && sent.until > Date.now() ? sent : null
+      sent: sentNow
     };
   }
 
@@ -643,8 +654,9 @@ export class TurnTracker {
       const cyberware = CyberwareManager.isCyberware(item);
       // A carried implant can't activate; an installed one that is offline shows why.
       if (cyberware && !CyberwareManager.getState(item).installed) continue;
+      // A crew maneuver's payoff activities are used through its Fire button, not from the bands.
       const activities = [...(item.system.activities ?? [])].filter(activity => !activity.isHidden && !activity.midiProperties?.automationOnly
-        && activity.activation?.type && activity.activation.type !== "none");
+        && activity.activation?.type && activity.activation.type !== "none" && !CrewManager.isPayoffActivity(item, activity));
       const bySlot = new Map();
       for (const activity of activities) {
         const slot = slotFor(activity.activation.type) ?? "outside";
@@ -788,7 +800,7 @@ function optionEntry(item, activity, slot, several, slotsLeft, { opportunity = f
   if (group === "program") tag = level ? game.i18n.format("HARDWIPE.Turn.Tag.level", { level }) : t("Tag.cantrip");
   else if (uses) tag = `${uses.value ?? 0}/${uses.max}`;
   else if ((item.system.quantity ?? 1) > 1 && group === "gear") tag = `×${item.system.quantity}`;
-  const crew = !!crewSettings(item);
+  const crew = !!CrewManager.rule(item);
   if (crew && !tag) tag = t("Tag.crew");
 
   let note = opportunity ? t("Note.opportunity") : "";
@@ -903,7 +915,7 @@ function labels() {
   return {
     title: t("Title"), movement: t("Movement"), standard: t("StandardActions"), programs: t("Programs"), running: t("Running"),
     waiting: t("Waiting.Label"), roll: t("Waiting.Roll"), requestCheck: t("Request.Button"),
-    netIdle: t("Net.Idle"), netSent: t("Net.Sent"), dcHidden: t("Net.DcHidden"),
+    netSent: t("Net.Sent"), dcHidden: t("Net.DcHidden"),
     conditions: t("Conditions"), runningPrograms: t("RunningPrograms"), noPrograms: t("NoPrograms"), noConditions: t("NoConditions"),
     resources: t("Resources"), attacks: t("Attacks"), attacksLeft: t("AttacksLeftLabel"), economy: t("Economy"), noCombat: t("NoCombat"), unstaged: t("Unstaged"), yourTurn: t("YourTurn"),
     upNow: t("UpNow"), nothing: t("Nothing"), dashOn: t("DashOn"), noToken: t("NoToken"), slots: t("Slots"),

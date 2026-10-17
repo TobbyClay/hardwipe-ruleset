@@ -152,18 +152,34 @@ The tracker keeps its data in two world settings: the session in play with the u
 
 ## Crew maneuvers
 
-Any feat can be a crew maneuver:
+A crew maneuver is a feat whose **Feature Type** is **Crew Maneuver**. Its subtype, the second dropdown, is one of your **crew maneuver types**:
 
-1. On its **Details** tab, turn on **Crew maneuver** and choose **When fired**: *One weapon attack (reaction)* or *Post the card only*.
-2. Give it the activity that sets it up, such as a utility activity on a bonus action. Using that activity primes it on the character.
-3. Write its **description** for the rest of the crew: they read *Mags has set up Entry Stack:* followed by it on their Turn tab. Say what sets it off and what happens.
+1. In the feat's **Details** tab (switch the sheet to edit mode), set **Type** to *Crew Maneuver* and **Crew Maneuver Type** to the kind of maneuver.
+2. Its **first activity** sets it up, for example a utility activity on a bonus action. For a type whose payoff is a feature activity, its other activities are what Fire uses; they stay off the Turn tab's bands.
+3. Write its **description** for the rest of the crew: they read *Mags has set up Entry Stack:* followed by it. Say what sets it off and what happens. GM secret blocks are never shown.
 4. Give it to characters like any other feature.
 
-<img src="media/crew-setup.png" alt="Entry Stack's Details tab with the Crew maneuver fieldset: Crew maneuver ticked and When fired set to One weapon attack (reaction)" width="420">
+<img src="media/crew-setup.png" alt="Entry Stack's Details tab: Type set to Crew Maneuver and Crew Maneuver Type set to Strike" width="420">
 
-For example, **Entry Stack**: a *Stack up* utility activity on a bonus action, *When fired* set to one weapon attack, and the description *"Stack up beside a closed door. When an ally opens it, use your reaction to make one weapon attack through the doorway, at the same moment as the ally."*
+**Crew maneuver types** (Game Settings → Hardwipe Ruleset → Crew maneuver types) are yours to define. Each has a name and three rules:
 
-Players fire their own maneuvers from the Turn tab (see the [player guide](Players.md#crew-maneuvers)); you can press **Fire**, **Trigger** or **×** on a character's Turn tab for them. Your client removes a primed maneuver when its owner's next turn starts, or when the combat it was set up in is deleted. The CREW card's colour is under **Card colours**.
+| Rule | Choices |
+| --- | --- |
+| When fired | **Weapon attack**: the firer rolls a drawn weapon, using their reaction. **Feature activity**: the feature's other activities; always fired by its owner. **Card only**: the CREW card, nothing rolled. |
+| Fired by | **Its owner**, or the **rest of the crew** (anyone else in the fight, or on the scene before one, fires it from their crewlink). |
+| Lasts | **Owner's next turn**, **end of the round**, or **until used**. |
+
+<img src="media/crew-types.png" alt="Crew maneuver types window: Strike, Support, Signal and Overwatch with When fired, Fired by and Lasts for each" width="560">
+
+A world starts with **Strike** (weapon attack, its owner, next turn), **Support** (feature activity) and **Signal** (card only, the rest of the crew, end of the round). Renaming a type keeps its features; removing one leaves them card-only until they get a new type.
+
+For example, **Entry Stack**: a Strike with a *Stack up* utility activity on a bonus action, and the description *"Stack up beside a closed door. When an ally opens it, use your reaction to make one weapon attack through the doorway, at the same moment as the ally."*
+
+**The CREW card** has two styles, a world setting (**CREW card style**): **Combo cam**, the default, shows the crew's camera feeds (two staggered cameras when a crewmate fires someone else's maneuver), and **Glitch feed** is a compact kill-feed line. Cards already in the log redraw when you change it; the entrance plays once, never with reduced motion. Its colour is under **Card colours**.
+
+<img src="media/crew-card-feed.png" alt="CREW card, Glitch feed: crew link, Strike, Mags >> Entry Stack, triggered by QA Player, Executed stamp" width="250">
+
+You can press **Fire**, **Trigger** or **×** on a character's Turn tab for them. A crewmate firing someone else's maneuver needs a GM online: your client removes it from its owner. Your client also removes a maneuver when its time is up, or when the combat it was set up in is deleted (unless it lasts until used).
 
 ## Braindance
 
