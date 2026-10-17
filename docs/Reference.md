@@ -47,6 +47,7 @@ Use the managers instead of writing flags directly so ownership, queue, service,
 | `game.hardwipe.shields.damage(item, amount)` | Change shield HP through the manager |
 | `game.hardwipe.shields.heal(item, amount)` / `.repair(item)` | Recover shield durability |
 | `game.hardwipe.edge` / `.strikes` / `.heat` | Character resources and scene escalation |
+| `game.hardwipe.crew` | Crew maneuvers: `settings(item)`, `primed(actor)`, `trigger(actor, effectId)`, `cancel(actor, effectId)` |
 
 | Stored data | Location |
 | --- | --- |
@@ -55,6 +56,7 @@ Use the managers instead of writing flags directly so ownership, queue, service,
 | Wall durability | Wall `flags["hardwipe-ruleset"].cover` |
 | Wall history and duplicate receipts | Scene Hardwipe flags |
 | Saving-throw roster | Message `flags["hardwipe-ruleset"].saves` |
+| Crew maneuver | Feat `flags["hardwipe-ruleset"].crew`: `enabled`, `payoff` (`attack` or `card`); its description is the crew's reminder. Primed effect `flags["hardwipe-ruleset"].crew`: `item`, `payoff`, `stamp` (combat, round, turn, or null before a fight), with a copy of the description |
 | Linked save result | Save message `flags.dnd5e.originatingMessage` |
 | Per-spell card color | Spell `flags["hardwipe-ruleset"].cardColor` |
 | Turn panel ledger | Actor `flags["hardwipe-ruleset"].turnLedger`: `combat`, `round`, `turn`, `action`, `bonus`, `attacks`, `moves` (standard actions taken and what paid for them), `reaction`; cleared when the actor's turn starts |

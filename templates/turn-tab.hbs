@@ -74,6 +74,48 @@
       {{/if}}
     </section>
 
+    {{#if crew.show}}
+    <div class="hardwipe-turn-crew" role="group" aria-label="{{crew.label}}">
+      <span class="hardwipe-turn-crew-label"><i class="fas fa-people-group" inert></i> {{crew.label}}</span>
+      {{#each crew.own}}
+      <div class="hardwipe-turn-crew-row is-own" data-effect-id="{{effectId}}">
+        <img src="{{img}}" alt="">
+        <span class="hardwipe-turn-crew-what">
+          <span class="hardwipe-turn-crew-name"><b>{{name}}</b> <span class="hardwipe-turn-crew-primed">{{primed}}</span></span>
+          <small>{{#if cost}}<span class="{{costTone}}">{{cost}}</span> · {{/if}}{{hint}}</small>
+        </span>
+        {{#if canCancel}}
+        <button type="button" class="unbutton always-interactive hardwipe-turn-drop" data-action="hardwipeTurn" data-turn-action="crew-cancel" data-effect-id="{{effectId}}"
+          aria-label="{{cancel}}: {{name}}" data-tooltip="{{cancel}}"><i class="fas fa-xmark" inert></i></button>
+        {{/if}}
+        <span class="hardwipe-turn-crew-fire">
+          {{#if attack}}
+          {{#each weapons}}
+          <button type="button" class="always-interactive hardwipe-btn is-primary" data-action="hardwipeTurn" data-turn-action="crew-trigger"
+            data-effect-id="{{../effectId}}" data-item-id="{{itemId}}" data-activity-id="{{activityId}}" {{#unless ../canTrigger}}disabled{{/unless}}
+            aria-label="{{../fire}}: {{name}}{{#if meta}} · {{meta}}{{/if}}" data-tooltip="{{meta}}"><i class="fas fa-crosshairs" inert></i> {{../fire}} · {{name}}</button>
+          {{else}}
+          <small class="hardwipe-turn-crew-none">{{noWeapon}}</small>
+          {{/each}}
+          {{else}}
+          <button type="button" class="always-interactive hardwipe-btn is-primary" data-action="hardwipeTurn" data-turn-action="crew-trigger"
+            data-effect-id="{{effectId}}" {{#unless canTrigger}}disabled{{/unless}}><i class="fas fa-bolt" inert></i> {{triggerLabel}}</button>
+          {{/if}}
+        </span>
+      </div>
+      {{/each}}
+      {{#each crew.allies}}
+      <div class="hardwipe-turn-crew-row is-ally">
+        <img src="{{img}}" alt="">
+        <span class="hardwipe-turn-crew-what">
+          <span class="hardwipe-turn-crew-name">{{{setUp}}}</span>
+          {{#if description}}<small class="hardwipe-turn-crew-desc" data-tooltip="{{description}}">{{description}}</small>{{/if}}
+        </span>
+      </div>
+      {{/each}}
+    </div>
+    {{/if}}
+
     {{#if inCombat}}
     <div class="hardwipe-turn-economy" role="group" aria-label="{{labels.economy}}">
       {{#each economy}}

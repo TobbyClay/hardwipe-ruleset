@@ -3090,6 +3090,7 @@ button.hardwipe-web-tab:not([aria-selected="true"]):hover { color: var(--hw-hi);
 .hardwipe-chat-card[data-hw-kind="wall"] { --hw-accent: var(--hw-c-sys-wall, #8fcfb0); }
 .hardwipe-chat-card[data-hw-kind="breach"] { --hw-accent: var(--hw-c-sys-breach, #ff3f5f); }
 .hardwipe-chat-card[data-hw-kind="review"] { --hw-accent: var(--hw-c-sys-review, #ffc24d); }
+.hardwipe-chat-card[data-hw-kind="crew"] { --hw-accent: var(--hw-c-sys-crew, #ff6fb5); }
 .hardwipe-chat-card:is([data-hw-kind="hitDie"], [data-hw-kind="hitPoints"], [data-hw-kind="formula"], [data-hw-kind="recharge"], [data-hw-kind="roll"]) { --hw-accent: var(--hw-c-msg-roll, #8fcfb0); }
 .hardwipe-chat-card[data-hw-kind="turn"] { --hw-accent: var(--hw-c-msg-turn, #b48cff); }
 .hardwipe-chat-card[data-hw-kind="request"] { --hw-accent: var(--hw-c-msg-request, #ffc24d); }

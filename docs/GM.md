@@ -150,6 +150,21 @@ A box beside the chat asks the GM what was happening. **Enter** or the check mar
 
 The tracker keeps its data in two world settings: the session in play with the unfiled rolls, written about a second after rolls arrive, and the finished sessions, written only when sessions change.
 
+## Crew maneuvers
+
+Any feat can be a crew maneuver:
+
+1. On its **Details** tab, turn on **Crew maneuver** and choose **When fired**: *One weapon attack (reaction)* or *Post the card only*.
+2. Give it the activity that sets it up, such as a utility activity on a bonus action. Using that activity primes it on the character.
+3. Write its **description** for the rest of the crew: they read *Mags has set up Entry Stack:* followed by it on their Turn tab. Say what sets it off and what happens.
+4. Give it to characters like any other feature.
+
+<img src="media/crew-setup.png" alt="Entry Stack's Details tab with the Crew maneuver fieldset: Crew maneuver ticked and When fired set to One weapon attack (reaction)" width="420">
+
+For example, **Entry Stack**: a *Stack up* utility activity on a bonus action, *When fired* set to one weapon attack, and the description *"Stack up beside a closed door. When an ally opens it, use your reaction to make one weapon attack through the doorway, at the same moment as the ally."*
+
+Players fire their own maneuvers from the Turn tab (see the [player guide](Players.md#crew-maneuvers)); you can press **Fire**, **Trigger** or **×** on a character's Turn tab for them. Your client removes a primed maneuver when its owner's next turn starts, or when the combat it was set up in is deleted. The CREW card's colour is under **Card colours**.
+
 ## Braindance
 
 Run memories from the brain button in **Token Controls** (or **Alt+B**): pair player characters with NPCs, send sensory echoes, hide clues on the Visual, Audio and Thermal layers, mark and replay moments, and choose whether wall damage and Heat from the memory roll back when it ends. See the [Braindance guide](Braindance.md).

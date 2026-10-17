@@ -1,5 +1,6 @@
-import { MODULE_ID, EdgeManager, StrikesManager, DownedManager, canControlActor, plainActivityLabel } from "./hardwipe-state.js";
+import { MODULE_ID, EdgeManager, StrikesManager, DownedManager, canControlActor, plainActivityLabel, responsibleFor } from "./hardwipe-state.js";
 import { CyberwareManager } from "./hardwipe-cyberware.js";
+import { CrewManager, crewData, crewSettings } from "./hardwipe-crew.js";
 import { pendingSaveTargets, rollPendingSaves } from "./hardwipe-attack-cards.js";
 import { pendingConcentration, rollConcentrationRequest } from "./hardwipe-concentration.js";
 import { RollRequestComposer, abilityAbbr, createRequest, parseRoll, pendingFor, rollFor, rollName } from "./hardwipe-requests.js";
@@ -14,6 +15,8 @@ import { closedOf, limitWaiting, orderWaiting, waitingLimit } from "./hardwipe-c
  *   once it's gone, and Grapple and Shove one attack of the Attack action.
  * - "Waiting on you" lists the rolls this character owes: a GM's targeted request (the GM's Request check posts
  *   one), a save on a spell or feature card, a concentration interrupt; each with its Roll button.
+ * - "Crew" lists this character's primed Crew Maneuvers with their payoff buttons (an attack payoff fires a drawn
+ *   weapon as a reaction), and what the rest of the crew has primed (hardwipe-crew.js).
  * - Reaction and bonus action: Ready Set Midi's marker effects decide whenever Midi tracks them for this actor's
  *   type, and a marker that is present always counts (Shield Block forces one). Otherwise Hardwipe's own ledger
  *   decides. Shield Block reads this same reaction in combat.
@@ -235,6 +238,14 @@ export class TurnTracker {
     Hooks.on("updateChatMessage", (message, changes) => {
       if (foundry.utils.hasProperty(changes, "flags.dnd5e.requestResult")) this._onAnswer(message);
     });
+    // A crew member priming or firing a maneuver changes every crew member's Crew group.
+    for (const hook of ["createActiveEffect", "updateActiveEffect", "deleteActiveEffect"]) {
+      Hooks.on(hook, effect => { if (crewData(effect)) this._refreshAll(); });
+    }
+    // A crew maneuver's name, description or settings are what the other crew members' reminders show.
+    Hooks.on("updateItem", (item, changes) => {
+      if (crewSettings(item) || foundry.utils.hasProperty(changes, `flags.${MODULE_ID}.crew`)) this._refreshAll();
+    });
     Hooks.on("updateToken", (token, changes) => {
       if (["x", "y", "elevation", "_movementHistory", "movementAction"].some(key => key in changes)) this._refreshActor(token.actor);
     });
@@ -409,7 +420,27 @@ export class TurnTracker {
         return;
       }
       case "drop-condition": return this.dropCondition(actor, target.dataset.effectId);
+      case "crew-trigger": return this.crewTrigger(actor, target, event, sheet);
+      case "crew-cancel": return CrewManager.cancel(actor, target.dataset.effectId);
     }
+  }
+
+  /**
+   * Fire a primed Crew Maneuver. An attack payoff then rolls the chosen weapon; in combat it costs the reaction, which
+   * only warns when spent, like the bands.
+   */
+  static async crewTrigger(actor, target, event, sheet) {
+    const item = actor.items.get(target.dataset.itemId);
+    const activity = item?.system.activities?.get(target.dataset.activityId) ?? null;
+    if (target.dataset.itemId && !activity) return;
+    const now = this.now(actor);
+    if (activity && now && this.economy(actor, now).economy.reaction.spent) {
+      ui.notifications.warn(game.i18n.format("HARDWIPE.Turn.AlreadySpent", { slot: game.i18n.localize("HARDWIPE.Turn.Slot.reaction") }));
+    }
+    if (!await CrewManager.trigger(actor, target.dataset.effectId) || !activity) return;
+    if (now) this._pending.set(activity.uuid, "reaction");
+    try { return await activity.use({ event }, { options: { sheet } }); }
+    finally { this._pending.delete(activity.uuid); }
   }
 
   /** Use an option from a band. A spent band only warns: Action Surge and GM rulings exist. */
@@ -702,6 +733,7 @@ export class TurnTracker {
     });
     view.outside = outside.map(entry => ({ ...entry, slot: "outside", canUse: canControl && !entry.off }));
     view.waiting = this.waiting(actor, canControl, { netlinkOpen, seen });
+    view.crew = CrewManager.context(actor, { canControl, inCombat: !!now, reactionSpent: !!economy?.reaction.spent });
     view.canRequest = game.user.isGM;
     view.outsideLabel = game.i18n.format("HARDWIPE.Turn.Outside", { count: outside.length });
 
@@ -756,6 +788,8 @@ function optionEntry(item, activity, slot, several, slotsLeft, { opportunity = f
   if (group === "program") tag = level ? game.i18n.format("HARDWIPE.Turn.Tag.level", { level }) : t("Tag.cantrip");
   else if (uses) tag = `${uses.value ?? 0}/${uses.max}`;
   else if ((item.system.quantity ?? 1) > 1 && group === "gear") tag = `×${item.system.quantity}`;
+  const crew = !!crewSettings(item);
+  if (crew && !tag) tag = t("Tag.crew");
 
   let note = opportunity ? t("Note.opportunity") : "";
   let off = false;
@@ -775,6 +809,7 @@ function optionEntry(item, activity, slot, several, slotsLeft, { opportunity = f
     note = t("Note.noSlots");
   }
   if (!note && labels.concentrationDuration && /concentration/i.test(labels.concentrationDuration)) note = t("Note.concentration");
+  if (!note && crew && item.parent?.effects?.some(effect => crewData(effect)?.item === item.id)) note = t("Note.crewPrimed");
   return {
     itemId: item.id, activityId: activity.id, uuid: item.uuid, img: item.img, name: item.name, group, level,
     sub: activity._source?.name ? plainActivityLabel(activity.name) : several ? plainActivityLabel(activity.name) : "",
@@ -911,14 +946,6 @@ function sameActor(a, b) { return !!a && !!b && (a === b || a.uuid === b.uuid); 
 function midiApi() {
   const active = game.modules.get("ready-set-midi")?.active || game.modules.get(MIDI)?.active;
   return active && globalThis.MidiQOL ? globalThis.MidiQOL : null;
-}
-
-/** The active GM, or with no GM online the actor's first active owner, so exactly one client writes. */
-function responsibleFor(actor) {
-  const gm = game.users.activeGM;
-  if (gm) return gm.isSelf;
-  const owners = game.users.filter(user => user.active && actor.testUserPermission(user, "OWNER")).sort((a, b) => a.id.localeCompare(b.id));
-  return owners[0]?.isSelf ?? false;
 }
 
 function reportError(error) {

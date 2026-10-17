@@ -214,6 +214,14 @@ export function canControlActor(actor) {
   return game.user.isGM || actor?.isOwner;
 }
 
+/** The active GM, or with no GM online the actor's first active owner, so exactly one client writes. */
+export function responsibleFor(actor) {
+  const gm = game.users.activeGM;
+  if (gm) return gm.isSelf;
+  const owners = game.users.filter(user => user.active && actor.testUserPermission(user, "OWNER")).sort((a, b) => a.id.localeCompare(b.id));
+  return owners[0]?.isSelf ?? false;
+}
+
 export function isCharacter(actor) {
   return resolveActor(actor)?.type === "character";
 }

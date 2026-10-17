@@ -154,6 +154,16 @@ Captured on **2026-10-15** from the local, unreleased Turn tab and roll calls (0
 | [roll-call-group.png](media/roll-call-group.png) | The group roll call resolved: two passes, one fail, Team passes. |
 | [roll-call-contest.png](media/roll-call-contest.png) | GM view of a Grapple contest from the Turn tab: Athletics 21 against 1, +20 margin, Apply Grappled. The dice for this capture were fixed in the QA client to show a challenger win. |
 
+## Crew maneuvers capture
+
+Captured on **2026-10-16** from the local Crew Maneuvers branch in a private copy of the disposable QA world, with a GM and two player clients, dark theme. *Entry Stack* and *Smoke Cover* are test features written for the capture; Mags and Juno are synthetic characters.
+
+| Published file | Subject |
+| --- | --- |
+| [crew-setup.png](media/crew-setup.png) | GM view: Entry Stack's Details tab with **Crew maneuver** on and **When fired** set to one weapon attack; cropped to the header and the fieldset. |
+| [crew-turn-tab.png](media/crew-turn-tab.png) | Mags's Turn tab, out of combat: her primed Entry Stack with Fire · Heavy Pistol and ×, and Juno's primed Smoke Cover with its description; cropped. |
+| [crew-cards.png](media/crew-cards.png) | Chat: the CREW cards for Smoke Cover (card only) and Entry Stack (followed by the attack, not shown); cropped from the player's log. |
+
 ## Reading these examples
 
 The later **Wall Effects development preview** adds three actual native captures from the same disposable GM/Player world on 2026-10-09. `wall-effects-item-preview.webp` shows the item dropdown with Half selected; `wall-effects-region-preview.webp` shows a saved Region override with Normal selected; `wall-area-review-preview.webp` shows the private GM review for a player cast, with original damage 30 and proposed section loss 10. They were cropped from full 1280 × 900 screenshots. No UI was recreated, and no campaign data is present. These images do not identify a published release.

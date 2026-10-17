@@ -50,6 +50,21 @@ The GM can post a **roll call**: a check or a save for one or more of you, with 
 
 - **Contests.** Grapple or Shove from the Turn tab with one creature targeted posts a contest card: your Athletics against its Athletics or Acrobatics (whoever controls it picks). When you defend, each button shows your bonus (**Athletics +5**, **Acrobatics +2**). The higher total wins and a tie goes to the defender; the card shows both totals and the margin, and the GM applies **Grappled** or **Prone** from it. With no target, or several, it's a plain Athletics roll.
 
+## Crew maneuvers
+
+A crew maneuver is a feature one character sets up and the rest of the crew pays off. What it does is written in the feature's description.
+
+| Your primed maneuver and a crewmate's | The CREW cards |
+| --- | --- |
+| <img src="media/crew-turn-tab.png" alt="Turn tab Crew group: Entry Stack primed with Fire · Heavy Pistol and stand down, and below it: Juno has set up Smoke Cover, with that feature's description" width="420"> | <img src="media/crew-cards.png" alt="Two CREW cards in chat: Juno triggers Smoke Cover, and Mags triggers Entry Stack, each with who triggered it" width="240"> |
+
+1. Use it from your Turn tab, where it's tagged **Crew**. Your token shows its icon.
+2. Your Turn tab's **Crew** group reads **Primed**, with a **Fire** button for each weapon you have drawn, or a **Trigger** button for a maneuver that doesn't end in an attack. Everyone else in the fight sees *Mags has set up Entry Stack:* and the feature's description.
+3. When the moment comes, press **Fire** or **Trigger**. The CREW card goes to chat, and an attack goes to the GM's review like any other. In combat the attack uses your reaction; if that's already spent, the row says so and Fire only warns.
+4. **×** stands down without using it.
+
+Nothing watches the table: the crew says when it happens, and you press the button. A maneuver lasts until the start of your next turn. One set up before a fight lasts until it's used or your first turn in the fight starts.
+
 ## Edge, Strikes, and Downed
 
 ![Current Edge meter, expanded Strikes tray, unavailable implant actions, and shield HP in Inventory](media/resources-shield-current.png)

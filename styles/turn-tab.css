@@ -482,6 +482,55 @@
   .hardwipe-netlink-cursor, .hardwipe-netlink-entry { animation: none !important; }
 }
 
+/* Crew: primed Crew Maneuvers, in the CREW card's colour. Own rows carry the payoff; crew rows are reminders. */
+.hardwipe-turn-crew {
+  --hw-turn-crew: var(--hw-c-sys-crew, #ff6fb5);
+  /* Text in the crew colour, pulled toward the theme's ink so it reads on light and dark sheets alike. */
+  --hw-turn-crew-ink: color-mix(in srgb, var(--hw-turn-crew) 68%, var(--color-text-primary, #222));
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  padding: 6px 8px 7px 11px;
+  border: 1px solid color-mix(in srgb, var(--hw-turn-crew) 60%, transparent);
+  border-left: 3px solid var(--hw-turn-crew);
+  border-radius: 4px;
+  background: color-mix(in srgb, var(--hw-turn-crew) 9%, transparent);
+}
+.hardwipe-turn-crew-label { color: var(--hw-turn-crew-ink); font: var(--hw-turn-caps); letter-spacing: 0.08em; text-transform: uppercase; }
+.hardwipe-turn-crew-label > i { margin-right: 3px; font-size: 9px; }
+.hardwipe-turn-crew-row { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; min-height: 26px; }
+.hardwipe-turn-crew-row + .hardwipe-turn-crew-row { padding-top: 5px; border-top: var(--dnd5e-border-dotted, 1px dotted var(--hw-turn-line)); }
+/* Effect icons are often white SVGs: a dark tile keeps them visible on a light sheet. */
+.hardwipe-turn-crew-row > img { flex: none; width: 22px; height: 22px; padding: 2px; border: 0; border-radius: 3px; background: #14171b; }
+.hardwipe-turn-crew-what { display: flex; flex: 1; flex-direction: column; min-width: 0; }
+.hardwipe-turn-crew-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: var(--font-size-12, 12px); }
+.hardwipe-turn-crew-name > b { font: 700 var(--font-size-13, 13px) / 1.15 var(--dnd5e-font-roboto-slab, serif); }
+.hardwipe-turn-crew-primed {
+  margin-left: 4px;
+  padding: 1px 5px;
+  color: var(--hw-turn-crew-ink);
+  border: 1px solid color-mix(in srgb, var(--hw-turn-crew) 70%, transparent);
+  border-radius: 3px;
+  font: var(--hw-turn-caps);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.hardwipe-turn-crew-what > small { color: var(--color-text-secondary); font-size: var(--font-size-11, 11px); }
+.hardwipe-turn-crew-what > small > .is-warn { color: var(--hw-turn-warn); font-weight: 700; }
+.hardwipe-turn-crew-fire { display: flex; flex-basis: 100%; flex-wrap: wrap; gap: 4px; padding-left: 30px; }
+.hardwipe-turn-crew-fire:empty { display: none; }
+.hardwipe-turn-crew-fire button.hardwipe-btn.hardwipe-btn { --hardwipe-control: 22px; font-size: 10px; }
+.hardwipe-turn-crew-none { color: var(--color-text-secondary); font-style: italic; }
+.hardwipe-turn-crew-row.is-ally .hardwipe-turn-crew-name { white-space: normal; }
+/* The feature's description, up to three lines; the tooltip has all of it. */
+.hardwipe-turn-crew-what > .hardwipe-turn-crew-desc {
+  display: -webkit-box;
+  overflow: hidden;
+  color: var(--color-text-primary);
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+}
+
 /* ---- Status cards: running programs and conditions, Edge and Strikes ---- */
 .hardwipe-turn-card { margin-top: 10px; overflow: hidden; }
 .hardwipe-turn-programs,
