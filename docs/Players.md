@@ -31,7 +31,7 @@ The hourglass tab is your **Turn** helper: where your turn stands, and what you 
 - **What's greyed and why.** A spent band greys its options (mid-attack, only your weapons stay lit); using one anyway only warns you, since Action Surge exists. An option also says why it may not work now: **Not drawn**, **No uses left**, **No slots left**, an implant that's **Offline** or **Damaged**.
 - **Opportunity attacks.** Your equipped melee weapons also sit in the Reaction band. On someone else's turn, attacking with one from there spends your reaction.
 - **Standard actions.** At the foot of the Action band, one row each for Dash, Disengage, Dodge, Hide, Grapple and Shove, with what it does and what it would cost right now. Dash, Disengage and Hide fall back to your bonus action once the action is gone, as Cunning Action allows. Dash doubles your movement, Dodge puts **Dodging** on you until your next turn, and Hide rolls Stealth. Grapple and Shove take one attack of your Attack action and roll Athletics; with exactly one creature targeted they post a [contest](#roll-calls-and-contests) instead. Click a taken row again to take it back. Help, Ready, Search and the like have nothing to track, so just tell the table.
-- **Netlink.** The terminal strip above the chips lists the rolls the table is waiting on you for, each with a solid **Roll** button, so you don't have to dig through chat. Red is a save you owe right now (**Interrupt** for concentration, **Save** for a spell's save), amber a GM's **Roll call**, cyan a **Contest**. It says **DC 12**, or **DC hidden** when the GM keeps it to themselves. Saves you owe now come first; past the GM's limit the rest fold under **Show all**. After you roll, the strip shows **Sent to the GM** with your total for a few seconds. With nothing pending it reads *netlink idle*.
+- **Netlink.** The terminal strip above the chips lists the rolls the table is waiting on you for, each with a solid **Roll** button, so you don't have to dig through chat. Red is a save you owe right now (**Interrupt** for concentration, **Save** for a spell's save), amber a GM's **Roll call**, cyan a **Contest**. It says **DC 12**, or **DC hidden** when the GM keeps it to themselves. Saves you owe now come first; past the GM's limit the rest fold under **Show all**. After you roll, the strip shows **Sent to the GM** with your total for a few seconds. With nothing pending there is no strip.
 - **Running programs and conditions.** What you're concentrating on, with **End program**, and every condition on you with **×** to clear it. Exhaustion comes off one level at a time; a condition that comes from an item, such as an implant, isn't cleared here.
 - **Edge & Strikes.** The same Edge and Strikes as the sidebar, with **Spend**, and **Recover · 1 Edge** while you're Downed.
 
@@ -52,18 +52,29 @@ The GM can post a **roll call**: a check or a save for one or more of you, with 
 
 ## Crew maneuvers
 
-A crew maneuver is a feature one character sets up and the rest of the crew pays off. What it does is written in the feature's description.
+A crew maneuver is a feature one character sets up and the rest of the crew pays off. What it does is written in the feature's description; its type (Strike, Overwatch and so on) decides who fires it and how long it lasts.
 
-| Your primed maneuver and a crewmate's | The CREW cards |
+| Your armed maneuver | A crewmate's, that you fire |
 | --- | --- |
-| <img src="media/crew-turn-tab.png" alt="Turn tab Crew group: Entry Stack primed with Fire · Heavy Pistol and stand down, and below it: Juno has set up Smoke Cover, with that feature's description" width="420"> | <img src="media/crew-cards.png" alt="Two CREW cards in chat: Juno triggers Smoke Cover, and Mags triggers Entry Stack, each with who triggered it" width="240"> |
+| <img src="media/crew-turn-tab.png" alt="Crewlink panel: Armed · Strike, Entry Stack, Reaction · one weapon attack, with Fire · Heavy Pistol and stand down" width="360"> | <img src="media/crew-turn-incoming.png" alt="Crewlink panel: Juno · Overwatch, Juno has set up Spotter Mark, its description, and Fire · Heavy Pistol" width="360"> |
 
-1. Use it from your Turn tab, where it's tagged **Crew**. Your token shows its icon.
-2. Your Turn tab's **Crew** group reads **Primed**, with a **Fire** button for each weapon you have drawn, or a **Trigger** button for a maneuver that doesn't end in an attack. Everyone else in the fight sees *Mags has set up Entry Stack:* and the feature's description.
-3. When the moment comes, press **Fire** or **Trigger**. The CREW card goes to chat, and an attack goes to the GM's review like any other. In combat the attack uses your reaction; if that's already spent, the row says so and Fire only warns.
+1. Use it from your Turn tab, where it's tagged **Crew**. It's now **armed**: your token shows its icon, and your Turn tab's **crewlink** panel lists it with how long it lasts.
+2. The rest of the crew sees *Mags has set up Entry Stack:* and the feature's description in their own crewlink.
+3. When the moment comes, whoever fires it presses the button:
+   - a **Fire · weapon** button rolls that weapon and uses the firer's reaction (if that's already spent, Fire only warns);
+   - a **Fire · activity** button uses the feature's own activity;
+   - **Trigger** just posts the card.
+
+   Some types are fired by the character who set them up; others by anyone else in the crew, from their crewmate's row.
 4. **×** stands down without using it.
 
-Nothing watches the table: the crew says when it happens, and you press the button. A maneuver lasts until the start of your next turn. One set up before a fight lasts until it's used or your first turn in the fight starts.
+Nothing watches the table: the crew says when it happens, and the firer presses the button. The CREW card goes to chat, and an attack goes to the GM's review like any other.
+
+| Combo cam (the usual card) | When a crewmate fires it |
+| --- | --- |
+| <img src="media/crew-card-cam.png" alt="CREW card, Combo cam: REC, crew link, R1 · T1, Mags's camera feed, Crew combo ×1, Strike, Entry Stack in large italic, Mags triggers Entry Stack" width="250"> | <img src="media/crew-card-cam-duo.png" alt="CREW card, Combo cam: two staggered camera feeds, CAM 01 · Juno and CAM 02 · Mags, Crew combo ×2, Overwatch, Spotter Mark" width="250"> |
+
+The GM can switch the card to the compact **Glitch feed** instead.
 
 ## Edge, Strikes, and Downed
 

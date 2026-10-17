@@ -1,0 +1,429 @@
+/* ==========================================================================
+   CREW MANEUVERS
+   Two surfaces in the netlink's language: a dark terminal in both themes,
+   display type for what to read and press, mono for the small print.
+   - Crewlink (Turn tab): this character's armed maneuvers (crew pink) and the
+     crew's incoming ones (cyan), with Fire buttons where this character fires.
+   - CREW card (chat): Combo cam (default) or Glitch feed, a world setting;
+     see the card section below.
+   The crew colour is Card colours → Crew maneuvers (--hw-c-sys-crew).
+   ========================================================================== */
+
+/* ---- Crewlink: the Turn tab panel ---- */
+.hardwipe-crewlink {
+  --cl-crew: var(--hw-c-sys-crew, #ff6fb5);
+  --cl-line: rgba(255, 111, 181, 0.24);
+  --cl-dim: rgba(232, 236, 255, 0.64);
+  --cl-hi: #f6f8ff;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  color: var(--cl-hi);
+  background:
+    linear-gradient(90deg, color-mix(in srgb, var(--cl-crew) 12%, transparent), transparent 45%),
+    var(--hw-ink);
+  border: 1px solid color-mix(in srgb, var(--cl-crew) 60%, transparent);
+  clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 10px 100%, 0 calc(100% - 10px));
+  font-family: var(--hw-font-mono);
+}
+.hardwipe-crewlink::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: repeating-linear-gradient(to bottom, rgba(0, 0, 0, 0.24) 0 1px, transparent 1px 3px);
+}
+.hardwipe-crewlink-head {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 2px 10px;
+  padding: 4px 10px;
+  color: var(--cl-dim);
+  border-bottom: 1px solid var(--cl-line);
+  font-size: 11px;
+  line-height: 1.4;
+}
+.hardwipe-crewlink-head > span:first-child > i { margin-right: 2px; color: var(--cl-crew); font-size: 10px; }
+.hardwipe-crewlink-count { color: var(--cl-crew); }
+
+.hardwipe-crewlink-entry {
+  --k: var(--cl-crew);
+  display: grid;
+  grid-template-columns: 34px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 6px 10px;
+  padding: 8px 10px 8px 9px;
+  border-left: 3px solid var(--k);
+  border-bottom: 1px solid #1a1218;
+}
+.hardwipe-crewlink-entry:last-of-type { border-bottom: 0; }
+.hardwipe-crewlink-entry.is-ally { --k: var(--hw-cyan); background: rgba(70, 230, 220, 0.05); }
+.hardwipe-crewlink-entry.is-warn { --k: var(--hw-warn); }
+.hardwipe-crewlink-hex {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 30px;
+  background: var(--k);
+  clip-path: polygon(25% 0, 75% 0, 100% 50%, 75% 100%, 25% 100%, 0 50%);
+}
+.hardwipe-crewlink-hex > img {
+  width: 26px;
+  height: 24px;
+  object-fit: cover;
+  border: 0;
+  background: #120a10;
+  clip-path: polygon(25% 0, 75% 0, 100% 50%, 75% 100%, 25% 100%, 0 50%);
+}
+.hardwipe-crewlink-body { display: grid; justify-items: start; gap: 2px; min-width: 0; }
+.hardwipe-crewlink-kind {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  max-width: 100%;
+  padding: 0 5px;
+  overflow: hidden;
+  color: var(--k);
+  border: 1px solid var(--k);
+  font: 700 10px/1.45 var(--hw-font-disp);
+  letter-spacing: 0.12em;
+  text-overflow: ellipsis;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.hardwipe-crewlink-led {
+  flex: none;
+  width: 6px;
+  height: 6px;
+  background: var(--k);
+  border-radius: 50%;
+  box-shadow: 0 0 6px var(--k);
+  animation: hardwipe-crewlink-armed 1.4s ease-in-out infinite;
+}
+.hardwipe-crewlink-name {
+  max-width: 100%;
+  overflow: hidden;
+  color: var(--cl-hi);
+  font: 700 15px/1.15 var(--hw-font-disp);
+  letter-spacing: 0.04em;
+  text-overflow: ellipsis;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.hardwipe-crewlink-entry.is-ally .hardwipe-crewlink-name {
+  font-size: 14px;
+  letter-spacing: 0.02em;
+  text-transform: none;
+  white-space: normal;
+}
+.hardwipe-crewlink-name > b { color: var(--k); font-weight: 700; }
+.hardwipe-crewlink-text { max-width: 100%; color: var(--cl-dim); font-size: 11px; line-height: 1.4; }
+.hardwipe-crewlink-entry.is-warn .hardwipe-crewlink-text { color: var(--hw-warn); }
+.hardwipe-crewlink-text.is-clamped {
+  display: -webkit-box;
+  overflow: hidden;
+  color: var(--cl-hi);
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+}
+.hardwipe-crewlink-actions { display: flex; flex-wrap: wrap; grid-column: 2 / -1; gap: 4px; }
+.hardwipe-crewlink button.hardwipe-crewlink-fire {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: auto;
+  height: auto;
+  min-height: 26px;
+  margin: 0;
+  padding: 4px 11px;
+  color: #12040b;
+  background: var(--k);
+  border: 1px solid var(--k);
+  border-radius: 0;
+  box-shadow: 0 0 10px color-mix(in srgb, var(--k) 35%, transparent);
+  clip-path: polygon(5px 0, 100% 0, 100% calc(100% - 5px), calc(100% - 5px) 100%, 0 100%, 0 5px);
+  font: 700 12px var(--hw-font-disp);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.hardwipe-crewlink button.hardwipe-crewlink-fire > i { font-size: 12px; }
+.hardwipe-crewlink button.hardwipe-crewlink-fire:hover:not(:disabled) { color: #12040b; background: var(--cl-hi); border-color: var(--cl-hi); }
+.hardwipe-crewlink button.hardwipe-crewlink-fire:focus-visible { outline: 1px solid var(--cl-hi); outline-offset: 2px; }
+.hardwipe-crewlink button.hardwipe-crewlink-drop {
+  display: grid;
+  place-items: center;
+  align-self: start;
+  width: 20px;
+  height: 20px;
+  min-height: 0;
+  margin: 0;
+  padding: 0;
+  color: var(--cl-dim);
+  border: 1px solid var(--cl-line);
+  border-radius: 0;
+  font-size: 10px;
+}
+.hardwipe-crewlink button.hardwipe-crewlink-drop:hover { color: var(--hw-alert); border-color: var(--hw-alert); }
+.hardwipe-crewlink button.hardwipe-crewlink-drop:focus-visible { outline: 1px solid var(--cl-hi); outline-offset: 1px; }
+.hardwipe-crewlink-entry:not(:has(.hardwipe-crewlink-drop)) { grid-template-columns: 34px minmax(0, 1fr); }
+@keyframes hardwipe-crewlink-armed { 50% { opacity: 0.25; box-shadow: none; } }
+
+/* ---- CREW card ----
+   Two styles (world setting "CREW card style"), drawn from the message's data on every render:
+   - Combo cam (default): the crew's helmet-cam feeds (one pane, or two staggered side by side when a crewmate fired
+     someone else's maneuver), REC, the CREW COMBO counter and the maneuver's name in big split-neon italic.
+     Arriving, the panes cut in one after the other, the cameras settle and the name punches in.
+   - Glitch feed: a compact kill-feed line (who >> the move) with hazard tape, a split-colour name over a light slash,
+     and an EXECUTED stamp.
+   The entrance plays once, when the card has just been posted, and never with reduced motion. */
+.hardwipe-crewcard {
+  --cc: var(--hw-c-sys-crew, #ff6fb5);
+  --cc-2: var(--hw-cyan);
+  --cc-hi: #f6f8ff;
+  --cc-dim: rgba(232, 236, 255, 0.58);
+  position: relative;
+  overflow: hidden;
+  color: var(--cc-hi);
+  font-family: var(--hw-font-disp);
+}
+
+/* ======== Combo cam ======== */
+.hardwipe-crewcard.is-cam {
+  background: #05080a;
+  border: 1px solid color-mix(in srgb, var(--cc) 60%, transparent);
+  clip-path: polygon(0 0, calc(100% - 14px) 0, 100% 14px, 100% 100%, 14px 100%, 0 calc(100% - 14px));
+}
+.hwcc-hud {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 5px 10px;
+  color: #c9d3cf;
+  background: #000;
+  font: 10px/1.3 var(--hw-font-mono);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.hwcc-rec { color: #ff3f5f; }
+.hwcc-rec::before { content: ""; display: inline-block; width: 7px; height: 7px; margin-right: 5px; vertical-align: 0; background: #ff3f5f; border-radius: 50%; box-shadow: 0 0 6px #ff3f5f; }
+.hwcc-feeds { position: relative; display: grid; grid-template-columns: 1fr; height: 156px; overflow: hidden; background: #000; }
+.is-duo .hwcc-feeds { grid-template-columns: 1fr 1fr; gap: 4px; padding: 0 0 0; }
+.hwcc-feed { position: relative; margin: 0; overflow: hidden; }
+/* Staggered: the second camera sits lower, like a second monitor on the rack. */
+.is-duo .hwcc-feed:first-child { margin-bottom: 22px; }
+.is-duo .hwcc-feed:nth-child(2) { margin-top: 24px; }
+.hwcc-feed > img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 50% 25%;
+  border: 0;
+  filter: grayscale(1) contrast(1.25) brightness(0.55);
+}
+.hwcc-feed::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    repeating-linear-gradient(to bottom, rgba(0, 0, 0, 0.35) 0 1px, transparent 1px 3px),
+    linear-gradient(180deg, color-mix(in srgb, var(--cc) 22%, transparent), transparent 40%, rgba(0, 0, 0, 0.55));
+}
+.is-duo .hwcc-feed:nth-child(2)::before {
+  background:
+    repeating-linear-gradient(to bottom, rgba(0, 0, 0, 0.35) 0 1px, transparent 1px 3px),
+    linear-gradient(180deg, color-mix(in srgb, var(--cc-2) 22%, transparent), transparent 40%, rgba(0, 0, 0, 0.55));
+}
+/* Corner brackets, per camera. */
+.hwcc-feed::after {
+  --b: var(--cc);
+  content: "";
+  position: absolute;
+  inset: 7px;
+  background:
+    linear-gradient(var(--b), var(--b)) 0 0 / 13px 2px no-repeat, linear-gradient(var(--b), var(--b)) 0 0 / 2px 13px no-repeat,
+    linear-gradient(var(--b), var(--b)) 100% 0 / 13px 2px no-repeat, linear-gradient(var(--b), var(--b)) 100% 0 / 2px 13px no-repeat,
+    linear-gradient(var(--b), var(--b)) 0 100% / 13px 2px no-repeat, linear-gradient(var(--b), var(--b)) 0 100% / 2px 13px no-repeat,
+    linear-gradient(var(--b), var(--b)) 100% 100% / 13px 2px no-repeat, linear-gradient(var(--b), var(--b)) 100% 100% / 2px 13px no-repeat;
+}
+.is-duo .hwcc-feed:nth-child(2)::after { --b: var(--cc-2); }
+.hwcc-cam {
+  position: absolute;
+  top: 11px;
+  left: 13px;
+  z-index: 1;
+  padding: 0 4px;
+  color: #e9f4ef;
+  background: rgba(0, 0, 0, 0.6);
+  font: 9px/1.5 var(--hw-font-mono);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.hwcc-badge {
+  position: absolute;
+  top: 9px;
+  right: 14px;
+  z-index: 2;
+  padding: 1px 7px 1px 9px;
+  color: #12040b;
+  background: var(--cc);
+  font: 800 10px var(--hw-font-disp);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  transform: skewX(-14deg);
+}
+.hwcc-badge > span { display: inline-block; transform: skewX(14deg); }
+.is-duo .hwcc-badge { top: 4px; }
+.hwcc-caption {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 2;
+  padding: 26px 20px 12px;
+  background: linear-gradient(180deg, transparent, rgba(0, 0, 0, 0.88) 55%);
+}
+.hwcc-type { color: var(--cc-2); font: 700 10px var(--hw-font-disp); letter-spacing: 0.24em; text-transform: uppercase; }
+.hwcc-title {
+  margin-top: 2px;
+  font: italic 900 32px/0.92 var(--hw-font-disp);
+  letter-spacing: 0.01em;
+  overflow-wrap: anywhere;
+  text-shadow: -2px 0 var(--cc), 2px 0 var(--cc-2), 0 0 18px color-mix(in srgb, var(--cc) 55%, transparent);
+  text-transform: uppercase;
+  transform: skewX(-6deg);
+  transform-origin: left;
+}
+/* A rolling scan line, for the first seconds on screen. */
+.hwcc-scan {
+  position: absolute;
+  right: 0;
+  left: 0;
+  top: -4px;
+  z-index: 1;
+  height: 3px;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.45), transparent);
+  opacity: 0;
+}
+.hwcc-line { margin: 0; padding: 8px 12px 0; color: var(--cc-hi); font: 13px/1.35 var(--hw-font-disp); }
+.hwcc-foot { padding: 3px 12px 9px; color: var(--cc-dim); font: 10px/1.4 var(--hw-font-mono); }
+
+/* Combo cam entrance: static, the panes cut in one after the other (a CRT switching on), the cameras settle into focus,
+   the name punches in, the scan line rolls and REC blinks a few times. */
+.is-cam.is-fresh .hwcc-feeds { animation: hwcc-static 0.3s steps(3) both; }
+.is-cam.is-fresh .hwcc-feed { animation: hwcc-cut-in 0.32s cubic-bezier(0.2, 0.8, 0.2, 1) both; }
+.is-cam.is-fresh .hwcc-feed:nth-child(2) { animation-delay: 0.16s; }
+.is-cam.is-fresh .hwcc-feed > img { animation: hwcc-settle 1.1s 0.1s cubic-bezier(0.15, 0.85, 0.3, 1) both; }
+.is-cam.is-fresh .hwcc-feed:nth-child(2) > img { animation-delay: 0.26s; }
+.is-cam.is-fresh .hwcc-title { animation: hwcc-punch 0.3s 0.75s cubic-bezier(0.2, 0.9, 0.3, 1.4) both; }
+.is-cam.is-fresh .hwcc-type { animation: hwcc-fade 0.2s 0.7s both; }
+.is-cam.is-fresh .hwcc-badge { animation: hwcc-pop 0.25s 0.95s cubic-bezier(0.2, 0.9, 0.3, 1.5) both; }
+.is-cam.is-fresh .hwcc-scan { animation: hwcc-roll 1.6s 0.6s linear 2; }
+.is-cam.is-fresh .hwcc-rec::before { animation: hwcc-blink 1s 0.4s steps(1) 8; }
+@keyframes hwcc-static { 0% { filter: brightness(2.2) contrast(2) saturate(0); } 50% { filter: brightness(0.4); } 100% { filter: none; } }
+@keyframes hwcc-cut-in { 0% { clip-path: inset(49% 0 49% 0); filter: brightness(3); } 60% { clip-path: inset(0 0 0 0); filter: brightness(1.6); } 100% { clip-path: inset(0 0 0 0); filter: none; } }
+@keyframes hwcc-settle { 0% { transform: scale(1.16) translate(2%, -2%); filter: grayscale(1) contrast(1.25) brightness(0.55) blur(2px); }
+  70% { transform: scale(0.99) translate(-0.4%, 0.3%); filter: grayscale(1) contrast(1.25) brightness(0.6) blur(0); }
+  100% { transform: none; filter: grayscale(1) contrast(1.25) brightness(0.55); } }
+@keyframes hwcc-punch { from { opacity: 0; transform: skewX(-6deg) scale(1.4); } to { opacity: 1; transform: skewX(-6deg) scale(1); } }
+@keyframes hwcc-fade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes hwcc-pop { 0% { opacity: 0; transform: skewX(-14deg) scale(0.4); } 100% { opacity: 1; transform: skewX(-14deg) scale(1); } }
+@keyframes hwcc-roll { 0% { top: -4px; opacity: 1; } 100% { top: 100%; opacity: 1; } }
+@keyframes hwcc-blink { 50% { opacity: 0.15; } }
+
+/* ======== Glitch feed ======== */
+.hardwipe-crewcard.is-feed {
+  background: radial-gradient(120% 120% at 0% 0%, color-mix(in srgb, var(--cc) 20%, transparent), transparent 60%), var(--hw-ink);
+  border: 1px solid color-mix(in srgb, var(--cc) 70%, transparent);
+  clip-path: polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 12px 100%, 0 calc(100% - 12px));
+}
+.hardwipe-crewcard.is-feed::after { content: ""; position: absolute; inset: 0; pointer-events: none; background: repeating-linear-gradient(to bottom, rgba(0, 0, 0, 0.26) 0 1px, transparent 1px 3px); }
+.hwcc-tape { position: relative; display: flex; justify-content: space-between; padding: 4px 10px 8px; font: 700 10px var(--hw-font-disp); letter-spacing: 0.16em; text-transform: uppercase; }
+.hwcc-tape::after { content: ""; position: absolute; right: 0; bottom: 0; left: 0; height: 3px; background: repeating-linear-gradient(-45deg, var(--cc) 0 6px, #14070e 6px 12px); }
+.hwcc-link { color: var(--cc); }
+.is-feed .hwcc-tape .hwcc-type { padding: 0 6px; color: var(--cc-2); border: 1px solid var(--cc-2); font-size: 10px; letter-spacing: 0.16em; }
+.hwcc-row { position: relative; display: flex; align-items: center; gap: 8px; padding: 12px 10px 10px; }
+.hwcc-row::before {
+  content: "";
+  position: absolute;
+  right: -10%;
+  left: -10%;
+  top: 38%;
+  height: 22px;
+  background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--cc) 30%, transparent) 30%, color-mix(in srgb, var(--cc-2) 22%, transparent) 70%, transparent);
+  transform: rotate(-6deg);
+}
+.hwcc-frames { position: relative; display: flex; flex: none; }
+.hwcc-frames > img {
+  width: 36px;
+  height: 36px;
+  padding: 2px;
+  object-fit: cover;
+  border: 0;
+  background: linear-gradient(135deg, var(--cc), var(--cc-2));
+  clip-path: polygon(7px 0, 100% 0, 100% calc(100% - 7px), calc(100% - 7px) 100%, 0 100%, 0 7px);
+}
+.hwcc-frames > img + img { margin-left: -6px; background: linear-gradient(135deg, var(--cc-2), var(--cc)); }
+.hwcc-who { position: relative; flex: none; font: 800 12px/1.1 var(--hw-font-disp); letter-spacing: 0.08em; text-transform: uppercase; }
+.hwcc-arrow { position: relative; flex: none; color: var(--cc); font: 900 15px var(--hw-font-disp); letter-spacing: -0.1em; }
+.hwcc-move {
+  position: relative;
+  font: 800 19px/1 var(--hw-font-disp);
+  letter-spacing: 0.04em;
+  overflow-wrap: anywhere;
+  text-shadow: -1.5px 0 color-mix(in srgb, var(--cc) 85%, transparent), 1.5px 0 color-mix(in srgb, var(--cc-2) 70%, transparent);
+  text-transform: uppercase;
+}
+.is-feed .hwcc-foot {
+  position: relative;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 4px 10px 6px;
+  border-top: 1px solid color-mix(in srgb, var(--cc) 25%, transparent);
+  text-transform: uppercase;
+}
+.hwcc-stamp {
+  padding: 0 6px;
+  color: var(--cc);
+  border: 1.5px solid var(--cc);
+  box-shadow: 0 0 8px color-mix(in srgb, var(--cc) 40%, transparent);
+  font: 900 10px var(--hw-font-disp);
+  letter-spacing: 0.18em;
+  transform: rotate(-6deg);
+}
+/* Glitch feed entrance: the line slashes in, the name jitters, the stamp thumps down. */
+.is-feed.is-fresh .hwcc-row { animation: hwcc-slash 0.3s steps(5) both; }
+.is-feed.is-fresh .hwcc-move { animation: hwcc-jitter 0.45s 0.3s steps(3) both; }
+.is-feed.is-fresh .hwcc-stamp { animation: hwcc-thump 0.3s 0.6s cubic-bezier(0.2, 0.9, 0.3, 1.5) both; }
+@keyframes hwcc-slash { from { clip-path: inset(0 100% 0 0); } to { clip-path: inset(0 0 0 0); } }
+@keyframes hwcc-jitter { 33% { transform: translateX(2px); filter: hue-rotate(40deg); } 66% { transform: translateX(-2px); } 100% { transform: none; filter: none; } }
+@keyframes hwcc-thump { from { opacity: 0; transform: rotate(-6deg) scale(2); } to { opacity: 1; transform: rotate(-6deg) scale(1); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .hardwipe-crewcard.is-fresh *, .hardwipe-crewcard.is-fresh *::before, .hardwipe-crewcard.is-fresh .hwcc-feeds { animation: none !important; }
+}
+
+body.hardwipe-text-large .chat-message.hardwipe-crew-message > .message-content { zoom: 1.1; }
+body.hardwipe-text-xlarge .chat-message.hardwipe-crew-message > .message-content { zoom: 1.2; }
+
+/* ---- GM settings: Crew maneuver types ---- */
+.hardwipe-crew-types .window-content { display: flex; flex-direction: column; gap: 10px; }
+.hardwipe-crew-types-table { width: 100%; margin: 0; border-collapse: collapse; }
+.hardwipe-crew-types-table th { padding: 4px 6px; text-align: left; font-size: var(--font-size-12, 12px); }
+.hardwipe-crew-types-table td { padding: 3px 4px; vertical-align: middle; }
+.hardwipe-crew-types-table td:first-child { width: 28%; }
+.hardwipe-crew-types .form-footer { display: flex; gap: 8px; }
+.hardwipe-crew-types .form-footer > button { flex: 1; }
+.hardwipe-crew-types-table td:last-child { width: 32px; text-align: center; }
+.hardwipe-crew-types-table input[type="text"],
+.hardwipe-crew-types-table select { width: 100%; }
+
+@media (prefers-reduced-motion: reduce) {
+  .hardwipe-crewlink-led { animation: none !important; }
+}
