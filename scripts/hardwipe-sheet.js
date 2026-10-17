@@ -1,8 +1,10 @@
 import { MODULE_ID, EdgeManager, StrikesManager, DownedManager, canControlActor, isCharacter, plainActivityLabel } from "./hardwipe-state.js";
 import { ShieldManager } from "./hardwipe-shields.js";
 import { BODY_REGION_ANCHORS, BODY_REGION_PATHS, BODY_REGION_PINGS, CyberwareManager, MIRRORED_BODY_REGIONS } from "./hardwipe-cyberware.js";
+import { TurnTracker } from "./hardwipe-turn.js";
 
 const TEMPLATE = `modules/${MODULE_ID}/templates/cyberware-tab.hbs`;
+const TURN_TEMPLATE = `modules/${MODULE_ID}/templates/turn-tab.hbs`;
 const BODY_ART = `modules/${MODULE_ID}/assets/cyberware-body.png`;
 const LEFT_SLOTS = ["brain", "spine", "torso", "nervous", "dermal"];
 const RIGHT_SLOTS = ["eyes", "audio", "arms", "hands", "legs"];
@@ -23,7 +25,7 @@ export class HardwipeSheet {
         classes: ["hardwipe-character-sheet"],
         actions: {
           hardwipeRule: onRuleAction, hardwipeCyberware: onCyberwareAction,
-          hardwipeSelectRegion: onSelectRegion, hardwipeService: onServiceAction
+          hardwipeSelectRegion: onSelectRegion, hardwipeService: onServiceAction, hardwipeTurn: onTurnAction
         }
       };
       static PARTS = {
@@ -31,15 +33,24 @@ export class HardwipeSheet {
         cyberware: {
           container: { classes: ["tab-body"], id: "tabs" }, template: TEMPLATE,
           scrollable: ["", ".hardwipe-cyberware-items"]
-        }
+        },
+        turn: { container: { classes: ["tab-body"], id: "tabs" }, template: TURN_TEMPLATE, scrollable: [""] }
       };
       static TABS = [
         ...NativeSheet.TABS.slice(0, 2),
         { tab: "cyberware", label: "HARDWIPE.Cyberware.Title", icon: "fas fa-microchip" },
+        { tab: "turn", label: "HARDWIPE.Turn.Title", icon: "fas fa-hourglass-half" },
         ...NativeSheet.TABS.slice(2)
       ];
       _hardwipeSlot = "brain";
-      _hardwipeServicesOpen = false;
+
+      /** Combat, movement and Midi markers change outside this actor's updates: redraw only the Turn tab. */
+      _hardwipeRefreshTurn() {
+        clearTimeout(this._hardwipeTurnTimer);
+        this._hardwipeTurnTimer = setTimeout(() => {
+          if (this.rendered) this.render({ parts: ["turn"] });
+        }, 60);
+      }
 
       async _onRender(context, options) {
         await super._onRender(context, options);
@@ -50,6 +61,7 @@ export class HardwipeSheet {
         super._onClose(options);
         this._hardwipeCalloutObserver?.disconnect();
         this._hardwipeCalloutObserver = null;
+        clearTimeout(this._hardwipeTurnTimer);
       }
 
       _attachFrameListeners() {
@@ -138,8 +150,10 @@ export class HardwipeSheet {
         context = await super._preparePartContext(partId, context, options);
         if (partId === "cyberware") {
           context.cyberware = HardwipeSheet._cyberwareContext(this.actor, this._hardwipeSlot);
-          context.cyberware.servicesOpen = this._hardwipeServicesOpen;
           await HardwipeSheet._cyberwareDescriptions(this.actor, context.cyberware.selected, this._hardwipeOpenDescriptions);
+        }
+        if (partId === "turn") {
+          context.turn = TurnTracker.context(this.actor, { netlinkOpen: this._hardwipeNetlinkOpen, seen: this._hardwipeNetlinkSeen ??= new Set() });
         }
         return context;
       }
@@ -217,26 +231,29 @@ export class HardwipeSheet {
     const context = CyberwareManager.getContext(actor);
     const labels = {
       title: textLabel("Title", "Cyberware"), schematic: textLabel("Schematic", "Body map"),
-      frontView: textLabel("FrontView", "Front view"),
       paperDollMenu: textLabel("PaperDollMenu", "Right-click to change paper doll. Keyboard: Shift+F10."),
       installed: textLabel("Installed", "Installed"), stored: textLabel("Stored", "In inventory"),
       enabled: textLabel("Enabled", "Enabled"), disabled: textLabel("Disabled", "Disabled"),
-      damaged: textLabel("Damaged", "Damaged"), queued: textLabel("Queued", "Queued for rest"),
-      pending: textLabel("Pending", "Pending changes"), empty: textLabel("Empty", "No cyberware in this inventory category."),
-      emptySlot: textLabel("EmptySlot", "Slot empty"), service: textLabel("Service", "Service access"),
+      damaged: textLabel("Damaged", "Damaged"), queuedShort: textLabel("QueuedShort", "queued for rest"),
+      queuedInstall: textLabel("QueuedInstall", "Installs at next rest"),
+      queuedRemove: textLabel("QueuedRemove", "Removed at next rest"),
+      emptySlot: textLabel("EmptySlot", "Empty"), service: textLabel("Service", "Service access"),
       ripperDoc: textLabel("RipperDoc", "Ripperdoc"), tools: textLabel("Tools", "Cyberware tools"),
+      ripperDocHint: textLabel("RipperDocHint", "Ripperdoc access: rest swaps in every slot, plus reset and repair."),
+      toolsHint: textLabel("ToolsHint", "Cyberware tools: reset and repair implants."),
+      serviceOn: textLabel("ServiceOn", "Available"), serviceOff: textLabel("ServiceOff", "Unavailable"),
       install: textLabel("Install", "Queue installation"), remove: textLabel("Remove", "Queue removal"),
       cancel: textLabel("Cancel", "Cancel queued change"), enable: textLabel("Enable", "Enable"),
       installShort: textLabel("InstallShort", "Install"), removeShort: textLabel("RemoveShort", "Remove"),
-      cancelShort: textLabel("CancelShort", "Cancel"), serviceShort: textLabel("ServiceShort", "Service"),
+      cancelShort: textLabel("CancelShort", "Cancel"),
       disable: textLabel("Disable", "Disable"), reset: textLabel("Reset", "Reset"), repair: textLabel("Repair", "Repair"),
       open: textLabel("OpenItem", "Open item"), selfSwap: textLabel("SelfSwap", "Self swap at a short rest"),
       clinicSwap: textLabel("ClinicSwap", "Ripperdoc required for a rest swap"),
       restHint: textLabel("RestHint", "Queued swaps take effect when a rest completes."),
       serviceHint: textLabel("ServiceHint", "Reset and repair require tools or a ripperdoc."),
       passive: textLabel("PassiveEffects", "Passive effects"),
-      actions: textLabel("Actions", "Actions"),
-      available: textLabel("Available", "Available"),
+      actions: textLabel("Actions", "Actions"), charges: textLabel("Charges", "Charges"),
+      available: textLabel("Available", "in inventory"),
       inventoryHint: textLabel("InventoryHint", "Active cyberware also appears in Inventory beside your weapons."),
       readMore: textLabel("ReadMore", "Read more"), showLess: textLabel("ShowLess", "Show less")
     };
@@ -248,28 +265,36 @@ export class HardwipeSheet {
       count: slot.items.length,
       damaged: slot.items.some(item => item.installed && item.damaged),
       disabled: slot.items.some(item => item.installed && item.disabled),
-      items: slot.items.map(item => ({
-        ...item,
-        activities: cyberwareActivities(actor.items.get(item.id)).map(activity => ({
+      items: slot.items.map(item => {
+        const activities = cyberwareActivities(actor.items.get(item.id)).map(activity => ({
           id: activity.id, name: plainActivityLabel(activity.name), activation: activityActivation(activity),
           canUse: item.enabled && context.canControl
-        })),
-        passiveEffects: cyberwarePassiveEffects(actor.items.get(item.id)),
-        stateLabel: item.damaged ? labels.damaged : item.disabled ? labels.disabled
-          : item.installed ? labels.enabled : labels.stored,
-        stateKey: item.damaged ? "damaged" : item.disabled ? "disabled" : item.installed ? "enabled" : "stored",
-        queuedLabel: item.queued === "remove" ? labels.remove : labels.install
-      }))
+        }));
+        return {
+          ...item, activities, hasActions: activities.length > 0 || item.canControl,
+          passiveEffects: cyberwarePassiveEffects(actor.items.get(item.id)),
+          stateLabel: item.damaged ? labels.damaged : item.disabled ? labels.disabled
+            : item.installed ? labels.enabled : labels.stored,
+          stateKey: item.damaged ? "damaged" : item.disabled ? "disabled" : item.installed ? "enabled" : "stored",
+          queuedLabel: item.queued === "remove" ? labels.queuedRemove : labels.queuedInstall
+        };
+      })
     }));
     const selected = slots.find(slot => slot.selected) ?? slots[0];
     if (selected) selected.selected = true;
     for (const slot of slots) {
-      slot.previewItem = slot.items.find(item => item.installed) ?? slot.items[0] ?? null;
+      const preview = slot.previewItem = slot.items.find(item => item.installed) ?? slot.items[0] ?? null;
       slot.extraCount = Math.max(0, slot.items.length - 1);
+      slot.stateKey = preview?.stateKey ?? "empty";
+      slot.ariaLabel = [slot.label, preview?.name ?? labels.emptySlot, preview?.stateLabel, preview?.queued ? preview.queuedLabel : null,
+        slot.extraCount ? `+${slot.extraCount} ${labels.available}` : null].filter(Boolean).join(", ");
+      slot.emptyHint = textLabel("EmptyHint", "Nothing carried for this slot. Give an Equipment item the {category} category to add one.")
+        .replace("{category}", textLabel(`Category.${slot.id}`, `Cyberware: ${slot.label}`));
     }
     const customBody = paperDollPath(actor.getFlag(MODULE_ID, "paperDoll"));
     return {
       ...context, slots, selected, labels, bodyArt: customBody ?? BODY_ART, customBody: !!customBody,
+      installedCount: slots.filter(slot => slot.occupied).length,
       bodyViewBox: customBody ? "0 0 1024 1536" : "110 25 804 1486",
       rarityColors: game.modules.get("sc-item-rarity-colors")?.active === true,
       leftSlots: LEFT_SLOTS.map(id => slots.find(slot => slot.id === id)),
@@ -299,9 +324,20 @@ export class HardwipeSheet {
     sheet._hardwipeCalloutObserver?.disconnect();
     const layout = sheet.element?.querySelector(".hardwipe-cyberware-layout");
     if (!layout) return;
-    const observer = new ResizeObserver(() => this._drawCallouts(layout));
+    const observer = new ResizeObserver(() => {
+      this._drawCallouts(layout);
+      this._fitDescriptions(sheet.element);
+    });
     observer.observe(layout);
     sheet._hardwipeCalloutObserver = observer;
+  }
+
+  /** Read more appears only when a clamped description actually overflows its three lines at the current width. */
+  static _fitDescriptions(element) {
+    for (const desc of element?.querySelectorAll(".hardwipe-cyberware-desc.is-clamped:not(.is-open)") ?? []) {
+      const body = desc.querySelector(".hardwipe-cyberware-desc-body");
+      if (body?.clientHeight) desc.classList.toggle("is-short", body.scrollHeight <= body.clientHeight + 1);
+    }
   }
 
   static _drawCallouts(layout) {
@@ -610,13 +646,18 @@ async function onCyberwareAction(event, target) {
   finally { if (target.isConnected && target.dataset.cyberwareAction !== "use") target.disabled = false; }
 }
 
+async function onTurnAction(event, target) {
+  event.preventDefault();
+  if (target.disabled) return;
+  target.disabled = true;
+  try { await TurnTracker.handle(this.actor, target, event, this); }
+  catch (error) { reportError(error); }
+  finally { if (target.isConnected) target.disabled = false; }
+}
+
 async function onServiceAction(event, target) {
   event.preventDefault();
   if (!game.user.isGM) return;
-  if (target.dataset.service === "menu") {
-    this._hardwipeServicesOpen = !this._hardwipeServicesOpen;
-    return this.render({ parts: ["cyberware"] });
-  }
   const service = CyberwareManager.getContext(this.actor).service;
   const key = target.dataset.service;
   if (!["ripperDoc", "tools"].includes(key)) return;

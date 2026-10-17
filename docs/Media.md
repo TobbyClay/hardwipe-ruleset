@@ -118,21 +118,41 @@ These native captures were prepared on **2026-10-09** in the local **0.7.41 audi
 
 | Published file | Subject |
 | --- | --- |
-| [cyberware-current.png](media/cyberware-current.png) | Current sheet, body scan, and implant slots. |
 | [inventory-actions-current.png](media/inventory-actions-current.png) | Inventory items and explicit available activities. |
-| [paper-doll-menu-current.png](media/paper-doll-menu-current.png) | Native paper-doll configuration menu. |
 | [card-colours-current.png](media/card-colours-current.png) | Card color configuration. |
 | [wall-target-current.png](media/wall-target-current.png) | Direct wall targeting controls. |
 | [wall-glimpse-current.png](media/wall-glimpse-current.png) | GM canvas view of a prepared damaged-stage wall (10/40 HP), using native wall appearance helpers; this is neither a player-login capture nor a recorded attack sequence. |
 | [rest-current.png](media/rest-current.png) | Current short-rest dialog with native Hit Die controls and treatment information. |
 | [resources-shield-current.png](media/resources-shield-current.png) | Expanded Strikes, Edge, shield durability, and disabled/damaged inventory actions. |
-| [cyberware-service-current.png](media/cyberware-service-current.png) | Expanded implant service controls. |
-| [cyberware-queue-current.png](media/cyberware-queue-current.png) | Queued implant removal, its current enabled state, and the Cancel control. |
 | [rest-medscan-live.gif](media/rest-medscan-live.gif) | Live short-rest monitor recording: 30 sequential native captures; one actual Hit Die changes HP from 22 to 24. |
 
 The **rest recording** contains genuine native motion and one real Hit Die expenditure. It was assembled from 30 sequential full-viewport captures over 2.79 seconds, cropped afterward to the monitor at 420 × 260 pixels. The GIF keeps all 30 frames and plays for 3.09 seconds, including a final 300 ms hold. The motion was not fabricated between still states. Fresh screenshots were likewise cropped from full captures after verifying the window coordinates.
 
 The **wall glimpse** is a prepared damaged-stage example at 10/40 wall HP using the native appearance helpers. The screenshot shows the GM canvas view of that prepared state; it is not a player-login test or a recording of an attack being applied.
+
+## Cyberware tab captures
+
+Recaptured on **2026-10-14** from the local, unreleased Cyberware tab redesign (0.7.47 source plus the redesign) in a disposable QA world, as the GM, dark theme, with SC – Item Rarity Colors 3.0.14. The character and implants are synthetic test data.
+
+| Published file | Subject |
+| --- | --- |
+| [cyberware-current.png](media/cyberware-current.png) | Current sheet, body scan, slot cards, and the selected Brain Implant card. |
+| [cyberware-service-current.png](media/cyberware-service-current.png) | Installed and queued counts with the GM service toggles; cropped. |
+| [cyberware-queue-current.png](media/cyberware-queue-current.png) | Queued removal on an enabled implant, with the Cancel control; cropped to the Hands card. |
+| [paper-doll-menu-current.png](media/paper-doll-menu-current.png) | Native paper-doll context menu over the body map; cropped. |
+
+## Turn tab capture
+
+Captured on **2026-10-15** from the local, unreleased Turn tab and roll calls (0.7.47 source plus both) in the same disposable QA world, as the QA Player, dark theme, with Ready Set Midi 14.0.10.2 set to *Display status icon* for reactions and bonus actions. The character, its weapons, implants and programs are synthetic test data.
+
+| Published file | Subject |
+| --- | --- |
+| [turn-panel-current.png](media/turn-panel-current.png) | Turn tab at the start of the character's turn: the netlink strip with one roll call (DC hidden), all three chips ready, 0/30 ft, 2/2 attacks left, and the Action band with weapons and the standard actions; cropped. |
+| [netlink-strip.png](media/netlink-strip.png) | The netlink strip expanded to all four rolls: a concentration interrupt, a grapple defence with two options, a Dexterity save at DC 13 and an Athletics check with the DC hidden. |
+| [comms-queue.png](media/comms-queue.png) | GM view: the Roll call window's Queue tab with an interrupt, a contest and a group roll call, each with who still owes it and when it closes. |
+| [roll-call-composer.png](media/roll-call-composer.png) | GM view: the Roll call window with three participants, a Dexterity save, a typed DC 13 shown to players, Group selected, and a reason. |
+| [roll-call-group.png](media/roll-call-group.png) | The group roll call resolved: two passes, one fail, Team passes. |
+| [roll-call-contest.png](media/roll-call-contest.png) | GM view of a Grapple contest from the Turn tab: Athletics 21 against 1, +20 margin, Apply Grappled. The dice for this capture were fixed in the QA client to show a challenger win. |
 
 ## Reading these examples
 

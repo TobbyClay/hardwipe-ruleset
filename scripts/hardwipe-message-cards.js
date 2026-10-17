@@ -1,4 +1,5 @@
 import { MODULE_ID, escapeHTML } from "./hardwipe-state.js";
+import { rendersRequest } from "./hardwipe-requests.js";
 
 /**
  * Message cards, each in its own colour from the Card colours window:
@@ -53,7 +54,9 @@ function render(message, html) {
   if (card?.matches(".hardwipe-shield-card") && shieldCard(message, element, card)) return;
   if (card) return systemCard(message, element, card);
   if (message.type === "turn") return turnCard(message, element, content);
-  if (message.type === "request") return requestCard(message, element, content);
+  if (rollPrompt(message)) return promptCard(message, element, content);
+  // Skill and save requests are drawn by hardwipe-requests.js; others (a party rest) keep this frame.
+  if (message.type === "request" && !rendersRequest(message)) return requestCard(message, element, content);
   if (message.type in ROLL_KINDS || plainRoll(message, content)) return rollCard(message, element, content);
 }
 
@@ -229,11 +232,47 @@ function requestCard(message, element, content) {
   // The title names the roll ("Dexterity Saving Throw"); the bar adds the DC when there is one.
   const handler = `HARDWIPE.Msg.Request.${system.handler}`;
   const title = String(message.flavor ?? "").trim() || (game.i18n.has(handler) ? game.i18n.localize(handler) : "");
-  frame(content, { kind: "request", icon: "fa-bullhorn", label: t("Request.Label"), tag: Number.isFinite(dc) && dc > 0 ? t("DC", { dc }) : "", title });
+  // The DC shows only where dnd5e would show it (its challenge visibility setting).
+  const showDC = Number.isFinite(dc) && dc > 0 && message.shouldDisplayChallenge !== false;
+  frame(content, { kind: "request", icon: "fa-bullhorn", label: t("Request.Label"), tag: showDC ? t("DC", { dc }) : "", title });
+  // dnd5e heads the list "Party members"; a request for one character needs no heading.
+  if ((system.targets?.length ?? 0) <= 1) content.querySelector(".targets > strong")?.remove();
   // Each Roll button says what it rolls, not just an icon.
   for (const button of content.querySelectorAll(".targets button[data-action=handleRequest]")) {
     if (!button.querySelector(".hardwipe-msg-button-label")) button.insertAdjacentHTML("beforeend", `<span class="hardwipe-msg-button-label">${escapeHTML(t("Request.Roll"))}</span>`);
   }
+  element.classList.add("hardwipe-request-message");
+}
+
+/** A roll request posted from a roll link (dnd5e's "prompt"): checks, skills, saves and tools only. */
+const PROMPT_ROLLS = new Set(["check", "skill", "save", "tool"]);
+function rollPrompt(message) {
+  const buttons = message.type === "prompt" ? message.system?.buttons ?? [] : [];
+  return buttons.length > 0 && buttons.every(button => PROMPT_ROLLS.has(button.type));
+}
+
+/** "Athletics check", "Dexterity saving throw", "Strength check", "Thieves' Tools check". */
+export function rollRequestTitle({ type, skill, ability, tool }) {
+  const label = config => game.i18n.localize(config?.label ?? "");
+  if (type === "skill") return t("Request.SkillTitle", { skill: label(CONFIG.DND5E.skills?.[skill]) || skill });
+  if (type === "save") return t("Request.SaveTitle", { ability: label(CONFIG.DND5E.abilities?.[ability]) || ability });
+  if (type === "tool") {
+    const name = dnd5e.documents?.Trait?.keyLabel?.(tool, { trait: "tool" }) ?? tool;
+    return t("Request.ToolTitle", { tool: name });
+  }
+  return t("Request.CheckTitle", { ability: label(CONFIG.DND5E.abilities?.[ability]) || ability });
+}
+
+/**
+ * The GM's quick request from a roll link, framed like the party request: what to roll and, where dnd5e shows it,
+ * the DC. dnd5e's own Roll buttons stay, so anyone can still roll it for their own character.
+ */
+function promptCard(message, element, content) {
+  const buttons = message.system.buttons;
+  const single = buttons.length === 1 ? buttons[0] : null;
+  const dc = single && message.shouldDisplayChallenge && Number(single.dc) > 0 ? t("DC", { dc: single.dc }) : "";
+  frame(content, { kind: "request", icon: "fa-bullhorn", label: t("Request.Label"), tag: dc, title: single ? rollRequestTitle(single) : String(message.flavor ?? "").trim() });
+  content.querySelector(".hardwipe-msg-card")?.classList.add("is-prompt");
   element.classList.add("hardwipe-request-message");
 }
 

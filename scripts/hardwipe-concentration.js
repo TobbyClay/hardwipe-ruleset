@@ -307,3 +307,39 @@ async function onClick(event) {
     await actor.endConcentration();
   }
 }
+
+/* The Turn tab ------------------------------------------------------------------------------------ */
+
+/** The concentration interrupt this actor still has to roll, if its program is still running. */
+export function pendingConcentration(actor) {
+  if (!actor?.concentration?.effects?.size) return null;
+  for (const message of game.messages.contents.slice(-60).reverse()) {
+    const data = message.flags?.[MODULE_ID]?.[FLAG];
+    if (data?.kind !== "check") continue;
+    const speaker = speakerActor(message);
+    if (!speaker || (speaker !== actor && speaker.uuid !== actor.uuid)) continue;
+    return linkedSave(message) || superseded(message) ? null : message;
+  }
+  return null;
+}
+
+/** Roll the Concentration save for an interrupt, as its card's Roll button would. */
+export async function rollConcentrationRequest(message, event) {
+  const data = message?.flags?.[MODULE_ID]?.[FLAG];
+  const actor = message && speakerActor(message);
+  if (!data || !actor?.isOwner || linkedSave(message) || superseded(message)) return;
+  await actor.rollConcentration({ target: data.dc ?? 10, ability: data.ability, event });
+}
+
+/** Every open interrupt in the recent log, newest first, with its actor: the latest request per concentrating actor. */
+export function openConcentration() {
+  const out = [], seen = new Set();
+  for (const message of game.messages.contents.slice(-60).reverse()) {
+    if (message.flags?.[MODULE_ID]?.[FLAG]?.kind !== "check") continue;
+    const actor = speakerActor(message);
+    if (!actor || seen.has(actor.uuid)) continue;
+    seen.add(actor.uuid);
+    if (actor.concentration?.effects?.size && !linkedSave(message) && !superseded(message)) out.push({ message, actor });
+  }
+  return out;
+}

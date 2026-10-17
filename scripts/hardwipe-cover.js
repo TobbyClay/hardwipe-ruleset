@@ -4,6 +4,7 @@ import { coverRollSignatureData } from "./hardwipe-cover-rolls.js";
 import { WallTypes, evaluateWallDamage } from "./hardwipe-wall-types.js";
 import { WallTargeting } from "./hardwipe-wall-targeting.js";
 import { AreaWallManager } from "./hardwipe-area-walls.js";
+import { planWallWear } from "./hardwipe-wall-wear.js";
 
 const MODULE_ID = "hardwipe-ruleset";
 const STATE_FLAG = "coverAttack";
@@ -66,6 +67,15 @@ function isBlocking(wall, attacker, target) {
   if (cover?.ballistic === true || cover?.material === "glass") return true;
   // An untagged solid wall remains an indestructible physical obstacle.
   return Number(wall.move) > 0 || Number(wall.sight) > 0;
+}
+
+/** The parts of a wall that stop shots: the whole wall less the holes its damage has opened. */
+function solidSegments(wall, scene) {
+  const c = wall.c;
+  const cover = wall.flags?.[MODULE_ID]?.cover;
+  if (!cover) return [[...c]];
+  const { solid } = planWallWear({ c }, cover, scene);
+  return solid.length ? solid : [[...c]];
 }
 
 function stableJSON(value) {
@@ -150,6 +160,8 @@ export class CoverManager {
     this.registerControls();
     this._registerSocket();
     Hooks.on("socketlib.ready", () => this._registerSocket());
+    // Ready Set Midi's cover engine asks which walls stop cover lines, so damaged walls let lines through their holes.
+    Hooks.on("midi-qol.coverWalls", context => this._coverWalls(context));
     Hooks.on("midi-qol.computeCoverBonus", context => {
       if (this._enabled() && isRanged(context.activity)) context.coverBonus = this.computeCover(context);
     });
@@ -269,10 +281,44 @@ export class CoverManager {
     return this.inspectCover(context).coverBonus;
   }
 
-  /** Nine inset footprint samples; all blocked is total cover (Infinity). */
+  /**
+   * Hardwipe walls for Ready Set Midi's cover engine. Generated sight/light helpers only trace their parent, and
+   * non-ballistic walls never stop a shot; tagged ballistic walls and glass do, even when sight passes. A damaged
+   * wall blocks only along its solid parts.
+   */
+  static _coverWalls({ scene, walls } = {}) {
+    for (const entry of walls ?? []) {
+      const flags = entry.wall?.flags?.[MODULE_ID];
+      if (flags?.wallWear || flags?.cover?.ballistic === false) {
+        entry.blocks = false;
+        continue;
+      }
+      const cover = flags?.cover;
+      if (!cover) continue;
+      if (cover.ballistic === true || cover.material === "glass") entry.blocks = true;
+      if (entry.blocks) entry.segments = solidSegments(entry.wall, scene);
+    }
+  }
+
+  /**
+   * Ranged cover. With Ready Set Midi's engine: DMG corner lines from the attacker's best corner, creatures as
+   * cover, and total cover when walls hide the target. Otherwise nine rays from the attacker's center to inset
+   * footprint points, all blocked being total cover (Infinity). Either way, shots pass through wall holes.
+   */
   static inspectCover({ attacker, target, activity } = {}) {
     const empty = { coverBonus: 0, blocked: 0, samples: 9, fraction: 0, impact: null };
     if (!isRanged(activity) || !sameLevel(attacker, target)) return empty;
+    const engine = globalThis.MidiQOL?.computeCoverDetails;
+    if (typeof engine === "function") {
+      const details = engine(attacker, target);
+      const samples = details.linesTotal || 4;
+      const totalCover = details.cover === "total";
+      const blocked = totalCover ? samples : details.linesBlocked;
+      return {
+        coverBonus: totalCover ? Infinity : details.bonus,
+        blocked, samples, fraction: blocked / samples, impact: details.impact
+      };
+    }
     const source = shapeOf(attacker);
     const destination = shapeOf(target);
     if (!source || !destination) return empty;
@@ -286,19 +332,24 @@ export class CoverManager {
       return Array.isArray(c) && Math.max(c[0], c[2]) >= left - 1 && Math.min(c[0], c[2]) <= right + 1
         && Math.max(c[1], c[3]) >= top - 1 && Math.min(c[1], c[3]) <= bottom + 1;
     });
-    const filter = wall => isBlocking(wall, attacker, target);
+    const solids = walls.filter(wall => isBlocking(wall, attacker, target))
+      .flatMap(wall => solidSegments(wall, scene).map(c => ({ id: wall.id, c, wall })));
+    const firstHit = (from, to) => {
+      const hit = findFirstWallIntersection(from, to, solids);
+      return hit ? { ...hit, wall: hit.wall.wall } : null;
+    };
     let blocked = 0;
     const impacts = [];
     for (const row of [0.1, 0.5, 0.9]) {
       for (const column of [0.1, 0.5, 0.9]) {
         const point = { x: destination.x + destination.width * column, y: destination.y + destination.height * row };
-        const hit = findFirstWallIntersection(source.center, point, walls, { isBlocking: filter });
+        const hit = firstHit(source.center, point);
         if (hit) { blocked++; impacts.push(hit); }
       }
     }
     const fraction = blocked / 9;
     const coverBonus = blocked === 9 ? Infinity : fraction >= 0.75 ? 5 : fraction >= 0.5 ? 2 : 0;
-    const centerImpact = findFirstWallIntersection(source.center, destination.center, walls, { isBlocking: filter });
+    const centerImpact = firstHit(source.center, destination.center);
     const impact = centerImpact ?? impacts.sort((a, b) => a.t - b.t)[0] ?? null;
     return { coverBonus, blocked, samples: 9, fraction, impact };
   }
@@ -784,7 +835,7 @@ export class CoverManager {
         <p class="hint">A damage roll below the threshold deals no damage. Qualifying rolls then subtract armor.</p>
         <div class="form-group"><label>Reset section HP to starting HP</label><input type="checkbox" name="resetHP"></div>
         <div class="form-group"><label for="hardwipe-wall-appearance">Show damage and glimpses</label><input id="hardwipe-wall-appearance" type="checkbox" name="appearance" ${current.appearance !== false ? "checked" : ""}></div>
-        <p class="hint">Damage leaves surface marks. At half HP, cracks allow light and vision; at quarter HP they widen. Shooting cover and movement remain unchanged until destruction.</p>`,
+        <p class="hint">Damage leaves surface marks. At half HP, cracks allow light and vision; at quarter HP they widen. Shots pass through the cracks; movement is unchanged until destruction.</p>`,
       ok: { label: "Apply material", icon: "fa-solid fa-shield-halved" }, rejectClose: false
     });
     if (!input) return;

@@ -1,0 +1,234 @@
+{{#*inline "hardwipeTurnOption"}}
+<li class="hardwipe-turn-option is-{{group}} {{#if dim}}is-dim{{/if}} {{#if off}}is-off{{/if}}" data-item-id="{{itemId}}">
+  <button type="button" class="unbutton {{#if canUse}}always-interactive{{/if}} hardwipe-turn-use" data-action="hardwipeTurn" data-turn-action="use"
+    data-item-id="{{itemId}}" data-activity-id="{{activityId}}" data-slot="{{slot}}" {{#unless canUse}}disabled{{/unless}}
+    aria-label="{{name}}{{#if sub}}: {{sub}}{{/if}}{{#if meta}} · {{meta}}{{/if}}">
+    <img class="item-tooltip" src="{{img}}" alt="" data-uuid="{{uuid}}">
+    <span class="hardwipe-turn-option-body">
+      <span class="hardwipe-turn-option-name">{{name}}{{#if sub}} <em>{{sub}}</em>{{/if}}</span>
+      <span class="hardwipe-turn-option-meta">{{#if note}}<b>{{note}}</b>{{#if meta}} · {{/if}}{{/if}}{{meta}}</span>
+    </span>
+    {{#if tag}}<span class="hardwipe-turn-option-tag">{{tag}}</span>{{/if}}
+  </button>
+</li>
+{{/inline}}
+<section class="tab hardwipe-turn-tab {{tab.cssClass}}" data-tab="{{tab.id}}" data-group="{{tab.group}}">
+  {{#with turn}}
+  {{#unless limited}}
+  <filigree-box class="hardwipe-turn-deck">
+    <h3>
+      <i class="fas fa-hourglass-half" inert></i>
+      <span class="roboto-upper">{{labels.title}}</span>
+    </h3>
+    <div class="hardwipe-turn-status {{#unless inCombat}}is-idle{{/unless}}">
+      {{#if inCombat}}
+      <span class="hardwipe-turn-round">{{roundTag}}</span>
+      {{#if position}}<span class="hardwipe-turn-position">{{position}}</span>{{/if}}
+      {{#if isTurn}}
+      <span class="hardwipe-state is-enabled hardwipe-turn-live">{{labels.yourTurn}}</span>
+      {{else if upNow}}
+      <span class="hardwipe-turn-upnow">{{labels.upNow}} <b>{{upNow}}</b></span>
+      {{/if}}
+      {{else}}
+      <span class="hardwipe-turn-standby"><i class="fas fa-power-off" inert></i> {{#if unstaged}}{{labels.unstaged}}{{else}}{{labels.noCombat}}{{/if}}</span>
+      {{/if}}
+      {{#if canRequest}}
+      <button type="button" class="always-interactive hardwipe-btn hardwipe-turn-request" data-action="hardwipeTurn" data-turn-action="request-check"
+        data-tooltip="{{labels.requestCheck}}"><i class="fas fa-bullhorn" inert></i> {{labels.requestCheck}}</button>
+      {{/if}}
+    </div>
+
+    <section class="hardwipe-netlink {{#unless waiting.count}}is-idle{{/unless}}" role="group" aria-label="{{labels.waiting}}">
+      <header class="hardwipe-netlink-head">
+        <span>&gt; netlink://{{waiting.handle}}</span>
+        {{#if waiting.count}}<span class="hardwipe-netlink-count">{{waiting.countLabel}}</span>
+        {{else}}<span>{{labels.netIdle}}<i class="hardwipe-netlink-cursor" inert></i></span>{{/if}}
+      </header>
+      {{#if waiting.sent}}
+      <div class="hardwipe-netlink-entry is-sent">
+        <span class="hardwipe-netlink-hex"><i class="fas fa-check" inert></i></span>
+        <span class="hardwipe-netlink-body"><span class="hardwipe-netlink-kind">{{labels.netSent}}</span><b class="hardwipe-netlink-name">{{waiting.sent.label}}</b></span>
+      </div>
+      {{/if}}
+      {{#each waiting.items}}
+      <div class="hardwipe-netlink-entry is-{{kind}} {{#if fresh}}is-fresh{{/if}}">
+        <span class="hardwipe-netlink-hex">{{badge}}</span>
+        <span class="hardwipe-netlink-body">
+          <span class="hardwipe-netlink-kind">{{tag}}</span>
+          <b class="hardwipe-netlink-name">{{name}}</b>
+          {{#if hasMeta}}<span class="hardwipe-netlink-meta">{{#if dcHidden}}<i class="fas fa-lock" inert></i> {{../labels.dcHidden}}{{else if dc}}DC <b>{{dc}}</b>{{/if}}{{#if detail}}{{#if hasDC}} · {{/if}}{{detail}}{{/if}}</span>{{/if}}
+        </span>
+        {{#if canRoll}}
+        <span class="hardwipe-netlink-actions">
+          {{#each options}}
+          <button type="button" class="always-interactive hardwipe-netlink-roll {{#unless @first}}is-alt{{/unless}}" data-action="hardwipeTurn" data-turn-action="waiting-roll"
+            data-message-id="{{../messageId}}" data-source="{{../source}}" data-option="{{index}}"><i class="fas fa-dice-d20" inert></i> {{label}}</button>
+          {{/each}}
+        </span>
+        {{/if}}
+      </div>
+      {{/each}}
+      {{#if waiting.more}}
+      <button type="button" class="always-interactive hardwipe-netlink-more" data-action="hardwipeTurn" data-turn-action="waiting-more"
+        aria-expanded="{{waiting.expanded}}"><span>&gt; {{waiting.moreLabel}}</span><b>{{waiting.toggleLabel}}</b></button>
+      {{/if}}
+    </section>
+
+    {{#if inCombat}}
+    <div class="hardwipe-turn-economy" role="group" aria-label="{{labels.economy}}">
+      {{#each economy}}
+      <button type="button" class="unbutton {{#if canToggle}}always-interactive{{/if}} hardwipe-turn-slot is-{{state}}"
+        data-action="hardwipeTurn" data-turn-action="toggle" data-slot="{{kind}}"
+        aria-label="{{label}}: {{stateLabel}}" data-tooltip="{{hint}}" {{#unless canToggle}}disabled{{/unless}}>
+        <span class="hardwipe-turn-slot-label"><i class="fas {{icon}}" inert></i>{{label}}</span>
+        <span class="hardwipe-turn-slot-state">{{stateLabel}}</span>
+      </button>
+      {{/each}}
+    </div>
+
+    <div class="hardwipe-turn-meter hardwipe-turn-movement {{movement.tone}} {{#unless movement.isTurn}}is-standby{{/unless}}">
+      <div class="hardwipe-turn-meter-head">
+        <span class="hardwipe-label">{{labels.movement}}</span>
+        <span class="hardwipe-turn-reading"><b>{{movement.used}}</b><span>/{{movement.budget}} {{movement.unitLabel}}</span></span>
+        <span class="hardwipe-turn-meta">{{movement.typeLabel}}{{#if movement.isTurn}} · {{#if movement.over}}{{movement.overBy}} {{movement.unitLabel}} {{labels.over}}{{else}}{{movement.left}} {{movement.unitLabel}} {{labels.left}}{{/if}}{{/if}}</span>
+        {{#if movement.dash}}<span class="hardwipe-turn-dash-tag">{{labels.dashOn}}</span>{{/if}}
+      </div>
+      <div class="hardwipe-turn-cells" role="meter" aria-label="{{labels.movement}}" aria-valuemin="0" aria-valuemax="{{movement.budget}}" aria-valuenow="{{movement.used}}">
+        {{#each movement.cells}}<i class="{{#if on}}is-on{{/if}}"></i>{{/each}}{{#each movement.overCells}}<i class="is-over"></i>{{/each}}
+      </div>
+      {{#unless movement.hasToken}}<p class="hardwipe-turn-note">{{labels.noToken}}</p>{{/unless}}
+    </div>
+
+    <div class="hardwipe-turn-meter hardwipe-turn-attacks is-{{attacks.state}}">
+      <div class="hardwipe-turn-meter-head">
+        <span class="hardwipe-label">{{labels.attacks}}</span>
+        <span class="hardwipe-turn-pips hardwipe-turn-attack-pips" aria-hidden="true">{{#each attacks.pips}}<i class="{{#if on}}is-on{{/if}}"></i>{{/each}}</span>
+        <span class="hardwipe-turn-reading"><b>{{attacks.left}}</b><span>/{{attacks.count}}</span></span>
+        <span class="hardwipe-turn-meta">{{labels.attacksLeft}}</span>
+        {{#if attacks.source}}<span class="hardwipe-turn-source"><i class="fas fa-crosshairs" inert></i> {{attacks.source}}</span>{{/if}}
+      </div>
+    </div>
+    {{/if}}
+  </filigree-box>
+
+  {{#each bands}}
+  <section class="card hardwipe-turn-band is-{{kind}} {{#if state}}is-{{state}}{{/if}}" data-slot="{{kind}}">
+    <header class="header hardwipe-turn-band-head"><h3><i class="fas {{icon}}" inert></i> {{label}}</h3></header>
+    {{#if empty}}
+    <p class="hardwipe-turn-empty">{{../labels.nothing}}</p>
+    {{else}}
+    {{#if main.length}}<ul class="unlist hardwipe-turn-options">{{#each main}}{{> hardwipeTurnOption}}{{/each}}</ul>{{/if}}
+    {{#if standard}}
+    <div class="hardwipe-turn-subhead"><span>{{../labels.standard}}</span></div>
+    <ul class="unlist hardwipe-turn-options">
+      {{#each standard}}
+      <li class="hardwipe-turn-option is-standard {{#if dim}}is-dim{{/if}} {{#if taken}}is-taken{{/if}}">
+        <button type="button" class="unbutton {{#if canUse}}always-interactive{{/if}} hardwipe-turn-use" data-action="hardwipeTurn" data-turn-action="general" data-move="{{move}}"
+          aria-pressed="{{#if taken}}true{{else}}false{{/if}}" data-tooltip="{{hint}}" {{#unless canUse}}disabled{{/unless}}>
+          <span class="hardwipe-turn-move-icon"><i class="fas {{icon}}" inert></i></span>
+          <span class="hardwipe-turn-option-body">
+            <span class="hardwipe-turn-option-name">{{label}}</span>
+            <span class="hardwipe-turn-option-meta">{{#if note}}<b>{{note}}</b> · {{/if}}{{meta}}</span>
+          </span>
+        </button>
+      </li>
+      {{/each}}
+    </ul>
+    {{/if}}
+    {{#if programs.length}}
+    <div class="hardwipe-turn-subhead">
+      <span>{{../labels.programs}} <b>{{programs.length}}</b></span>
+      {{#each slots}}
+      <span class="hardwipe-turn-slotrow" data-tooltip="{{label}} · {{text}}"><small>{{label}}</small><span class="hardwipe-turn-pips">{{#each pips}}<i class="{{#if on}}is-on{{/if}}"></i>{{/each}}</span></span>
+      {{/each}}
+    </div>
+    <ul class="unlist hardwipe-turn-options">{{#each programs}}{{> hardwipeTurnOption}}{{/each}}</ul>
+    {{/if}}
+    {{#if gear.length}}
+    <details class="hardwipe-turn-more">
+      <summary>{{gearLabel}}</summary>
+      <ul class="unlist hardwipe-turn-options">{{#each gear}}{{> hardwipeTurnOption}}{{/each}}</ul>
+    </details>
+    {{/if}}
+    {{/if}}
+  </section>
+  {{/each}}
+
+  <section class="card hardwipe-turn-card">
+    <header class="header"><h3>{{labels.runningPrograms}}</h3></header>
+    <ul class="unlist hardwipe-turn-programs">
+      {{#each programs}}
+      <li class="hardwipe-turn-program" data-effect-id="{{id}}">
+        <img class="gold-icon" src="{{img}}" alt="">
+        <span class="hardwipe-turn-program-name">{{name}}</span>
+        <span class="hardwipe-state is-enabled">{{../labels.running}}</span>
+        {{#if canEnd}}
+        <button type="button" class="always-interactive hardwipe-btn is-danger" data-action="hardwipeTurn" data-turn-action="end-program" data-effect-id="{{id}}"
+          aria-label="{{../labels.endProgram}}: {{name}}"><i class="fas fa-power-off" inert></i> {{../labels.endProgram}}</button>
+        {{/if}}
+      </li>
+      {{else}}
+      <li class="hardwipe-turn-empty">{{labels.noPrograms}}</li>
+      {{/each}}
+    </ul>
+    <header class="header"><h3>{{labels.conditions}}</h3></header>
+    <ul class="unlist hardwipe-turn-conditions">
+      {{#each conditions}}
+      <li class="hardwipe-turn-condition" data-effect-id="{{id}}" {{#if from}}data-tooltip="{{../labels.from}} {{from}}"{{/if}}>
+        <img src="{{img}}" alt="">
+        <span>{{name}}</span>
+        {{#if canDrop}}
+        <button type="button" class="unbutton always-interactive hardwipe-turn-drop" data-action="hardwipeTurn" data-turn-action="drop-condition" data-effect-id="{{id}}"
+          aria-label="{{dropLabel}}" data-tooltip="{{dropLabel}}"><i class="fas fa-xmark" inert></i></button>
+        {{/if}}
+      </li>
+      {{else}}
+      <li class="hardwipe-turn-empty">{{labels.noConditions}}</li>
+      {{/each}}
+    </ul>
+  </section>
+
+  <section class="card hardwipe-turn-card">
+    <header class="header"><h3>{{labels.resources}}</h3></header>
+    <div class="hardwipe-turn-resources">
+      <div class="hardwipe-turn-edge {{#if edge.ready}}is-ready{{/if}}">
+        <span class="hardwipe-label">{{labels.edge}}</span>
+        <span class="hardwipe-turn-edge-cell" aria-hidden="true"><i class="fas fa-bolt" inert></i></span>
+        <b class="hardwipe-turn-edge-value" aria-label="{{labels.edge}}: {{edge.value}}">{{edge.value}}<span>/1</span></b>
+        <span class="hardwipe-turn-resource-controls">
+          {{#if edge.canSpend}}
+          <button type="button" class="always-interactive hardwipe-btn is-primary" data-action="hardwipeRule" data-hardwipe-rule="spend-edge"
+            aria-label="{{labels.spendEdge}}" data-tooltip="{{labels.spendEdge}}"><i class="fas fa-bolt" inert></i> {{labels.spend}}</button>
+          {{/if}}
+          {{#if edge.canRecover}}
+          <button type="button" class="always-interactive hardwipe-btn is-primary" data-action="hardwipeRule" data-hardwipe-rule="edge-recover"
+            aria-label="{{labels.recover}}"><i class="fas fa-heart-pulse" inert></i> {{labels.recover}}</button>
+          {{/if}}
+          {{#if isGM}}
+          <button type="button" class="always-interactive hardwipe-btn is-icon" data-action="hardwipeRule" data-hardwipe-rule="award-edge"
+            aria-label="{{labels.award}}" data-tooltip="{{labels.award}}"><i class="fas fa-plus" inert></i></button>
+          {{/if}}
+        </span>
+      </div>
+      <div class="hardwipe-turn-strikes {{strikes.tone}}">
+        <span class="hardwipe-label">{{labels.strikes}}</span>
+        <span class="hardwipe-turn-strike-pips" role="group" aria-label="{{labels.strikes}}">
+          {{#each strikes.pips}}
+          <button type="button" class="unbutton {{#if ../isGM}}always-interactive{{/if}} hardwipe-turn-strike {{#if on}}is-on{{/if}}" data-action="hardwipeRule" data-hardwipe-rule="set-strikes" data-value="{{n}}"
+            aria-pressed="{{#if on}}true{{else}}false{{/if}}" aria-label="{{label}}" {{#unless ../isGM}}disabled{{/unless}}><i class="fas {{#if on}}fa-xmark{{else}}fa-circle{{/if}}" inert></i></button>
+          {{/each}}
+        </span>
+        <span class="hardwipe-turn-strikes-status">{{strikes.status}} <b>{{strikes.value}}/3</b></span>
+      </div>
+    </div>
+  </section>
+
+  {{#if outside.length}}
+  <details class="hardwipe-turn-more hardwipe-turn-outside">
+    <summary>{{outsideLabel}}</summary>
+    <ul class="unlist hardwipe-turn-options">{{#each outside}}{{> hardwipeTurnOption}}{{/each}}</ul>
+  </details>
+  {{/if}}
+  {{/unless}}
+  {{/with}}
+</section>

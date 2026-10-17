@@ -73,7 +73,7 @@ You choose the roll mode for ranged attacks. Under the attack roll, the **roll m
 
 Walls provide ranged cover. Give them a type, HP per five-foot section, armor and a damage threshold. Shots that miss because of cover hit the wall; players can also target a wall section directly. Either way, the GM approves the damage with **Apply damage** or **Ignore**.
 
-- **Each hit leaves its own hole.** A big hit makes one wide hole, and several small hits make several small, scattered ones. The holes let sight and light through, so players can glimpse what's behind. The wall still stops movement and shots until a section reaches zero and opens a five-foot breach.
+- **Each hit leaves its own hole.** A big hit makes one wide hole, and several small hits make several small, scattered ones. The holes let sight, light and shots through, so players can glimpse what's behind and a target lined up with a hole has less cover. The wall still stops movement until a section reaches zero and opens a five-foot breach.
 - **Undo last wall damage** restores HP, holes and breached geometry together.
 - **Area spells damage walls.** Fireballs, cones, lines, cubes, emanations and rings hit every wall section they reach, set per spell or as a default for each shape, with the same GM approval.
 

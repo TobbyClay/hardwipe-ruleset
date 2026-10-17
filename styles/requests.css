@@ -1,0 +1,485 @@
+/* =============================================================================================
+ * Roll requests (scripts/hardwipe-requests.js).
+ * - The card: a HUD message card in the request amber. A roll call reuses the save block (one
+ *   CTA for the viewer's own pending rows, a row per participant); a contest sets two panels
+ *   against each other, then the review's math strip and a verdict bar.
+ * - The answering roll folds to one dashed line under its request.
+ * - The GM's composer: a dark HUD window, like the med-scan monitor, in the same amber.
+ * =========================================================================================== */
+
+/* ---- Card ---- */
+.hardwipe-request-card .hardwipe-save-block { margin: 10px 12px 0; }
+.hardwipe-request-reason {
+  margin: 6px 12px 0;
+  color: var(--hw-dim);
+  font: 11px/1.35 var(--hw-font-mono);
+  overflow-wrap: anywhere;
+}
+.hardwipe-request-reason::before { content: "// "; color: var(--hw-accent); }
+
+/* The verdict bar: a group's tally, a contest's winner. */
+.hardwipe-request-verdict {
+  --hw-verdict: var(--hw-c-success, var(--hw-phos));
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 8px 12px 0;
+  padding: 5px 6px 5px 10px;
+  color: var(--hw-hi);
+  background: color-mix(in srgb, var(--hw-verdict) 12%, rgba(4, 8, 9, 0.9));
+  border: 1px solid color-mix(in srgb, var(--hw-verdict) 55%, transparent);
+  border-left: 3px solid var(--hw-verdict);
+  font: 700 11px/1.25 var(--hw-font-disp);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.hardwipe-save-block > .hardwipe-request-verdict { margin: 0; }
+.hardwipe-request-verdict.is-fail { --hw-verdict: var(--hw-c-failure, var(--hw-alert)); }
+.hardwipe-request-verdict > span { flex: 1; min-width: 0; }
+.hardwipe-request-verdict > b { flex: none; color: var(--hw-verdict); font-size: 13px; text-shadow: 0 0 2px var(--hw-verdict); }
+.hardwipe-request-verdict > button.hardwipe-hud-btn.hardwipe-hud-btn { --hw-accent: var(--hw-verdict); flex: none; }
+
+/* ---- Contest: challenger | VS | defender ---- */
+.hardwipe-contest {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: stretch;
+  gap: 6px;
+  margin: 10px 12px 0;
+}
+.hardwipe-contest-side {
+  --hw-side: var(--hw-accent);
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 6px;
+  min-width: 0;
+  padding: 7px 8px 8px;
+  background: color-mix(in srgb, var(--hw-side) 8%, rgba(4, 8, 9, 0.9));
+  border: 1px solid color-mix(in srgb, var(--hw-side) 40%, transparent);
+  clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 0 100%);
+  font-family: var(--hw-font-mono);
+}
+.hardwipe-contest-side > .hardwipe-save-who { font-size: 10px; }
+.hardwipe-contest-side.is-winner { --hw-side: var(--hw-c-success, var(--hw-phos)); box-shadow: inset 0 0 0 1px var(--hw-side); }
+.hardwipe-contest-side.is-loser { --hw-side: var(--hw-dim-2); opacity: 0.75; }
+.hardwipe-contest-total {
+  color: var(--hw-side);
+  font: 700 26px/1 var(--hw-font-disp);
+  text-align: center;
+  text-shadow: 0 0 2px var(--hw-side);
+}
+.hardwipe-contest-side.is-loser .hardwipe-contest-total { color: var(--hw-dim); text-shadow: none; }
+.hardwipe-contest-side > small,
+.hardwipe-contest-wait + small {
+  color: var(--hw-dim);
+  font: 700 9px var(--hw-font-disp);
+  letter-spacing: 0.14em;
+  text-align: center;
+  text-transform: uppercase;
+}
+.hardwipe-contest-wait {
+  color: var(--hw-hi);
+  font: 700 11px/1.25 var(--hw-font-disp);
+  letter-spacing: 0.08em;
+  text-align: center;
+  text-transform: uppercase;
+}
+.hardwipe-contest-side > small { margin-top: -2px; }
+.hardwipe-contest-side:has(.hardwipe-contest-wait) > small { animation: hardwipe-wall-loss-blink 2s ease-in-out infinite; color: var(--hw-warn); }
+.hardwipe-contest-vs {
+  align-self: center;
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 26px;
+  color: #05100c;
+  background: var(--hw-accent);
+  clip-path: polygon(25% 0, 75% 0, 100% 50%, 75% 100%, 25% 100%, 0 50%);
+  font: 700 10px var(--hw-font-disp);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+button.hardwipe-contest-roll {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 100%;
+  height: auto;
+  min-height: 26px;
+  margin: 0;
+  padding: 4px 6px;
+  color: var(--hw-hi);
+  background: color-mix(in srgb, var(--hw-accent) 16%, rgba(4, 8, 9, 0.9));
+  border: 1px solid var(--hw-accent);
+  border-radius: 0;
+  box-shadow: none;
+  clip-path: polygon(0 0, calc(100% - 6px) 0, 100% 6px, 100% 100%, 0 100%);
+  font: 700 11px/1.2 var(--hw-font-disp);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+button.hardwipe-contest-roll > i { color: var(--hw-accent); font-size: 10px; }
+button.hardwipe-contest-roll:hover:not(:disabled) { color: #05100c; background: var(--hw-accent); }
+button.hardwipe-contest-roll:hover:not(:disabled) > i { color: inherit; }
+button.hardwipe-contest-roll:disabled { opacity: 0.5; cursor: progress; }
+button.hardwipe-contest-roll:focus-visible { outline: 1px solid var(--hw-hi); outline-offset: 2px; }
+.hardwipe-request-card .hardwipe-wall-math { margin: 8px 12px 0; }
+.hardwipe-request-card .hardwipe-wall-chip { max-width: 100%; overflow: hidden; text-overflow: ellipsis; }
+
+/* ---- The answering roll folds to a line under its request ---- */
+.chat-message.hardwipe-request-folded > .message-content > :not(.hardwipe-request-linked) { display: none; }
+button.hardwipe-request-linked {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  width: 100%;
+  height: auto;
+  margin: 0 0 6px;
+  padding: 4px 8px;
+  color: var(--hw-dim);
+  background: #0d1114;
+  border: 1px dashed #27323a;
+  border-radius: 2px;
+  box-shadow: none;
+  font: 700 10px var(--hw-font-disp);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+button.hardwipe-request-linked > .fa-bullhorn { color: var(--hw-c-msg-request, var(--hw-warn)); }
+button.hardwipe-request-linked > span { flex: 1; text-align: left; }
+button.hardwipe-request-linked:hover { color: var(--hw-hi); border-color: var(--hw-c-msg-request, var(--hw-warn)); }
+.chat-message:not(.hardwipe-request-folded) button.hardwipe-request-linked > .fa-chevron-down { transform: rotate(180deg); }
+.chat-message.hardwipe-request-folded .message-header .flavor-text { display: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  .hardwipe-contest-side > small { animation: none !important; }
+}
+
+/* ---- Composer: the GM's request window ---- */
+.application.hardwipe-composer {
+  --hw-accent: var(--hw-c-msg-request, var(--hw-warn));
+  --hw-glow: color-mix(in srgb, var(--hw-accent) 45%, transparent);
+  color: var(--hw-hi);
+  background: var(--hw-ink);
+  border: 1px solid color-mix(in srgb, var(--hw-accent) 45%, transparent);
+  border-radius: 0;
+  box-shadow: 0 0 0 1px #000, 0 12px 40px rgba(0, 0, 0, 0.6), 0 0 14px color-mix(in srgb, var(--hw-accent) 18%, transparent);
+}
+.hardwipe-composer .window-header {
+  margin: 0;
+  color: #05100c;
+  background: var(--hw-accent);
+  border-bottom: 0;
+}
+.hardwipe-composer .window-header .window-title {
+  position: static;
+  flex: 1;
+  justify-content: flex-start;
+  display: flex;
+  align-items: center;
+  padding-left: 4px;
+  font: 700 13px var(--hw-font-disp);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+.hardwipe-composer .window-header :is(.window-icon, button) { color: #05100c; }
+.hardwipe-composer .window-content {
+  padding: 0;
+  color: var(--hw-hi);
+  background: repeating-linear-gradient(to bottom, rgba(0, 0, 0, 0.22) 0 1px, transparent 1px 3px), linear-gradient(150deg, var(--hw-panel), var(--hw-ink));
+}
+.hardwipe-composer-body { display: grid; gap: 0; font-family: var(--hw-font-mono); }
+.hardwipe-composer-body > section {
+  display: grid;
+  gap: 6px;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--hw-line);
+}
+.hardwipe-composer .hardwipe-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--hw-accent);
+  font: 700 10px var(--hw-font-disp);
+  letter-spacing: 0.2em;
+}
+.hardwipe-composer section > .hardwipe-label::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, color-mix(in srgb, var(--hw-accent) 40%, transparent), transparent);
+}
+.hardwipe-composer .hint { margin: 0; color: var(--hw-dim); font-size: 10px; line-height: 1.35; }
+
+/* Buttons: the HUD's chamfered controls, amber when pressed. */
+.hardwipe-composer button.hardwipe-btn.hardwipe-btn {
+  height: 24px;
+  min-height: 24px;
+  padding: 0 9px;
+  color: var(--hw-hi);
+  background: rgba(4, 8, 10, 0.78);
+  border: 1px solid var(--hw-line-2);
+  border-radius: 0;
+  clip-path: polygon(4px 0, 100% 0, 100% calc(100% - 4px), calc(100% - 4px) 100%, 0 100%, 0 4px);
+  font: 700 10px var(--hw-font-mono);
+  letter-spacing: 0.08em;
+}
+.hardwipe-composer button.hardwipe-btn.hardwipe-btn > i { color: var(--hw-accent); }
+.hardwipe-composer button.hardwipe-btn.hardwipe-btn:hover:not(:disabled) { color: #05100c; background: var(--hw-accent); border-color: var(--hw-accent); box-shadow: none; }
+.hardwipe-composer button.hardwipe-btn.hardwipe-btn:hover:not(:disabled) > i { color: inherit; }
+.hardwipe-composer button.hardwipe-btn.hardwipe-btn[aria-pressed="true"] {
+  color: var(--hw-accent);
+  background: color-mix(in srgb, var(--hw-accent) 16%, transparent);
+  border-color: var(--hw-accent);
+}
+.hardwipe-composer button.hardwipe-btn.hardwipe-btn:focus-visible { outline: 1px solid var(--hw-hi); outline-offset: 2px; }
+
+/* Inputs: dark wells. */
+.hardwipe-composer :is(select, input[type="text"], input[type="number"]) {
+  height: 26px;
+  margin: 0;
+  padding: 0 8px;
+  color: var(--hw-hi);
+  background: rgba(0, 0, 0, 0.45);
+  border: 1px solid var(--hw-line-2);
+  border-radius: 0;
+  box-shadow: none;
+  font: 12px var(--hw-font-mono);
+}
+.hardwipe-composer select option, .hardwipe-composer select optgroup { color: var(--hw-hi); background: var(--hw-ink); }
+.hardwipe-composer :is(select, input):focus { border-color: var(--hw-accent); outline: none; box-shadow: 0 0 0 1px var(--hw-accent); }
+.hardwipe-composer input::placeholder { color: var(--hw-dim-2); }
+
+/* Who */
+.hardwipe-composer-people { display: flex; flex-wrap: wrap; align-items: center; gap: 5px; }
+.hardwipe-composer-who {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 24px;
+  padding: 0 2px 0 3px;
+  color: var(--hw-hi);
+  background: color-mix(in srgb, var(--hw-accent) 10%, rgba(4, 8, 9, 0.9));
+  border: 1px solid color-mix(in srgb, var(--hw-accent) 45%, transparent);
+  border-left: 2px solid var(--hw-accent);
+  font-size: 11px;
+}
+.hardwipe-composer-who > img { width: 18px; height: 18px; border: 0; border-radius: 50%; object-fit: cover; }
+.hardwipe-composer-who > button.unbutton { width: 18px; height: 18px; min-height: 0; padding: 0; color: var(--hw-dim); background: none; border: 0; box-shadow: none; font-size: 10px; }
+.hardwipe-composer-who > button.unbutton:hover { color: var(--hw-alert); }
+.hardwipe-composer-empty { color: var(--hw-warn); font-size: 11px; }
+
+/* Roll */
+.hardwipe-composer-picks { display: flex; flex-wrap: wrap; gap: 4px; }
+.hardwipe-composer select[name="roll"] { width: 100%; }
+
+/* DC: a typed number, as big as the card shows it. */
+.hardwipe-composer-body > section.hardwipe-composer-row { grid-template-columns: auto minmax(0, 1fr); align-items: end; gap: 14px; }
+.hardwipe-composer-dc { display: grid; gap: 6px; margin: 0; }
+.hardwipe-composer-dc > input[type="number"] {
+  width: 84px;
+  height: 38px;
+  padding: 0 6px;
+  color: var(--hw-accent);
+  border-color: var(--hw-accent);
+  border-left-width: 3px;
+  font: 700 24px var(--hw-font-disp);
+  text-align: center;
+  text-shadow: 0 0 2px var(--hw-accent);
+}
+.hardwipe-composer-check {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 38px;
+  margin: 0;
+  color: var(--hw-hi);
+  font: 700 11px var(--hw-font-disp);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+.hardwipe-composer-check > input { flex: none; width: 16px; height: 16px; margin: 0; accent-color: var(--hw-accent); }
+
+/* Kind: three segments. */
+.hardwipe-composer-kinds { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 4px; }
+.hardwipe-composer-kind { position: relative; margin: 0; cursor: pointer; }
+.hardwipe-composer-kind > input { position: absolute; inset: 0; opacity: 0; margin: 0; cursor: pointer; }
+.hardwipe-composer-kind > span {
+  display: grid;
+  place-items: center;
+  height: 26px;
+  color: var(--hw-dim);
+  background: rgba(4, 8, 10, 0.78);
+  border: 1px solid var(--hw-line-2);
+  clip-path: polygon(4px 0, 100% 0, 100% calc(100% - 4px), calc(100% - 4px) 100%, 0 100%, 0 4px);
+  font: 700 11px var(--hw-font-disp);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+.hardwipe-composer-kind > input:checked + span { color: #05100c; background: var(--hw-accent); border-color: var(--hw-accent); }
+.hardwipe-composer-kind > input:focus-visible + span { outline: 1px solid var(--hw-hi); outline-offset: 2px; }
+.hardwipe-composer-kind:hover > input:not(:checked) + span { color: var(--hw-hi); border-color: var(--hw-accent); }
+
+/* Contest: the opponent's options replace the DC (the totals decide it). */
+.hardwipe-composer-contest { display: none; grid-template-columns: auto minmax(0, 1fr) auto minmax(0, 1fr); align-items: center; gap: 6px; color: var(--hw-dim); font-size: 10px; text-transform: uppercase; }
+.hardwipe-composer-contest > select { width: 100%; min-width: 0; }
+.hardwipe-composer.is-contest .hardwipe-composer-contest { display: grid; }
+.hardwipe-composer.is-contest .hardwipe-composer-row { display: none; }
+
+/* Send */
+.hardwipe-composer-body > footer.form-footer { display: flex; margin: 0; padding: 10px 12px 12px; background: rgba(0, 0, 0, 0.35); }
+.hardwipe-composer-body > footer.form-footer > button.hardwipe-btn.hardwipe-btn {
+  flex: 1;
+  height: 32px;
+  color: #05100c;
+  background: var(--hw-accent);
+  border-color: var(--hw-accent);
+  font: 700 13px var(--hw-font-disp);
+  letter-spacing: 0.2em;
+}
+.hardwipe-composer-body > footer.form-footer > button.hardwipe-btn.hardwipe-btn > i { color: inherit; }
+.hardwipe-composer-body > footer.form-footer > button.hardwipe-btn.hardwipe-btn:hover:not(:disabled) { background: var(--hw-hi); border-color: var(--hw-hi); }
+
+/* A roll call's rows hold a name, a total and a verdict: the name gets the room. */
+.hardwipe-request-card .hardwipe-save-block .hardwipe-save-row { grid-template-columns: minmax(0, 1fr) 30px auto; }
+
+/* The contest panels are narrow: names take two lines, option buttons stay on one. */
+.hardwipe-contest-side > .hardwipe-save-who { align-items: flex-start; }
+.hardwipe-contest-side > .hardwipe-save-who > span {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-height: 1.2;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+.hardwipe-contest-side button.hardwipe-contest-roll { gap: 5px; padding: 4px 5px; font-size: 10px; letter-spacing: 0.06em; white-space: nowrap; }
+.hardwipe-contest-side button.hardwipe-contest-roll > i { flex: none; font-size: 9px; }
+
+/* The GM's Apply button takes its own row under the verdict. */
+.hardwipe-request-verdict:has(> button) { flex-wrap: wrap; row-gap: 6px; padding-bottom: 6px; }
+.hardwipe-request-verdict > button.hardwipe-hud-btn.hardwipe-hud-btn { flex: 1 0 100%; }
+
+/* A closed roll call: the stamp under its rows. */
+.hardwipe-save-row.is-skipped { --hw-row: var(--hw-dim-2); }
+.hardwipe-save-row.is-skipped > .hardwipe-save-who > span { color: var(--hw-dim); }
+.hardwipe-request-closed {
+  padding: 4px 8px;
+  color: var(--hw-accent);
+  border: 1px dashed color-mix(in srgb, var(--hw-accent) 45%, transparent);
+  font: 11px/1.35 var(--hw-font-mono);
+}
+.hardwipe-request-closed::before { content: "// "; }
+.hardwipe-request-card > .hardwipe-request-closed { margin: 8px 12px 0; }
+
+/* ---- Composer tabs: New roll call | Queue ---- */
+.hardwipe-composer-tabs { display: grid; grid-template-columns: 1fr 1fr; border-bottom: 1px solid var(--hw-line); }
+.hardwipe-composer-tabs > button {
+  height: 30px;
+  margin: 0;
+  color: var(--hw-dim);
+  background: transparent;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  border-radius: 0;
+  box-shadow: none;
+  font: 700 11px var(--hw-font-disp);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+.hardwipe-composer-tabs > button[aria-pressed="true"] { color: var(--hw-accent); border-bottom-color: var(--hw-accent); background: color-mix(in srgb, var(--hw-accent) 8%, transparent); }
+.hardwipe-composer-tabs > button:hover { color: var(--hw-hi); }
+
+/* ---- Comms queue: every open roll, the GM closes or pins it ---- */
+.hardwipe-queue { display: grid; font-family: var(--hw-font-mono); }
+.hardwipe-queue-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 8px 12px;
+  color: var(--hw-dim);
+  border-bottom: 1px solid var(--hw-line);
+  font-size: 11px;
+}
+/* Two lines a row: kind, roll and buttons; then who still owes it and when it closes. */
+.hardwipe-queue-row {
+  --k: var(--hw-warn);
+  display: grid;
+  grid-template-columns: 78px minmax(0, 1fr) auto;
+  grid-template-areas: "kind name actions" ". meta meta";
+  align-items: center;
+  gap: 4px 10px;
+  padding: 8px 12px 8px 9px;
+  color: var(--hw-dim);
+  border-bottom: 1px solid #141a1e;
+  border-left: 3px solid var(--k);
+  font-size: 11px;
+}
+.hardwipe-queue-row:is(.is-interrupt, .is-save) { background: rgba(255, 63, 95, 0.08); }
+.hardwipe-queue-kind {
+  grid-area: kind;
+  justify-self: start;
+  padding: 0 5px;
+  color: var(--k);
+  border: 1px solid var(--k);
+  font: 700 10px/1.45 var(--hw-font-disp);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.hardwipe-queue-name { grid-area: name; display: flex; align-items: baseline; gap: 8px; min-width: 0; }
+.hardwipe-queue-name > b { flex: 0 1 auto; min-width: 0; overflow: hidden; color: var(--hw-hi); font: 700 13px/1.2 var(--hw-font-disp); letter-spacing: 0.05em; text-overflow: ellipsis; text-transform: uppercase; white-space: nowrap; }
+.hardwipe-queue-name > small,
+.hardwipe-queue-owes > small { overflow: hidden; color: var(--hw-dim); font-size: 10px; text-overflow: ellipsis; white-space: nowrap; }
+.hardwipe-queue-name > small { flex: 1 1 0; min-width: 0; }
+.hardwipe-queue-meta { grid-area: meta; display: flex; align-items: baseline; gap: 4px 12px; min-width: 0; }
+.hardwipe-queue-owes { display: flex; flex: 1 1 auto; flex-wrap: wrap; align-items: baseline; gap: 2px 10px; min-width: 0; }
+.hardwipe-queue-who { color: var(--hw-hi); }
+.hardwipe-queue-who.is-online::before,
+.hardwipe-queue-who.is-offline::before { content: "●"; margin-right: 4px; color: var(--hw-phos); }
+.hardwipe-queue-who.is-offline { color: var(--hw-dim); }
+.hardwipe-queue-who.is-offline::before { content: "○"; color: var(--hw-dim); }
+.hardwipe-queue-closes { flex: none; margin-left: auto; color: var(--hw-warn); font-size: 10px; white-space: nowrap; }
+.hardwipe-queue-closes > i { margin-right: 2px; font-size: 9px; }
+.hardwipe-queue-row:is(.is-interrupt, .is-save) .hardwipe-queue-closes { color: var(--hw-dim); }
+.hardwipe-queue-closes.is-pinned { color: var(--hw-hi); }
+.hardwipe-queue-actions { grid-area: actions; display: flex; gap: 4px; }
+.hardwipe-composer button.hardwipe-queue-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  width: auto;
+  min-width: 24px;
+  height: 24px;
+  margin: 0;
+  padding: 0 6px;
+  color: var(--hw-hi);
+  background: transparent;
+  border: 1px solid var(--hw-line-2);
+  border-radius: 0;
+  box-shadow: none;
+  clip-path: polygon(4px 0, 100% 0, 100% calc(100% - 4px), calc(100% - 4px) 100%, 0 100%, 0 4px);
+  font: 700 11px var(--hw-font-disp);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.hardwipe-composer button.hardwipe-queue-btn > i { font-size: 11px; }
+.hardwipe-composer button.hardwipe-queue-btn.is-primary { color: #05100c; background: var(--k, var(--hw-accent)); border-color: var(--k, var(--hw-accent)); }
+.hardwipe-composer button.hardwipe-queue-btn.is-danger { color: #ff6b7f; border-color: color-mix(in srgb, var(--hw-alert) 70%, transparent); }
+.hardwipe-composer button.hardwipe-queue-btn.is-on { color: var(--hw-accent); border-color: var(--hw-accent); background: color-mix(in srgb, var(--hw-accent) 14%, transparent); }
+.hardwipe-composer button.hardwipe-queue-btn:hover:not(:disabled) { color: #05100c; background: var(--hw-hi); border-color: var(--hw-hi); }
+.hardwipe-composer button.hardwipe-queue-btn:disabled { opacity: 0.5; cursor: progress; }
+.hardwipe-queue-empty { margin: 0; padding: 18px 12px; color: var(--hw-dim); font-size: 12px; }
+.hardwipe-queue-legend { padding: 6px 12px 10px; color: var(--hw-dim-2); border-top: 1px solid var(--hw-line); font-size: 10px; line-height: 1.4; }
+
+/* A contest button with a bonus: the bonus drops below the roll name when the panel is too narrow for both. */
+.hardwipe-contest-side button.hardwipe-contest-roll { flex-wrap: wrap; row-gap: 1px; white-space: normal; line-height: 1.15; }
+.hardwipe-contest-side button.hardwipe-contest-roll > span { white-space: nowrap; }
+.hardwipe-contest-side button.hardwipe-contest-roll > span > i { font-size: 9px; }
+.hardwipe-contest-bonus { font-weight: 700; letter-spacing: 0; white-space: nowrap; }

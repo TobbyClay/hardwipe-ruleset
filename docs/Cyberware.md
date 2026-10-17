@@ -30,11 +30,13 @@ Installed cyberware replaces common attunement for those items; ordinary equipme
 | Audio | One | Short or long rest with a Ripperdoc |
 | Dermal | One | Short or long rest with a Ripperdoc |
 
-Carry as many alternatives as inventory allows. A region holds one installed package, including paired Hands, Legs, Eyes, or Arms. Select its slot to open the category's items and controls below the doll.
+Carry as many alternatives as inventory allows. A region holds one installed package, including paired Hands, Legs, Eyes, or Arms. Select its slot to open the category's items and controls in the card below the doll. A wrench beside a slot name marks a self-service swap; a gold **+1** on its image counts the alternatives you carry.
 
-The GM sets Ripperdoc and tools access through the collapsed **Service** control. The module does not infer service from nearby NPCs. A rest without the required service still completes, but the affected swap stays queued.
+The tab uses the sheet's own frames, so it follows the light and dark interface themes. The row under its title counts installed regions and queued swaps.
 
-![Expanded GM service access with Ripperdoc and Cyberware tools controls](media/cyberware-service-current.png)
+The GM sets Ripperdoc and tools access with the **Ripperdoc** and **Cyberware tools** toggles at the end of that row. A light on each shows whether that service is available; players see the same two as read-only status. The module does not infer service from nearby NPCs. A rest without the required service still completes, but the affected swap stays queued.
+
+![GM service toggles for Ripperdoc and Cyberware tools beside the installed and queued counts](media/cyberware-service-current.png)
 
 ## Read the state before using it
 
@@ -45,6 +47,8 @@ The GM sets Ripperdoc and tools access through the collapsed **Service** control
 | Disabled | Yes | Unavailable |
 | Damaged | Yes | Unavailable |
 | Queued change | Current installation remains | Current state applies until a qualifying rest finishes |
+
+A coloured rail on each slot and row shows the state at a glance: solid green when enabled, dashed amber when disabled, red when damaged, none when carried. Queued changes are amber.
 
 **Install** and **Remove** queue a change. A replacement queues removal of the old package and installation of the new one together. **Cancel** preserves the current installation. Owners can disable an installed, undamaged implant. **Reset** clears disabled state; **Repair** clears damage. Both service actions require tools, Ripperdoc access, or a GM override.
 
@@ -64,7 +68,7 @@ Using the activity posts a diagnostic card with the region, charges, effect info
 
 ## Rarity colors
 
-With **SC – Item Rarity Colors** active, filled slots and item names follow its inventory border and title settings, including supported custom tiers, gradients, and glow. The current screenshot shows different rarity frames. State edges and labels remain visible so rarity cannot conceal Disabled or Damaged. Without SC, Hardwipe uses its own palette. Compatibility was verified against SC 3.0.14.
+With **SC – Item Rarity Colors** active, implant images and names follow its inventory border and title settings, including supported custom tiers, gradients, and glow. The current screenshot shows different rarity frames. Row background gradients stay off in this tab, and state rails and labels remain visible so rarity cannot conceal Disabled or Damaged. Without SC, images use the sheet's native gold frame. Compatibility was verified against SC 3.0.14.
 
 ## Personal paper dolls
 

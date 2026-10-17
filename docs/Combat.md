@@ -58,7 +58,7 @@ Shield HP belongs to the Equipment item and stays within 0–10. At zero, the sh
 
 > **Audited preview:** the native block choice follows GM approval and target mitigation, before temporary HP and HP loss. The manual block path uses the same ordering. Repeated same-client HP edits are queued.
 
-Shield Block consumes the normal Midi reaction; another reaction prevents it. The reaction resets through Midi's turn handling. The HUD tells the table how much the shield absorbed and how much reached the character.
+Shield Block consumes the normal Midi reaction; another reaction prevents it. In combat it follows the **Reaction** chip of your [Turn tab](Players.md#read-your-turn): while that reads **Spent**, whether Ready Set Midi or Hardwipe counted it, Shield Block is unavailable. The reaction comes back when your turn starts. The HUD tells the table how much the shield absorbed and how much reached the character.
 
 ## Saving throws
 

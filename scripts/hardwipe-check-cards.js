@@ -1,3 +1,4 @@
+import { hidesChallenge } from "./hardwipe-requests.js";
 import { MODULE_ID, escapeHTML } from "./hardwipe-state.js";
 import { abilityColor, advControlHTML, arrivalWindow, d20Drawer } from "./hardwipe-attack-cards.js";
 
@@ -362,7 +363,7 @@ function challenge(message, roll) {
   const fromRoll = Number.isFinite(dc);
   // A save asked for by an item card (Ready Set Midi's save requests) carries no DC on its roll; the card has it.
   if (!fromRoll && message.type === "save") dc = originDC(message) ?? NaN;
-  if (!Number.isFinite(dc) || message.shouldDisplayChallenge === false) return null;
+  if (!Number.isFinite(dc) || message.shouldDisplayChallenge === false || hidesChallenge(message)) return null;
   const success = (fromRoll ? roll.isSuccess : undefined) ?? (Number(roll.total) >= dc);
   return { dc, state: success ? "success" : "failure" };
 }

@@ -727,10 +727,7 @@
 }
 
 /* ---- Label: native condensed caps (matches HIT POINTS, HIT DICE, FAVORITES) ---- */
-.hardwipe-label,
-.hardwipe-slot-group h4,
-.hardwipe-region-header h4,
-.hardwipe-cyberware-header h3 {
+.hardwipe-label {
   margin: 0;
   border: 0;
   color: var(--hardwipe-gold);
@@ -741,8 +738,7 @@
   line-height: 1.2;
   text-transform: uppercase;
 }
-.hardwipe-label > i,
-.hardwipe-cyberware-header h3 > i { margin-right: 4px; color: var(--hardwipe-gold); font-size: 10px; }
+.hardwipe-label > i { margin-right: 4px; color: var(--hardwipe-gold); font-size: 10px; }
 
 /* ---- State chip: dot + condensed caps. ok = enabled, hollow = disabled, bad = damaged, warn = queued ---- */
 .hardwipe-state {
@@ -1171,229 +1167,7 @@ button.hardwipe-hud-btn.hardwipe-hud-btn:disabled { opacity: 0.4; cursor: not-al
 .hardwipe-item-strip .hardwipe-shield-controls { margin-left: auto; }
 .hardwipe-cyberware-item-sheet .form-group.label-top:has([name="system.attunement"], [name="system.attuned"]) { display: none; }
 
-/* ---- Cyberware tab ---- */
-.hardwipe-cyberware-tab { container-type: inline-size; padding: 12px; color: var(--color-text-primary); }
-.hardwipe-cyberware-header {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  min-height: 33px;
-  padding-bottom: 8px;
-  border-bottom: 1px solid var(--hardwipe-gold);
-}
-.hardwipe-cyberware-header h3 { font-size: 13px; }
-.hardwipe-pending-count { margin-left: auto; }
-.hardwipe-cyberware-header button.hardwipe-btn.hardwipe-service-menu { margin-left: auto; }
-.hardwipe-cyberware-header .hardwipe-pending-count + button.hardwipe-btn.hardwipe-service-menu { margin-left: 0; }
-.hardwipe-service-flags { display: inline-flex; gap: 4px; padding-left: 6px; border-left: 1px solid var(--hardwipe-line); }
-button.hardwipe-btn.hardwipe-btn .hardwipe-service-flags > i { color: var(--hardwipe-muted); opacity: 0.4; font-size: 10px; }
-button.hardwipe-btn.hardwipe-btn .hardwipe-service-flags > i.is-on { color: var(--hardwipe-ok); opacity: 1; }
-.hardwipe-services {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 5px;
-  padding: 7px 0;
-  border-bottom: 1px solid var(--hardwipe-line);
-}
-.hardwipe-services > .hardwipe-label { margin-right: auto; color: var(--hardwipe-muted); }
-
-.hardwipe-cyberware-layout {
-  display: grid;
-  grid-template-columns: minmax(110px, 1fr) minmax(135px, 1.25fr) minmax(110px, 1fr);
-  gap: 12px 8px;
-  align-items: start;
-  padding-top: 12px;
-}
-.hardwipe-slot-column { display: grid; gap: 9px; min-width: 0; }
-.hardwipe-slot-group h4 { margin: 0 0 4px; font-size: 10px; }
-.hardwipe-slot-group h4 small { color: var(--hardwipe-muted); }
-.hardwipe-slot-column .hardwipe-slot-card {
-  display: flex;
-  align-items: center;
-  gap: 7px;
-  width: 100%;
-  min-height: 48px;
-  height: auto;
-  padding: 6px;
-  color: var(--color-text-primary);
-  background: var(--dnd5e-background-card, transparent);
-  border: 1px solid var(--hardwipe-line);
-  border-left-width: 2px;
-  border-radius: 4px;
-  box-shadow: none;
-  text-align: left;
-  text-transform: none;
-  font: inherit;
-  white-space: normal;
-}
-.hardwipe-slot-column .hardwipe-slot-card:hover { border-color: var(--hardwipe-gold); box-shadow: none; }
-.hardwipe-slot-card.is-selected,
-.hardwipe-slot-card:focus-visible {
-  border-color: var(--hardwipe-gold);
-  outline: 1px solid var(--hardwipe-gold);
-  outline-offset: 1px;
-  box-shadow: 0 0 6px color-mix(in srgb, var(--hardwipe-gold) 40%, transparent);
-}
-/* The left edge carries the installed implant's state, the same as the dot. */
-.hardwipe-slot-column .hardwipe-slot-card.is-occupied { border-left-color: var(--hardwipe-ok); }
-.hardwipe-slot-column .hardwipe-slot-card.is-disabled { border-left-color: var(--hardwipe-muted); border-left-style: dashed; }
-.hardwipe-slot-column .hardwipe-slot-card.is-damaged { border-left-color: var(--hardwipe-danger); border-left-style: solid; }
-.hardwipe-slot-column .hardwipe-slot-card.is-empty { background: transparent; border-style: dashed; border-left-width: 1px; }
-/* SC owns rarity borders/names. Keep native card surfaces and separate state/selection cues. */
-.hardwipe-cyberware-tab .hardwipe-slot-group.scirc-inv-gradient-enabled { background: none !important; }
-.hardwipe-cyberware-tab .hardwipe-cyberware-item.scirc-inv-gradient-enabled { background: var(--dnd5e-background-card, transparent) !important; }
-.hardwipe-slot-column .hardwipe-slot-card.scirc-inv-border-managed.is-occupied { border-left-color: var(--hardwipe-ok) !important; }
-.hardwipe-slot-column .hardwipe-slot-card.scirc-inv-border-managed.is-disabled { border-left-color: var(--hardwipe-muted) !important; border-left-style: dashed !important; }
-.hardwipe-slot-column .hardwipe-slot-card.scirc-inv-border-managed.is-damaged { border-left-color: var(--hardwipe-danger) !important; border-left-style: solid !important; }
-/* Border images paint over border colors, so retain the state rail above a rarity gradient. */
-.hardwipe-slot-card.scirc-inv-border-gradient { position: relative; }
-.hardwipe-slot-card.scirc-inv-border-gradient.is-occupied::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: -2px;
-  border-left: 2px solid var(--hardwipe-ok);
-  pointer-events: none;
-}
-.hardwipe-slot-card.scirc-inv-border-gradient.is-disabled::before { border-left-color: var(--hardwipe-muted); border-left-style: dashed; }
-.hardwipe-slot-card.scirc-inv-border-gradient.is-damaged::before { border-left-color: var(--hardwipe-danger); }
-.hardwipe-slot-card.scirc-inv-border-managed.is-selected,
-.hardwipe-slot-card.scirc-inv-border-managed:focus-visible { outline: 1px solid var(--hardwipe-gold); outline-offset: 2px; }
-.hardwipe-slot-card img,
-.hardwipe-slot-empty-icon {
-  flex: 0 0 28px;
-  width: 28px;
-  height: 28px;
-  object-fit: cover;
-  border: 1px solid var(--hardwipe-line);
-  border-radius: 3px;
-}
-.hardwipe-slot-card img,
-.hardwipe-item-image img { background: var(--dnd5e-color-blue-gray-2, #252830); }
-.hardwipe-slot-empty-icon {
-  display: grid;
-  place-items: center;
-  color: var(--hardwipe-muted);
-  border-style: dashed;
-  opacity: 0.55;
-  font-size: 12px;
-}
-.hardwipe-slot-content { display: grid; gap: 3px; min-width: 0; }
-.hardwipe-slot-name { font-family: var(--dnd5e-font-roboto, inherit); font-size: 12px; font-weight: 700; line-height: 1.2; overflow-wrap: anywhere; }
-.hardwipe-slot-content > small:not(.hardwipe-state) { color: var(--hardwipe-muted); font-size: 10px; line-height: 1.2; }
-/* Empty-socket placeholder matches the native "Drop Favorite" placeholder. */
-.hardwipe-slot-card.is-empty .hardwipe-slot-content > small {
-  font-family: var(--hardwipe-label-font);
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  opacity: 0.75;
-}
-
-.hardwipe-body-map { min-width: 0; margin: 0; }
-.hardwipe-body-map-drawing { width: 100%; background: none; }
-.hardwipe-body-map-drawing svg { display: block; width: 100%; height: auto; overflow: visible; }
-.hardwipe-body-map-drawing svg * { pointer-events: none; }
-.hardwipe-body-map-drawing[tabindex]:focus-visible { outline: 2px solid var(--color-border-highlight); outline-offset: 3px; border-radius: 3px; }
-/* Default body coordinates cannot reliably describe the anatomy of a custom character image. */
-.has-custom-paper-doll .hardwipe-map-region { display: none; }
-.hardwipe-body-map figcaption {
-  margin-top: 5px;
-  color: var(--hardwipe-muted);
-  font-family: var(--hardwipe-label-font);
-  font-size: 10px;
-  letter-spacing: 0.04em;
-  text-align: center;
-  text-transform: uppercase;
-}
-/* Selection on the drawing is gold like the card; disabled is dashed, damaged is red. */
-.hardwipe-map-region { fill: none; stroke: none; stroke-linejoin: round; stroke-linecap: round; }
-.hardwipe-map-region.is-selected {
-  fill: color-mix(in srgb, var(--hardwipe-gold) 16%, transparent);
-  stroke: var(--hardwipe-gold);
-  stroke-width: 4;
-  filter: drop-shadow(0 0 6px color-mix(in srgb, var(--hardwipe-gold) 70%, transparent));
-}
-.hardwipe-map-region.is-selected.is-disabled { stroke-dasharray: 10 8; }
-.hardwipe-map-region.is-selected.is-damaged {
-  fill: color-mix(in srgb, var(--hardwipe-danger) 16%, transparent);
-  stroke: var(--hardwipe-danger);
-  filter: drop-shadow(0 0 6px color-mix(in srgb, var(--hardwipe-danger) 70%, transparent));
-}
-.hardwipe-map-region[data-slot="nervous"],
-.hardwipe-map-region[data-slot="dermal"] { fill: none; }
-.hardwipe-map-region[data-slot="nervous"].is-selected,
-.hardwipe-map-region[data-slot="dermal"].is-selected { fill: none; stroke-width: 5; }
-
-.hardwipe-cyberware-detail { grid-column: 1 / -1; min-width: 0; padding-top: 10px; border-top: 1px solid var(--hardwipe-line); }
-.hardwipe-region-header { padding: 0 0 8px; }
-.hardwipe-region-header h4 { margin-bottom: 3px; font-size: 12px; }
-.hardwipe-region-summary { display: block; font-size: 13px; font-weight: 700; overflow-wrap: anywhere; }
-.hardwipe-region-header p,
-.hardwipe-rest-note,
-.hardwipe-inventory-note { margin: 4px 0 0; color: var(--hardwipe-muted); font-size: 11px; line-height: 1.4; }
-.hardwipe-rest-note > i { color: var(--hardwipe-gold); }
-/* The sheet scrolls; the detail list does not scroll on its own. */
-.hardwipe-cyberware-items { display: grid; gap: 8px; padding: 1px 3px 2px 1px; }
-.hardwipe-cyberware-item {
-  padding: 8px;
-  background: var(--dnd5e-background-card, transparent);
-  border: 1px solid var(--hardwipe-line);
-  border-left: 2px solid var(--hardwipe-line);
-  border-radius: 4px;
-}
-.hardwipe-cyberware-item.is-installed { border-left-color: var(--hardwipe-ok); }
-.hardwipe-cyberware-item.is-disabled { border-left-color: var(--hardwipe-muted); border-left-style: dashed; }
-.hardwipe-cyberware-item.is-damaged { border-left-color: var(--hardwipe-danger); border-left-style: solid; }
-.hardwipe-cyberware-item-heading { display: flex; align-items: flex-start; gap: 8px; }
-.hardwipe-cyberware-item-heading .hardwipe-item-image { flex: 0 0 32px; width: 32px; height: 32px; padding: 0; }
-.hardwipe-item-image img { display: block; width: 32px; height: 32px; border: 1px solid var(--hardwipe-line); border-radius: 3px; object-fit: cover; }
-.hardwipe-cyberware-item-name { flex: 1; min-width: 0; }
-.hardwipe-cyberware-item-name > button {
-  width: auto;
-  height: auto;
-  min-height: 0;
-  padding: 0;
-  font-family: var(--dnd5e-font-roboto, inherit);
-  font-size: 13px;
-  font-weight: 700;
-  text-align: left;
-  text-transform: none;
-  white-space: normal;
-}
-.hardwipe-cyberware-item-meta {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 2px 8px;
-  margin-top: 4px;
-  color: var(--hardwipe-muted);
-  font-family: var(--hardwipe-label-font);
-  font-size: 10px;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-}
-.hardwipe-item-pending { margin: 6px 0; font-family: var(--hardwipe-label-font); font-size: 10px; letter-spacing: 0.04em; text-transform: uppercase; }
-.hardwipe-passive-effects { display: flex; flex-wrap: wrap; gap: 3px 6px; margin-top: 6px; color: var(--hardwipe-muted); font-size: 11px; }
-.hardwipe-passive-effects > span:first-child { font-family: var(--hardwipe-label-font); font-size: 10px; letter-spacing: 0.04em; text-transform: uppercase; }
-.hardwipe-passive-effects > span:not(:first-child) { color: var(--color-text-primary); }
-/* Power and service actions on the left; the queued install/remove action on the right. */
-.hardwipe-cyberware-item-controls {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 4px;
-  margin-top: 8px;
-  padding-top: 7px;
-  border-top: 1px solid var(--hardwipe-line);
-}
-.hardwipe-cyberware-item-controls .hardwipe-btn.is-queue { margin-left: auto; }
-.hardwipe-cyberware-empty { padding: 12px; color: var(--hardwipe-muted); border: 1px dashed var(--hardwipe-line); border-radius: 4px; font-size: 12px; text-align: center; }
-.hardwipe-cyberware-empty > i { font-size: 18px; opacity: 0.45; }
-.hardwipe-cyberware-empty p { line-height: 1.4; }
-.hardwipe-cyberware-activities,
+/* ---- Cyberware actions in native Inventory rows (the Cyberware tab is styles/cyberware-tab.css) ---- */
 .hardwipe-inventory-actions { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 6px; }
 /* Align the action row with the item title: image (4 + 32 px) and gap, plus Ready Set Midi's info icon when present. */
 .hardwipe-inventory-actions {
@@ -1403,12 +1177,6 @@ button.hardwipe-btn.hardwipe-btn .hardwipe-service-flags > i.is-on { color: var(
 }
 li.item:has(> .item-row .midi-info-icon) > .hardwipe-inventory-actions { --hardwipe-title-indent: calc(4px + 32px + 8px + 19px + 8px); }
 .hardwipe-activity-button > span { text-transform: none; font-size: 11px; }
-@container (max-width: 430px) {
-  .hardwipe-cyberware-layout { grid-template-columns: minmax(95px, 1fr) minmax(105px, 1.15fr) minmax(95px, 1fr); gap: 10px 5px; }
-  .hardwipe-slot-column .hardwipe-slot-card { gap: 4px; padding: 4px; }
-  .hardwipe-slot-card img,
-  .hardwipe-slot-empty-icon { flex-basis: 24px; width: 24px; height: 24px; }
-}
 
 /* ---- Chat: wall review, Shield Block, melee critical tag ---- */
 .hardwipe-cover-review-controls { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
@@ -2357,20 +2125,6 @@ button.hardwipe-desc-more > i { font-size: 8px; transition: transform 0.15s; }
 .hardwipe-stamp-icon.is-downed { color: var(--hw-warn); }
 
 /* =============================================================================================
- * 0.7.20 Cyberware tab touch-ups: ping rings for small regions, queued line, charge pips.
- * =========================================================================================== */
-.hardwipe-map-ping { display: none; fill: none; stroke: var(--hardwipe-gold); stroke-width: 6; }
-.hardwipe-map-region.is-selected .hardwipe-map-ping { display: inline; filter: drop-shadow(0 0 8px color-mix(in srgb, var(--hardwipe-gold) 80%, transparent)); }
-.hardwipe-map-region.is-selected.is-damaged .hardwipe-map-ping { stroke: var(--hardwipe-danger); }
-.hardwipe-map-region.is-selected.is-disabled .hardwipe-map-ping { stroke-dasharray: 10 8; }
-.hardwipe-slot-queued { display: flex; align-items: center; gap: 4px; color: var(--hardwipe-warn); font-size: 10px; line-height: 1.2; }
-.hardwipe-slot-queued > i { font-size: 8px; }
-.hardwipe-uses { display: inline-flex; align-items: center; gap: 3px; }
-.hardwipe-uses > i { width: 10px; height: 4px; background: color-mix(in srgb, var(--hardwipe-ok) 12%, transparent); border: 1px solid color-mix(in srgb, var(--hardwipe-ok) 55%, transparent); }
-.hardwipe-uses > i.is-on { background: var(--hardwipe-ok); box-shadow: 0 0 4px var(--hardwipe-ok); }
-.hardwipe-uses > b { margin-left: 3px; font-weight: inherit; }
-
-/* =============================================================================================
  * 0.7.20 implant cards: a diagnostic panel for activated cyberware.
  * =========================================================================================== */
 .hardwipe-implant {
@@ -2438,239 +2192,6 @@ button.hardwipe-desc-more > i { font-size: 8px; transition: transform 0.15s; }
 .chat-message.hardwipe-implant-ready .midi-qol-hits-display { display: none; }
 @media (prefers-reduced-motion: reduce) {
   .hardwipe-implant.is-arriving .hardwipe-implant-doll::after { display: none; animation: none; }
-}
-
-/* =============================================================================================
- * 0.7.21 Cyberware tab: slot cards in the implant-card style. Dark scanline panel, chamfered
- * corner, a 3px edge in the implant's state colour (cyan online, amber disabled, red damaged),
- * display caps. Selection stays gold (inset, since the chamfer clips outer outlines). SC Item
- * Rarity Colors keeps the rarity border and name colour.
- * =========================================================================================== */
-.hardwipe-cyberware-tab .hardwipe-slot-column .hardwipe-slot-card {
-  --hw-slot-edge: rgba(198, 255, 230, 0.3);
-  position: relative;
-  gap: 8px;
-  padding: 6px 12px 6px 7px;
-  color: var(--hw-hi);
-  background:
-    repeating-linear-gradient(to bottom, rgba(70, 230, 220, 0.035) 0 1px, transparent 1px 4px),
-    linear-gradient(150deg, #0b1517, #06090b);
-  border: 1px solid color-mix(in srgb, var(--hw-slot-edge) 45%, transparent);
-  border-left: 3px solid var(--hw-slot-edge);
-  border-radius: 0;
-  clip-path: polygon(0 0, calc(100% - 9px) 0, 100% 9px, 100% 100%, 0 100%);
-  transition: box-shadow 0.15s, border-color 0.15s;
-}
-.hardwipe-cyberware-tab .hardwipe-slot-column .hardwipe-slot-card.is-occupied { --hw-slot-edge: var(--hw-cyan); }
-.hardwipe-cyberware-tab .hardwipe-slot-column .hardwipe-slot-card.is-disabled { --hw-slot-edge: var(--hw-warn); border-left-style: dashed; }
-.hardwipe-cyberware-tab .hardwipe-slot-column .hardwipe-slot-card.is-damaged { --hw-slot-edge: var(--hw-alert); border-left-style: solid; }
-.hardwipe-cyberware-tab .hardwipe-slot-column .hardwipe-slot-card.is-empty {
-  --hw-slot-edge: rgba(70, 230, 220, 0.3);
-  background: rgba(0, 0, 0, 0.18);
-  border: 1px dashed var(--hw-slot-edge);
-  clip-path: none;
-}
-.hardwipe-cyberware-tab .hardwipe-slot-column .hardwipe-slot-card:hover {
-  border-color: color-mix(in srgb, var(--hw-slot-edge) 75%, transparent);
-  border-left-color: var(--hw-slot-edge);
-  box-shadow: inset 0 0 12px color-mix(in srgb, var(--hw-slot-edge) 18%, transparent);
-}
-/* Selection: gold, drawn inside the card. */
-.hardwipe-cyberware-tab .hardwipe-slot-column .hardwipe-slot-card:is(.is-selected, :focus-visible) {
-  border-color: var(--hardwipe-gold);
-  border-left-color: var(--hw-slot-edge);
-  outline: none;
-  box-shadow: inset 0 0 0 1px var(--hardwipe-gold), inset 0 0 14px color-mix(in srgb, var(--hardwipe-gold) 28%, transparent);
-}
-.hardwipe-cyberware-tab .hardwipe-slot-column .hardwipe-slot-card.is-empty:is(.is-selected, :focus-visible) { border-style: dashed; }
-/* SC rarity borders: the left edge still carries the state; selection stays visible inside. */
-.hardwipe-cyberware-tab .hardwipe-slot-column .hardwipe-slot-card.scirc-inv-border-managed:is(.is-occupied, .is-disabled, .is-damaged) { border-left-color: var(--hw-slot-edge) !important; border-left-width: 3px !important; }
-.hardwipe-cyberware-tab .hardwipe-slot-card.scirc-inv-border-managed:is(.is-selected, :focus-visible) { outline: none; }
-.hardwipe-cyberware-tab .hardwipe-slot-card.scirc-inv-border-gradient:is(.is-occupied, .is-disabled, .is-damaged)::before { left: -3px; border-left: 3px solid var(--hw-slot-edge); }
-.hardwipe-cyberware-tab .hardwipe-slot-card.scirc-inv-border-gradient.is-disabled::before { border-left-style: dashed; }
-/* Icon, name and state in the card typography. */
-.hardwipe-cyberware-tab .hardwipe-slot-card img {
-  border: 1px solid color-mix(in srgb, var(--hw-slot-edge) 55%, transparent);
-  border-radius: 2px;
-  box-shadow: 0 0 6px color-mix(in srgb, var(--hw-slot-edge) 25%, transparent);
-}
-.hardwipe-cyberware-tab .hardwipe-slot-card .hardwipe-slot-name {
-  font-family: var(--hw-font-disp);
-  font-size: 13px;
-  letter-spacing: 0.03em;
-  line-height: 1.05;
-  text-transform: uppercase;
-}
-.hardwipe-cyberware-tab .hardwipe-slot-card .hardwipe-state,
-.hardwipe-cyberware-tab .hardwipe-slot-card .hardwipe-slot-queued {
-  font-family: var(--hw-font-disp);
-  font-size: 9px;
-  font-weight: 700;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-}
-.hardwipe-cyberware-tab .hardwipe-slot-card .hardwipe-slot-content > small:not(.hardwipe-state, .hardwipe-slot-queued) { color: var(--hw-dim); font-family: var(--hw-font-mono); font-size: 9px; }
-.hardwipe-cyberware-tab .hardwipe-slot-card.is-empty .hardwipe-slot-content > small { color: var(--hw-dim); font-family: var(--hw-font-disp); font-size: 9px; letter-spacing: 0.14em; }
-.hardwipe-cyberware-tab .hardwipe-slot-card .hardwipe-slot-empty-icon { color: var(--hw-cyan); border-color: rgba(70, 230, 220, 0.3); border-radius: 2px; }
-
-/* =============================================================================================
- * 0.7.22 Cyberware tab: each item's description in the detail list, three lines until opened.
- * =========================================================================================== */
-.hardwipe-cyberware-desc { margin: 7px 0 0; padding: 2px 0 0 9px; border-left: 2px solid color-mix(in srgb, var(--hw-cyan) 45%, var(--hardwipe-line)); }
-.hardwipe-cyberware-desc-body { color: var(--color-text-primary); font-size: 12.5px; line-height: 1.45; overflow-wrap: anywhere; }
-.hardwipe-cyberware-desc-body p { margin: 0 0 5px; }
-.hardwipe-cyberware-desc-body > :last-child { margin-bottom: 0; }
-/* Secret blocks show to owners as on the item sheet; revealing them happens in the item editor, not here. */
-.hardwipe-cyberware-desc-body .secret > button.reveal { display: none; }
-.hardwipe-cyberware-desc.is-clamped:not(.is-open) .hardwipe-cyberware-desc-body { display: -webkit-box; overflow: hidden; -webkit-line-clamp: 3; -webkit-box-orient: vertical; }
-.hardwipe-cyberware-desc-more {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  margin-top: 4px;
-  color: var(--hardwipe-gold);
-  font-family: var(--hardwipe-label-font);
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-}
-.hardwipe-cyberware-desc-more:hover { text-shadow: 0 0 6px color-mix(in srgb, var(--hardwipe-gold) 60%, transparent); }
-.hardwipe-cyberware-desc-more > i { font-size: 8px; transition: transform 0.15s; }
-.hardwipe-cyberware-desc.is-open .hardwipe-cyberware-desc-more > i { transform: rotate(180deg); }
-
-/* =============================================================================================
- * 0.7.23 Cyberware tab visuals: pale phosphor charge pips (list and slot cards), implant rows in
- * the slot-card style, and the doll overlay: hatched, glowing regions for every installed implant
- * plus callout lines from each slot card. The selected region keeps gold.
- * =========================================================================================== */
-/* Charge pips: slanted pale phosphor segments. */
-.hardwipe-cyberware-tab :is(.hardwipe-uses, .hardwipe-slot-pips) { display: inline-flex; align-items: center; gap: 3px; }
-.hardwipe-cyberware-tab :is(.hardwipe-uses, .hardwipe-slot-pips) > i {
-  width: 11px;
-  height: 6px;
-  background: rgba(143, 207, 176, 0.07);
-  border: 1px solid rgba(143, 207, 176, 0.32);
-  box-shadow: none;
-  transform: skewX(-24deg);
-}
-.hardwipe-cyberware-tab .hardwipe-slot-pips > i { width: 9px; height: 5px; }
-.hardwipe-cyberware-tab :is(.hardwipe-uses, .hardwipe-slot-pips) > i.is-on {
-  background: linear-gradient(180deg, var(--hw-signal) 0%, var(--hw-phos) 55%, var(--hw-phos-deep) 100%);
-  border-color: var(--hw-phos-2);
-  box-shadow: 0 0 6px rgba(143, 207, 176, 0.7);
-}
-.hardwipe-cyberware-tab :is(.hardwipe-uses, .hardwipe-slot-pips) > b {
-  margin-left: 4px;
-  color: var(--hw-phos-2);
-  font-family: var(--hw-font-mono);
-  font-size: 10px;
-  font-weight: 400;
-  letter-spacing: 0.06em;
-  text-shadow: 0 0 6px rgba(143, 207, 176, 0.5);
-}
-.hardwipe-cyberware-tab .hardwipe-slot-pips { margin-top: 1px; }
-.hardwipe-cyberware-tab .hardwipe-slot-pips > b { font-size: 9px; }
-
-/* Implant rows under the doll: the slot-card panel, edge by state. */
-.hardwipe-cyberware-tab .hardwipe-cyberware-items > .hardwipe-cyberware-item,
-.hardwipe-cyberware-tab .hardwipe-cyberware-items > .hardwipe-cyberware-item.scirc-inv-gradient-enabled {
-  --hw-row-edge: rgba(198, 255, 230, 0.3);
-  position: relative;
-  padding: 9px 14px 10px 10px;
-  color: var(--hw-hi);
-  background:
-    repeating-linear-gradient(to bottom, rgba(70, 230, 220, 0.03) 0 1px, transparent 1px 4px),
-    linear-gradient(150deg, #0b1517, #06090b) !important;
-  border: 1px solid color-mix(in srgb, var(--hw-row-edge) 40%, transparent);
-  border-left: 3px solid var(--hw-row-edge);
-  border-radius: 0;
-  clip-path: polygon(0 0, calc(100% - 11px) 0, 100% 11px, 100% 100%, 0 100%);
-}
-.hardwipe-cyberware-tab .hardwipe-cyberware-items > .hardwipe-cyberware-item.is-installed { --hw-row-edge: var(--hw-cyan); }
-.hardwipe-cyberware-tab .hardwipe-cyberware-items > .hardwipe-cyberware-item.is-disabled { --hw-row-edge: var(--hw-warn); border-left-style: dashed; }
-.hardwipe-cyberware-tab .hardwipe-cyberware-items > .hardwipe-cyberware-item.is-damaged { --hw-row-edge: var(--hw-alert); border-left-style: solid; }
-.hardwipe-cyberware-tab .hardwipe-cyberware-items > .hardwipe-cyberware-item.scirc-inv-border-managed { border-left-color: var(--hw-row-edge) !important; border-left-width: 3px !important; }
-.hardwipe-cyberware-tab .hardwipe-cyberware-item-name > button {
-  font-family: var(--hw-font-disp);
-  font-size: 15px;
-  letter-spacing: 0.03em;
-  text-transform: uppercase;
-}
-.hardwipe-cyberware-tab .hardwipe-cyberware-item-meta,
-.hardwipe-cyberware-tab .hardwipe-cyberware-item-meta .hardwipe-state {
-  font-family: var(--hw-font-disp);
-  font-size: 9px;
-  font-weight: 700;
-  letter-spacing: 0.12em;
-}
-.hardwipe-cyberware-tab .hardwipe-cyberware-item .hardwipe-item-image img {
-  border: 1px solid color-mix(in srgb, var(--hw-row-edge) 55%, transparent);
-  border-radius: 2px;
-  box-shadow: 0 0 6px color-mix(in srgb, var(--hw-row-edge) 25%, transparent);
-}
-.hardwipe-cyberware-tab .hardwipe-cyberware-item .hardwipe-cyberware-desc { border-left-color: color-mix(in srgb, var(--hw-row-edge) 55%, transparent); }
-.hardwipe-cyberware-tab .hardwipe-cyberware-item .hardwipe-cyberware-desc-body { color: rgba(234, 255, 244, 0.86); }
-.hardwipe-cyberware-tab .hardwipe-cyberware-item .hardwipe-passive-effects { color: var(--hw-dim); font-family: var(--hw-font-mono); font-size: 10px; }
-.hardwipe-cyberware-tab .hardwipe-cyberware-item .hardwipe-cyberware-item-controls { border-top: 1px dashed color-mix(in srgb, var(--hw-row-edge) 22%, transparent) !important; }
-
-/* Doll overlay: hatch patterns (defined in the SVG), installed regions lit, selection in gold. */
-.hardwipe-hatch > rect { fill: rgba(143, 207, 176, 0.08); }
-.hardwipe-hatch > line { stroke: rgba(143, 207, 176, 0.55); stroke-width: 5; }
-.hardwipe-hatch.is-warn > rect { fill: rgba(255, 194, 77, 0.08); }
-.hardwipe-hatch.is-warn > line { stroke: rgba(255, 194, 77, 0.55); }
-.hardwipe-hatch.is-bad > rect { fill: rgba(255, 63, 95, 0.1); }
-.hardwipe-hatch.is-bad > line { stroke: rgba(255, 63, 95, 0.6); }
-.hardwipe-hatch.is-gold > rect { fill: color-mix(in srgb, var(--hardwipe-gold) 10%, transparent); }
-.hardwipe-hatch.is-gold > line { stroke: color-mix(in srgb, var(--hardwipe-gold) 65%, transparent); }
-.hardwipe-map-region.is-occupied:not(.is-selected) {
-  fill: url(#hardwipe-hatch-ok);
-  stroke: var(--hw-phos-2);
-  stroke-width: 2.5;
-  filter: drop-shadow(0 0 4px rgba(143, 207, 176, 0.9)) drop-shadow(0 0 14px rgba(143, 207, 176, 0.35));
-  animation: hardwipe-region-breathe 5s ease-in-out infinite;
-}
-.hardwipe-map-region.is-occupied.is-disabled:not(.is-selected) {
-  fill: url(#hardwipe-hatch-warn);
-  stroke: var(--hw-warn);
-  stroke-dasharray: 10 7;
-  filter: drop-shadow(0 0 4px rgba(255, 194, 77, 0.6));
-  animation: none;
-}
-.hardwipe-map-region.is-occupied.is-damaged:not(.is-selected) {
-  fill: url(#hardwipe-hatch-bad);
-  stroke: #ff6b81;
-  stroke-dasharray: none;
-  filter: drop-shadow(0 0 4px rgba(255, 63, 95, 0.9)) drop-shadow(0 0 14px rgba(255, 63, 95, 0.35));
-  animation: none;
-}
-.hardwipe-map-region.is-selected { fill: url(#hardwipe-hatch-gold); stroke-width: 3; }
-.hardwipe-map-region.is-selected.is-damaged { fill: url(#hardwipe-hatch-bad); }
-.hardwipe-map-region[data-slot="nervous"]:is(.is-occupied, .is-selected),
-.hardwipe-map-region[data-slot="dermal"]:is(.is-occupied, .is-selected) { fill: none; stroke-width: 4; }
-.hardwipe-map-region.is-occupied:not(.is-selected) .hardwipe-map-ping { display: inline; stroke: var(--hw-phos-2); stroke-width: 3; stroke-dasharray: 18 10; filter: none; }
-.hardwipe-map-region.is-occupied.is-damaged:not(.is-selected) .hardwipe-map-ping { stroke: #ff6b81; }
-.hardwipe-map-region.is-occupied.is-disabled:not(.is-selected) .hardwipe-map-ping { stroke: var(--hw-warn); }
-@keyframes hardwipe-region-breathe { 50% { opacity: 0.72; } }
-
-/* Callouts: slot card to region. */
-.hardwipe-cyberware-layout { position: relative; }
-.hardwipe-callouts { position: absolute; top: 0; left: 0; z-index: 1; overflow: visible; pointer-events: none; }
-.hardwipe-callout-lead { fill: none; stroke: rgba(143, 207, 176, 0.5); stroke-width: 1; }
-.hardwipe-callout-dot { fill: var(--hw-phos-2); filter: drop-shadow(0 0 3px var(--hw-phos)); }
-.hardwipe-callout-ring { fill: none; stroke: rgba(143, 207, 176, 0.55); stroke-width: 1; }
-.hardwipe-callout-tick { fill: var(--hw-phos-2); }
-.hardwipe-callouts .is-disabled .hardwipe-callout-lead { stroke: rgba(255, 194, 77, 0.6); stroke-dasharray: 4 3; }
-.hardwipe-callouts .is-disabled :is(.hardwipe-callout-dot, .hardwipe-callout-tick) { fill: var(--hw-warn); filter: none; }
-.hardwipe-callouts .is-disabled .hardwipe-callout-ring { stroke: rgba(255, 194, 77, 0.6); }
-.hardwipe-callouts .is-damaged .hardwipe-callout-lead { stroke: rgba(255, 107, 129, 0.6); }
-.hardwipe-callouts .is-damaged :is(.hardwipe-callout-dot, .hardwipe-callout-tick) { fill: #ff6b81; filter: drop-shadow(0 0 3px var(--hw-alert)); }
-.hardwipe-callouts .is-damaged .hardwipe-callout-ring { stroke: rgba(255, 107, 129, 0.6); }
-.hardwipe-callouts .is-selected .hardwipe-callout-lead { stroke: var(--hardwipe-gold); stroke-width: 1.5; }
-.hardwipe-callouts .is-selected :is(.hardwipe-callout-dot, .hardwipe-callout-tick) { fill: var(--hardwipe-gold); }
-.hardwipe-callouts .is-selected .hardwipe-callout-ring { stroke: var(--hardwipe-gold); }
-@media (prefers-reduced-motion: reduce) {
-  .hardwipe-map-region.is-occupied { animation: none !important; }
 }
 
 /* =============================================================================================
@@ -3712,6 +3233,34 @@ button.hardwipe-web-tab:not([aria-selected="true"]):hover { color: var(--hw-hi);
 .hardwipe-msg-card .targets .status.failure .total { border-color: var(--hw-c-failure, var(--hw-alert)); }
 .hardwipe-msg-card .targets .status > i { margin-left: 5px; }
 .hardwipe-msg-card .targets .status > i.fa-check:only-child { color: var(--hw-c-success, var(--hw-phos)); }
+/* Quick roll request (a roll link's GM request): dnd5e's own Roll button, full width, in the request colour. */
+.hardwipe-msg-card.is-prompt .card-buttons { display: grid; gap: 5px; margin: 0; }
+.hardwipe-msg-card.is-prompt .card-buttons button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 100%;
+  height: auto;
+  margin: 0;
+  padding: 6px 10px;
+  color: var(--hw-hi);
+  background: color-mix(in srgb, var(--hw-accent) 14%, #0b1013);
+  border: 1px solid var(--hw-accent);
+  border-radius: 2px;
+  box-shadow: none;
+  font: 700 11px/1.2 var(--hw-font-disp);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+.hardwipe-msg-card.is-prompt .card-buttons button:hover { background: color-mix(in srgb, var(--hw-accent) 26%, #0b1013); }
+.hardwipe-msg-card.is-prompt .card-buttons button dnd5e-icon { --icon-fill: var(--hw-accent); width: 14px; height: 14px; }
+/* dnd5e shows the DC in the button only where the challenge is visible ([data-display-challenge] on the message). */
+.hardwipe-msg-card.is-prompt .card-buttons button > :is(.visible-dc, .hidden-dc) { align-items: center; gap: 6px; }
+.hardwipe-msg-card.is-prompt .card-buttons button > .visible-dc { display: none; }
+.hardwipe-msg-card.is-prompt .card-buttons button > .hidden-dc { display: inline-flex; }
+[data-display-challenge] .hardwipe-msg-card.is-prompt .card-buttons button > .visible-dc { display: inline-flex; }
+[data-display-challenge] .hardwipe-msg-card.is-prompt .card-buttons button > .hidden-dc { display: none; }
 
 /* Folded system cards and reviews keep their bar and headline. */
 .chat-message.is-folded .hardwipe-chat-card[data-hw-kind] :is(.hardwipe-chat-subtitle, .hardwipe-wall-impact, .hardwipe-wall-actions,
