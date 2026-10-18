@@ -185,6 +185,13 @@ You can press **Fire**, **Trigger** or **×** on a character's Turn tab for them
 
 Run memories from the brain button in **Token Controls** (or **Alt+B**): pair player characters with NPCs, send sensory echoes, hide clues on the Visual, Audio and Thermal layers, mark and replay moments, and choose whether wall damage and Heat from the memory roll back when it ends. See the [Braindance guide](Braindance.md).
 
+## Edge
+
+Award Edge with **+** beside it on the sheet or the Turn tab: it posts a **Charged** card (one is the most anyone holds). Players spend it through the picker (see [Edge, Strikes, and Downed](Players.md#edge-strikes-and-downed)). What needs you:
+
+- **Rerolls.** You can press Keep or Reroll for an absent player. Writing someone else's die goes through the card's author (who holds the Midi workflow) or you. When a reroll flips an attack you already ruled, the card asks you again (**Miss · take back damage** / **Hit stands**, or the reverse). Hardwipe otherwise keeps a ruled attack locked. A rerolled save that answers a spell moves its target between the saved and failed lists, and applied damage follows. The Strike from a drop to 0 stays; take it off on the Strikes tray if the reroll means it never happened.
+- **Execute** runs on your client. It refuses anything with Legendary Resistance (`system.resources.legres.max` above 0) and characters.
+
 ## Custom effects on cards and the Turn tab
 
 Consumable cards and the Turn tab read any Active Effect, including your own, so there's nothing extra to set up:

@@ -38,7 +38,7 @@ The hourglass tab is your **Turn** helper: where your turn stands, and what you 
 - **Action Surge.** Using it on your own turn in combat gives the action back on this tab, with a fresh Attack action.
 - **Active effects.** Each effect running on you (a stim, a spell, a GM's custom effect) shows its icon in a ring as long as it lasts, from a sliver for a round to the whole ring for a day, lit for the time left. It drains as rounds and game time pass. Beside it: the time left and what it grants (AC +2, Darkvision ≥ 60 ft). **×** removes it.
 - **Running programs and conditions.** What you're concentrating on, with **End program**, and every condition on you with **×** to clear it. Exhaustion comes off one level at a time; a condition that comes from an item, such as an implant, isn't cleared here.
-- **Edge & Strikes.** The same Edge and Strikes as the sidebar, with **Spend**, and **Recover · 1 Edge** while you're Downed.
+- **Edge & Strikes.** The same Edge and Strikes as the sidebar, with **Spend** (the Edge picker), and **Recover · 1 Edge** (Stabilize) while you're Downed. A live Interrupt shows under the action slots.
 
 Everything resets when your turn starts; your reaction comes back then too. When Ready Set Midi counts reactions (its **Enforce Reactions** setting is anything but *Do not check*) or bonus actions (**Enforce Bonus Actions** prompts for characters or all actors), the chips follow Midi's markers, so they always match the icon on your token. Shield Block reads the same Reaction chip.
 
@@ -98,7 +98,14 @@ The GM can switch the card to the compact **Glitch feed** instead.
 
 <img src="media/edge-downed-strikes-0.7.39.webp" alt="Edge spent, death saves replaced, and Flatlined announcements" width="800">
 
-**Edge** is a single stored resource. The sidebar shows whether you have it and provides **Spend**. The GM's award control restores it. A living Downed character can use the labeled Edge recovery action when eligible.
+**Edge** is one point, earned by playing it cool: you hold at most one. **Spend** (sidebar or Turn tab) opens the picker with four plays; one that can't apply right now is greyed with the reason. **Just spend** spends it with no play, as before.
+
+- **Reroll.** Any single die from anyone: an attack's d20 (yours, an ally's, an enemy's), one die of a damage roll, a save, a check. Pick the die from the list of recent cards (point at a card to find it in chat). The new die is rolled at once and both results appear on that card: you (or the GM) press **Keep** or **Reroll**, and everyone else sees that you're choosing. Taking the new die changes the card as any reroll does. Damage already applied is adjusted for everyone it hit. A save that flips moves that target between saved and failed on the spell, and their damage follows. An attack the GM already ruled on goes back to the GM, who rules again on the card: a hit that becomes a miss takes the damage back.
+- **Interrupt.** One action or bonus action, now, even on someone else's turn. The Turn tab shows **Interrupt · 1 action or bonus action**. Your next action or bonus action uses it, off turn without asking whether it was your reaction. Or press **Action** or **Bonus action** on the card. It lapses when the turn moves on.
+- **Stabilize.** At 0 HP: back up at 1 HP, Downed cleared, and the Strike from going down taken back. **Recover · 1 Edge** on the Strikes tray does the same.
+- **Execute.** Target one mook (an NPC without Legendary Resistance) and it drops to 0 HP with no damage roll. The GM's client applies it, so a GM must be online.
+
+Each play posts its own card; an award posts a **Charged** card.
 
 **Strikes** replaces the character death-save tracker. Open its tray to see the three cells and your status. At zero HP, a character becomes Downed under Hardwipe's rules; three Strikes means Dead. A qualifying long rest clears living characters' Strikes and Downed. An ordinary rest or Edge recovery cannot revive someone on three Strikes. NPC zero-HP handling stays separate.
 

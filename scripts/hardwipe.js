@@ -30,6 +30,7 @@ import { TurnTracker } from "./hardwipe-turn.js";
 import { registerRequests } from "./hardwipe-requests.js";
 import { registerComms } from "./hardwipe-comms.js";
 import { CrewManager } from "./hardwipe-crew.js";
+import { registerEdgePlays } from "./hardwipe-edge.js";
 
 export const MODULE_ID = "hardwipe-ruleset";
 export const MODULE_TITLE = "Hardwipe Ruleset";
@@ -84,6 +85,7 @@ Hooks.once("init", async () => {
   registerRequests();
   registerComms();
   CrewManager.register();
+  registerEdgePlays();
 
   await foundry.applications.handlebars.loadTemplates([
     "modules/hardwipe-ruleset/templates/heat-hud.hbs",

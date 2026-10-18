@@ -674,6 +674,9 @@ function currentParts(message, entry) {
 
 const partsKey = parts => JSON.stringify(parts.map(part => [part.type, Number(part.value) || 0]).sort());
 
+/** Hit points (and temp HP) a logged application actually took from a target; negative for healing. */
+const lost = target => -(Number(target.dv) || 0) - (Number(target.dt) || 0);
+
 /** HP an actor loses to these parts at this multiplier: dnd5e's resistances, immunities and threshold included. */
 function landed(actor, parts, multiplier) {
   const damages = aggregateCriticalDamage(parts.map(part => ({ value: part.value, type: part.type, properties: new Set(part.properties ?? []) })));
@@ -696,6 +699,9 @@ export async function recordWorkflowDamage(workflow) {
   // An attack's damage lands only on the targets it still hits once the GM has ruled; Midi calculates it for all of them.
   const attack = !!workflow.attackRoll;
   const hit = new Set([...(workflow.hitTargets ?? []), ...(workflow.hitTargetsEC ?? [])].map(target => (target?.document ?? target)?.uuid));
+  // A target that saved took the save's share (half, or none): record that, so a later change scales the same way.
+  const saved = new Set([...(workflow.saves ?? [])].map(target => (target?.document ?? target)?.uuid));
+  const onSave = workflow.activity?.damage?.onSave === "half" ? 0.5 : 0;
   const targets = [];
   for (const item of workflow.damageList) {
     const token = item.targetUuid ? foundry.utils.fromUuidSync(item.targetUuid) : null;
@@ -704,7 +710,7 @@ export async function recordWorkflowDamage(workflow) {
     if (!applies || !token || (attack && !hit.has(token.uuid))) continue;
     const dv = (Number(item.newHP) - Number(item.oldHP)) || 0;
     const dt = (Number(item.newTempHP) - Number(item.oldTempHP)) || 0;
-    if (dv || dt) targets.push({ uuid: token.uuid, name: token.name ?? actor?.name ?? "", dv, dt, m: 1 });
+    if (dv || dt) targets.push({ uuid: token.uuid, name: token.name ?? actor?.name ?? "", dv, dt, m: saved.has(token.uuid) ? onSave : 1 });
   }
   if (!targets.length) return;
   // Save damage depends on each save; the attack's own and bonus damage land whole on a hit.
@@ -731,7 +737,9 @@ async function syncAppliedDamage(message) {
       const actor = foundry.utils.fromUuidSync(target.uuid)?.actor;
       if (!actor?.isOwner) continue;
       const multiplier = Number(target.m ?? 1) || 1;
-      const delta = landed(actor, parts, multiplier) - landed(actor, entry.parts, multiplier);
+      // Against what the target actually lost (a drop to 0 HP loses less than the roll was worth), so a smaller
+      // roll doesn't hand back hit points that were never lost.
+      const delta = landed(actor, parts, multiplier) - lost(target);
       if (!delta) continue;
       const hp = () => [Number(actor.system.attributes?.hp?.value) || 0, Number(actor.system.attributes?.hp?.temp) || 0];
       const [value, temp] = hp();
@@ -748,6 +756,83 @@ async function syncAppliedDamage(message) {
   if (!changed) return;
   await message.setFlag(MODULE_ID, "applied", list);
   if (notes.length) ui.notifications.info(game.i18n.format("HARDWIPE.Cards.AdjustedNote", { changes: notes.join(", ") }));
+}
+
+/**
+ * A ruled attack whose roll changed afterwards (an Edge reroll): the GM rules a target again. Now a miss takes back
+ * what was applied to it (the log keeps the entry, its change zeroed); now a hit applies the card's damage to it.
+ */
+export async function reruleTarget(message, uuid, outcome) {
+  const card = game.messages.get(message?.id) ?? message;
+  const state = foundry.utils.deepClone(card?.getFlag(MODULE_ID, "attackReview") ?? null);
+  const target = state?.targets?.find(entry => entry.uuid === uuid);
+  if (!target || state.status !== "resolved") return false;
+  const hits = value => ["hit", "critical"].includes(value);
+  const before = target.outcome;
+  target.outcome = outcome;
+  await card.setFlag(MODULE_ID, "attackReview", state);
+  if (hits(before) && !hits(outcome)) await takeBackDamage(card, uuid);
+  else if (!hits(before) && hits(outcome)) {
+    const source = { kinds: ["defaultDamage", "bonusDamage"] };
+    const parts = source.kinds.flatMap(kind => damageGroups(damageRolls(card, kind))).flatMap(damageGroupParts);
+    const token = foundry.utils.fromUuidSync(uuid);
+    if (token && parts.length) {
+      await applyParts(parts, 1, { message: card, key: "damage", label: game.i18n.localize("HARDWIPE.EdgePlay.reroll.LogRuled"), targets: [{ token, multiplier: 1 }], source });
+    }
+  }
+  return true;
+}
+
+/** Give back what every logged application took from one target, keeping the entries (their change zeroed). */
+async function takeBackDamage(message, uuid) {
+  const list = foundry.utils.deepClone(message.getFlag(MODULE_ID, "applied") ?? []);
+  let changed = false;
+  for (const entry of list) {
+    if (entry.undone) continue;
+    for (const target of entry.targets) {
+      if (target.uuid !== uuid || (!target.dv && !target.dt)) continue;
+      const actor = foundry.utils.fromUuidSync(target.uuid)?.actor;
+      if (!actor?.isOwner) continue;
+      const hp = actor.system.attributes?.hp ?? {};
+      const max = Number(hp.effectiveMax ?? hp.max) || Infinity;
+      await actor.update({
+        "system.attributes.hp.value": Math.clamp((Number(hp.value) || 0) - target.dv, 0, max),
+        "system.attributes.hp.temp": Math.max(0, (Number(hp.temp) || 0) - target.dt)
+      });
+      Object.assign(target, { dv: 0, dt: 0, takenBack: true });
+      changed = true;
+    }
+  }
+  if (changed) await message.setFlag(MODULE_ID, "applied", list);
+}
+
+/**
+ * A target's save changed after damage was applied (an Edge reroll): each targeted application recorded for it is
+ * redone at the new multiplier (failed 1, saved ½ or 0), the difference applied and logged, so Undo still restores.
+ */
+export async function resyncSaveTarget(message, uuid, multiplier) {
+  const list = foundry.utils.deepClone(message?.getFlag(MODULE_ID, "applied") ?? []);
+  const targeted = game.i18n.localize("HARDWIPE.Cards.LogTargets");
+  let changed = false;
+  for (const entry of list) {
+    if (entry.undone || !Array.isArray(entry.parts) || (entry.label !== targeted && !entry.auto)) continue;
+    for (const target of entry.targets) {
+      if (target.uuid !== uuid) continue;
+      if (Number(target.m ?? 1) === multiplier) continue;
+      const actor = foundry.utils.fromUuidSync(target.uuid)?.actor;
+      if (!actor?.isOwner) continue;
+      const delta = landed(actor, entry.parts, multiplier) - lost(target);
+      const hp = () => [Number(actor.system.attributes?.hp?.value) || 0, Number(actor.system.attributes?.hp?.temp) || 0];
+      const [value, temp] = hp();
+      if (delta) await actor.applyDamage(delta);
+      const [after, afterTemp] = hp();
+      target.dv += after - value;
+      target.dt += afterTemp - temp;
+      target.m = multiplier;
+      changed = true;
+    }
+  }
+  if (changed) await message.setFlag(MODULE_ID, "applied", list);
 }
 
 export function registerDamageSync() {

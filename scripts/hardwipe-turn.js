@@ -7,6 +7,7 @@ import { pendingConcentration, rollConcentrationRequest } from "./hardwipe-conce
 import { RollRequestComposer, abilityAbbr, createRequest, parseRoll, pendingFor, rollFor, rollName } from "./hardwipe-requests.js";
 import { closedOf, limitWaiting, orderWaiting, waitingLimit } from "./hardwipe-comms.js";
 import { durationRing, effectRows } from "./hardwipe-effects.js";
+import { liveInterrupt, useInterrupt } from "./hardwipe-edge.js";
 
 /**
  * The Turn tab: what a character can do right now, and what this turn has already cost.
@@ -429,11 +430,30 @@ export class TurnTracker {
     if (!now) return;
     const activation = this._pending.get(activity.uuid) ?? activity.activation?.type ?? "";
     const use = { activation, attack: isAttackAction(activity), move: generalMoveOf(activity) };
+    if (await this._spendInterrupt(actor, activity, use, now, spentBefore)) return;
     const next = recordUse(this.ledger(actor), use, now);
     if (next) await writeLedger(actor, next);
     // Action Surge: one more action this turn. The ledger's action (and Ready Set Midi's marker) comes back.
     if (now.isTurn && isActionSurge(activity.item)) await this._surge(actor, now);
     if (asksReaction(use, now, spentBefore)) await this._askReaction(actor, activity);
+  }
+
+  /**
+   * An Interrupt bought with Edge pays for one action or bonus action: off turn (instead of the Reaction? prompt, and
+   * taking back Ready Set Midi's reaction marker), or on the actor's own turn once that slot is already spent. The
+   * Attack action's later attacks stay on the action.
+   */
+  static async _spendInterrupt(actor, activity, use, now, spentBefore) {
+    if (!["action", "bonus"].includes(use.activation) || !liveInterrupt(actor)) return false;
+    if (now.isTurn) {
+      const own = readLedger(this.ledger(actor), now);
+      const attacks = attacksPerAction(actor.items, item => CyberwareManager.isOperational(item)).count;
+      if (!own[use.activation]) return false;
+      if (use.activation === "action" && use.attack && own.attacks > 0 && own.attacks < attacks) return false;
+    }
+    await useInterrupt(actor, use.activation, activity.item?.name ?? activity.name ?? "");
+    if (!now.isTurn && !spentBefore && this.economy(actor, now).economy.reaction.spent) await this.toggle(actor, "reaction");
+    return true;
   }
 
   /**
@@ -822,6 +842,7 @@ export class TurnTracker {
       view.economy = SLOTS.map(kind => ({
         kind, label: game.i18n.localize(`HARDWIPE.Turn.Slot.${kind}`), icon: SLOT_ICONS[kind], ...slotState(kind, economy[kind], now, canControl)
       }));
+      if (liveInterrupt(actor)) view.interrupt = { label: game.i18n.localize("HARDWIPE.Turn.Interrupt"), state: game.i18n.localize("HARDWIPE.EdgePlay.Ready") };
       if (attacking) {
         Object.assign(view.economy[0], { state: "partial", stateLabel: game.i18n.format("HARDWIPE.Turn.AttacksLeftShort", { n: attacks.count - usedAttacks }) });
       }

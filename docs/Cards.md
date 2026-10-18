@@ -234,6 +234,38 @@ Completing the rest posts one combined receipt. Closing early produces an incomp
   </tr>
 </table>
 
+### Edge plays
+
+*2026-10-18, live in the QA world.* Spend opens the picker; each play posts its own card. Reroll's choice happens on the card whose die it changes.
+
+<table>
+  <tr>
+    <td valign="top"><a href="media/edge-picker.png"><img src="media/edge-picker.png" alt="Spend Edge picker with Reroll, Interrupt, Stabilize and Execute tiles" width="250"></a><br><strong>Spend Edge</strong><br>Four plays; Stabilize greyed (not at 0 HP), Execute waiting on a target.</td>
+    <td valign="top"><a href="media/edge-reroll-pick.png"><img src="media/edge-reroll-pick.png" alt="Die picker listing the Memory Merc's attack d20 and damage dice" width="250"></a><br><strong>Reroll: pick the die</strong><br>Recent cards and their dice.</td>
+    <td valign="top"><a href="media/edge-reroll-attack-choose.png"><img src="media/edge-reroll-attack-choose.png" alt="Attack card with Juno's Edge strip: Keep 10 = 16 hit, Reroll 19 = 25 hit" width="250"></a><br><strong>On the attack</strong><br>Juno's choice on the Merc's attack card: keep 10 or take 19.</td>
+  </tr>
+  <tr>
+    <td valign="top"><a href="media/edge-reroll-gm-ruling.png"><img src="media/edge-reroll-gm-ruling.png" alt="GM view: Now 8 vs AC 15, Mags was ruled hit, with Miss take back damage and Hit stands" width="250"></a><br><strong>The GM rules again</strong><br>A confirmed hit rerolled to 8 vs AC 15.</td>
+    <td valign="top"><a href="media/edge-reroll-ruled-miss.png"><img src="media/edge-reroll-ruled-miss.png" alt="Attack card now Confirmed miss with Juno's Edge marker and GM: miss" width="250"></a><br><strong>Confirmed miss</strong><br>The banner flips and Mags's 9 damage comes back.</td>
+    <td valign="top"><a href="media/edge-reroll-save-choose.png"><img src="media/edge-reroll-save-choose.png" alt="Save dial failed by 2 with Mags's Edge strip: Keep 3 failed, Reroll 17 saved" width="250"></a><br><strong>On a save</strong><br>Mags rerolls her failed DEX save: 3 or 17.</td>
+  </tr>
+  <tr>
+    <td valign="top"><a href="media/edge-reroll-save-spell.png"><img src="media/edge-reroll-save-spell.png" alt="Fireball card listing Juno failed and Mags saved" width="250"></a><br><strong>The spell follows</strong><br>Mags moves to Saved; her damage is redone at half.</td>
+    <td valign="top"><a href="media/edge-reroll-damage-choose.png"><img src="media/edge-reroll-damage-choose.png" alt="Fireball damage 32 with Juno's Edge strip: Keep 5 = 32, Reroll 3 = 30" width="250"></a><br><strong>On spell damage</strong><br>One of the Fireball's 5s: keep it or take a 3.</td>
+    <td valign="top"><a href="media/edge-reroll-damage-taken.png"><img src="media/edge-reroll-damage-taken.png" alt="Fireball damage now 30 with the Edge marker" width="250"></a><br><strong>Damage taken</strong><br>32 → 30; applied damage adjusted for both targets.</td>
+  </tr>
+  <tr>
+    <td valign="top"><a href="media/edge-interrupt.png"><img src="media/edge-interrupt.png" alt="Interrupt card: round 1, Mags's turn paused, Juno in the gap with 1 action" width="250"></a><br><strong>Interrupt</strong><br>Mags's turn torn open for one action.</td>
+    <td valign="top"><a href="media/edge-interrupt-used.png"><img src="media/edge-interrupt-used.png" alt="Interrupt card stamped Done, Compact SMG in the slot" width="250"></a><br><strong>Interrupt used</strong><br>Juno's SMG shot used it: Done, the turn resumes.</td>
+    <td valign="top"><a href="media/edge-interrupt-turn-tab.png"><img src="media/edge-interrupt-turn-tab.png" alt="Turn tab with the Interrupt chip under the action slots" width="300"></a><br><strong>On the Turn tab</strong><br>Until it's used or the turn moves on.</td>
+  </tr>
+  <tr>
+    <td valign="top"><a href="media/edge-stabilize.png"><img src="media/edge-stabilize.png" alt="Stabilize card: a trace restarting, 1 HP from 0, the Strike undone" width="250"></a><br><strong>Stabilize</strong><br>1 HP, Downed cleared, the Strike taken back.</td>
+    <td valign="top"><a href="media/edge-execute.png"><img src="media/edge-execute.png" alt="Execute card: a reticle and DROPPED, 30 to 0 HP no roll" width="250"></a><br><strong>Execute</strong><br>The Breach Guard drops, no roll.</td>
+    <td valign="top"><a href="media/edge-charged.png"><img src="media/edge-charged.png" alt="Charged card: +1 Edge from the GM" width="250"></a><br><strong>Charged</strong><br>An award.</td>
+  </tr>
+</table>
+
 <img src="media/edge-downed-strikes-0.7.39.webp" alt="Edge Spent, Downed with death saves disabled, and three-Strikes Flatline cards" width="900">
 
 *Native captures: 0.7.39.* Edge announces a reroll expenditure. Downed directs the player toward recovery instead of death saves, and the third Strike announces Flatline. [Edge and Strikes →](Players.md#edge-strikes-and-downed)

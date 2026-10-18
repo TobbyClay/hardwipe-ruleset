@@ -184,6 +184,32 @@ Captured on **2026-10-18** in the disposable QA world: three Heavy Pistol attack
 | [system-edge-current.png](media/system-edge-current.png) | Edge spent with its scope, reason Reroll the save. |
 | [system-flatline-current.png](media/system-flatline-current.png) | Flatline with its scope, Strikes 3/3. |
 
+## Edge captures
+
+Captured on **2026-10-18** in the disposable QA world with three clients (GM, QA Player as Mags, QA Player 2 as Juno). The BD Memory Merc's Heavy Pistol attacked Mags, and a QA Fireball copy (8d6, no template) hit Mags and Juno. One Reroll was forced low on Juno's client to show a ruled hit becoming a miss; every other die is as rolled.
+
+| Published file | Subject |
+| --- | --- |
+| [edge-picker.png](media/edge-picker.png) | edge picker |
+| [edge-reroll-pick.png](media/edge-reroll-pick.png) | edge reroll pick |
+| [edge-reroll-attack-choose.png](media/edge-reroll-attack-choose.png) | edge reroll attack choose |
+| [edge-reroll-attack-waiting.png](media/edge-reroll-attack-waiting.png) | edge reroll attack waiting |
+| [edge-reroll-gm-ruling.png](media/edge-reroll-gm-ruling.png) | edge reroll gm ruling |
+| [edge-reroll-ruled-miss.png](media/edge-reroll-ruled-miss.png) | edge reroll ruled miss |
+| [edge-reroll-save-choose.png](media/edge-reroll-save-choose.png) | edge reroll save choose |
+| [edge-reroll-save-saved.png](media/edge-reroll-save-saved.png) | edge reroll save saved |
+| [edge-reroll-save-spell.png](media/edge-reroll-save-spell.png) | edge reroll save spell |
+| [edge-reroll-damage-choose.png](media/edge-reroll-damage-choose.png) | edge reroll damage choose |
+| [edge-reroll-damage-taken.png](media/edge-reroll-damage-taken.png) | edge reroll damage taken |
+| [edge-reroll-line.png](media/edge-reroll-line.png) | edge reroll line |
+| [edge-interrupt.png](media/edge-interrupt.png) | edge interrupt |
+| [edge-interrupt-used.png](media/edge-interrupt-used.png) | edge interrupt used |
+| [edge-interrupt-turn-tab.png](media/edge-interrupt-turn-tab.png) | edge interrupt turn tab |
+| [edge-stabilize.png](media/edge-stabilize.png) | edge stabilize |
+| [edge-execute.png](media/edge-execute.png) | edge execute |
+| [edge-picker-legendary.png](media/edge-picker-legendary.png) | edge picker legendary |
+| [edge-charged.png](media/edge-charged.png) | edge charged |
+
 ## Prompt captures
 
 Captured on **2026-10-18** in the disposable QA world: the Reaction? prompt and the bonus dialog as the QA Player, the wall-type delete confirm as the GM.

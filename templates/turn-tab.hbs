@@ -118,6 +118,9 @@
       </button>
       {{/each}}
     </div>
+    {{#if interrupt}}
+    <div class="hardwipe-turn-interrupt"><i class="fas fa-bolt" inert></i><span>{{interrupt.label}}</span><b>{{interrupt.state}}</b></div>
+    {{/if}}
 
     <div class="hardwipe-turn-meter hardwipe-turn-movement {{movement.tone}} {{#unless movement.isTurn}}is-standby{{/unless}}">
       <div class="hardwipe-turn-meter-head">

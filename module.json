@@ -75,7 +75,8 @@
     "styles/wall-types.css",
     "styles/short-rest.css",
     "styles/roll-tracker.css",
-    "styles/braindance.css"
+    "styles/braindance.css",
+    "styles/edge.css"
   ],
   "languages": [
     {
