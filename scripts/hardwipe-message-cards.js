@@ -81,6 +81,36 @@ function systemCard(message, element, card) {
   const kicker = card.querySelector(":scope > .hardwipe-chat-kicker");
   if (kicker && !kicker.querySelector(":scope > i")) kicker.insertAdjacentHTML("afterbegin", `<i class="fas ${SYSTEM_ICONS[kind]}" inert></i>`);
   element.classList.add("hardwipe-sys-message");
+  systemScope(message, card, kind);
+}
+
+/**
+ * Edge spent, Downed and Flatline get a small scope under the title, in the family of the consumable and tool cards:
+ * a charge cell discharging, a faltering trace, a trace that stops. Decoration only; the card's words stay.
+ */
+function systemScope(message, card, kind) {
+  if (!["edge", "downed", "flatlined"].includes(kind) || card.querySelector(":scope > .hardwipe-sys-scope")) return;
+  const actor = game.actors.get(message.flags?.[MODULE_ID]?.actorId) ?? ChatMessage.implementation.getSpeakerActor?.(message.speaker);
+  const strikes = kind === "flatlined" ? 3 : Math.max(0, Math.min(3, Number(actor?.getFlag?.(MODULE_ID, "strikes")) || 0));
+  const pips = Array.from({ length: 3 }, (_, i) => `<i class="${i < strikes ? "is-on" : ""}"></i>`).join("");
+  const art = {
+    edge: `<svg viewBox="0 0 120 40" width="120" height="40"><rect class="sys-cell" x="6" y="8" width="58" height="24"/><rect class="sys-cell" x="64" y="15" width="5" height="10"/>
+      <rect class="sys-charge" x="10" y="12" width="50" height="16"/><path class="sys-bolt" d="M86 6 L78 22 L86 22 L80 36 L96 16 L88 16 L94 6 Z"/></svg>`,
+    downed: `<svg viewBox="0 0 270 40" preserveAspectRatio="none"><polyline class="sys-trace" points="0,26 30,26 36,22 40,30 46,26 90,26 96,24 100,28 104,26 170,26 174,25 178,27 182,26 270,26"/></svg>`,
+    flatlined: `<svg viewBox="0 0 270 40" preserveAspectRatio="none"><polyline class="sys-trace" points="0,26 24,26 30,10 36,36 42,26 70,26 76,16 82,32 88,26 270,26"/></svg>`
+  }[kind];
+  const label = {
+    edge: game.i18n.localize("HARDWIPE.SysScope.Edge"),
+    downed: game.i18n.format("HARDWIPE.SysScope.Downed", { n: strikes }),
+    flatlined: game.i18n.localize("HARDWIPE.SysScope.Flatline")
+  }[kind];
+  const scope = document.createElement("div");
+  scope.className = `hardwipe-sys-scope is-${kind}`;
+  scope.setAttribute("aria-hidden", "true");
+  scope.innerHTML = `<div class="hardwipe-sys-art">${art}</div><div class="hardwipe-sys-read">${kind === "edge" ? "" : `<span class="hardwipe-sys-pips">${pips}</span>`}<span>${escapeHTML(label)}</span></div>`;
+  card.querySelector(":scope > .hardwipe-chat-title")?.after(scope);
+  const fresh = Date.now() - (message.timestamp ?? 0) < 8000 && !globalThis.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+  if (fresh) scope.classList.add("is-arriving");
 }
 
 /* Shield Block: a targeting HUD over the shield's HP -------------------------------------------- */

@@ -3789,3 +3789,27 @@ button.hardwipe-adv-btn.is-crit { --hw-adv: var(--hw-c-critical, var(--hw-cyan))
 .hardwipe-dialog .rsm-bonus-choice { display: flex; align-items: center; gap: 8px; margin: 0 0 8px; }
 .hardwipe-dialog .rsm-bonus-choice span { display: flex; align-items: baseline; gap: 8px; }
 .hardwipe-dialog .rsm-bonus-choice small { color: var(--hw-dim); font: 600 11px var(--hw-font-mono); }
+
+/* System card scopes (Edge spent, Downed, Flatline): decoration under the title, in the card's own colour. */
+.hardwipe-sys-scope { --sys: var(--hw-phos); position: relative; height: 46px; margin: 6px 0 8px; overflow: hidden; color: var(--sys);
+  background: repeating-linear-gradient(90deg, color-mix(in srgb, var(--sys) 8%, transparent) 0 1px, transparent 1px 14px), rgba(0, 0, 0, 0.35);
+  border: 1px solid color-mix(in srgb, var(--sys) 35%, transparent); border-left: 3px solid var(--sys); pointer-events: none; }
+.hardwipe-sys-scope.is-downed { --sys: var(--hw-warn); }
+.hardwipe-sys-scope.is-flatlined { --sys: var(--hw-alert); }
+.hardwipe-sys-art { position: absolute; inset: 3px 0 0; }
+.hardwipe-sys-art svg { width: 100%; height: 40px; }
+.hardwipe-sys-scope.is-edge .hardwipe-sys-art svg { width: 120px; }
+.hardwipe-sys-art .sys-trace { fill: none; stroke: currentColor; stroke-width: 2; filter: drop-shadow(0 0 3px currentColor); stroke-dasharray: 600; }
+.hardwipe-sys-art .sys-cell { fill: none; stroke: currentColor; stroke-width: 1.4; opacity: 0.8; }
+.hardwipe-sys-art .sys-charge { fill: color-mix(in srgb, currentColor 18%, transparent); }
+.hardwipe-sys-art .sys-bolt { fill: currentColor; filter: drop-shadow(0 0 4px currentColor); opacity: 0.85; }
+.hardwipe-sys-read { position: absolute; right: 6px; bottom: 4px; display: flex; align-items: center; gap: 6px; padding: 0 5px; background: rgba(0, 0, 0, 0.6); font: 700 9.5px var(--hw-font-mono); letter-spacing: 0.08em; text-transform: uppercase; }
+.hardwipe-sys-pips { display: inline-flex; gap: 3px; }
+.hardwipe-sys-pips i { width: 7px; height: 7px; border: 1px solid currentColor; transform: rotate(45deg); }
+.hardwipe-sys-pips i.is-on { background: currentColor; }
+.hardwipe-sys-scope.is-arriving .sys-trace { animation: hardwipe-sys-draw 1.4s ease-out both; }
+.hardwipe-sys-scope.is-arriving .sys-charge { animation: hardwipe-sys-drain 0.9s 0.2s ease-in both; transform-box: fill-box; transform-origin: left; }
+.hardwipe-sys-scope.is-edge .sys-charge { transform: scaleX(0.04); transform-box: fill-box; transform-origin: left; }
+@keyframes hardwipe-sys-draw { from { stroke-dashoffset: 600; } to { stroke-dashoffset: 0; } }
+@keyframes hardwipe-sys-drain { from { transform: scaleX(1); } to { transform: scaleX(0.04); } }
+@media (prefers-reduced-motion: reduce) { .hardwipe-sys-scope * { animation: none !important; } }
