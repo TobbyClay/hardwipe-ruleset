@@ -172,6 +172,18 @@ Captured on **2026-10-17** from the local Crew Maneuvers branch in a private cop
 | [crew-card-cam-duo.png](media/crew-card-cam-duo.png) | Chat, Combo cam: Mags firing Juno's Spotter Mark, two staggered feeds; cropped above the log's scroll button. |
 | [crew-card-feed.png](media/crew-card-feed.png) | Chat, Glitch feed: the same Entry Stack card after the style was switched. |
 
+## Gallery refresh captures
+
+Captured on **2026-10-18** in the disposable QA world: three Heavy Pistol attacks by the QA Player against a QA NPC, ruled Hit, Critical and Miss by the GM; and Edge spent and Flatline for Juno, posted by the GM through Hardwipe's API.
+
+| Published file | Subject |
+| --- | --- |
+| [attack-hit-current.png](media/attack-hit-current.png) | Confirmed hit: 8 to hit, 9 damage. |
+| [attack-crit-current.png](media/attack-crit-current.png) | Critical hit: CRIT on the damage line, 21 piercing. |
+| [attack-miss-current.png](media/attack-miss-current.png) | Confirmed miss: 6 to hit, the target greyed. |
+| [system-edge-current.png](media/system-edge-current.png) | Edge spent with its scope, reason Reroll the save. |
+| [system-flatline-current.png](media/system-flatline-current.png) | Flatline with its scope, Strikes 3/3. |
+
 ## Prompt captures
 
 Captured on **2026-10-18** in the disposable QA world: the Reaction? prompt and the bonus dialog as the QA Player, the wall-type delete confirm as the GM.

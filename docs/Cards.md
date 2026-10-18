@@ -4,25 +4,28 @@
 
 Hardwipe gives each kind of action its own software-inspired display. Click any image to open the full capture. The examples use synthetic characters and scenes, so the QA names are demonstration data.
 
-> **Release status:** the public installer is **0.7.48**. The 38 core examples below are native captures from **0.7.38**; later system examples are labeled **0.7.39** or **0.7.40**. Anything labeled **audited preview** came from tested local source before its features were released. See [development status](Development.md) and [media provenance](Media.md).
+> **Captures:** each section says when its images were taken. The newest (2026-10-18) come from local work after the 0.7.48 installer: weapon outcomes, initiative, consumables, class features, tools, prompts and the system card scopes. Older captures are labelled with their version; the cards they show work the same way unless the text says otherwise. See [development status](Development.md) and [media provenance](Media.md).
 
-[Weapons](#weapon-outcomes-and-gm-review) · [Spells](#spell-programs) · [Concentration](#concentration-interrupts) · [Checks](#checks-and-initiative) · [Gear](#gear-and-class-features) · [Implants](#cyberware-diagnostics) · [Rests](#short-rest-monitor) · [System cards](#edge-strikes-and-downed) · [Heat](#mission-heat-styles)
+[Weapons](#weapon-outcomes-and-gm-review) · [Spells](#spell-programs) · [Checks](#checks-and-initiative) · [Consumables](#consumables) · [Features](#class-features) · [Tools](#tools) · [Prompts](#prompts) · [Crew](#crew-maneuvers) · [Roll calls](#roll-calls) · [Implants](#cyberware-diagnostics) · [Rests](#short-rest-monitor) · [System cards](#edge-strikes-and-downed) · [Heat](#mission-heat-styles) · [Braindance](#braindance)
 
 ## Weapon outcomes and GM review
 
 Use a weapon activity to make the roll; the GM confirms each target. The verdict, attack dice, damage breakdown, and apply controls share one card. [Combat and approval →](Combat.md)
 
-*Native captures: 0.7.38.*
+*Hit, critical and miss: 2026-10-18; critical miss: 0.7.38; GM review: 0.7.43.*
 
 <table>
   <tr>
-    <td valign="top"><a href="media/attack-hit.webp"><img src="media/attack-hit.webp" alt="Confirmed hit: The target verdict sits above the attack and damage totals." width="280"></a><br><strong>Confirmed hit</strong><br>The target verdict sits above the attack and damage totals.</td>
-    <td valign="top"><a href="media/attack-crit.webp"><img src="media/attack-crit.webp" alt="Critical hit: Critical damage, cover, and target status remain visible together." width="280"></a><br><strong>Critical hit</strong><br>Critical damage, cover, and target status remain visible together.</td>
-    <td valign="top"><a href="media/attack-miss.webp"><img src="media/attack-miss.webp" alt="Miss: A missed attack keeps its rolled result and any associated save controls." width="280"></a><br><strong>Miss</strong><br>A missed attack keeps its rolled result and any associated save controls.</td>
+    <td valign="top"><a href="media/attack-hit-current.png"><img src="media/attack-hit-current.png" alt="Confirmed hit: The target verdict sits above the attack and damage totals." width="280"></a><br><strong>Confirmed hit</strong><br>The target verdict sits above the attack and damage totals.</td>
+    <td valign="top"><a href="media/attack-crit-current.png"><img src="media/attack-crit-current.png" alt="Critical hit: Critical damage, cover, and target status remain visible together." width="280"></a><br><strong>Critical hit</strong><br>Critical damage, cover, and target status remain visible together.</td>
+    <td valign="top"><a href="media/attack-miss-current.png"><img src="media/attack-miss-current.png" alt="Miss: A missed attack keeps its rolled result and any associated save controls." width="280"></a><br><strong>Miss</strong><br>A missed attack keeps its rolled result and any associated save controls.</td>
   </tr>
   <tr>
     <td valign="top"><a href="media/attack-fumble.webp"><img src="media/attack-fumble.webp" alt="Critical miss: A natural 1 is clearly marked after the GM decision." width="280"></a><br><strong>Critical miss</strong><br>A natural 1 is clearly marked after the GM decision.</td>
     <td valign="top"><a href="media/attack-review-gm.webp"><img src="media/attack-review-gm.webp" alt="Private GM review: Choose Hit, Critical, or Miss for each target; pending attacks wait for confirmation." width="280"></a><br><strong>Private GM review</strong><br>Choose Hit, Critical, or Miss for each target; pending attacks wait for confirmation.</td>
+  </tr>
+  <tr>
+    <td valign="top"><a href="media/attack-applied-log.webp"><img src="media/attack-applied-log.webp" alt="Confirmed hit with the applied damage logged on the card and an Undo button" width="280"></a><br><strong>Damage you can take back (0.7.45)</strong><br>Damage the workflow applied is logged on the card as Auto, with Undo.</td>
   </tr>
 </table>
 
@@ -40,6 +43,10 @@ Spell activities appear as a running program. Read the output, open Info for the
   <tr>
     <td valign="top"><a href="media/spell-save.webp"><img src="media/spell-save.webp" alt="Saving-throw spell: Each target has its own waiting, saved, or failed result." width="310"></a><br><strong>Saving-throw spell</strong><br>Each target has its own waiting, saved, or failed result.</td>
     <td valign="top"><a href="media/spell-heal.webp"><img src="media/spell-heal.webp" alt="Healing program: Healing keeps its roll and application controls in the spell window." width="310"></a><br><strong>Healing program</strong><br>Healing keeps its roll and application controls in the spell window.</td>
+  </tr>
+  <tr>
+    <td valign="top"><a href="media/spell-npc-save-button.webp"><img src="media/spell-npc-save-button.webp" alt="Spell card waiting for a Wisdom save with the Roll save button" width="280"></a><br><strong>NPC saves wait for the GM (0.7.44)</strong><br>The GM rolls them from the card's Roll save.</td>
+    <td valign="top"><a href="media/effect-choice.webp"><img src="media/effect-choice.webp" alt="Effect chooser listing the six Bestow Curse options" width="230"></a><br><strong>One effect, chosen (0.7.44)</strong><br>When an activity carries several alternative effects, the caster picks one.</td>
   </tr>
 </table>
 
@@ -77,6 +84,10 @@ Skills, abilities, saves, initiative, and concentration saves share readable rol
   <tr>
     <td valign="top"><a href="media/initiative-order.png"><img src="media/initiative-order.png" alt="Four initiative cards after a burst of rolls: each shows its total, its place (1st to 4th) and who it acts after and before; only the newest, Juno 1st, shows the turn order as portraits" width="280"></a><br><strong>Initiative</strong><br>Each roll is one row: the total, your place in the turn order, and who you act after and before. Places update as everyone else rolls; the newest initiative card shows the whole order. Combatants hidden from players stay out of their view.</td>
     <td valign="top"><a href="media/check-concentration.webp"><img src="media/check-concentration.webp" alt="Concentration save: The save card records the concentration outcome." width="280"></a><br><strong>Concentration save</strong><br>The save card records the concentration outcome.</td>
+  </tr>
+  <tr>
+    <td valign="top"><a href="media/save-dial-redline.png"><img src="media/save-dial-redline.png" alt="A natural 20 save: the needle in the dial's red zone, saved by 7" width="250"></a><br><strong>Natural 20 (0.7.44)</strong><br>The needle pegs into the redline and bounces off the limiter.</td>
+    <td valign="top"><a href="media/save-dial-crack.png"><img src="media/save-dial-crack.png" alt="A natural 1 save: the dial cracked, failed by 10" width="250"></a><br><strong>Natural 1 (0.7.44)</strong><br>The gauge cracks, with dead segments and the result knocked out of line.</td>
   </tr>
 </table>
 
@@ -142,6 +153,18 @@ Hardwipe's own prompts (the off-turn **Reaction?**, Shield Block, comms, wall ty
 
 <a href="media/hardwipe-dialogs.png"><img src="media/hardwipe-dialogs.png" alt="Three prompts: Reaction? in cyan with Yes, spend it; Apply Retroactive Bonus in violet with a formula field; Delete wall type in red with No as the default" width="900"></a>
 
+## Crew maneuvers
+
+Firing a crew maneuver posts a CREW card: the crew's camera feeds cut in, two staggered when a crewmate fires someone else's maneuver. A compact Glitch feed is a world setting. [Crew maneuvers →](Players.md#crew-maneuvers)
+
+<table>
+  <tr>
+    <td valign="top"><a href="media/crew-card-cam.png"><img src="media/crew-card-cam.png" alt="CREW card: Mags's camera feed, Crew combo 1, Strike, Entry Stack" width="250"></a><br><strong>Combo cam</strong><br>Mags's Entry Stack, round 1.</td>
+    <td valign="top"><a href="media/crew-card-cam-duo.png"><img src="media/crew-card-cam-duo.png" alt="CREW card with two staggered feeds, Crew combo 2, Overwatch, Spotter Mark" width="250"></a><br><strong>A crewmate fires it</strong><br>Two feeds: Mags fires Juno's Spotter Mark.</td>
+    <td valign="top"><a href="media/crew-card-feed.png"><img src="media/crew-card-feed.png" alt="Glitch feed CREW card: Mags, Entry Stack, Strike, Executed" width="250"></a><br><strong>Glitch feed</strong><br>The same card as a kill-feed line.</td>
+  </tr>
+</table>
+
 ## Cyberware diagnostics
 
 Activated implants use a diagnostic panel with their body region, status, and charges. The underlying item activities still supply attacks, saves, and effects. [Cyberware, inventory, and slots →](Cyberware.md)
@@ -204,6 +227,13 @@ Completing the rest posts one combined receipt. Closing early produces an incomp
 
 ## Edge, Strikes, and Downed
 
+<table>
+  <tr>
+    <td valign="top"><a href="media/system-edge-current.png"><img src="media/system-edge-current.png" alt="Edge Spent card with a discharged cell and the reason, Reroll the save" width="280"></a><br><strong>Edge spent (2026-10-18)</strong><br>A charge cell discharging beside the bolt.</td>
+    <td valign="top"><a href="media/system-flatline-current.png"><img src="media/system-flatline-current.png" alt="Flatline card: a heartbeat trace that stops, Strikes 3 of 3, no pulse" width="280"></a><br><strong>Flatline (2026-10-18)</strong><br>The trace stops: Strikes 3/3, no pulse.</td>
+  </tr>
+</table>
+
 <img src="media/edge-downed-strikes-0.7.39.webp" alt="Edge Spent, Downed with death saves disabled, and three-Strikes Flatline cards" width="900">
 
 *Native captures: 0.7.39.* Edge announces a reroll expenditure. Downed directs the player toward recovery instead of death saves, and the third Strike announces Flatline. [Edge and Strikes →](Players.md#edge-strikes-and-downed)
@@ -225,7 +255,19 @@ Completing the rest posts one combined receipt. Closing early produces an incomp
 
 *Native captures: 0.7.39.* A wall impact reports its rolled damage, armor, and section HP. Destruction announces a five-foot breach; indestructible cover reports that it held. The final example is the private attack review. Wall damage retains its separate GM **Apply damage / Ignore** decision. [Wall types, targeting, and breaches →](Walls.md)
 
-## Party roll requests
+
+<a href="media/wall-area-review.webp"><img src="media/wall-area-review.webp" alt="GM review of a Fireball's wall damage: the sections it reaches and the proposed loss, with Apply and Ignore" width="330"></a>
+
+*0.7.46.* An area spell's wall damage waits for the same GM review, section by section.
+## Roll calls
+
+<table>
+  <tr>
+    <td valign="top"><a href="media/roll-call-composer.png"><img src="media/roll-call-composer.png" alt="Roll call window with three participants, a Dexterity save, DC 13, Group" width="250"></a><br><strong>Ask</strong><br>The GM's Roll call window (Alt+R).</td>
+    <td valign="top"><a href="media/roll-call-group.png"><img src="media/roll-call-group.png" alt="Group roll call: two passes, one fail, team passes" width="230"></a><br><strong>The crew rolls as one</strong><br>Two passes and a fail: the team passes.</td>
+    <td valign="top"><a href="media/roll-call-contest.png"><img src="media/roll-call-contest.png" alt="Grapple contest: Athletics 21 against 1, Apply Grappled" width="230"></a><br><strong>Contests</strong><br>Two panels against each other, then Apply.</td>
+  </tr>
+</table>
 
 <a href="media/party-requests-0.7.39.webp"><img src="media/party-requests-0.7.39.webp" alt="Party saving-throw request in GM and player views, plus a Perception check request" width="900"></a>
 
@@ -238,6 +280,23 @@ Check and save requests are now drawn as a **roll call**, the same card the GM's
 <a href="media/plain-rolls.webp"><img src="media/plain-rolls.webp" alt="Native ordinary 2d6 plus 3 roll and flavored Hacking the Door Panel roll" width="660"></a>
 
 *Native captures: 0.7.39.* Plain rolls keep the formula and total. A supplied flavor becomes the readable title. These are ordinary roll cards, separate from attack approval or a short-rest dialog.
+
+## Roll Tracker recap
+
+<a href="media/roll-tracker-recap.webp"><img src="media/roll-tracker-recap.webp" alt="The Screamsheet recap card: a newsprint front page with headline, the lead natural 20 quote, the session's numbers, awards and a classified ad" width="260"></a>
+
+*0.7.45.* **Post recap** turns a session into a Screamsheet front page in chat. [Roll Tracker →](GM.md#roll-tracker)
+
+## Braindance
+
+<table>
+  <tr>
+    <td valign="top"><a href="media/braindance-stamp.webp"><img src="media/braindance-stamp.webp" alt="Perception check with the BD stamp: The Afterlight tapes, BD Memory Merc, really QA Gunner" width="260"></a><br><strong>Every roll is stamped</strong><br>A check rolled in a memory carries the BD stamp and who really rolled it.</td>
+    <td valign="top"><a href="media/braindance-clue-found.webp"><img src="media/braindance-clue-found.webp" alt="Player screen after a thermal scan: Burnt keycard on the canvas and the Clue found card" width="400"></a><br><strong>Clue found</strong><br>A scan that finds a clue reveals it on the canvas and posts what was learned.</td>
+  </tr>
+</table>
+
+*0.7.47.* [Braindance →](Braindance.md)
 
 ## Mission Heat styles
 
