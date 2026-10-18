@@ -4,8 +4,6 @@
 
 Hardwipe gives each kind of action its own software-inspired display. Click any image to open the full capture. The examples use synthetic characters and scenes, so the QA names are demonstration data.
 
-> **Release status:** the public installer is **0.7.48**. The 38 core examples below are native captures from **0.7.38**; later system examples are labeled **0.7.39** or **0.7.40**. Anything labeled **audited preview** came from tested local source before its features were released. See [development status](Development.md) and [media provenance](Media.md).
-
 [Weapons](#weapon-outcomes-and-gm-review) · [Spells](#spell-programs) · [Concentration](#concentration-interrupts) · [Checks](#checks-and-initiative) · [Gear](#gear-and-class-features) · [Implants](#cyberware-diagnostics) · [Rests](#short-rest-monitor) · [System cards](#edge-strikes-and-downed) · [Heat](#mission-heat-styles)
 
 ## Weapon outcomes and GM review
