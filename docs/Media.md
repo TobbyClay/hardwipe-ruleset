@@ -172,6 +172,15 @@ Captured on **2026-10-17** from the local Crew Maneuvers branch in a private cop
 | [crew-card-cam-duo.png](media/crew-card-cam-duo.png) | Chat, Combo cam: Mags firing Juno's Spotter Mark, two staggered feeds; cropped above the log's scroll button. |
 | [crew-card-feed.png](media/crew-card-feed.png) | Chat, Glitch feed: the same Entry Stack card after the style was switched. |
 
+## Feature captures
+
+Captured on **2026-10-18** in the disposable QA world, as the QA Player, on Mags's own turn in a started combat, after a Heavy Pistol shot had spent the action.
+
+| Published file | Subject |
+| --- | --- |
+| [feature-action-surge-card.png](media/feature-action-surge-card.png) | Action Surge: +1 Action this turn, 0/1 uses until a short rest. |
+| [feature-second-wind-card.png](media/feature-second-wind-card.png) | Second Wind: 2 hit points, 1d10 + 0, with +, Heal and Temp HP. |
+
 ## Tool captures
 
 Captured on **2026-10-18** from the local tool-card branch in the disposable QA world, as the QA Player, dark theme. Each test tool was used and its Roll check pressed; only the Breach Kit's check has a DC (15).

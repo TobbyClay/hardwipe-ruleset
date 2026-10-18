@@ -72,6 +72,8 @@ export function renderGearCard(message, element) {
   placeActions(content, panel, actions);
   // Consumables fold the roll card and the actions into one card (hardwipe-consumable-cards.js).
   if (item.type === "consumable") renderConsumable(message, element, panel, item, activity);
+  // Features that heal, buff, force a save or just engage get the same one-card layout; attacks keep theirs.
+  else if (feature && ["heal", "utility", "save", "damage"].includes(activity?.type)) renderConsumable(message, element, panel, item, activity, { feature: true });
   // Tools get their own Roll check and a scope by family (hardwipe-tool-cards.js).
   if (item.type === "tool") renderTool(message, element, panel, item, activity);
   return true;

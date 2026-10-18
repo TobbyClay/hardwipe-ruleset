@@ -1,6 +1,7 @@
 import { MODULE_ID, EdgeManager, StrikesManager, DownedManager, canControlActor, plainActivityLabel, responsibleFor } from "./hardwipe-state.js";
 import { CyberwareManager } from "./hardwipe-cyberware.js";
 import { CrewManager, crewData } from "./hardwipe-crew.js";
+import { isActionSurge } from "./hardwipe-consumable-cards.js";
 import { pendingSaveTargets, rollPendingSaves } from "./hardwipe-attack-cards.js";
 import { pendingConcentration, rollConcentrationRequest } from "./hardwipe-concentration.js";
 import { RollRequestComposer, abilityAbbr, createRequest, parseRoll, pendingFor, rollFor, rollName } from "./hardwipe-requests.js";
@@ -401,6 +402,16 @@ export class TurnTracker {
 
   /* Recording ---------------------------------------------------------------------------------- */
 
+  /** Give the action back: a new Attack action too, with its attacks. Standard actions it paid for stay taken. */
+  static async _surge(actor, now) {
+    const ledger = currentLedger(this.ledger(actor), now);
+    Object.assign(ledger, { action: false, attacks: 0 });
+    for (const [move, slot] of Object.entries(ledger.moves)) if (slot === "action") delete ledger.moves[move];
+    await writeLedger(actor, ledger);
+    if (actor.flags?.[MIDI]?.actions?.action === true) await midiApi()?.removeActionUsed?.(actor);
+    ui.notifications.info(game.i18n.format("HARDWIPE.Cons.SurgeNote", { name: actor.name }));
+  }
+
   /** Note whether the reaction is already gone, before Ready Set Midi can mark an off-turn attack as one. */
   static _beforeUse(activity) {
     const actor = activity?.actor;
@@ -420,6 +431,8 @@ export class TurnTracker {
     const use = { activation, attack: isAttackAction(activity), move: generalMoveOf(activity) };
     const next = recordUse(this.ledger(actor), use, now);
     if (next) await writeLedger(actor, next);
+    // Action Surge: one more action this turn. The ledger's action (and Ready Set Midi's marker) comes back.
+    if (now.isTurn && isActionSurge(activity.item)) await this._surge(actor, now);
     if (asksReaction(use, now, spentBefore)) await this._askReaction(actor, activity);
   }
 

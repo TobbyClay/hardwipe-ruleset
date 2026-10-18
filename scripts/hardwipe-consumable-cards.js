@@ -16,6 +16,11 @@ import { durationRing, effectRows } from "./hardwipe-effects.js";
  */
 const ARRIVAL_MS = 1600;
 
+/** Action Surge, by dnd5e identifier or name: its card says what it gives, and the Turn tab gives the action back. */
+export function isActionSurge(item) {
+  return item?.system?.identifier === "action-surge" || /^action surge$/i.test(String(item?.name ?? "").trim());
+}
+
 /** What kind of payload an activity carries. Pure: tested without Foundry. */
 export function consumableKind({ type, damageParts = 0, effects = 0 }) {
   if (type === "heal") return "heal";
@@ -39,6 +44,19 @@ function vialsHTML(item, t) {
   return `<span class="hardwipe-cons-vials" data-tooltip="${escapeHTML(t("Left", { n: left }))}">${vials}<em>${escapeHTML(t("Left", { n: left }))}</em></span>`;
 }
 
+/** A feature's uses: pips for what's left, and the recovery period. */
+function usesPipsHTML(item, activity, t) {
+  const source = Number(activity?.uses?.max) > 0 ? activity.uses : item.system?.uses;
+  const max = Number(source?.max) || 0;
+  if (!max) return "";
+  const value = Math.max(0, Number(source.value ?? max - (Number(source.spent) || 0)) || 0);
+  const period = source.recovery?.[0]?.period;
+  const config = period && CONFIG.DND5E.limitedUsePeriods?.[period];
+  const recovery = config ? game.i18n.localize(config.abbreviation ?? config.label ?? config) : "";
+  const pips = Array.from({ length: Math.min(max, 8) }, (_, i) => `<i class="${i < value ? "" : "is-spent"}"></i>`).join("");
+  return `<span class="hardwipe-cons-vials is-uses" data-tooltip="${escapeHTML(t("UsesLeft", { value, max }))}">${pips}<em>${escapeHTML(`${value}/${max}${recovery ? ` · ${recovery}` : ""}`)}</em></span>`;
+}
+
 function artHTML(kind, ring) {
   if (kind === "heal") return `<svg viewBox="0 0 270 76" preserveAspectRatio="none"><polyline class="hardwipe-cons-trace" points="0,54 40,54 52,54 60,36 68,68 78,14 88,62 96,54 150,54 162,54 170,42 178,64 186,54 270,54"/></svg>`;
   if (kind === "buff") {
@@ -47,6 +65,7 @@ function artHTML(kind, ring) {
       <circle class="ring${ring.indefinite ? " is-indefinite" : ""}" cx="30" cy="30" r="26" style="stroke-dasharray:${(ring.length * c).toFixed(1)} ${c.toFixed(1)}"/>
       <circle class="ticks" cx="30" cy="30" r="20"/></svg>`;
   }
+  if (kind === "surge") return `<svg viewBox="0 0 120 76" width="120" height="76"><rect class="hardwipe-cons-chip" x="10" y="26" width="40" height="24"/><rect class="hardwipe-cons-chip is-new" x="60" y="26" width="40" height="24"/><path class="hardwipe-cons-trace is-short" d="M50 38 L60 38"/></svg>`;
   if (kind === "utility") return `<svg viewBox="0 0 120 76" width="120" height="76"><circle class="hardwipe-cons-ring" cx="52" cy="38" r="30"/><circle class="hardwipe-cons-cloud" cx="42" cy="34" r="12"/><circle class="hardwipe-cons-cloud" cx="60" cy="44" r="14"/></svg>`;
   return `<svg viewBox="0 0 120 76" width="120" height="76"><circle class="hardwipe-cons-ring" cx="52" cy="38" r="34"/><circle class="hardwipe-cons-blast" cx="52" cy="38" r="17"/><circle class="hardwipe-cons-core" cx="52" cy="38" r="3.5"/></svg>`;
 }
@@ -57,9 +76,10 @@ function artHTML(kind, ring) {
  * @param {HTMLElement} element   The message element.
  * @param {HTMLElement} panel     The gear panel (.hardwipe-gear).
  */
-export function renderConsumable(message, element, panel, item, activity) {
+export function renderConsumable(message, element, panel, item, activity, { feature = false } = {}) {
   const content = element.querySelector(".message-content");
-  if (!content || !panel || !activity) return;
+  // Attacks keep their own card (the attack roll and the GM's verdict).
+  if (!content || !panel || !activity || activity.type === "attack") return;
   const t = (key, data) => data ? game.i18n.format(`HARDWIPE.Cons.${key}`, data) : game.i18n.localize(`HARDWIPE.Cons.${key}`);
   const effects = (activity.effects ?? []).map(entry => entry.effect ?? item.effects?.get(entry._id)).filter(Boolean);
   const kind = consumableKind({ type: activity.type, damageParts: activity.damage?.parts?.length ?? 0, effects: effects.length });
@@ -67,8 +87,11 @@ export function renderConsumable(message, element, panel, item, activity) {
   element.classList.add("hardwipe-cons-message");
   panel.classList.add("hardwipe-cons", `is-${kind}`);
 
-  // Bar: doses instead of a quantity.
-  panel.querySelector(".hardwipe-gear-side")?.replaceWith(Object.assign(document.createElement("span"), { innerHTML: vialsHTML(item, t) }).firstElementChild);
+  // Bar: doses for a consumable; a feature's uses left and when they come back.
+  const counter = feature ? usesPipsHTML(item, activity, t) : vialsHTML(item, t);
+  const side = panel.querySelector(".hardwipe-gear-side");
+  if (side) side.replaceWith(Object.assign(document.createElement("span"), { innerHTML: counter }).firstElementChild ?? "");
+  else if (counter) panel.querySelector(".hardwipe-gear-bar")?.insertAdjacentHTML("beforeend", counter);
   // Head: the cost and reach in one line under the name; the chips, uses and effect strip it replaces go.
   const main = panel.querySelector(".hardwipe-gear-main");
   const line = [activity.labels?.activation ?? activity.activation?.type, activity.labels?.target ?? ""].filter(Boolean).join(" · ");
@@ -80,7 +103,7 @@ export function renderConsumable(message, element, panel, item, activity) {
   const ring = durationRing(seconds);
   const scope = document.createElement("div");
   scope.className = "hardwipe-cons-scope";
-  scope.innerHTML = `<div class="hardwipe-cons-art" aria-hidden="true">${artHTML(kind, ring)}</div>${kind === "buff" && effect?.img ? `<img class="hardwipe-cons-dial-icon" src="${escapeHTML(effect.img)}" alt="">` : ""}
+  scope.innerHTML = `<div class="hardwipe-cons-art" aria-hidden="true">${artHTML(isActionSurge(item) && kind === "utility" ? "surge" : kind, ring)}</div>${kind === "buff" && effect?.img ? `<img class="hardwipe-cons-dial-icon" src="${escapeHTML(effect.img)}" alt="">` : ""}
     <div class="hardwipe-cons-readout"></div>`;
   const readout = scope.querySelector(".hardwipe-cons-readout");
   const below = document.createElement("div");
@@ -133,10 +156,13 @@ export function renderConsumable(message, element, panel, item, activity) {
         <b class="${row.change === "ON" ? "is-on" : ""}">${escapeHTML(row.change)}</b></div>`).join("");
       acts.append(...buffButtons(message, item, effect, holders, activity, t));
     }
+  } else if (isActionSurge(item)) {
+    const restored = panel.dataset.surge === "restored" || message.getFlag?.("hardwipe-ruleset", "surge") === "restored";
+    readout.innerHTML = `<span class="hardwipe-cons-word">${escapeHTML(t("Surge"))}</span>${sub(t(restored ? "SurgeRestored" : "SurgeTurn"))}`;
   } else {
     const placed = !!activity.target?.template?.type;
     const reach = [activity.labels?.target, activity.labels?.duration && activity.duration?.units !== "inst" ? activity.labels.duration : ""].filter(Boolean).join(" · ");
-    readout.innerHTML = `<span class="hardwipe-cons-word">${escapeHTML(t(placed ? "Deployed" : "Used"))}</span>${sub(reach)}`;
+    readout.innerHTML = `<span class="hardwipe-cons-word">${escapeHTML(t(placed ? "Deployed" : feature ? "Engaged" : "Used"))}</span>${sub(reach)}`;
   }
 
   // Targets of a save: pinned in the blast (status only; hover for the name) and written out as rows below.

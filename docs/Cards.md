@@ -115,6 +115,17 @@ One card per use: the item with the doses left, then a scope drawn by what it di
   </tr>
 </table>
 
+## Class features
+
+Features that heal, buff, force a save or just engage use the same one-card layout as consumables, in the feature's orange, with their uses left and when they come back (**0/1 · SR**) in the bar. Features that attack keep the attack card. **Action Surge** reads **+1 Action · this turn**, and on your own turn in combat the Turn tab gives the action back (with a fresh Attack action).
+
+<table>
+  <tr>
+    <td valign="top"><a href="media/feature-action-surge-card.png"><img src="media/feature-action-surge-card.png" alt="Action Surge card: +1 Action this turn, a second action chip lit, 0 of 1 uses until a short rest" width="250"></a><br><strong>Action Surge</strong><br>The second action chip lights up; the Turn tab's action is Ready again.</td>
+    <td valign="top"><a href="media/feature-second-wind-card.png"><img src="media/feature-second-wind-card.png" alt="Second Wind card: a vitals trace behind 2 hit points, 1d10, with the + bonus, Heal, Temp HP" width="250"></a><br><strong>Second Wind</strong><br>A healing feature reads like a healing consumable, with the roll's +.</td>
+  </tr>
+</table>
+
 ## Tools
 
 Using a tool posts its card with a **Roll check** button (the check is yours to roll; Ready Set Midi's own tool card had no button for it). The result lands on the tool card, in a scope drawn by the kind of tool, and the check's own card folds to a slim row underneath that keeps the roll's **+** and **DIS / ADV**. Click the total for the dice.

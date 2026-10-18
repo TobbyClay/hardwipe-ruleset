@@ -1,5 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
+import { isActionSurge, consumableKind } from "../scripts/hardwipe-consumable-cards.js";
 import { bulletRows, changeRow, durationRing, effectRows, midiFlagLabel, ringScale, tidyKey } from "../scripts/hardwipe-effects.js";
 
 test("the ring grows with the duration: a round is a sliver, a day is the whole ring", () => {
@@ -52,4 +53,16 @@ test("a GM's bulleted description replaces the rows; otherwise changes then cond
   const rows = effectRows(effect, { statusName: id => id === "invisible" ? "Invisible" : id });
   assert.deepEqual(rows.map(r => r.label), ["AC", "Invisible"]);
   assert.deepEqual(effectRows({ ...effect, description: "<ul><li>Just this</li></ul>" }).map(r => r.label), ["Just this"]);
+});
+
+test("a consumable or feature's payload kind, and Action Surge by identifier or name", () => {
+  assert.equal(consumableKind({ type: "heal" }), "heal");
+  assert.equal(consumableKind({ type: "save", damageParts: 1 }), "damage");
+  assert.equal(consumableKind({ type: "save", effects: 1 }), "condition");
+  assert.equal(consumableKind({ type: "utility", effects: 1 }), "buff");
+  assert.equal(consumableKind({ type: "utility" }), "utility");
+  assert.ok(isActionSurge({ system: { identifier: "action-surge" } }));
+  assert.ok(isActionSurge({ name: "Action Surge", system: {} }));
+  assert.ok(!isActionSurge({ name: "Action Surge (Two Uses)", system: {} }));
+  assert.ok(!isActionSurge({ name: "Second Wind", system: { identifier: "second-wind" } }));
 });

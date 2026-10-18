@@ -179,3 +179,16 @@ button.hardwipe-tool-roll:disabled { opacity: 0.6; cursor: progress; }
 .hardwipe-check.is-slim .hardwipe-check-head > .hardwipe-adv button.hardwipe-adv-btn + button.hardwipe-adv-btn { border-left: 0; border-top: 1px solid rgba(143, 207, 176, 0.28); }
 .hardwipe-check.is-slim .hardwipe-check-head > .rsr-addon-bonus-btn { position: static; flex: none; margin: 0; color: var(--hw-check); font-size: 15px; opacity: 0.8; transform: none; cursor: pointer; }
 @media (prefers-reduced-motion: reduce) { .hardwipe-tool *, .hardwipe-tool-art * { animation: none !important; } }
+
+/* Features: the bar's colour stays the feature's; uses as pips with the recovery period. */
+.hardwipe-gear.hardwipe-cons.is-feature { --acc-bar: var(--hw-warn); }
+.hardwipe-cons-vials.is-uses > i { width: 8px; height: 8px; border-radius: 0; transform: rotate(45deg); background: currentColor; }
+.hardwipe-cons-vials.is-uses > i.is-spent { background: none; }
+/* Action Surge: a second action chip lights up beside the first. */
+.hardwipe-cons-chip { fill: rgba(var(--pay-rgb), 0.12); stroke: rgba(var(--pay-rgb), 0.5); }
+.hardwipe-cons-chip.is-new { fill: rgba(var(--pay-rgb), 0.4); stroke: var(--pay); filter: drop-shadow(0 0 4px var(--pay)); }
+.hardwipe-cons-trace.is-short { stroke-dasharray: none; }
+.hardwipe-cons.is-arriving .hardwipe-cons-chip.is-new { animation: hardwipe-cons-pop 0.5s 0.2s cubic-bezier(0.2, 0.9, 0.3, 1.3) both; transform-box: fill-box; transform-origin: center; }
+
+/* A feature with nothing to roll takes the feature's own orange rather than the utility grey. */
+.hardwipe-gear.hardwipe-cons.is-feature.is-utility { --pay: var(--hw-warn); --pay-rgb: 255, 194, 77; }
