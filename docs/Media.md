@@ -174,15 +174,24 @@ Captured on **2026-10-17** from the local Crew Maneuvers branch in a private cop
 
 ## Gallery refresh captures
 
-Captured on **2026-10-18** in the disposable QA world: three Heavy Pistol attacks by the QA Player against a QA NPC, ruled Hit, Critical and Miss by the GM; and Edge spent and Flatline for Juno, posted by the GM through Hardwipe's API.
+Captured on **2026-10-18** in the disposable QA world: three Heavy Pistol attacks by the QA Player against a QA NPC, ruled Hit, Critical and Miss by the GM. (Edge spent and Flatline were recaptured later: see Chat card captures.)
 
 | Published file | Subject |
 | --- | --- |
 | [attack-hit-current.png](media/attack-hit-current.png) | Confirmed hit: 8 to hit, 9 damage. |
 | [attack-crit-current.png](media/attack-crit-current.png) | Critical hit: CRIT on the damage line, 21 piercing. |
 | [attack-miss-current.png](media/attack-miss-current.png) | Confirmed miss: 6 to hit, the target greyed. |
-| [system-edge-current.png](media/system-edge-current.png) | Edge spent with its scope, reason Reroll the save. |
-| [system-flatline-current.png](media/system-flatline-current.png) | Flatline with its scope, Strikes 3/3. |
+
+## Chat card captures
+
+Captured on **2026-10-18** in the disposable QA world: Edge spent with no play (Juno), the Downed card from a death save at 0 HP (Mags, holding Edge), Flatline at three Strikes (Juno), and a `2d6 + 3` roll.
+
+| Published file | Subject |
+| --- | --- |
+| [system-edge-current.png](media/system-edge-current.png) | Spent: the cell drains, Edge 0/1. |
+| [system-downed-current.png](media/system-downed-current.png) | Downed: 0 HP, Strikes 1/3, Stabilize · 1 Edge. |
+| [system-flatline-current.png](media/system-flatline-current.png) | Flatline: no pulse, Strikes 3/3. |
+| [roll-formula-current.png](media/roll-formula-current.png) | Shotgun spread: dice 2 and 4, + 3, total 9. |
 
 ## Edge captures
 

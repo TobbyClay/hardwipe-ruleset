@@ -145,22 +145,30 @@ function renderPlay(message, element, data) {
   }
   const view = PLAY_VIEWS[data.play]?.(data, actor, message);
   if (!view) return;
-  const use = t(`${data.play}.Name`);
-  content.innerHTML = `<div class="hwe is-${data.play}${fresh ? " is-fresh" : ""}">
-    <div class="hwe-slash"><span class="hwe-band"></span><span class="hwe-kick">${escapeHTML(t("Kicker"))}</span>
-      <span class="hwe-use${use.length > 7 ? " is-long" : ""}">${escapeHTML(use)}</span>${bolt("hwe-bolt")}</div>
-    <div class="hwe-who"><img src="${img}" alt=""><div><b>${name}</b><small>${escapeHTML(view.sub)}</small></div>
-      <span class="hwe-cell${data.play === "charged" ? " is-full" : ""}"><i></i>${data.play === "charged" ? "1" : "0"}/1</span></div>
-    <div class="hwe-stage">${view.stage}<span class="hwe-line">${escapeHTML(view.line)}</span></div>
-    ${view.stamp ? `<span class="hwe-stamp">${escapeHTML(view.stamp)}</span>` : ""}
-    ${view.foot ? `<div class="hwe-foot">${view.foot}</div>` : `<div class="hwe-gap"></div>`}
-  </div>`;
+  const full = data.play === "charged";
+  content.innerHTML = cutInHTML({ ...view, cls: `is-${data.play}`, use: t(`${data.play}.Name`), img, name, fresh,
+    cell: `<span class="hwe-cell${full ? " is-full" : ""}"><i></i>${full ? "1" : "0"}/1</span>` });
   for (const button of content.querySelectorAll("[data-edge-slot]")) {
     button.addEventListener("click", event => {
       event.preventDefault();
       if (actor) void useInterrupt(actor, button.dataset.edgeSlot, "");
     });
   }
+}
+
+/**
+ * A cut-in card: the band with the kicker and a big name, who it's about, a scope with a line under it, an optional
+ * stamp and buttons. Edge plays use it, and so do the survival cards (Downed, Flatline). `img` and `name` arrive escaped.
+ */
+export function cutInHTML({ cls = "", kicker = t("Kicker"), use, img, name, sub = "", cell = "", stage, line = "", stamp = "", foot = "", fresh = false, icon = null }) {
+  return `<div class="hwe ${cls}${fresh ? " is-fresh" : ""}">
+    <div class="hwe-slash"><span class="hwe-band"></span><span class="hwe-kick">${escapeHTML(kicker)}</span>
+      <span class="hwe-use${use.length > 7 ? " is-long" : ""}">${escapeHTML(use)}</span>${icon ?? bolt("hwe-bolt")}</div>
+    <div class="hwe-who"><img src="${img}" alt=""><div><b>${name}</b><small>${escapeHTML(sub)}</small></div>${cell}</div>
+    <div class="hwe-stage">${stage}<span class="hwe-line">${escapeHTML(line)}</span></div>
+    ${stamp ? `<span class="hwe-stamp">${escapeHTML(stamp)}</span>` : ""}
+    ${foot ? `<div class="hwe-foot">${foot}</div>` : `<div class="hwe-gap"></div>`}
+  </div>`;
 }
 
 const bolt = cls => `<svg class="${cls}" viewBox="0 0 30 40" aria-hidden="true"><path d="${BOLT_PATH}"/></svg>`;

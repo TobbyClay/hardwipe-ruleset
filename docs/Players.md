@@ -102,7 +102,7 @@ The GM can switch the card to the compact **Glitch feed** instead.
 
 - **Reroll.** Any single die from anyone: an attack's d20 (yours, an ally's, an enemy's), one die of a damage roll, a save, a check. Pick the die from the list of recent cards (point at a card to find it in chat). The new die is rolled at once and both results appear on that card: you (or the GM) press **Keep** or **Reroll**, and everyone else sees that you're choosing. Taking the new die changes the card as any reroll does. Damage already applied is adjusted for everyone it hit. A save that flips moves that target between saved and failed on the spell, and their damage follows. An attack the GM already ruled on goes back to the GM, who rules again on the card: a hit that becomes a miss takes the damage back.
 - **Interrupt.** One action or bonus action, now, even on someone else's turn. The Turn tab shows **Interrupt · 1 action or bonus action**. Your next action or bonus action uses it, off turn without asking whether it was your reaction. Or press **Action** or **Bonus action** on the card. It lapses when the turn moves on.
-- **Stabilize.** At 0 HP: back up at 1 HP, Downed cleared, and the Strike from going down taken back. **Recover · 1 Edge** on the Strikes tray does the same.
+- **Stabilize.** At 0 HP: back up at 1 HP, Downed cleared, and the Strike from going down taken back. **Recover · 1 Edge** on the Strikes tray and **Stabilize · 1 Edge** on your Downed card do the same.
 - **Execute.** Target one mook (an NPC without Legendary Resistance) and it drops to 0 HP with no damage roll. The GM's client applies it, so a GM must be online.
 
 Each play posts its own card; an award posts a **Charged** card.

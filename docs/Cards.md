@@ -225,12 +225,19 @@ Completing the rest posts one combined receipt. Closing early produces an incomp
   </tr>
 </table>
 
+## Plain rolls
+
+<a href="media/roll-formula-current.png"><img src="media/roll-formula-current.png" alt="Roll card: Shotgun spread, 2d6 + 3, dice 2 and 4, plus 3, total 9" width="260"></a>
+
+*2026-10-18.* A formula roll, a Hit Die, Hit Points or a recharge shows its dice as chips under the title (a die's top face lit, a 1 in red), with the total below; the total still opens the full breakdown.
+
 ## Edge, Strikes, and Downed
 
 <table>
   <tr>
-    <td valign="top"><a href="media/system-edge-current.png"><img src="media/system-edge-current.png" alt="Edge Spent card with a discharged cell and the reason, Reroll the save" width="280"></a><br><strong>Edge spent (2026-10-18)</strong><br>A charge cell discharging beside the bolt.</td>
-    <td valign="top"><a href="media/system-flatline-current.png"><img src="media/system-flatline-current.png" alt="Flatline card: a heartbeat trace that stops, Strikes 3 of 3, no pulse" width="280"></a><br><strong>Flatline (2026-10-18)</strong><br>The trace stops: Strikes 3/3, no pulse.</td>
+    <td valign="top"><a href="media/system-edge-current.png"><img src="media/system-edge-current.png" alt="Spent card: Juno, Edge spent, a cell draining to empty, Edge 0 of 1" width="250"></a><br><strong>Edge spent (2026-10-18)</strong><br>Just spend, with no play: the cell drains.</td>
+    <td valign="top"><a href="media/system-downed-current.png"><img src="media/system-downed-current.png" alt="Downed card: Mags at 0 HP, Strikes 1 of 3, Use Edge, ally action, or healing to recover, Stabilize 1 Edge" width="250"></a><br><strong>Downed (2026-10-18)</strong><br>A pulse that falters, the Strikes so far; Stabilize for its owner while they hold Edge.</td>
+    <td valign="top"><a href="media/system-flatline-current.png"><img src="media/system-flatline-current.png" alt="Flatline card: Juno dead, a trace that stops, no pulse, Strikes 3 of 3" width="250"></a><br><strong>Flatline (2026-10-18)</strong><br>Two beats, then nothing: Strikes 3/3.</td>
   </tr>
 </table>
 

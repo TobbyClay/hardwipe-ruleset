@@ -1,5 +1,8 @@
 import { MODULE_ID, escapeHTML } from "./hardwipe-state.js";
 import { rendersRequest } from "./hardwipe-requests.js";
+import { arrivalWindow } from "./hardwipe-attack-cards.js";
+import { cutInHTML, stabilize } from "./hardwipe-edge.js";
+import { DownedManager, EdgeManager, StrikesManager, canControlActor } from "./hardwipe-state.js";
 
 /**
  * Message cards, each in its own colour from the Card colours window:
@@ -35,6 +38,8 @@ export function registerMessageCards() {
     if (message.type === "turn") snapshotTurn(message);
   });
   Hooks.once("setup", () => Hooks.on("dnd5e.renderChatMessage", (message, html) => render(message, html)));
+  // A Downed card's Stabilize button follows its actor (Edge spent, back on their feet).
+  Hooks.on("updateActor", actor => rerender(message => message.flags?.[MODULE_ID]?.actorId === actor.id && message.flags?.[MODULE_ID]?.kind === "downed"));
 }
 
 function rerender(filter) {
@@ -81,36 +86,61 @@ function systemCard(message, element, card) {
   const kicker = card.querySelector(":scope > .hardwipe-chat-kicker");
   if (kicker && !kicker.querySelector(":scope > i")) kicker.insertAdjacentHTML("afterbegin", `<i class="fas ${SYSTEM_ICONS[kind]}" inert></i>`);
   element.classList.add("hardwipe-sys-message");
-  systemScope(message, card, kind);
+  if (["edge", "downed", "flatlined"].includes(kind)) survivalCard(message, element, card, kind);
 }
 
+const TRACES = {
+  edge: "",
+  // A pulse that falters and nearly fades: still alive.
+  downed: "0,58 40,58 46,50 52,66 58,58 100,58 105,53 110,63 115,58 160,58 163,56 166,60 169,58 210,58",
+  // Two beats, then nothing.
+  flatlined: "0,58 30,58 38,20 46,90 54,58 84,58 92,30 100,82 108,58 210,58"
+};
+
 /**
- * Edge spent, Downed and Flatline get a small scope under the title, in the family of the consumable and tool cards:
- * a charge cell discharging, a faltering trace, a trace that stops. Decoration only; the card's words stay.
+ * Edge spent, Downed and Flatline as cut-in cards, in the family of the Edge plays: the band in the card's own colour,
+ * whose card it is, and a scope (a draining cell, a faltering pulse, a pulse that stops) over the posted line. The
+ * card's words come from what was posted, so older cards redraw the same way. A Downed card offers its owner
+ * Stabilize while they hold Edge.
  */
-function systemScope(message, card, kind) {
-  if (!["edge", "downed", "flatlined"].includes(kind) || card.querySelector(":scope > .hardwipe-sys-scope")) return;
+function survivalCard(message, element, card, kind) {
   const actor = game.actors.get(message.flags?.[MODULE_ID]?.actorId) ?? ChatMessage.implementation.getSpeakerActor?.(message.speaker);
+  const text = selector => card.querySelector(selector)?.textContent.trim() ?? "";
+  const kicker = text(":scope > .hardwipe-chat-kicker") || t(`Survival.${kind}.Kicker`);
+  const title = text(":scope > .hardwipe-chat-title");
+  const subtitle = text(":scope > .hardwipe-chat-subtitle");
   const strikes = kind === "flatlined" ? 3 : Math.max(0, Math.min(3, Number(actor?.getFlag?.(MODULE_ID, "strikes")) || 0));
-  const pips = Array.from({ length: 3 }, (_, i) => `<i class="${i < strikes ? "is-on" : ""}"></i>`).join("");
-  const art = {
-    edge: `<svg viewBox="0 0 120 40" width="120" height="40"><rect class="sys-cell" x="6" y="8" width="58" height="24"/><rect class="sys-cell" x="64" y="15" width="5" height="10"/>
-      <rect class="sys-charge" x="10" y="12" width="50" height="16"/><path class="sys-bolt" d="M86 6 L78 22 L86 22 L80 36 L96 16 L88 16 L94 6 Z"/></svg>`,
-    downed: `<svg viewBox="0 0 270 40" preserveAspectRatio="none"><polyline class="sys-trace" points="0,26 30,26 36,22 40,30 46,26 90,26 96,24 100,28 104,26 170,26 174,25 178,27 182,26 270,26"/></svg>`,
-    flatlined: `<svg viewBox="0 0 270 40" preserveAspectRatio="none"><polyline class="sys-trace" points="0,26 24,26 30,10 36,36 42,26 70,26 76,16 82,32 88,26 270,26"/></svg>`
-  }[kind];
-  const label = {
-    edge: game.i18n.localize("HARDWIPE.SysScope.Edge"),
-    downed: game.i18n.format("HARDWIPE.SysScope.Downed", { n: strikes }),
-    flatlined: game.i18n.localize("HARDWIPE.SysScope.Flatline")
-  }[kind];
-  const scope = document.createElement("div");
-  scope.className = `hardwipe-sys-scope is-${kind}`;
-  scope.setAttribute("aria-hidden", "true");
-  scope.innerHTML = `<div class="hardwipe-sys-art">${art}</div><div class="hardwipe-sys-read">${kind === "edge" ? "" : `<span class="hardwipe-sys-pips">${pips}</span>`}<span>${escapeHTML(label)}</span></div>`;
-  card.querySelector(":scope > .hardwipe-chat-title")?.after(scope);
-  const fresh = Date.now() - (message.timestamp ?? 0) < 8000 && !globalThis.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
-  if (fresh) scope.classList.add("is-arriving");
+  const pips = [0, 1, 2].map(i => `<rect class="hwe-spip${i < strikes ? " is-on" : ""}" x="${i * 18}" y="4" width="8" height="8" transform="rotate(45 ${i * 18 + 4} 8)"/>`).join("");
+  const stage = kind === "edge"
+    ? `<svg viewBox="0 0 278 96" aria-hidden="true"><rect class="hwe-cellb" x="40" y="26" width="150" height="44"/><rect class="hwe-nub" x="190" y="38" width="8" height="20"/>
+        <rect class="hwe-charge hwe-drain" x="46" y="32" width="138" height="32"/><text class="hwe-plus is-spent hwe-pop" x="115" y="49">${escapeHTML(t("Survival.edge.Minus"))}</text>
+        <path class="hwe-arc is-dim" d="M236 18 L222 50 L234 50 L224 80"/></svg>`
+    : `<svg viewBox="0 0 278 96" aria-hidden="true"><polyline class="hwe-ecg hwe-draw" points="${TRACES[kind]}"/>
+        <text class="hwe-big hwe-pop" x="270" y="40">${escapeHTML(t(`Survival.${kind}.Big`))}</text><text class="hwe-small" x="270" y="54">${escapeHTML(t("Survival.Strikes", { n: strikes }))}</text>
+        <g transform="translate(222 66)">${pips}</g></svg>`;
+  const canStabilize = kind === "downed" && actor && canControlActor(actor) && EdgeManager.get(actor) > 0 && strikes < 3 && !actor.statuses?.has("dead")
+    && (DownedManager.isDowned(actor) || Number(actor.system?.attributes?.hp?.value) <= 0);
+  const content = card.parentElement;
+  const holder = document.createElement("div");
+  holder.innerHTML = cutInHTML({
+    // The band keeps one short word; what was posted as the title reads under the name.
+    cls: `is-${kind} is-survival`, kicker, use: t(`Survival.${kind}.Use`),
+    img: escapeHTML(actor?.img ?? "icons/svg/mystery-man.svg"), name: escapeHTML(actor?.name ?? message.speaker?.alias ?? ""),
+    sub: kind === "edge" ? subtitle : title && title.toLocaleLowerCase() !== t(`Survival.${kind}.Use`).toLocaleLowerCase() ? title : t(`Survival.${kind}.Sub`), stage,
+    line: kind === "edge" ? t("Survival.edge.Line") : subtitle,
+    cell: kind === "edge" ? `<span class="hwe-cell"><i></i>0/1</span>` : "",
+    icon: `<i class="hwe-icon fas ${SYSTEM_ICONS[kind]}" inert></i>`,
+    foot: canStabilize ? `<button type="button" class="hwe-btn is-go" data-hw-stabilize>${escapeHTML(t("Survival.Stabilize"))}</button>` : "",
+    fresh: arrivalWindow(message, "survival", 1600) > 0
+  });
+  const cut = holder.firstElementChild;
+  card.replaceWith(cut);
+  cut.querySelector("[data-hw-stabilize]")?.addEventListener("click", event => {
+    event.preventDefault();
+    event.currentTarget.disabled = true;
+    void stabilize(actor);
+  });
+  if (content) content.classList.add("hardwipe-survival-content");
 }
 
 /* Shield Block: a targeting HUD over the shield's HP -------------------------------------------- */
@@ -248,7 +278,30 @@ function rollCard(message, element, content) {
   if (kind === "recharge" && roll) tag = t(roll.isSuccess ? "Roll.Recharged" : "Roll.NotRecharged");
   const card = frame(content, { kind, icon, label: t(`Roll.${kind}`), tag, title });
   if (kind === "recharge" && roll) card.classList.add(roll.isSuccess ? "is-success" : "is-failure");
+  const chips = diceChips(message.rolls ?? []);
+  if (chips) card.querySelector(".hardwipe-msg-body")?.insertAdjacentHTML("afterbegin", chips);
   element.classList.add("hardwipe-dice-message");
+}
+
+/**
+ * Each die as a chip, in roll order (a die's highest face lit, a 1 dimmed red; dropped dice struck), and any flat
+ * bonus: the roll at a glance. The native total below still opens the full breakdown.
+ */
+function diceChips(rolls) {
+  const out = [];
+  for (const roll of rolls) {
+    for (const term of roll.terms ?? []) {
+      if (term instanceof foundry.dice.terms.DiceTerm) {
+        for (const result of term.results ?? []) {
+          const dropped = result.active === false || result.discarded;
+          const cls = dropped ? "is-dropped" : result.result === term.faces ? "is-max" : result.result === 1 ? "is-min" : "";
+          out.push(`<i class="${cls}" data-tooltip="d${term.faces}">${escapeHTML(result.result)}</i>`);
+        }
+      } else if (term instanceof foundry.dice.terms.NumericTerm && Number(term.number)) out.push(`<span>${escapeHTML(term.expression ?? term.number)}</span>`);
+      else if (term instanceof foundry.dice.terms.OperatorTerm) out.push(`<em>${escapeHTML(term.operator)}</em>`);
+    }
+  }
+  return out.length ? `<div class="hardwipe-roll-chips">${out.join("")}</div>` : "";
 }
 
 /** The message's item, if any. dnd5e's lookup can throw on a message with an actor and no item. */
