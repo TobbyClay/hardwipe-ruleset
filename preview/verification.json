@@ -1,17 +1,20 @@
 {
   "ready-set-midi": {
     "archive": "ready-set-midi-14.0.10.2.zip",
-    "publishedAs": "release asset of v0.7.47 (not stored in the repository)",
+    "publishedAs": "release asset of v0.7.48 (not stored in the repository)",
     "version": "14.0.10.2",
     "files": 119,
-    "archiveSha256": "E571BB0FA73CA12219BB48F74C3EB4C9E6A11B3227D1DE7B0A47CA8F834DABA5",
+    "archiveSha256": "BFDA2D1D6F50459CDDDD6D1AD1075FD269965675B5590C345013572DF8FDC8D7",
     "bytes": 2323246,
     "javascriptSha256": "AE2B209D700C2B07B0AF49FD512D8B19925BDD692244BED310FC3D8D1E2594C0",
     "baseJavascriptSha256": "CEA0BBB749FA570D49AF2404DDEB2F51F6580F141B08E3A58A25C021472FF38B",
-    "download": "https://github.com/TobbyClay/hardwipe-ruleset/releases/download/v0.7.47/ready-set-midi-14.0.10.2.zip",
+    "download": "https://github.com/TobbyClay/hardwipe-ruleset/releases/download/v0.7.48/ready-set-midi-14.0.10.2.zip",
     "recipe": "merge-companion.py: the cover-bridge base bundle plus the twelve compiled hunks of Workflow.wall-effects.patch, removal of reviewed instantaneous areas once decided, ordered expiry of the reaction and bonus-action markers, and the release download URL in module.json"
   },
-  "testedWith": ["hardwipe-ruleset 0.7.47"],
+  "testedWith": [
+    "hardwipe-ruleset 0.7.47",
+    "hardwipe-ruleset 0.7.48"
+  ],
   "replaces": [
     {
       "archive": "ready-set-midi-14.0.10.2-hardwipe.zip (first combined build, formerly in preview/)",
@@ -26,5 +29,5 @@
       "reason": "It had the area changes but none of Hardwipe's ranged-cover hooks."
     }
   ],
-  "status": "Companion for Hardwipe 0.7.47, published as a release asset."
+  "status": "Companion for Hardwipe 0.7.48, published as a release asset. Same JavaScript as the unpublished 0.7.47 build; only the manifest's download URL differs."
 }

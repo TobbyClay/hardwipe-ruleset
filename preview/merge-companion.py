@@ -13,7 +13,7 @@ from pathlib import Path
 
 src, out = Path(sys.argv[1]), Path(sys.argv[2])
 BASE_SHA = "cea0bbb749fa570d49af2404ddeb2f51f6580f141b08e3a58a25c021472ff38b"
-RELEASE_DOWNLOAD = "https://github.com/TobbyClay/hardwipe-ruleset/releases/download/v0.7.47/ready-set-midi-14.0.10.2.zip"
+RELEASE_DOWNLOAD = "https://github.com/TobbyClay/hardwipe-ruleset/releases/download/v0.7.48/ready-set-midi-14.0.10.2.zip"
 
 HUNKS = [
 ("count helper", '''// src/module/Workflow.ts

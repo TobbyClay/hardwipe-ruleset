@@ -2,7 +2,7 @@
 
 [← Overview](../README.md) · [Visual guides](Hardwipe-Guide.md) · [Development status](Development.md)
 
-This page collects the details needed for adjudication or integration. Start with the illustrated feature guides for ordinary use. Public installer: **0.7.47 / Ready Set Midi 14.0.10.2**. Audited preview changes are called out in [Development](Development.md).
+This page collects the details needed for adjudication or integration. Start with the illustrated feature guides for ordinary use. Public installer: **0.7.48 / Ready Set Midi 14.0.10.2**. Audited preview changes are called out in [Development](Development.md).
 
 ## Cover calculation
 

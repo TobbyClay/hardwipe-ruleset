@@ -4,7 +4,7 @@
 
 Every image in these guides is an actual Foundry interface capture from a synthetic development scene. Character names, items, and roll results belong to that test data. Cropping isolates a native window or card; WebP conversion reduces download size. No UI was generated, repainted, or recreated for the documentation.
 
-The public installer is **0.7.47**. **Capture version** identifies the source of an image, not the version currently installed in a reader’s world. **Audited preview** identifies the tested local revision shown in selected screenshots, from before those features were released. The gallery keeps older native examples where they illustrate a card family. Check the feature guides and [development status](Development.md) for behavior that differs in the preview.
+The public installer is **0.7.48**. **Capture version** identifies the source of an image, not the version currently installed in a reader’s world. **Audited preview** identifies the tested local revision shown in selected screenshots, from before those features were released. The gallery keeps older native examples where they illustrate a card family. Check the feature guides and [development status](Development.md) for behavior that differs in the preview.
 
 ## Core card archive
 

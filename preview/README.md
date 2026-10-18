@@ -33,6 +33,7 @@ Hashes are in `verification.json`. The build was tested on Foundry 14.367 with D
 - **Ranged cover:** +2 half cover from Hardwipe's hook, then a near miss into cover proposed a wall hit.
 - **Hits:** a clean hit applied damage once.
 - **Braindance (0.7.47):** a full memory run.
+- **0.7.48:** the same JavaScript; only the manifest's `download` changed, to the v0.7.48 release.
 
 **Earlier builds:**
 - **Wall-effects preview** (zip `B397FDBC…`, JavaScript `40CBB1E4…`): had the area changes but no cover hooks.

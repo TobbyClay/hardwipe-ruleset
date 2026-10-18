@@ -6,7 +6,7 @@ Hardwipe is a Foundry VTT module for running a Cyberpunk-flavoured game on the D
 
 [Install](#install) · [Player guide](docs/Players.md) · [GM guide](docs/GM.md) · [Braindance](docs/Braindance.md) · [Card gallery](docs/Cards.md) · [Rules reference](docs/Reference.md)
 
-> **Which version is this?** This README describes **0.7.47**, which pairs with **Ready Set Midi 14.0.10.2**. It is the installer published on GitHub; the [release](https://github.com/TobbyClay/hardwipe-ruleset/releases/latest) carries both modules. Install them together.
+> **Which version is this?** This README describes **0.7.48**, which pairs with **Ready Set Midi 14.0.10.2**. It is the installer published on GitHub; the [release](https://github.com/TobbyClay/hardwipe-ruleset/releases/latest) carries both modules. Install them together.
 
 ## Your body is your loadout
 
@@ -143,7 +143,7 @@ The GM pairs each player character with an NPC and enters a memory. Players keep
 
 ### Set it up
 
-1. **Install Hardwipe 0.7.47 with its Ready Set Midi** (see [Install](#install)). Braindance is built in; there is nothing else to enable.
+1. **Install Hardwipe 0.7.48 with its Ready Set Midi** (see [Install](#install)). Braindance is built in; there is nothing else to enable.
 2. **Coming from Braindance Suite?** Restore any running memory with it, then disable that module. While it is enabled, Hardwipe's Braindance stays switched off and tells the GM why.
 3. **Prepare the memory bodies.** Create or import the NPCs into the **Actors** directory; compendium NPCs must be imported first. Give them the weapons, spells and implants the players should have. Installed cyberware works like it does on a character.
 4. **Check who plays whom.** Each player character must be assigned to its player (**User Configuration → Character**) or owned by them.
