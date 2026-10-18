@@ -143,6 +143,8 @@ Recaptured on **2026-10-14** from the local, unreleased Cyberware tab redesign (
 
 ## Turn tab capture
 
+Released in **0.7.48**; also used in the README.
+
 Captured on **2026-10-15** from the local, unreleased Turn tab and roll calls (0.7.47 source plus both) in the same disposable QA world, as the QA Player, dark theme, with Ready Set Midi 14.0.10.2 set to *Display status icon* for reactions and bonus actions. The character, its weapons, implants and programs are synthetic test data.
 
 | Published file | Subject |
@@ -155,6 +157,8 @@ Captured on **2026-10-15** from the local, unreleased Turn tab and roll calls (0
 | [roll-call-contest.png](media/roll-call-contest.png) | GM view of a Grapple contest from the Turn tab: Athletics 21 against 1, +20 margin, Apply Grappled. The dice for this capture were fixed in the QA client to show a challenger win. |
 
 ## Crew maneuvers capture
+
+Released in **0.7.48**; also used in the README.
 
 Captured on **2026-10-17** from the local Crew Maneuvers branch in a private copy of the disposable QA world, with a GM and two player clients, dark theme. *Entry Stack*, *Smoke Cover* and *Spotter Mark* are test features written for the capture; Mags and Juno are synthetic characters with stand-in Foundry portrait art.
 
