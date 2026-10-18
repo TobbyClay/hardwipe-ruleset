@@ -115,6 +115,8 @@ canvas.hardwipe-bd-picking, #board.hardwipe-bd-picking { cursor: crosshair !impo
 .hardwipe-braindance-app { --color-text-primary: #d9ece4; --color-text-secondary: #9fb9ae; }
 .hardwipe-braindance-app .window-content { padding: 0; background: var(--hw-ink); color: #d9ece4; overflow: auto; }
 .hardwipe-braindance-app .window-header { background: var(--hw-ink-2); border-bottom: 1px solid var(--hw-line); color: var(--hw-phos); }
+/* Foundry colours window titles itself; Hardwipe's headers set their own text colour, and the title follows it. */
+.hardwipe-braindance-app .window-header .window-title { color: inherit; }
 .hardwipe-braindance-app .window-title { font: 600 15px/1 var(--hw-font-disp); letter-spacing: .12em; text-transform: uppercase; }
 .bd-panel, .bd-panel * { box-sizing: border-box; }
 .bd-panel { color-scheme: dark; color: #d9ece4; background: var(--hw-ink); font: 13px/1.5 var(--hw-font-disp); text-align: left; }

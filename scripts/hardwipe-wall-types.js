@@ -188,7 +188,7 @@ function buildWallTypesConfig() {
   return class WallTypesConfig extends HandlebarsApplicationMixin(ApplicationV2) {
     static DEFAULT_OPTIONS = {
       id: "hardwipe-wall-types", tag: "form", classes: ["hardwipe-wall-types"],
-      window: { title: "Manage wall types", icon: "fas fa-cubes", resizable: false, contentClasses: ["standard-form"] },
+      window: { title: "Manage wall types", icon: "fas fa-cubes", resizable: true, contentClasses: ["standard-form"] },
       position: { width: 460, height: "auto" },
       form: { handler: WallTypesConfig.prototype._onSubmit, closeOnSubmit: false },
       actions: {

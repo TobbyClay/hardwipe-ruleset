@@ -485,12 +485,12 @@ function crewTypesConfig() {
   async _renderHTML() {
     const t = key => escapeHTML(game.i18n.localize(`HARDWIPE.Crew.Types.${key}`));
     const rows = CrewManager.types().map((type, index) => CrewTypesConfig.#row(type, index)).join("");
-    return `<p class="hint">${t("Hint")}</p>
+    return `<div class="hardwipe-crew-types-body"><p class="hint">${t("Hint")}</p>
       <table class="hardwipe-crew-types-table">
         <thead><tr><th>${t("Col.name")}</th><th>${t("Col.payoff")}</th><th>${t("Col.fires")}</th><th>${t("Col.lasts")}</th><th></th></tr></thead>
         <tbody>${rows}</tbody>
       </table>
-      <p class="hint">${t("Rules")}</p>
+      <p class="hint">${t("Rules")}</p></div>
       <footer class="form-footer">
         <button type="button" data-action="addType"><i class="fas fa-plus" inert></i><span>${t("Add")}</span></button>
         <button type="button" data-action="restore"><i class="fas fa-rotate-left" inert></i><span>${t("Restore")}</span></button>
