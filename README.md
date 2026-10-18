@@ -16,6 +16,47 @@ Ten body regions, each holding real inventory items. Installed, working cyberwar
 
 [Set up cyberware →](docs/Cyberware.md) · [Choose a personal paper doll →](docs/Cyberware.md#personal-paper-dolls)
 
+## Your turn, on one tab
+
+| Your turn at a glance | Rolls waiting on you |
+| --- | --- |
+| <img src="docs/media/turn-panel-current.png" alt="Turn tab at the start of the character's turn: round 5, a Perception roll call from the GM in the netlink strip, Action, Bonus action and Reaction ready, 0 of 30 feet moved, 2 of 2 attacks left, and the Action band with weapons and standard actions" width="360"> | <img src="docs/media/netlink-strip.png" alt="Netlink strip with four rolls waiting: a concentration interrupt, a grapple defence with two options, a Dexterity save at DC 13 and an Athletics check with the DC hidden" width="340"> |
+
+The **Turn** tab on the Hardwipe Character sheet shows where you are in the round and what you have left: action, bonus action and reaction, movement and attacks. Below that, one band per cost holds your weapons, implants, spells and the standard actions. Running programs, conditions, Edge and Strikes sit underneath.
+
+- **The netlink.** When the GM asks for a roll, or a contest or a concentration interrupt needs you, the strip at the top lists it with a **Roll** button. It only appears when something is waiting.
+- **Reactions that count.** The reaction chip reads Ready Set Midi's markers, or Hardwipe's own ledger, and Shield Block reads it in combat.
+
+[Read your turn →](docs/Players.md#read-your-turn)
+
+## Crew maneuvers: pull it off together
+
+| Set it up | The crew sees it | Pull it off |
+| --- | --- | --- |
+| <img src="docs/media/crew-setup.png" alt="Entry Stack's Details tab: Type Crew Maneuver, Crew Maneuver Type Strike" width="280"> | <img src="docs/media/crew-turn-incoming.png" alt="Mags's crewlink: Juno has set up Spotter Mark, its description, and Fire · Heavy Pistol" width="300"> | <img src="docs/media/crew-card-cam-duo.png" alt="CREW card in chat: two staggered camera feeds, Juno and Mags, Crew combo ×2, Overwatch, Spotter Mark, Mags fires Juno's Spotter Mark" width="230"> |
+
+One character sets it up; the rest of the crew pays it off. *Entry Stack*: Mags stacks up on a door with a bonus action, Juno kicks it open, and Mags fires as it swings.
+
+- **No new sheet fields.** Set a feat's **Type** to **Crew Maneuver** and pick its maneuver type. What it does is the feature's own description.
+- **The crewlink.** Using the feature arms it. Everyone's Turn tab reads *"Mags has set up Entry Stack:"* and the description, with GM secrets left out. Whoever can fire it gets the button.
+- **On camera.** Firing posts a CREW card: the crew's camera feeds cut in, two staggered when a crewmate fires someone else's maneuver, with the name in split neon. A compact *Glitch feed* card is a world setting.
+- **The GM writes the rules.** **Game Settings → Crew maneuver types** decides what firing does (a weapon attack on the reaction, the feature's own activity, or the card alone), who fires it, and how long it stays armed. Strike, Support and Signal come ready.
+
+[Use crew maneuvers →](docs/Players.md#crew-maneuvers) · [Set up maneuver types →](docs/GM.md#crew-maneuvers)
+
+## Roll calls: the GM asks, the crew answers
+
+| Ask | The crew rolls as one | Contests |
+| --- | --- | --- |
+| <img src="docs/media/roll-call-composer.png" alt="GM's Roll call window: three participants, Dexterity save, DC 13 shown to players, Group selected, reason The catwalk gives way" width="260"> | <img src="docs/media/roll-call-group.png" alt="Group roll call card: two passes and one fail, Team passes" width="230"> | <img src="docs/media/roll-call-contest.png" alt="GM view of a Grapple contest: Athletics 21 against 1, a 20-point margin, and Apply Grappled" width="230"> |
+
+**Alt+R** opens the GM's **Roll call** window. Pick who rolls, the check or save, a typed DC that players see or don't, and a reason. It resolves as **Each**, as a **Group** (the crew passes when at least half of them pass) or as a **Contest**.
+
+- **Answered from the sheet.** Players roll from the netlink strip, or roll the same check from their sheet.
+- **The comms queue.** The GM's **Queue** tab lists every open request, who still owes it and when it closes, with auto-close settings.
+
+[Run roll calls →](docs/GM.md#roll-calls) · [Answer one →](docs/Players.md#roll-calls-and-contests)
+
 ## Attack Rolls are now stylish
 
 | Player attack | Private GM review |
@@ -190,12 +231,12 @@ Built and tested on **Foundry VTT 14.367 · D&D5e 6.0.5 · Ready Set Midi 14.0.1
 
 | I want to… | Open |
 | --- | --- |
-| Play a character, use actions, or understand Edge and Strikes | [Player guide](docs/Players.md) |
+| Play a character, read your Turn tab, fire crew maneuvers, or understand Edge and Strikes | [Player guide](docs/Players.md) |
 | Install or swap implants, use rarity colours, or change the doll | [Cyberware](docs/Cyberware.md) |
 | Roll Hit Dice, recover slots, or read a rest receipt | [Rests](docs/Rests.md) |
 | Review attacks, apply and undo damage, roll saves, or keep concentration | [Combat](docs/Combat.md) |
 | Give walls HP, set thresholds, target sections, or undo a breach | [Walls](docs/Walls.md) |
-| Set up a world, Mission Heat, colours, text size, or folding | [GM guide](docs/GM.md) |
+| Set up a world, Mission Heat, roll calls, crew maneuver types, colours, text size, or folding | [GM guide](docs/GM.md) |
 | Run a memory, hide clues, send echoes, or replay a moment | [Braindance](docs/Braindance.md) |
 | See every card family side by side | [Card gallery](docs/Cards.md) |
 | Look up exact cover rules, integration fields, or known limits | [Rules reference](docs/Reference.md) |
