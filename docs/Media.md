@@ -184,13 +184,13 @@ Captured on **2026-10-18** in the disposable QA world: three Heavy Pistol attack
 
 ## Chat card captures
 
-Captured on **2026-10-18** in the disposable QA world: Edge spent with no play (Juno), the Downed card from a death save at 0 HP (Mags, holding Edge), Flatline at three Strikes (Juno), and a `2d6 + 3` roll.
+Captured on **2026-10-18** in the disposable QA world: Edge spent with no play (Juno), the Downed card from a death save at 0 HP (Mags, holding Edge), Flatline at three Strikes (Juno), and a roll typed in chat, `/r 2d6 + 3 # Shotgun spread` (no item behind it).
 
 | Published file | Subject |
 | --- | --- |
 | [system-edge-current.png](media/system-edge-current.png) | Spent: the cell drains, Edge 0/1. |
-| [system-downed-current.png](media/system-downed-current.png) | Downed: 0 HP, Strikes 1/3, Stabilize · 1 Edge. |
-| [system-flatline-current.png](media/system-flatline-current.png) | Flatline: no pulse, Strikes 3/3. |
+| [system-downed-current.png](media/system-downed-current.png) | Downed: Strike 1, 0 HP, Stabilize · 1 Edge. |
+| [system-flatline-current.png](media/system-flatline-current.png) | Flatline: Strike 3, no pulse. |
 | [roll-formula-current.png](media/roll-formula-current.png) | Shotgun spread: dice 2 and 4, + 3, total 9. |
 
 ## Edge captures

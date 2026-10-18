@@ -107,7 +107,6 @@ function survivalCard(message, element, card, kind) {
   const actor = game.actors.get(message.flags?.[MODULE_ID]?.actorId) ?? ChatMessage.implementation.getSpeakerActor?.(message.speaker);
   const text = selector => card.querySelector(selector)?.textContent.trim() ?? "";
   const kicker = text(":scope > .hardwipe-chat-kicker") || t(`Survival.${kind}.Kicker`);
-  const title = text(":scope > .hardwipe-chat-title");
   const subtitle = text(":scope > .hardwipe-chat-subtitle");
   const strikes = kind === "flatlined" ? 3 : Math.max(0, Math.min(3, Number(actor?.getFlag?.(MODULE_ID, "strikes")) || 0));
   const pips = [0, 1, 2].map(i => `<rect class="hwe-spip${i < strikes ? " is-on" : ""}" x="${i * 18}" y="4" width="8" height="8" transform="rotate(45 ${i * 18 + 4} 8)"/>`).join("");
@@ -116,17 +115,17 @@ function survivalCard(message, element, card, kind) {
         <rect class="hwe-charge hwe-drain" x="46" y="32" width="138" height="32"/><text class="hwe-plus is-spent hwe-pop" x="115" y="49">${escapeHTML(t("Survival.edge.Minus"))}</text>
         <path class="hwe-arc is-dim" d="M236 18 L222 50 L234 50 L224 80"/></svg>`
     : `<svg viewBox="0 0 278 96" aria-hidden="true"><polyline class="hwe-ecg hwe-draw" points="${TRACES[kind]}"/>
-        <text class="hwe-big hwe-pop" x="270" y="40">${escapeHTML(t(`Survival.${kind}.Big`))}</text><text class="hwe-small" x="270" y="54">${escapeHTML(t("Survival.Strikes", { n: strikes }))}</text>
+        <text class="hwe-big hwe-pop" x="270" y="40">${escapeHTML(t(`Survival.${kind}.Big`))}</text>
         <g transform="translate(222 66)">${pips}</g></svg>`;
   const canStabilize = kind === "downed" && actor && canControlActor(actor) && EdgeManager.get(actor) > 0 && strikes < 3 && !actor.statuses?.has("dead")
     && (DownedManager.isDowned(actor) || Number(actor.system?.attributes?.hp?.value) <= 0);
   const content = card.parentElement;
   const holder = document.createElement("div");
   holder.innerHTML = cutInHTML({
-    // The band keeps one short word; what was posted as the title reads under the name.
+    // The band says what happened; under the name, just which Strike this is.
     cls: `is-${kind} is-survival`, kicker, use: t(`Survival.${kind}.Use`),
     img: escapeHTML(actor?.img ?? "icons/svg/mystery-man.svg"), name: escapeHTML(actor?.name ?? message.speaker?.alias ?? ""),
-    sub: kind === "edge" ? subtitle : title && title.toLocaleLowerCase() !== t(`Survival.${kind}.Use`).toLocaleLowerCase() ? title : t(`Survival.${kind}.Sub`), stage,
+    sub: kind === "edge" ? subtitle : strikes ? t("Survival.Strike", { n: strikes }) : "", stage,
     line: kind === "edge" ? t("Survival.edge.Line") : subtitle,
     cell: kind === "edge" ? `<span class="hwe-cell"><i></i>0/1</span>` : "",
     icon: `<i class="hwe-icon fas ${SYSTEM_ICONS[kind]}" inert></i>`,
