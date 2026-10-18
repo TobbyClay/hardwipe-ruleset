@@ -26,16 +26,27 @@ The hourglass tab is your **Turn** helper: where your turn stands, and what you 
 
 - **Action, Bonus action, Reaction.** Three chips at the top read **Ready** or **Spent**. On someone else's turn your action and bonus action read **Standby**, but your reaction stays live. While you're working through the Attack action, the action reads **Attacking · 1 left**. Click a chip to correct it, for example after a Help that had nothing to click.
 - **Movement.** The distance you've moved this turn, read from your token's path, against your speed for the way you're moving. Difficult terrain counts what it costs. The cells turn amber at your limit and red past it.
-- **Attack action.** How many attacks you have left out of what one Attack action gives you (**2/2**, **1/2**, **0/2**), with the feature that grants them (Extra Attack, Two Extra Attacks, Thirsting Blade). Spell attacks aren't part of it.
+- **Attack action.** How many attacks you have left out of what one Attack action gives you (**2/2**, **1/2**, **0/2**), with the feature that grants them (Extra Attack, Two Extra Attacks, Thirsting Blade). What counts is each activity's [Action type](#attack-action-or-action).
 - **What you can use.** Below, one band per cost lists what you can spend it on: weapons in hand first, then implants, features and programs (with your spell slots beside them), each with to-hit or DC, damage and range. Click one to use it; hover its image for the full item. Consumables and tools fold away under **Gear**, and anything slower than a turn under **Outside combat**.
-- **What's greyed and why.** A spent band greys its options (mid-attack, only your weapons stay lit); using one anyway only warns you, since Action Surge exists. An option also says why it may not work now: **Not drawn**, **No uses left**, **No slots left**, an implant that's **Offline** or **Damaged**.
-- **Opportunity attacks.** Your equipped melee weapons also sit in the Reaction band. On someone else's turn, attacking with one from there spends your reaction.
+- **What's greyed and why.** A spent band greys its options (mid-attack, only what's left of the Attack action stays lit); using one anyway only warns you, since Action Surge exists. An option also says why it may not work now: **Not drawn**, **No uses left**, **No slots left**, an implant that's **Offline** or **Damaged**.
+- **Opportunity attacks.** Your equipped melee weapons also sit in the Reaction band, with their first attack that is an Attack action. On someone else's turn, attacking with one from there spends your reaction.
 - **Standard actions.** At the foot of the Action band, one row each for Dash, Disengage, Dodge, Hide, Grapple and Shove, with what it does and what it would cost right now. Dash, Disengage and Hide fall back to your bonus action once the action is gone, as Cunning Action allows. Dash doubles your movement, Dodge puts **Dodging** on you until your next turn, and Hide rolls Stealth. Grapple and Shove take one attack of your Attack action and roll Athletics; with exactly one creature targeted they post a [contest](#roll-calls-and-contests) instead. Click a taken row again to take it back. Help, Ready, Search and the like have nothing to track, so just tell the table.
 - **Netlink.** The terminal strip above the chips lists the rolls the table is waiting on you for, each with a solid **Roll** button, so you don't have to dig through chat. Red is a save you owe right now (**Interrupt** for concentration, **Save** for a spell's save), amber a GM's **Roll call**, cyan a **Contest**. It says **DC 12**, or **DC hidden** when the GM keeps it to themselves. Saves you owe now come first; past the GM's limit the rest fold under **Show all**. After you roll, the strip shows **Sent to the GM** with your total for a few seconds. With nothing pending there is no strip.
 - **Running programs and conditions.** What you're concentrating on, with **End program**, and every condition on you with **×** to clear it. Exhaustion comes off one level at a time; a condition that comes from an item, such as an implant, isn't cleared here.
 - **Edge & Strikes.** The same Edge and Strikes as the sidebar, with **Spend**, and **Recover · 1 Edge** while you're Downed.
 
 Everything resets when your turn starts; your reaction comes back then too. When Ready Set Midi counts reactions (its **Enforce Reactions** setting is anything but *Do not check*) or bonus actions (**Enforce Bonus Actions** prompts for characters or all actors), the chips follow Midi's markers, so they always match the icon on your token. Shield Block reads the same Reaction chip.
+
+### Attack action or Action
+
+<img src="media/activity-action-type.png" alt="Burst Fire's Activation tab: Cost Action, and Action type Action" width="420">
+
+Anything that costs an action either is one attack of the Attack action, or takes the whole action. An activity with an Action cost has an **Action type** beside its **Cost**, on the activity's **Activation** tab:
+
+- **Attack action:** one attack. Extra Attack gives you more in the same action, Grapple and Shove can take the others, and it can be an opportunity attack.
+- **Action:** the whole action, like a burst of fire or a spell. Using it spends the action, and no attacks are left.
+
+Until someone picks, weapon and unarmed attacks are **Attack action** and everything else, spell attacks included, is **Action**. The Cost stays D&D5e's own **Action**, so Ready Set Midi and other modules still see an action.
 
 ### Roll calls and contests
 

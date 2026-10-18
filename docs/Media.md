@@ -172,6 +172,14 @@ Captured on **2026-10-17** from the local Crew Maneuvers branch in a private cop
 | [crew-card-cam-duo.png](media/crew-card-cam-duo.png) | Chat, Combo cam: Mags firing Juno's Spotter Mark, two staggered feeds; cropped above the log's scroll button. |
 | [crew-card-feed.png](media/crew-card-feed.png) | Chat, Glitch feed: the same Entry Stack card after the style was switched. |
 
+## Action type capture
+
+Captured on **2026-10-18** from the local Action type branch in the disposable QA world, as the GM, dark theme. *Burst Fire* is a test activity added to the synthetic Heavy Pistol.
+
+| Published file | Subject |
+| --- | --- |
+| [activity-action-type.png](media/activity-action-type.png) | Burst Fire's Activation tab: Cost *Action* and Action type *Action*; cropped to the Activation section. |
+
 ## Reading these examples
 
 The later **Wall Effects development preview** adds three actual native captures from the same disposable GM/Player world on 2026-10-09. `wall-effects-item-preview.webp` shows the item dropdown with Half selected; `wall-effects-region-preview.webp` shows a saved Region override with Normal selected; `wall-area-review-preview.webp` shows the private GM review for a player cast, with original damage 30 and proposed section loss 10. They were cropped from full 1280 × 900 screenshots. No UI was recreated, and no campaign data is present. These images do not identify a published release.

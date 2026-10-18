@@ -183,6 +183,20 @@ export function isWeaponAttack(activity) {
   return activity.item?.type === "weapon";
 }
 
+/** The activity flag that says whether an Action-cost activity is one attack of the Attack action or the whole action. */
+export const ACTION_TYPE_FLAG = "actionType";
+export const ACTION_TYPES = ["attack", "action"];
+
+/**
+ * Whether using this Action-cost activity is one attack of the Attack action (Extra Attack applies) rather than the
+ * whole action. The activity's Action type decides; without one, weapon and unarmed attacks are.
+ */
+export function isAttackAction(activity) {
+  const set = activity?.flags?.[MODULE_ID]?.[ACTION_TYPE_FLAG];
+  if (ACTION_TYPES.includes(set)) return set === "attack";
+  return isWeaponAttack(activity);
+}
+
 /** The band an activation cost belongs to, or null for anything outside the action economy. */
 export function slotFor(activation) { return SLOTS.includes(activation) ? activation : null; }
 
@@ -249,6 +263,41 @@ export class TurnTracker {
     Hooks.on("updateToken", (token, changes) => {
       if (["x", "y", "elevation", "_movementHistory", "movementAction"].some(key => key in changes)) this._refreshActor(token.actor);
     });
+    Hooks.on("renderActivitySheet", (app, element) => this._onRenderActivitySheet(app, element));
+  }
+
+  /**
+   * An Action-cost activity's sheet gets an Action type beside its Cost: Attack action or Action. It shows what the
+   * Turn tab assumes until someone picks one, and only a change is saved, so untouched activities keep the default.
+   */
+  static _onRenderActivitySheet(app, element) {
+    const root = element instanceof HTMLElement ? element : element?.[0];
+    root?.querySelector(".hardwipe-action-type")?.remove();
+    const activity = app.activity ?? app.document;
+    const cost = root?.querySelector('select[name="activation.type"]');
+    const group = cost?.closest(".form-group");
+    if (!activity || !group || cost.value !== "action") return;
+    const t = key => game.i18n.localize(`HARDWIPE.Turn.ActionType.${key}`);
+    const field = document.createElement("div");
+    field.className = "form-group label-top hardwipe-action-type";
+    const label = document.createElement("label");
+    label.textContent = t("Label");
+    label.dataset.tooltip = t("Hint");
+    const select = document.createElement("select");
+    select.id = label.htmlFor = `${app.id}-hardwipe-action-type`;
+    for (const type of ACTION_TYPES) select.add(new Option(t(type), type));
+    select.value = isAttackAction(activity) ? "attack" : "action";
+    select.disabled = !app.isEditable;
+    // Saved straight to the activity; stopping the event keeps the sheet from submitting the whole form as well.
+    select.addEventListener("change", event => {
+      event.stopPropagation();
+      void activity.update({ [`flags.${MODULE_ID}.${ACTION_TYPE_FLAG}`]: select.value }).catch(reportError);
+    });
+    const fields = document.createElement("div");
+    fields.className = "form-fields";
+    fields.append(select);
+    field.append(label, fields);
+    group.after(field);
   }
 
   /** The started combat this actor is in: the viewed one first. */
@@ -341,7 +390,7 @@ export class TurnTracker {
     const now = this.now(actor);
     if (!now) return;
     const activation = this._pending.get(activity.uuid) ?? activity.activation?.type ?? "";
-    const next = recordUse(this.ledger(actor), { activation, attack: isWeaponAttack(activity), move: generalMoveOf(activity) }, now);
+    const next = recordUse(this.ledger(actor), { activation, attack: isAttackAction(activity), move: generalMoveOf(activity) }, now);
     if (next) await writeLedger(actor, next);
   }
 
@@ -462,7 +511,7 @@ export class TurnTracker {
     if (now && SLOTS.includes(slot) && (slot === "reaction" || now.isTurn)) {
       const { economy, own } = this.economy(actor, now);
       const perAction = attacksPerAction(actor.items, entry => CyberwareManager.isOperational(entry)).count;
-      const attackInProgress = slot === "action" && isWeaponAttack(activity) && own.attacks > 0 && own.attacks < perAction;
+      const attackInProgress = slot === "action" && isAttackAction(activity) && own.attacks > 0 && own.attacks < perAction;
       if (economy[slot].spent && !attackInProgress) {
         ui.notifications.warn(game.i18n.format("HARDWIPE.Turn.AlreadySpent", { slot: game.i18n.localize(`HARDWIPE.Turn.Slot.${slot}`) }));
       }
@@ -666,7 +715,8 @@ export class TurnTracker {
         for (const activity of list) (slot === "outside" ? outside : bands[slot]).push(optionEntry(item, activity, slot, list.length > 1, slotsLeft));
       }
       if (isMeleeWeapon(item) && item.system.equipped) {
-        const attack = activities.find(activity => activity.type === "attack" && activity.activation.type === "action");
+        // An opportunity attack is one melee attack: never an activity that takes the whole action.
+        const attack = activities.find(activity => activity.type === "attack" && activity.activation.type === "action" && isAttackAction(activity));
         if (attack) bands.reaction.push(optionEntry(item, attack, "reaction", false, slotsLeft, { opportunity: true }));
       }
     }
@@ -724,7 +774,7 @@ export class TurnTracker {
       // Mid-Attack the action is committed: only the remaining weapon attacks stay lit.
       const dimBand = ["spent", "standby"].includes(state) || (kind === "action" && attacking);
       const entries = bands[kind].map(entry => {
-        const inProgress = kind === "action" && attacking && entry.weaponAttack;
+        const inProgress = kind === "action" && attacking && entry.attackAction;
         const ownTurnOpportunity = entry.opportunity && now?.isTurn;
         return {
           ...entry, slot: kind,
@@ -826,7 +876,7 @@ function optionEntry(item, activity, slot, several, slotsLeft, { opportunity = f
     itemId: item.id, activityId: activity.id, uuid: item.uuid, img: item.img, name: item.name, group, level,
     sub: activity._source?.name ? plainActivityLabel(activity.name) : several ? plainActivityLabel(activity.name) : "",
     meta: meta.filter(Boolean).join(" · "), tag, note, off, dim, opportunity, notDrawn: group === "weapon" && !item.system.equipped,
-    weaponAttack: isWeaponAttack(activity)
+    attackAction: isAttackAction(activity)
   };
 }
 
