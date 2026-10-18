@@ -3747,3 +3747,45 @@ button.hardwipe-adv-btn.is-crit { --hw-adv: var(--hw-c-critical, var(--hw-cyan))
 @media (prefers-reduced-motion: reduce) {
   .hardwipe-init *, .hardwipe-init-queue { animation: none !important; transition: none !important; }
 }
+
+/* ---------------------------------------------------------------------------------------------
+ * Hardwipe dialogs: Hardwipe's own prompts and Ready Set Midi's bonus dialog. A terminal window:
+ * an accent header bar, a scanlined dark body, outlined buttons with the default one filled.
+ * ------------------------------------------------------------------------------------------- */
+.application.dialog.hardwipe-dialog {
+  --hwd: var(--hw-phos);
+  --hwd-ink: #04110c;
+  color: var(--hw-hi);
+  background: var(--hw-ink);
+  border: 1px solid color-mix(in srgb, var(--hwd) 55%, transparent);
+  border-radius: 0;
+  box-shadow: 0 0 0 1px #000, 0 12px 40px rgba(0, 0, 0, 0.6), 0 0 14px color-mix(in srgb, var(--hwd) 22%, transparent);
+}
+.application.dialog.hardwipe-dialog.is-reaction { --hwd: var(--hw-cyan); --hwd-ink: #021214; }
+.application.dialog.hardwipe-dialog.is-bonus { --hwd: #b48cff; --hwd-ink: #10061f; }
+.application.dialog.hardwipe-dialog.is-danger { --hwd: var(--hw-alert); --hwd-ink: #1a0308; }
+.hardwipe-dialog .window-header { margin: 0; color: var(--hwd-ink); background: var(--hwd); border-bottom: 0; }
+.hardwipe-dialog .window-header .window-title { color: inherit; font: 700 13px var(--hw-font-disp); letter-spacing: 0.16em; text-transform: uppercase; }
+.hardwipe-dialog .window-header :is(.window-icon, button) { color: var(--hwd-ink); }
+.hardwipe-dialog .window-content {
+  color: var(--hw-hi);
+  background: repeating-linear-gradient(to bottom, rgba(0, 0, 0, 0.22) 0 1px, transparent 1px 3px), linear-gradient(150deg, var(--hw-panel), var(--hw-ink));
+}
+.hardwipe-dialog .dialog-content { font: 500 14px/1.45 var(--hw-font-disp); }
+.hardwipe-dialog .dialog-content p { margin: 0 0 8px; }
+.hardwipe-dialog .dialog-content :is(input[type="text"], input[type="number"], select, textarea) {
+  color: var(--hw-hi); background: rgba(0, 0, 0, 0.45); border: 1px solid color-mix(in srgb, var(--hwd) 45%, transparent); border-radius: 0; font-family: var(--hw-font-mono);
+}
+.hardwipe-dialog .dialog-content :is(input, select, textarea):focus { border-color: var(--hwd); box-shadow: 0 0 0 1px var(--hwd); outline: none; }
+.hardwipe-dialog .dialog-content input[type="radio"], .hardwipe-dialog .dialog-content input[type="checkbox"] { accent-color: var(--hwd); }
+.hardwipe-dialog .form-footer { gap: 8px; }
+.hardwipe-dialog .form-footer button {
+  height: 32px; color: var(--hw-dim); background: rgba(0, 0, 0, 0.4); border: 1px solid var(--hw-line-2); border-radius: 0;
+  font: 700 12px var(--hw-font-disp); letter-spacing: 0.14em; text-transform: uppercase;
+  clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 0 100%);
+}
+.hardwipe-dialog .form-footer button:is(:hover, :focus-visible) { color: var(--hw-hi); border-color: var(--hwd); box-shadow: none; }
+.hardwipe-dialog .form-footer button:is([autofocus], .default) { color: var(--hwd-ink); background: var(--hwd); border-color: var(--hwd); box-shadow: 0 0 10px color-mix(in srgb, var(--hwd) 40%, transparent); }
+.hardwipe-dialog .rsm-bonus-choice { display: flex; align-items: center; gap: 8px; margin: 0 0 8px; }
+.hardwipe-dialog .rsm-bonus-choice span { display: flex; align-items: baseline; gap: 8px; }
+.hardwipe-dialog .rsm-bonus-choice small { color: var(--hw-dim); font: 600 11px var(--hw-font-mono); }

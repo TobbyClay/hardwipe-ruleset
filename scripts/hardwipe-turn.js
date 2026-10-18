@@ -446,7 +446,7 @@ export class TurnTracker {
     const name = activity.item?.name ?? activity.name;
     const answer = await foundry.applications.api.DialogV2.wait({
       window: { title: t("Title"), icon: "fa-solid fa-rotate-left" },
-      classes: ["hardwipe-ask-reaction"],
+      classes: ["hardwipe-dialog", "is-reaction", "hardwipe-ask-reaction"],
       content: `<p>${t("Content", { actor: escape(actor.name), item: escape(name) })}</p>`,
       buttons: [
         { action: "yes", label: t("Yes"), icon: "fa-solid fa-rotate-left", default: true },

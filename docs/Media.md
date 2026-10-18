@@ -172,6 +172,14 @@ Captured on **2026-10-17** from the local Crew Maneuvers branch in a private cop
 | [crew-card-cam-duo.png](media/crew-card-cam-duo.png) | Chat, Combo cam: Mags firing Juno's Spotter Mark, two staggered feeds; cropped above the log's scroll button. |
 | [crew-card-feed.png](media/crew-card-feed.png) | Chat, Glitch feed: the same Entry Stack card after the style was switched. |
 
+## Prompt captures
+
+Captured on **2026-10-18** in the disposable QA world: the Reaction? prompt and the bonus dialog as the QA Player, the wall-type delete confirm as the GM.
+
+| Published file | Subject |
+| --- | --- |
+| [hardwipe-dialogs.png](media/hardwipe-dialogs.png) | Reaction?, Apply Retroactive Bonus and Delete wall type, side by side; combined from three captures. |
+
 ## Feature captures
 
 Captured on **2026-10-18** in the disposable QA world, as the QA Player, on Mags's own turn in a started combat, after a Heavy Pistol shot had spent the action.

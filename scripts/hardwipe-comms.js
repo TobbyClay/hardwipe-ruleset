@@ -207,7 +207,7 @@ export async function queueAction(action, id, event = null) {
   if (action === "close-all") {
     const items = queueItems();
     if (!items.length) return;
-    const ok = await foundry.applications.api.DialogV2.confirm({
+    const ok = await foundry.applications.api.DialogV2.confirm({ classes: ["hardwipe-dialog"],
       window: { title: t("Queue.CloseAll") }, content: `<p>${escapeHTML(t("Queue.CloseAllConfirm", { count: items.length }))}</p>`
     });
     if (!ok) return;

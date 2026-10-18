@@ -604,7 +604,7 @@ export class RollTrackerApp extends foundry.applications.api.ApplicationV2 {
   }
 
   static async #onEndSession() {
-    const ok = await foundry.applications.api.DialogV2.confirm({ window: { title: tr("EndSession") }, content: `<p>${e(tr("EndSessionAsk"))}</p>` });
+    const ok = await foundry.applications.api.DialogV2.confirm({ classes: ["hardwipe-dialog", "is-danger"], window: { title: tr("EndSession") }, content: `<p>${e(tr("EndSessionAsk"))}</p>` });
     if (ok) await endSession();
   }
 
@@ -621,7 +621,7 @@ export class RollTrackerApp extends foundry.applications.api.ApplicationV2 {
   static async #onDelete(event, target) {
     const session = allSessions().find(entry => entry.id === target.dataset.session);
     if (!session) return;
-    const ok = await foundry.applications.api.DialogV2.confirm({ window: { title: tr("Delete") }, content: `<p>${e(tr("DeleteAsk", { name: sessionName(session) }))}</p>` });
+    const ok = await foundry.applications.api.DialogV2.confirm({ classes: ["hardwipe-dialog", "is-danger"], window: { title: tr("Delete") }, content: `<p>${e(tr("DeleteAsk", { name: sessionName(session) }))}</p>` });
     if (!ok) return;
     if (this.#scope === session.id) this.#scope = null;
     await deleteSession(session.id);

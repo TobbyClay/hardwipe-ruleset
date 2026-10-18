@@ -62,6 +62,11 @@ Hooks.once("init", async () => {
   registerSaveCards();
   registerInitiativeCards();
   registerToolCards();
+  // Ready Set Midi's retroactive bonus dialog (the + on a roll) wears Hardwipe's dialog style.
+  Hooks.on("renderDialogV2", (app, element) => {
+    const root = element instanceof HTMLElement ? element : element?.[0];
+    if (root?.querySelector?.(".rsm-bonus-dialog")) root.classList.add("hardwipe-dialog", "is-bonus");
+  });
   AttackReviewManager.registerSettings();
   RangedAttackManager.registerHooks();
   AttackReviewManager.registerHooks();

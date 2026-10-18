@@ -107,7 +107,7 @@ export class HardwipeSheet {
         if (!canControlActor(this.actor) || this.actor.limited) return;
         if (!game.user.can("FILES_BROWSE")) {
           const current = paperDollPath(this.actor.getFlag(MODULE_ID, "paperDoll")) ?? BODY_ART;
-          const path = await foundry.applications.api.DialogV2.prompt({
+          const path = await foundry.applications.api.DialogV2.prompt({ classes: ["hardwipe-dialog"],
             window: { title: game.i18n.localize("HARDWIPE.Cyberware.PaperDollChoose") },
             content: `<div class="form-group stacked"><label>${label("HARDWIPE.Cyberware.PaperDollPath")}</label>
               <input type="text" name="paperDoll" value="${escapeSheetHTML(current)}" aria-label="${label("HARDWIPE.Cyberware.PaperDollPath")}" required>

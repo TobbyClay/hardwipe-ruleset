@@ -136,6 +136,12 @@ Using a tool posts its card with a **Roll check** button (the check is yours to 
 
 <a href="media/tool-cards.png"><img src="media/tool-cards.png" alt="Six tool cards with their slim check rows: Breach Kit 5 against DC 15, Failure, cipher 2 of 5 locked; Face Kit 20, beats Hard 20; Chem Rig 18, beats Medium 15; Fab Kit 11, beats Easy 10; Nav Deck 4 and Holo Deck 3, under 5" width="940"></a>
 
+## Prompts
+
+Hardwipe's own prompts (the off-turn **Reaction?**, Shield Block, comms, wall types, the Roll Tracker's confirms) and Ready Set Midi's **Apply Retroactive Bonus** share one terminal style: an accent header, a scanlined body, and the default button filled. Cyan asks about your turn, violet adds to a roll, red deletes or ends something.
+
+<a href="media/hardwipe-dialogs.png"><img src="media/hardwipe-dialogs.png" alt="Three prompts: Reaction? in cyan with Yes, spend it; Apply Retroactive Bonus in violet with a formula field; Delete wall type in red with No as the default" width="900"></a>
+
 ## Cyberware diagnostics
 
 Activated implants use a diagnostic panel with their body region, status, and charges. The underlying item activities still supply attacks, saves, and effects. [Cyberware, inventory, and slots →](Cyberware.md)
