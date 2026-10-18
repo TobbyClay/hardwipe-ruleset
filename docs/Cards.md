@@ -115,6 +115,16 @@ One card per use: the item with the doses left, then a scope drawn by what it di
   </tr>
 </table>
 
+## Tools
+
+Using a tool posts its card with a **Roll check** button (the check is yours to roll; Ready Set Midi's own tool card had no button for it). The result lands on the tool card, in a scope drawn by the kind of tool, and the check's own card folds to a slim row underneath that keeps the roll's **+** and **DIS / ADV**. Click the total for the dice.
+
+- **Most rolls have no DC.** The scope fills by how good the roll is for you (a 1 to a 20 on the die, plus everything added), in cyan, and the stamp names the highest standard DC the total beats, from **Easy · 10** to **Very hard · 25**, for the GM to rule on.
+- **With a DC** on the tool's check, it reads **Success** in green or **Failure** in red.
+- **Six families**, by the tool's D&D5e type: **Breach** (thieves' tools; cipher columns lock in), **Spoof** (disguise and forgery kits; ID match), **Synth** (alchemist's, herbalism, poisoner's, brewer's, cook's; purity), **Fab** (other artisan's tools; integrity), **Nav** (navigator's and cartographer's tools, vehicles; route lock), **Signal** (instruments and gaming sets; level). Anything else reads as Breach.
+
+<a href="media/tool-cards.png"><img src="media/tool-cards.png" alt="Six tool cards with their slim check rows: Breach Kit 5 against DC 15, Failure, cipher 2 of 5 locked; Face Kit 20, beats Hard 20; Chem Rig 18, beats Medium 15; Fab Kit 11, beats Easy 10; Nav Deck 4 and Holo Deck 3, under 5" width="940"></a>
+
 ## Cyberware diagnostics
 
 Activated implants use a diagnostic panel with their body region, status, and charges. The underlying item activities still supply attacks, saves, and effects. [Cyberware, inventory, and slots →](Cyberware.md)

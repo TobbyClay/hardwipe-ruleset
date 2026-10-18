@@ -112,3 +112,70 @@ button.hardwipe-cons-details[aria-expanded="true"]::after { content: " ▾"; }
 /* Ready Set Midi's + (a bonus after the roll), at the head of the apply strip. */
 .hardwipe-cons-acts > .rsr-addon-bonus-btn { position: static; display: grid; place-items: center; width: 24px; height: 22px; margin: 0; color: var(--pay); background: rgba(0, 0, 0, 0.45); border: 1px solid rgba(var(--pay-rgb), 0.5); font-size: 13px; transform: none; opacity: 0.9; cursor: pointer; }
 .hardwipe-cons-acts > .rsr-addon-bonus-btn:hover { opacity: 1; text-shadow: 0 0 4px var(--pay); }
+
+/* ---------------------------------------------------------------------------------------------
+ * Tool cards (hardwipe-tool-cards.js): the scope drawn by the tool's family, the readout with the
+ * total and its stamp, the meter line. Cyan with no DC; green or red once there is one.
+ * ------------------------------------------------------------------------------------------- */
+.hardwipe-gear.hardwipe-tool { --pay: var(--hw-warn); --pay-rgb: 255, 194, 77; }
+.hardwipe-gear.hardwipe-tool.is-tool-open { --pay: var(--hw-cyan); --pay-rgb: 70, 230, 220; }
+.hardwipe-gear.hardwipe-tool.is-tool-success { --pay: var(--hw-phos); --pay-rgb: 143, 207, 176; }
+.hardwipe-gear.hardwipe-tool.is-tool-failure { --pay: var(--hw-alert); --pay-rgb: 255, 63, 95; }
+.hardwipe-tool .hardwipe-gear-bar { gap: 6px; }
+.hardwipe-tool .hardwipe-gear-tag { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.hardwipe-tool-prof { margin-left: auto; padding: 0 5px; border: 1px solid currentColor; font-size: 9.5px; letter-spacing: 0.12em; }
+.hardwipe-tool-scope { height: 80px; }
+.hardwipe-tool-art { position: absolute; left: 8px; top: 4px; width: 150px; height: 56px; pointer-events: none; }
+.hardwipe-tool-art svg { display: block; overflow: visible; }
+.hardwipe-tool-art .stroke { fill: none; stroke: var(--pay); stroke-width: 1.4; }
+.hardwipe-tool-art .dim { fill: none; stroke: rgba(var(--pay-rgb), 0.3); stroke-width: 1; }
+.hardwipe-tool-art .lit { fill: var(--pay); }
+.hardwipe-tool-art .faint { fill: rgba(var(--pay-rgb), 0.22); }
+.hardwipe-tool-art .glow { filter: drop-shadow(0 0 3px var(--pay)); }
+.hardwipe-tool-art .glyph { fill: var(--pay); font: 700 13px var(--hw-font-mono); }
+.hardwipe-tool-art .glyph.off { fill: rgba(var(--pay-rgb), 0.35); font-size: 10px; }
+.hardwipe-tool-art .sweep { fill: rgba(var(--pay-rgb), 0.25); transform-origin: 30px 28px; }
+.hardwipe-tool-meter { position: absolute; left: 0; bottom: 0; padding: 1px 8px; color: var(--pay); background: rgba(0, 0, 0, 0.6); font: 700 9.5px var(--hw-font-mono); letter-spacing: 0.08em; text-transform: uppercase; text-shadow: 0 0 4px rgba(var(--pay-rgb), 0.6); }
+button.hardwipe-tool-total { width: auto; height: auto; margin: 0; padding: 1px 4px 1px 6px; color: var(--hw-hi); background: rgba(0, 0, 0, 0.6); border: 1px solid rgba(var(--pay-rgb), 0.5); border-radius: 0; font: 700 28px/1 var(--hw-font-disp); text-shadow: 0 0 10px var(--pay); cursor: pointer; }
+button.hardwipe-tool-total::after { content: " ▾"; color: var(--pay); font-size: 12px; text-shadow: none; }
+button.hardwipe-tool-total[aria-expanded="true"]::after { content: " ▴"; }
+.hardwipe-tool-stamp { margin-top: 3px; padding: 1px 6px; color: #04110c; background: var(--pay); font: italic 700 12px var(--hw-font-disp); letter-spacing: 0.1em; text-transform: uppercase; }
+.hardwipe-tool-stamp.is-ladder { font-style: normal; font-size: 10.5px; letter-spacing: 0.06em; }
+button.hardwipe-tool-roll { width: auto; height: auto; margin: 0; padding: 5px 10px; color: #1a1205; background: var(--pay); border: 0; border-radius: 0; font: 700 13px var(--hw-font-disp); letter-spacing: 0.14em; text-transform: uppercase; clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 0 100%); box-shadow: 0 0 10px rgba(var(--pay-rgb), 0.5); cursor: pointer; }
+button.hardwipe-tool-roll:disabled { opacity: 0.6; cursor: progress; }
+.hardwipe-tool-dice[hidden] { display: none; }
+.hardwipe-tool-dice-row { display: flex; align-items: center; gap: 4px; padding: 5px 8px; font: 600 10.5px var(--hw-font-mono); color: var(--hw-dim); }
+.hardwipe-tool-dice-row em { flex: 1; margin-left: 6px; font-style: normal; }
+.hardwipe-tool-dice-row b { color: var(--hw-hi); font: 700 14px var(--hw-font-disp); }
+.hardwipe-cons-row.is-earlier { opacity: 0.75; }
+.hardwipe-tool.is-arriving .hardwipe-tool-art g.is-on { animation: hardwipe-tool-lock 0.5s calc(var(--i, 0) * 0.1s) steps(5) both; }
+.hardwipe-tool.is-arriving .hardwipe-tool-art .draw { stroke-dasharray: 400; animation: hardwipe-cons-draw 1s 0.1s ease-out both; }
+.hardwipe-tool.is-arriving .hardwipe-tool-art .pop { animation: hardwipe-cons-pop 0.4s calc(var(--i, 0) * 0.08s) ease-out both; transform-box: fill-box; transform-origin: center; }
+.hardwipe-tool.is-arriving .hardwipe-tool-art .sweep { animation: hardwipe-tool-sweep 1.2s ease-out both; }
+.hardwipe-tool.is-arriving .hardwipe-tool-art rect.lit { animation: hardwipe-tool-rise 0.5s calc(var(--i, 0) * 0.04s) ease-out both; transform-box: fill-box; transform-origin: bottom; }
+.hardwipe-tool.is-arriving .hardwipe-cons-readout { animation: hardwipe-cons-slam 0.45s 0.4s cubic-bezier(0.2, 0.9, 0.3, 1.3) both; }
+@keyframes hardwipe-tool-lock { from { transform: translateY(-14px); opacity: 0.2; } }
+@keyframes hardwipe-tool-sweep { from { transform: rotate(-200deg); } }
+@keyframes hardwipe-tool-rise { from { transform: scaleY(0.1); } }
+
+/* The tool check's own card, folded to a row: total, what it was for and how it read, +, the switch. */
+.hardwipe-check.is-slim { padding: 0; }
+.hardwipe-check.is-slim .hardwipe-check-head { display: flex; align-items: center; gap: 8px; margin: 0; padding: 5px 8px; }
+.hardwipe-check.is-slim .hardwipe-check-roll { margin: 0; }
+.chat-message .hardwipe-check.is-slim .hardwipe-check-roll button.dice-roll { width: auto; padding: 0; background: none; border: 0; }
+.chat-message .hardwipe-check.is-slim .hardwipe-check-roll .rsr-multiroll::before,
+.chat-message .hardwipe-check.is-slim .hardwipe-check-roll .rsr-multiroll::after { display: none; }
+.chat-message .hardwipe-check.is-slim .hardwipe-check-roll .rsr-multiroll > .total { min-width: 40px; height: 30px; padding: 0 5px; font: 700 18px/1 var(--hw-font-disp); }
+.chat-message .hardwipe-check.is-slim .hardwipe-check-roll .rsr-multiroll > .total.ignored { display: none; }
+.hardwipe-check.is-slim .hardwipe-check-name { flex: 1; display: grid; gap: 1px; min-width: 0; padding-left: 10px; }
+.hardwipe-tool-slim-for { color: var(--hw-dim); font: 600 10.5px var(--hw-font-mono); }
+.hardwipe-tool-slim-read { color: var(--hw-hi); font: 700 11px var(--hw-font-disp); letter-spacing: 0.08em; text-transform: uppercase; }
+.hardwipe-check.is-slim.is-tool-success { --hw-check: var(--hw-phos); }
+.hardwipe-check.is-slim.is-tool-failure { --hw-check: var(--hw-alert); }
+.hardwipe-check.is-slim.is-tool-open { --hw-check: var(--hw-cyan); }
+.hardwipe-check.is-slim .hardwipe-check-head > .hardwipe-adv { flex-direction: column; clip-path: none; }
+.hardwipe-check.is-slim .hardwipe-check-head > .hardwipe-adv button.hardwipe-adv-btn { justify-content: center; width: 100%; height: 17px; padding: 0 6px; font-size: 9px; }
+.hardwipe-check.is-slim .hardwipe-check-head > .hardwipe-adv button.hardwipe-adv-btn > i { display: none; }
+.hardwipe-check.is-slim .hardwipe-check-head > .hardwipe-adv button.hardwipe-adv-btn + button.hardwipe-adv-btn { border-left: 0; border-top: 1px solid rgba(143, 207, 176, 0.28); }
+.hardwipe-check.is-slim .hardwipe-check-head > .rsr-addon-bonus-btn { position: static; flex: none; margin: 0; color: var(--hw-check); font-size: 15px; opacity: 0.8; transform: none; cursor: pointer; }
+@media (prefers-reduced-motion: reduce) { .hardwipe-tool *, .hardwipe-tool-art * { animation: none !important; } }

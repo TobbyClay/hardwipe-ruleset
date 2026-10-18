@@ -22,6 +22,7 @@ import { applyNpcSavesDefault, registerNpcSaves } from "./hardwipe-npc-saves.js"
 import { registerEffectChoice } from "./hardwipe-effect-choice.js";
 import { registerSaveCards } from "./hardwipe-check-cards.js";
 import { registerInitiativeCards } from "./hardwipe-initiative.js";
+import { registerToolCards } from "./hardwipe-tool-cards.js";
 import { registerRollTracker } from "./hardwipe-roll-tracker.js";
 import { RecapDialog, RollTrackerApp, SessionDialog } from "./hardwipe-roll-tracker-app.js";
 import { registerBraindance, initializeBraindance } from "./hardwipe-braindance.js";
@@ -60,6 +61,7 @@ Hooks.once("init", async () => {
   registerEffectChoice();
   registerSaveCards();
   registerInitiativeCards();
+  registerToolCards();
   AttackReviewManager.registerSettings();
   RangedAttackManager.registerHooks();
   AttackReviewManager.registerHooks();

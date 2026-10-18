@@ -172,6 +172,14 @@ Captured on **2026-10-17** from the local Crew Maneuvers branch in a private cop
 | [crew-card-cam-duo.png](media/crew-card-cam-duo.png) | Chat, Combo cam: Mags firing Juno's Spotter Mark, two staggered feeds; cropped above the log's scroll button. |
 | [crew-card-feed.png](media/crew-card-feed.png) | Chat, Glitch feed: the same Entry Stack card after the style was switched. |
 
+## Tool captures
+
+Captured on **2026-10-18** from the local tool-card branch in the disposable QA world, as the QA Player, dark theme. Each test tool was used and its Roll check pressed; only the Breach Kit's check has a DC (15).
+
+| Published file | Subject |
+| --- | --- |
+| [tool-cards.png](media/tool-cards.png) | Six tool cards, one per family, each above its slim check row; combined from six captures. |
+
 ## Consumable and effect captures
 
 Captured on **2026-10-18** from the local consumable-card branch in the disposable QA world, as the QA Player, dark theme. The Stim Injector, Frag Grenade, Reflex Booster, Flashbang and Smoke Canister are test items; the grenades targeted two QA NPCs without a template. Steadied, Night Optics and Corp Sync are test effects on Mags, captured after 30 seconds of game time had passed.

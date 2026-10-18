@@ -2,6 +2,7 @@ import { hidesChallenge } from "./hardwipe-requests.js";
 import { MODULE_ID, escapeHTML } from "./hardwipe-state.js";
 import { abilityColor, advControlHTML, arrivalWindow, d20Drawer } from "./hardwipe-attack-cards.js";
 import { renderInitiative } from "./hardwipe-initiative.js";
+import { slimCheck, toolOrigin } from "./hardwipe-tool-cards.js";
 
 /**
  * Check cards: ability checks, skill and tool checks, death saves, concentration and initiative post
@@ -62,6 +63,9 @@ export function renderCheckCard(message, element) {
   row?.classList.add("hardwipe-check-source");
   content.prepend(panel);
   d20Drawer(message, button, roll, info.title, "check");
+  // A check rolled from a tool card: that card shows the result, this one folds to a row (hardwipe-tool-cards.js).
+  const tool = toolOrigin(message);
+  if (tool) slimCheck(message, element, panel, tool, roll);
   return true;
 }
 
