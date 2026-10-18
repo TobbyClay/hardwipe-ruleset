@@ -1,0 +1,58 @@
+/* ---------------------------------------------------------------------------------------------
+ * Typed chat messages as one thread. Public (Foundry's default) is the plain post; in character,
+ * emotes and whispers are marked. Messages in a row from the same voice join the post above.
+ * ------------------------------------------------------------------------------------------- */
+:is(#chat, #chat-notifications, .chat-popout) .chat-message.hardwipe-talk {
+  --u: var(--hw-talk-user, #8a93a3);
+  --ic: var(--hw-cyan);
+  position: relative; margin: 0; padding: 8px 9px 8px 56px; color: #d9dee6; background: #101317;
+  border: 0; border-top: 1px solid #1d2127; border-radius: 0; box-shadow: none;
+}
+:is(#chat, #chat-notifications, .chat-popout) .chat-message.hardwipe-talk::before {
+  content: ""; position: absolute; left: 0; top: 8px; bottom: 8px; width: 2px; background: var(--u); opacity: 0.75;
+}
+:is(#chat, #chat-notifications, .chat-popout) .chat-message.hardwipe-talk > .message-header { position: static; display: flex; flex-wrap: nowrap !important; align-items: baseline; height: auto; min-height: 0 !important; margin: 0 !important; padding: 0 !important; border: 0; }
+:is(#chat, #chat-notifications, .chat-popout) .chat-message.hardwipe-talk .message-sender, :is(#chat, #chat-notifications, .chat-popout) .chat-message.hardwipe-talk .name-stacked { position: static; }
+:is(#chat, #chat-notifications, .chat-popout) .chat-message.hardwipe-talk .message-sender { display: flex; flex: 1 1 auto; align-items: baseline; gap: 6px; min-width: 0; min-height: 0 !important; margin: 0; padding: 0 !important; white-space: normal; }
+:is(#chat, #chat-notifications, .chat-popout) .chat-message.hardwipe-talk .message-sender > .avatar { position: absolute; left: 12px; top: 8px; display: block !important; flex: none !important; width: 36px !important; height: 36px !important; margin: 0; }
+:is(#chat, #chat-notifications, .chat-popout) .chat-message.hardwipe-talk .message-sender > .avatar img { width: 100% !important; height: 100% !important; object-fit: cover; background: #000; border: 1px solid #2f343c; border-radius: 0; }
+/* !important where dnd5e and the shared portrait patch set the header for in-character messages. */
+:is(#chat, #chat-notifications, .chat-popout) .chat-message.hardwipe-talk .name-stacked { display: flex; flex: 1 1 auto; flex-direction: row !important; flex-wrap: wrap; align-items: baseline !important; justify-content: flex-start !important; gap: 0 6px; height: auto !important; min-width: 0; min-height: 0 !important; }
+:is(#chat, #chat-notifications, .chat-popout) .chat-message.hardwipe-talk .name-stacked .title { color: #f2f5fa; font: 700 14px/1.2 var(--hw-font-disp) !important; letter-spacing: 0.02em; }
+:is(#chat, #chat-notifications, .chat-popout) .chat-message.hardwipe-talk .name-stacked .subtitle { color: #7f8896; font: 500 12px/1.2 var(--hw-font-disp) !important; }
+:is(#chat, #chat-notifications, .chat-popout) .chat-message.hardwipe-talk.is-public .name-stacked .subtitle:not(:empty)::before { content: "· "; }
+:is(#chat, #chat-notifications, .chat-popout) .chat-message.hardwipe-talk .name-stacked .subtitle.hardwipe-talk-tag { font: 700 9px/1.6 var(--hw-font-mono) !important; letter-spacing: 0.12em; text-transform: uppercase; }
+:is(#chat, #chat-notifications, .chat-popout) .chat-message.hardwipe-talk .message-metadata { flex: none; align-self: flex-start; color: #5f6773; font: 600 10px var(--hw-font-mono); }
+:is(#chat, #chat-notifications, .chat-popout) .chat-message.hardwipe-talk > .message-content { margin: 1px 0 0 !important; padding: 0 !important; font: 400 14px/1.4 var(--hw-font-disp); overflow-wrap: anywhere; }
+:is(#chat, #chat-notifications, .chat-popout) .chat-message.hardwipe-talk > .message-content p { margin: 0; }
+:is(#chat, #chat-notifications, .chat-popout) .chat-message.hardwipe-talk > .message-content p + p { margin-top: 4px; }
+
+/* A follow-up joins the post above: no header, no portrait, no line between. */
+:is(#chat, #chat-notifications, .chat-popout) .chat-message.hardwipe-talk.is-cont { margin-top: -6px; padding-top: 0; border-top: 0; }
+:is(#chat, #chat-notifications, .chat-popout) .chat-message.hardwipe-talk.is-cont::before { top: -6px; }
+:is(#chat, #chat-notifications, .chat-popout) .chat-message.hardwipe-talk.is-cont .message-metadata { position: absolute; right: 9px; top: 0; opacity: 0; transition: opacity 0.15s; }
+:is(#chat, #chat-notifications, .chat-popout) .chat-message.hardwipe-talk.is-cont:hover .message-metadata { opacity: 1; }
+:is(#chat, #chat-notifications, .chat-popout) .chat-message.hardwipe-talk.is-cont .message-sender { display: none; }
+:is(#chat, #chat-notifications, .chat-popout) .chat-message.hardwipe-talk:is(.is-cont, .is-emote) > .message-header { height: 0; overflow: visible; }
+:is(#chat, #chat-notifications, .chat-popout) .chat-message.hardwipe-talk.is-cont > .message-content { margin-top: 3px; }
+
+/* In character: the speaker's own voice, a cyan rule (red for anyone who isn't a player character). */
+:is(#chat, #chat-notifications, .chat-popout) .chat-message.hardwipe-talk.is-ic { background: linear-gradient(90deg, color-mix(in srgb, var(--ic) 9%, #101317), #101317 75%); }
+:is(#chat, #chat-notifications, .chat-popout) .chat-message.hardwipe-talk.is-ic.is-npc { --ic: var(--hw-alert); }
+:is(#chat, #chat-notifications, .chat-popout) .chat-message.hardwipe-talk.is-ic::before { width: 3px; background: var(--ic); opacity: 1; }
+:is(#chat, #chat-notifications, .chat-popout) .chat-message.hardwipe-talk.is-ic .name-stacked .subtitle { color: var(--ic); }
+:is(#chat, #chat-notifications, .chat-popout) .chat-message.hardwipe-talk.is-ic > .message-content { color: #fbfdfd; font-weight: 500; }
+
+/* Emote: one italic line, the name inline. */
+:is(#chat, #chat-notifications, .chat-popout) .chat-message.hardwipe-talk.is-emote { padding-top: 5px; padding-bottom: 5px; }
+:is(#chat, #chat-notifications, .chat-popout) .chat-message.hardwipe-talk.is-emote .message-sender > .avatar { left: 18px; top: 5px; width: 24px !important; height: 24px !important; opacity: 0.8; }
+:is(#chat, #chat-notifications, .chat-popout) .chat-message.hardwipe-talk.is-emote .name-stacked { display: none !important; }
+:is(#chat, #chat-notifications, .chat-popout) .chat-message.hardwipe-talk.is-emote .message-metadata { position: absolute; right: 9px; top: 5px; }
+:is(#chat, #chat-notifications, .chat-popout) .chat-message.hardwipe-talk.is-emote > .message-content { min-height: 24px; margin: 0; color: #c9d3dd; font-style: italic; padding-right: 64px !important; }
+:is(#chat, #chat-notifications, .chat-popout) .chat-message.hardwipe-talk .hardwipe-talk-name { color: var(--u); font-style: normal; }
+
+/* Whisper: a violet tint, and who it went to. */
+:is(#chat, #chat-notifications, .chat-popout) .chat-message.hardwipe-talk.is-whisper { background: color-mix(in srgb, #c07bff 7%, #101317); }
+:is(#chat, #chat-notifications, .chat-popout) .chat-message.hardwipe-talk.is-whisper::before { background: #c07bff; opacity: 1; }
+:is(#chat, #chat-notifications, .chat-popout) .chat-message.hardwipe-talk.is-whisper .name-stacked .subtitle { color: #c07bff; }
+:is(#chat, #chat-notifications, .chat-popout) .chat-message.hardwipe-talk.is-whisper .name-stacked .subtitle::before { content: "\1F512 "; }

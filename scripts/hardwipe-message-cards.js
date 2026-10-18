@@ -58,11 +58,85 @@ function render(message, html) {
   if (card?.matches(".hardwipe-heat-state-card, .hardwipe-lockdown-card")) return heatCard(message, element, card);
   if (card?.matches(".hardwipe-shield-card") && shieldCard(message, element, card)) return;
   if (card) return systemCard(message, element, card);
+  if (isTalk(message, content)) return talkCard(message, element, content);
   if (message.type === "turn") return turnCard(message, element, content);
   if (rollPrompt(message)) return promptCard(message, element, content);
   // Skill and save requests are drawn by hardwipe-requests.js; others (a party rest) keep this frame.
   if (message.type === "request" && !rendersRequest(message)) return requestCard(message, element, content);
   if (message.type in ROLL_KINDS || plainRoll(message, content)) return rollCard(message, element, content);
+}
+
+/* Typed messages ---------------------------------------------------------------------------------- */
+
+const TALK_GROUP_MS = 5 * 60 * 1000;
+
+/** Something a person typed: a plain message with no rolls, no card and no other module's data. */
+function isTalk(message, content) {
+  if (message.type !== "base" || message.rolls?.length) return false;
+  if (Object.keys(message.flags ?? {}).some(scope => scope !== "core")) return false;
+  return !content.querySelector(".dice-roll, .chat-card, .card-buttons, [data-action]");
+}
+
+/** Public (Foundry's default mode) is the plain post; in character, emotes and whispers are marked. */
+function talkKind(message) {
+  if (message.whisper?.length) return "whisper";
+  if (message.style === CONST.CHAT_MESSAGE_STYLES.EMOTE) return "emote";
+  if (message.style === CONST.CHAT_MESSAGE_STYLES.IC) return "ic";
+  return "public";
+}
+
+/**
+ * Typed messages as one thread: no box per message, a hairline between posts, a bar in the author's colour, the
+ * portrait beside the words. Public posts name the player and the character they play; in character marks the
+ * speaker (cyan, red for anyone not a player character); an emote is one italic line; a whisper says who it went
+ * to. Messages in a row from the same voice join the post above. Foundry's own header controls stay.
+ */
+function talkCard(message, element, content) {
+  const kind = talkKind(message);
+  element.classList.add("hardwipe-talk", `is-${kind}`);
+  const color = message.author?.color?.css ?? (message.author?.color ? String(message.author.color) : "");
+  if (color) element.style.setProperty("--hw-talk-user", color);
+  const speaker = ChatMessage.implementation.getSpeakerActor?.(message.speaker) ?? null;
+  if (kind === "ic" && speaker?.type !== "character") element.classList.add("is-npc");
+  const subtitle = element.querySelector(".message-sender .subtitle");
+  if (subtitle) {
+    let text = "";
+    if (kind === "public") text = message.author?.character?.name ?? "";
+    else if (kind === "ic") text = t("Talk.InCharacter");
+    else if (kind === "whisper") {
+      const names = message.whisper.filter(id => id !== message.author?.id).map(id => game.users.get(id)?.name).filter(Boolean);
+      text = names.length ? t("Talk.WhisperTo", { names: names.join(", ") }) : t("Talk.Whisper");
+    }
+    subtitle.textContent = text;
+    subtitle.classList.toggle("hardwipe-talk-tag", kind !== "public");
+  }
+  if (kind === "emote") {
+    // Foundry writes the speaker's name in front of an emote: it becomes the line's name.
+    const alias = String(message.speaker?.alias ?? "");
+    const first = content.firstChild;
+    if (alias && first?.nodeType === Node.TEXT_NODE && first.textContent.trimStart().startsWith(alias)) {
+      first.textContent = first.textContent.trimStart().slice(alias.length);
+      const name = document.createElement("b");
+      name.className = "hardwipe-talk-name";
+      name.textContent = alias;
+      content.prepend(name);
+    }
+  }
+  if (joinsPrevious(message, kind)) element.classList.add("is-cont");
+}
+
+/** The same voice again, in the same mode, a moment later: it joins the post above (emotes and whispers stand alone). */
+function joinsPrevious(message, kind) {
+  if (kind !== "public" && kind !== "ic") return false;
+  const list = game.messages.contents;
+  const index = list.indexOf(message);
+  const previous = index > 0 ? list[index - 1] : null;
+  if (!previous?.visible || previous.author?.id !== message.author?.id) return false;
+  if ((message.timestamp ?? 0) - (previous.timestamp ?? 0) > TALK_GROUP_MS) return false;
+  const content = document.createElement("div");
+  content.innerHTML = previous.content ?? "";
+  if (!isTalk(previous, content) || talkKind(previous) !== kind) return false;
+  return kind === "public" || (previous.speaker?.alias === message.speaker?.alias && previous.speaker?.token === message.speaker?.token);
 }
 
 /* Hardwipe system cards ------------------------------------------------------------------------- */

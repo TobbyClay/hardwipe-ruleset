@@ -182,6 +182,14 @@ Captured on **2026-10-18** in the disposable QA world: three Heavy Pistol attack
 | [attack-crit-current.png](media/attack-crit-current.png) | Critical hit: CRIT on the damage line, 21 piercing. |
 | [attack-miss-current.png](media/attack-miss-current.png) | Confirmed miss: 6 to hit, the target greyed. |
 
+## Chat thread capture
+
+Captured on **2026-10-18** in the disposable QA world, the GM's view of a short conversation typed through the chat box by the GM, QA Player (Mags) and QA Player 2 (Juno): public messages, `/ic`, `/me`, `/w` and the Breach Guard speaking in character.
+
+| Published file | Subject |
+| --- | --- |
+| [chat-thread-current.png](media/chat-thread-current.png) | Public posts, a joined follow-up, in character, an emote and two whispers. |
+
 ## Chat card captures
 
 Captured on **2026-10-18** in the disposable QA world: Edge spent with no play (Juno), the Downed card from a death save at 0 HP (Mags, holding Edge), Flatline at three Strikes (Juno), and a roll typed in chat, `/r 2d6 + 3 # Shotgun spread` (no item behind it).
