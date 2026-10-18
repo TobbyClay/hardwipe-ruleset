@@ -31,9 +31,11 @@ The **Turn** tab on the Hardwipe Character sheet shows where you are in the roun
 
 ## Crew maneuvers: pull it off together
 
-| Set it up | The crew sees it | Pull it off |
-| --- | --- | --- |
-| <img src="docs/media/crew-setup.png" alt="Entry Stack's Details tab: Type Crew Maneuver, Crew Maneuver Type Strike" width="280"> | <img src="docs/media/crew-turn-incoming.png" alt="Mags's crewlink: Juno has set up Spotter Mark, its description, and Fire · Heavy Pistol" width="300"> | <img src="docs/media/crew-card-cam-duo.png" alt="CREW card in chat: two staggered camera feeds, Juno and Mags, Crew combo ×2, Overwatch, Spotter Mark, Mags fires Juno's Spotter Mark" width="230"> |
+| The crew sees it | Pull it off |
+| --- | --- |
+| <img src="docs/media/crew-turn-incoming.png" alt="Mags's crewlink: Juno has set up Spotter Mark, its description, and Fire · Heavy Pistol" width="400"> | <img src="docs/media/crew-card-cam-duo.png" alt="CREW card in chat: two staggered camera feeds, Juno and Mags, Crew combo ×2, Overwatch, Spotter Mark, Mags fires Juno's Spotter Mark" width="270"> |
+| **Set it up: one more Feature Type** | **…or the compact Glitch feed card** |
+| <img src="docs/media/crew-setup.png" alt="Entry Stack's Details tab: Type Crew Maneuver, Crew Maneuver Type Strike" width="400"> | <img src="docs/media/crew-card-feed.png" alt="Glitch feed CREW card: Mags » Entry Stack, Strike, Executed" width="270"> |
 
 One character sets it up; the rest of the crew pays it off. *Entry Stack*: Mags stacks up on a door with a bonus action, Juno kicks it open, and Mags fires as it swings.
 
