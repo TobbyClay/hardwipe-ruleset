@@ -2,7 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import {
   attacksPerAction, compareOptions, currentLedger, generalMoveOf, isCastable, isAttackAction, isMeleeWeapon, isWeaponAttack, optionGroup,
-  payFor, reactionHeld, readLedger, recordUse, slotFor
+  asksReaction, payFor, reactionHeld, readLedger, recordUse, slotFor
 } from "../scripts/hardwipe-turn.js";
 
 // A four-combatant order; the character acts at index 2.
@@ -42,10 +42,18 @@ test("a reaction stays spent until the actor's own next turn starts", () => {
   assert.equal(readLedger(own, at(2, 2)).reaction, false);
 });
 
-test("an off-turn weapon attack that costs an action is an opportunity attack and spends the reaction", () => {
-  const ledger = recordUse(null, use("action", { attack: true }), at(1, 0));
-  assert.equal(readLedger(ledger, at(1, 1)).reaction, true);
-  assert.equal(readLedger(ledger, at(1, 1)).action, false);
+test("an off-turn action is not taken as a reaction: the player is asked instead", () => {
+  // Recording alone doesn't spend anything, attack or not.
+  assert.equal(recordUse(null, use("action", { attack: true }), at(1, 0)), null);
+  // Asked: off-turn, costs an action, reaction still there.
+  assert.ok(asksReaction(use("action", { attack: true }), at(1, 0), false));
+  assert.ok(asksReaction(use("action"), at(1, 3), false));
+  // Not asked: own turn, outside combat, already a reaction (the Reaction band), other costs, or reaction already gone.
+  assert.ok(!asksReaction(use("action", { attack: true }), at(1, 2), false));
+  assert.ok(!asksReaction(use("action", { attack: true }), null, false));
+  assert.ok(!asksReaction(use("reaction", { attack: true }), at(1, 0), false));
+  assert.ok(!asksReaction(use("bonus"), at(1, 0), false));
+  assert.ok(!asksReaction(use("action", { attack: true }), at(1, 0), true));
 });
 
 test("attacks in the Attack action count up; a general action records what paid for it", () => {

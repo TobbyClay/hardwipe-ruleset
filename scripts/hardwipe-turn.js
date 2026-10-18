@@ -95,8 +95,8 @@ export function reactionHeld(stamp, now) {
  */
 export function recordUse(ledger, use, now) {
   if (!now?.combat) return null;
-  // Off-turn, an attack that costs an action is an opportunity attack: it spends the reaction.
-  const reaction = use.activation === "reaction" || (!now.isTurn && use.activation === "action" && use.attack);
+  // Off-turn, something that costs an action is a reaction only if the player says so (asksReaction).
+  const reaction = use.activation === "reaction";
   if (!reaction && (!now.isTurn || !["action", "bonus"].includes(use.activation))) return null;
   const next = currentLedger(ledger, now);
   if (reaction) {
@@ -107,6 +107,17 @@ export function recordUse(ledger, use, now) {
   if (use.activation === "action" && use.attack) next.attacks += 1;
   if (use.move) next.moves[use.move] = use.activation;
   return next;
+}
+
+/**
+ * Whether to ask the player if this use was their reaction: something that costs an action, used off their turn in
+ * combat, not already a reaction (the Reaction band tags its uses as one), while the reaction was still there.
+ * @param {{activation: string}} use
+ * @param {{combat: string, isTurn: boolean}|null} now
+ * @param {boolean} reactionSpent   Whether the reaction was already spent before this use.
+ */
+export function asksReaction(use, now, reactionSpent) {
+  return !!now?.combat && !now.isTurn && use?.activation === "action" && !reactionSpent;
 }
 
 /** A copy of the stored ledger for this combat, its action-side entries reset if they belong to an earlier turn. */
@@ -233,12 +244,15 @@ export class TurnTracker {
   static _registered = false;
   /** Activities used from the Reaction band although they cost an action: opportunity attacks. */
   static _pending = new Map();
+  /** Whether each activity's actor had already spent their reaction when the use began, by activity UUID. */
+  static _reactionBefore = new Map();
   /** The last answer per actor, for the strip's "Sent to the GM" line. */
   static _sent = new Map();
 
   static register() {
     if (this._registered) return;
     this._registered = true;
+    Hooks.on("dnd5e.preUseActivity", activity => this._beforeUse(activity));
     Hooks.on("dnd5e.postUseActivity", activity => { void this._onUse(activity).catch(reportError); });
     Hooks.on("combatTurnChange", combat => this._onTurnChange(combat));
     Hooks.on("updateCombat", combat => this._refreshCombat(combat));
@@ -384,14 +398,50 @@ export class TurnTracker {
 
   /* Recording ---------------------------------------------------------------------------------- */
 
+  /** Note whether the reaction is already gone, before Ready Set Midi can mark an off-turn attack as one. */
+  static _beforeUse(activity) {
+    const actor = activity?.actor;
+    if (!actor || actor.type !== "character") return;
+    const now = this.now(actor);
+    if (now && !now.isTurn) this._reactionBefore.set(activity.uuid, this.economy(actor, now).economy.reaction.spent);
+  }
+
   static async _onUse(activity) {
+    const spentBefore = this._reactionBefore.get(activity?.uuid) ?? false;
+    this._reactionBefore.delete(activity?.uuid);
     const actor = activity?.actor;
     if (!actor || actor.type !== "character" || !canControlActor(actor)) return;
     const now = this.now(actor);
     if (!now) return;
     const activation = this._pending.get(activity.uuid) ?? activity.activation?.type ?? "";
-    const next = recordUse(this.ledger(actor), { activation, attack: isAttackAction(activity), move: generalMoveOf(activity) }, now);
+    const use = { activation, attack: isAttackAction(activity), move: generalMoveOf(activity) };
+    const next = recordUse(this.ledger(actor), use, now);
     if (next) await writeLedger(actor, next);
+    if (asksReaction(use, now, spentBefore)) await this._askReaction(actor, activity);
+  }
+
+  /**
+   * Ask whoever used it whether an off-turn action was their reaction, and make the reaction match the answer. Ready
+   * Set Midi may already have marked an off-turn attack as one; "No" takes that back.
+   */
+  static async _askReaction(actor, activity) {
+    const t = (key, data) => data ? game.i18n.format(`HARDWIPE.Turn.AskReaction.${key}`, data) : game.i18n.localize(`HARDWIPE.Turn.AskReaction.${key}`);
+    const escape = text => foundry.utils.escapeHTML(String(text ?? ""));
+    const name = activity.item?.name ?? activity.name;
+    const answer = await foundry.applications.api.DialogV2.wait({
+      window: { title: t("Title"), icon: "fa-solid fa-rotate-left" },
+      classes: ["hardwipe-ask-reaction"],
+      content: `<p>${t("Content", { actor: escape(actor.name), item: escape(name) })}</p>`,
+      buttons: [
+        { action: "yes", label: t("Yes"), icon: "fa-solid fa-rotate-left", default: true },
+        { action: "no", label: t("No"), icon: "fa-solid fa-xmark" }
+      ],
+      rejectClose: false
+    });
+    if (answer !== "yes" && answer !== "no") return;
+    const now = this.now(actor);
+    if (!now) return;
+    if (this.economy(actor, now).economy.reaction.spent !== (answer === "yes")) await this.toggle(actor, "reaction");
   }
 
   /**
