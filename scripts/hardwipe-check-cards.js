@@ -1,10 +1,11 @@
 import { hidesChallenge } from "./hardwipe-requests.js";
 import { MODULE_ID, escapeHTML } from "./hardwipe-state.js";
 import { abilityColor, advControlHTML, arrivalWindow, d20Drawer } from "./hardwipe-attack-cards.js";
+import { renderInitiative } from "./hardwipe-initiative.js";
 
 /**
  * Check cards: ability checks, skill and tool checks, death saves, concentration and initiative post
- * a compact Hardwipe panel. A bar in the ability's colour names the roll type, the skill or ability
+ * a compact Hardwipe panel (initiative its own compact row: hardwipe-initiative.js). A bar in the ability's colour names the roll type, the skill or ability
  * is the title, the advantage switch sits beside it, and the roll itself (one box, the natural d20 on
  * its corner) opens its dice in a drawer. A DC shows success or failure when the viewer may see it.
  * A plain saving throw gets its own card instead (the dial, below).
@@ -30,6 +31,7 @@ export function renderCheckCard(message, element) {
   const row = button.parentElement?.closest(".message-content > *");
   element.classList.add("hardwipe-check-message");
   if (info.kind === "save") return renderSave(message, element, content, { button, breakdown, row, roll, info, result: challenge(message, roll) });
+  if (info.kind === "initiative") return renderInitiative(message, element, content, { button, breakdown, row, roll });
 
   const panel = document.createElement("div");
   panel.className = `hardwipe-check is-${info.kind}`;

@@ -172,6 +172,14 @@ Captured on **2026-10-17** from the local Crew Maneuvers branch in a private cop
 | [crew-card-cam-duo.png](media/crew-card-cam-duo.png) | Chat, Combo cam: Mags firing Juno's Spotter Mark, two staggered feeds; cropped above the log's scroll button. |
 | [crew-card-feed.png](media/crew-card-feed.png) | Chat, Glitch feed: the same Entry Stack card after the style was switched. |
 
+## Initiative capture
+
+Captured on **2026-10-18** from the local initiative-card branch in the disposable QA world, as the QA Player, dark theme, after the GM rolled the NPCs and both players rolled at once. A hidden NPC (20) is left out of the player's view.
+
+| Published file | Subject |
+| --- | --- |
+| [initiative-order.png](media/initiative-order.png) | Four initiative cards in the player's log, 1st to 4th; the newest (Juno) shows the order strip; cropped to the cards. |
+
 ## Action type capture
 
 Captured on **2026-10-18** from the local Action type branch in the disposable QA world, as the GM, dark theme. *Burst Fire* is a test activity added to the synthetic Heavy Pistol.

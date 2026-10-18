@@ -75,7 +75,7 @@ Skills, abilities, saves, initiative, and concentration saves share readable rol
     <td valign="top"><a href="media/save-card-modifier.webp"><img src="media/save-card-modifier.webp" alt="Saving throw: a dial with the DC at the top, the reading and Δ, and the verdict." width="280"></a><br><strong>Saving throw (0.7.44)</strong><br>A dial: the DC at the top, the reading right or left of it, Δ and Saved or Failed in the middle; a bonus shows in violet.</td>
   </tr>
   <tr>
-    <td valign="top"><a href="media/check-initiative.webp"><img src="media/check-initiative.webp" alt="Initiative: The initiative result uses the same roll language." width="280"></a><br><strong>Initiative</strong><br>The initiative result uses the same roll language.</td>
+    <td valign="top"><a href="media/initiative-order.png"><img src="media/initiative-order.png" alt="Four initiative cards after a burst of rolls: each shows its total, its place (1st to 4th) and who it acts after and before; only the newest, Juno 1st, shows the turn order as portraits" width="280"></a><br><strong>Initiative</strong><br>Each roll is one row: the total, your place in the turn order, and who you act after and before. Places update as everyone else rolls; the newest initiative card shows the whole order. Combatants hidden from players stay out of their view.</td>
     <td valign="top"><a href="media/check-concentration.webp"><img src="media/check-concentration.webp" alt="Concentration save: The save card records the concentration outcome." width="280"></a><br><strong>Concentration save</strong><br>The save card records the concentration outcome.</td>
   </tr>
 </table>
