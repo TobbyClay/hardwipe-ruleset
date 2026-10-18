@@ -172,6 +172,19 @@ Captured on **2026-10-17** from the local Crew Maneuvers branch in a private cop
 | [crew-card-cam-duo.png](media/crew-card-cam-duo.png) | Chat, Combo cam: Mags firing Juno's Spotter Mark, two staggered feeds; cropped above the log's scroll button. |
 | [crew-card-feed.png](media/crew-card-feed.png) | Chat, Glitch feed: the same Entry Stack card after the style was switched. |
 
+## Consumable and effect captures
+
+Captured on **2026-10-18** from the local consumable-card branch in the disposable QA world, as the QA Player, dark theme. The Stim Injector, Frag Grenade, Reflex Booster, Flashbang and Smoke Canister are test items; the grenades targeted two QA NPCs without a template. Steadied, Night Optics and Corp Sync are test effects on Mags, captured after 30 seconds of game time had passed.
+
+| Published file | Subject |
+| --- | --- |
+| [consumable-heal.png](media/consumable-heal.png) | Stim Injector: vitals trace, 7 hit points, Heal and Temp HP. |
+| [consumable-damage.png](media/consumable-damage.png) | Frag Grenade: blast with pinned targets, 15 fire, dice drawer open, both targets failed DEX 13. |
+| [consumable-buff.png](media/consumable-buff.png) | Reflex Booster: Overclock, 1 minute, AC 13 → 15, Speed 30 → 40 ft, ADV on DEX saves. |
+| [consumable-condition.png](media/consumable-condition.png) | Flashbang: Blinded, CON 12, both targets failed. |
+| [consumable-utility.png](media/consumable-utility.png) | Smoke Canister: Deployed, 20 ft emanation, 1 minute. |
+| [turn-effects.png](media/turn-effects.png) | Turn tab, Active effects: four effects from 1 minute to 1 day, rings partly drained; cropped. |
+
 ## Initiative capture
 
 Captured on **2026-10-18** from the local initiative-card branch in the disposable QA world, as the QA Player, dark theme, after the GM rolled the NPCs and both players rolled at once. A hidden NPC (20) is left out of the player's view.

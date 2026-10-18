@@ -2,6 +2,7 @@ import { escapeHTML, plainActivityLabel } from "./hardwipe-state.js";
 import { CyberwareManager } from "./hardwipe-cyberware.js";
 import { abilityColor, actionStrip, bindBrief, briefHTML, decorateRollCard, messagesAfter, placeActions, rarityClasses, saveBlock, saveState } from "./hardwipe-attack-cards.js";
 import { cardUses, effectsHTML } from "./hardwipe-implant-cards.js";
+import { renderConsumable } from "./hardwipe-consumable-cards.js";
 
 /**
  * Item and feature cards: every other item use (potions, tools, gear, class features, feats,
@@ -68,6 +69,8 @@ export function renderGearCard(message, element) {
   bindBrief(message, element, item);
   decorateRollCard(message, element, { pending: !!saves?.pending.length, saveResults: saves });
   placeActions(content, panel, actions);
+  // Consumables fold the roll card and the actions into one card (hardwipe-consumable-cards.js).
+  if (item.type === "consumable") renderConsumable(message, element, panel, item, activity);
   return true;
 }
 

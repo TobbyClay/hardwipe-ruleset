@@ -99,6 +99,22 @@ Use the item or feature through its native activity. The card exposes uses, roll
   </tr>
 </table>
 
+## Consumables
+
+One card per use: the item with the doses left, then a scope drawn by what it did, with the result on it. Where there's a roll, the number **is** the roll: click it for the dice. Targets and what happened to them are written out under the scope. **Details** opens the description; the item's own buttons (Refund, Place template) sit beside it. [Effects on the Turn tab →](Players.md#read-your-turn)
+
+<table>
+  <tr>
+    <td valign="top"><a href="media/consumable-heal.png"><img src="media/consumable-heal.png" alt="Stim Injector card: a vitals trace behind 7 hit points, 2d4 + 2, with Heal, Temp HP and the target count" width="250"></a><br><strong>Heal</strong><br>A vitals trace; the healing roll, Heal and Temp HP.</td>
+    <td valign="top"><a href="media/consumable-damage.png"><img src="media/consumable-damage.png" alt="Frag Grenade card: blast radius with two pinned targets, 15 fire with DEX 13 half, the dice drawer open, both targets failed and took 15" width="250"></a><br><strong>Damage and a save</strong><br>The blast with each target pinned (hover for who), the damage roll with its dice open, each target's save and damage.</td>
+    <td valign="top"><a href="media/consumable-buff.png"><img src="media/consumable-buff.png" alt="Reflex Booster card: Overclock for 1 minute on Mags in a cyan ring, AC 13 to 15, Speed 30 to 40 ft, advantage on DEX saves, Remove" width="250"></a><br><strong>Buff</strong><br>A ring as long as the effect lasts; what it grants, before → after.</td>
+  </tr>
+  <tr>
+    <td valign="top"><a href="media/consumable-condition.png"><img src="media/consumable-condition.png" alt="Flashbang card: Blinded, CON 12, two pinned targets and both failed" width="250"></a><br><strong>Condition and a save</strong><br>The blast, the condition and its save; who resisted and who got it.</td>
+    <td valign="top"><a href="media/consumable-utility.png"><img src="media/consumable-utility.png" alt="Smoke Canister card: Deployed, 20 ft emanation, 1 minute" width="250"></a><br><strong>Utility</strong><br>Nothing to roll or apply: the deployed area and how long it lasts.</td>
+  </tr>
+</table>
+
 ## Cyberware diagnostics
 
 Activated implants use a diagnostic panel with their body region, status, and charges. The underlying item activities still supply attacks, saves, and effects. [Cyberware, inventory, and slots →](Cyberware.md)

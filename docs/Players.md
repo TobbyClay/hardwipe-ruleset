@@ -20,6 +20,8 @@ Use weapons, spells, tools, and features through their normal activities. Their 
 
 ## Read your turn
 
+<img src="media/turn-effects.png" alt="Active effects on the Turn tab: Overclock 30 sec, Steadied 9 min 30 sec, Night Optics 59 min 30 sec and Corp Sync 23 hr 59 min, each in a ring of its own length, with what they grant" width="420">
+
 <img src="media/turn-panel-current.png" alt="Turn tab at the start of your turn: the netlink strip with a Perception roll call, DC hidden; the action, bonus action and reaction ready, 0 of 30 ft moved, 2 of 2 attacks left, and the Action band with weapons and the standard actions" width="420">
 
 The hourglass tab is your **Turn** helper: where your turn stands, and what you can still do with it.
@@ -33,6 +35,7 @@ The hourglass tab is your **Turn** helper: where your turn stands, and what you 
 - **Off your turn, you're asked.** Use anything that costs an action on someone else's turn from anywhere else (the Action band, your sheet, a macro) and a small **Reaction?** box asks whether that was your reaction. **Yes, spend it** spends it; **No** leaves it, and takes back a reaction Ready Set Midi marked for an off-turn attack. If your reaction was already gone, nothing asks.
 - **Standard actions.** At the foot of the Action band, one row each for Dash, Disengage, Dodge, Hide, Grapple and Shove, with what it does and what it would cost right now. Dash, Disengage and Hide fall back to your bonus action once the action is gone, as Cunning Action allows. Dash doubles your movement, Dodge puts **Dodging** on you until your next turn, and Hide rolls Stealth. Grapple and Shove take one attack of your Attack action and roll Athletics; with exactly one creature targeted they post a [contest](#roll-calls-and-contests) instead. Click a taken row again to take it back. Help, Ready, Search and the like have nothing to track, so just tell the table.
 - **Netlink.** The terminal strip above the chips lists the rolls the table is waiting on you for, each with a solid **Roll** button, so you don't have to dig through chat. Red is a save you owe right now (**Interrupt** for concentration, **Save** for a spell's save), amber a GM's **Roll call**, cyan a **Contest**. It says **DC 12**, or **DC hidden** when the GM keeps it to themselves. Saves you owe now come first; past the GM's limit the rest fold under **Show all**. After you roll, the strip shows **Sent to the GM** with your total for a few seconds. With nothing pending there is no strip.
+- **Active effects.** Each effect running on you (a stim, a spell, a GM's custom effect) shows its icon in a ring as long as it lasts, from a sliver for a round to the whole ring for a day, lit for the time left. It drains as rounds and game time pass. Beside it: the time left and what it grants (AC +2, Darkvision ≥ 60 ft). **×** removes it.
 - **Running programs and conditions.** What you're concentrating on, with **End program**, and every condition on you with **×** to clear it. Exhaustion comes off one level at a time; a condition that comes from an item, such as an implant, isn't cleared here.
 - **Edge & Strikes.** The same Edge and Strikes as the sidebar, with **Spend**, and **Recover · 1 Edge** while you're Downed.
 

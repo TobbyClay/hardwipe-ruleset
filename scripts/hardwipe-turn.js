@@ -5,6 +5,7 @@ import { pendingSaveTargets, rollPendingSaves } from "./hardwipe-attack-cards.js
 import { pendingConcentration, rollConcentrationRequest } from "./hardwipe-concentration.js";
 import { RollRequestComposer, abilityAbbr, createRequest, parseRoll, pendingFor, rollFor, rollName } from "./hardwipe-requests.js";
 import { closedOf, limitWaiting, orderWaiting, waitingLimit } from "./hardwipe-comms.js";
+import { durationRing, effectRows } from "./hardwipe-effects.js";
 
 /**
  * The Turn tab: what a character can do right now, and what this turn has already cost.
@@ -278,6 +279,8 @@ export class TurnTracker {
       if (["x", "y", "elevation", "_movementHistory", "movementAction"].some(key => key in changes)) this._refreshActor(token.actor);
     });
     Hooks.on("renderActivitySheet", (app, element) => this._onRenderActivitySheet(app, element));
+    // Effect rings drain with game time.
+    Hooks.on("updateWorldTime", () => this._refreshAll());
   }
 
   /**
@@ -519,6 +522,7 @@ export class TurnTracker {
         return;
       }
       case "drop-condition": return this.dropCondition(actor, target.dataset.effectId);
+      case "drop-buff": return actor.effects.get(target.dataset.effectId)?.delete();
       case "crew-trigger": return this.crewTrigger(actor, target, event, sheet);
       case "crew-cancel": return CrewManager.cancel(actor, target.dataset.effectId);
     }
@@ -854,6 +858,14 @@ export class TurnTracker {
       const item = actor.items.get(data.id) ?? (data.data ? { name: data.data.name, img: data.data.img } : null);
       return { id: effect.id, name: item?.name ?? effect.name, img: item?.img ?? effect.img, canEnd: canControl };
     });
+    view.buffs = [];
+    for (const effect of actor.allApplicableEffects?.() ?? actor.effects) {
+      if (!effect.active || !effect.isTemporary || isSystemEffect(effect) || crewData(effect)) continue;
+      const changes = effect.system?.changes ?? effect.changes ?? [];
+      // A plain condition (no changes of its own) is listed under Conditions instead.
+      if (conditionStatuses(effect).length && !changes.length) continue;
+      view.buffs.push(buffEntry(actor, effect, canControl));
+    }
     view.conditions = [];
     for (const effect of actor.allApplicableEffects?.() ?? actor.effects) {
       if (!effect.active || isSystemEffect(effect)) continue;
@@ -1016,13 +1028,37 @@ function labels() {
     title: t("Title"), movement: t("Movement"), standard: t("StandardActions"), programs: t("Programs"), running: t("Running"),
     waiting: t("Waiting.Label"), roll: t("Waiting.Roll"), requestCheck: t("Request.Button"),
     netSent: t("Net.Sent"), dcHidden: t("Net.DcHidden"),
-    conditions: t("Conditions"), runningPrograms: t("RunningPrograms"), noPrograms: t("NoPrograms"), noConditions: t("NoConditions"),
+    conditions: t("Conditions"), effects: t("Buff.Title"), runningPrograms: t("RunningPrograms"), noPrograms: t("NoPrograms"), noConditions: t("NoConditions"),
     resources: t("Resources"), attacks: t("Attacks"), attacksLeft: t("AttacksLeftLabel"), economy: t("Economy"), noCombat: t("NoCombat"), unstaged: t("Unstaged"), yourTurn: t("YourTurn"),
     upNow: t("UpNow"), nothing: t("Nothing"), dashOn: t("DashOn"), noToken: t("NoToken"), slots: t("Slots"),
     endProgram: game.i18n.localize("HARDWIPE.Conc.End"), edge: game.i18n.localize("HARDWIPE.Edge.Title"),
     strikes: game.i18n.localize("HARDWIPE.Strikes.Title"), spend: game.i18n.localize("HARDWIPE.Edge.SpendShort"),
     spendEdge: game.i18n.localize("HARDWIPE.Edge.Spend"), award: game.i18n.localize("HARDWIPE.Edge.Award"),
     recover: game.i18n.localize("HARDWIPE.Edge.RecoverShort"), from: t("From"), left: t("Left"), over: t("Over")
+  };
+}
+
+const RING_R = 16;
+const RING_C = 2 * Math.PI * RING_R;
+
+/** An effect on the Turn tab: its ring (as long as it lasts, lit for the time left), what it grants as short chips. */
+function buffEntry(actor, effect, canControl) {
+  const duration = effect.duration ?? {};
+  const ring = durationRing(duration.seconds, duration.secondsRemaining);
+  const statusName = id => game.i18n.localize(CONFIG.statusEffects.find(status => status.id === id)?.name ?? id);
+  const rows = effectRows({ changes: effect.system?.changes ?? effect.changes, statuses: effect.statuses, description: effect.description },
+    { read: path => foundry.utils.getProperty(actor, path), applied: true, statusName });
+  const own = effect.parent === actor;
+  return {
+    id: effect.id, name: effect.name, img: effect.img,
+    track: `${(ring.length * RING_C).toFixed(1)} ${RING_C.toFixed(1)}`,
+    lit: `${(ring.lit * RING_C).toFixed(1)} ${RING_C.toFixed(1)}`,
+    indefinite: ring.indefinite,
+    time: ring.indefinite ? game.i18n.localize("HARDWIPE.Turn.Buff.Indefinite") : duration.label ?? "",
+    grants: rows.slice(0, 4).map(row => row.change === "ON" || !row.change ? row.label : `${row.label} ${row.change}${row.unit ?? ""}`),
+    more: Math.max(0, rows.length - 4),
+    canRemove: canControl && own,
+    removeLabel: game.i18n.format("HARDWIPE.Turn.Buff.Remove", { name: effect.name })
   };
 }
 

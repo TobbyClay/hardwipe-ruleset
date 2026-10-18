@@ -67,6 +67,7 @@
   "styles": [
     "styles/fonts.css",
     "styles/hardwipe.css",
+    "styles/consumables.css",
     "styles/cyberware-tab.css",
     "styles/turn-tab.css",
     "styles/crew.css",

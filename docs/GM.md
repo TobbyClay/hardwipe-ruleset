@@ -185,6 +185,14 @@ You can press **Fire**, **Trigger** or **×** on a character's Turn tab for them
 
 Run memories from the brain button in **Token Controls** (or **Alt+B**): pair player characters with NPCs, send sensory echoes, hide clues on the Visual, Audio and Thermal layers, mark and replay moments, and choose whether wall damage and Heat from the memory roll back when it ends. See the [Braindance guide](Braindance.md).
 
+## Custom effects on cards and the Turn tab
+
+Consumable cards and the Turn tab read any Active Effect, including your own, so there's nothing extra to set up:
+
+- **What it grants** comes from the effect's changes. AC, speeds, senses, initiative, max HP, ability, skill, save, attack and damage bonuses, resistances and Ready Set Midi's advantage flags get plain labels; numbers read before → after (AC 13 → 15). A key Hardwipe doesn't know still shows, tidied, with its value. Conditions the effect adds are listed too.
+- **Your own wording:** write a bulleted list in the effect's description and those bullets replace the rows, word for word. Use it for effects that work through macros or rulings rather than changes.
+- **How long it lasts** is the effect's duration: rounds, minutes, hours or days. The ring's length follows it, and on the Turn tab it drains with the time left. An effect with no duration shows a dashed ring and *until removed*.
+
 ## When something looks wrong
 
 | Symptom | Check |
