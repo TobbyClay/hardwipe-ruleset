@@ -108,3 +108,7 @@ button.hardwipe-cons-details[aria-expanded="true"]::after { content: " ▾"; }
 }
 .hardwipe-cons-rows .hardwipe-save-row { grid-template-columns: minmax(0, 1fr) auto auto; }
 .hardwipe-cons-rows .hardwipe-save-row > b { white-space: nowrap; }
+
+/* Ready Set Midi's + (a bonus after the roll), at the head of the apply strip. */
+.hardwipe-cons-acts > .rsr-addon-bonus-btn { position: static; display: grid; place-items: center; width: 24px; height: 22px; margin: 0; color: var(--pay); background: rgba(0, 0, 0, 0.45); border: 1px solid rgba(var(--pay-rgb), 0.5); font-size: 13px; transform: none; opacity: 0.9; cursor: pointer; }
+.hardwipe-cons-acts > .rsr-addon-bonus-btn:hover { opacity: 1; text-shadow: 0 0 4px var(--pay); }

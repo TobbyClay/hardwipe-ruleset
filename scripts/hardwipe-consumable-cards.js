@@ -106,6 +106,13 @@ export function renderConsumable(message, element, panel, item, activity) {
       if (drawer) below.append(drawer);
       const applyRow = results.querySelector(".hardwipe-apply-row");
       if (applyRow) acts.append(applyRow);
+      // Ready Set Midi's + for this roll (a bonus after the roll) leads the strip; it is added after this render.
+      const moveBonus = () => {
+        const bonus = results.querySelector(".midi-qol-damage-roll .rsr-addon-bonus-btn");
+        if (bonus) acts.prepend(bonus);
+      };
+      moveBonus();
+      setTimeout(moveBonus, 0);
       const log = results.querySelector(".hardwipe-apply-log");
       if (log) acts.after(log);
     } else readout.innerHTML = `<span class="hardwipe-cons-word is-pending">${escapeHTML(t(save ? "Saves" : "Rolling"))}</span>${sub(save)}`;

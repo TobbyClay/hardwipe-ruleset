@@ -3691,7 +3691,10 @@ button.hardwipe-adv-btn.is-crit { --hw-adv: var(--hw-c-critical, var(--hw-cyan))
  * card of a combat opens to the turn order as a strip of portraits, earlier ones fold to the row.
  * ------------------------------------------------------------------------------------------- */
 .hardwipe-check.hardwipe-init { padding: 0; }
-.hardwipe-init-row { display: grid; grid-template-columns: auto auto minmax(0, 1fr) auto; align-items: center; gap: 7px; padding: 7px 7px 7px 7px; }
+.hardwipe-init-row { display: flex; align-items: center; gap: 7px; padding: 7px; }
+.hardwipe-init-row > .hardwipe-init-flow { flex: 1; }
+.hardwipe-init-row > .rsr-addon-bonus-btn { position: static; flex: none; margin: 0; color: var(--hw-check); font-size: 15px; opacity: 0.8; transform: none; cursor: pointer; }
+.hardwipe-init-row > .rsr-addon-bonus-btn:hover { opacity: 1; text-shadow: 0 0 4px var(--hw-check); }
 .chat-message .hardwipe-init .hardwipe-init-roll { margin: 0; }
 .chat-message .hardwipe-init .hardwipe-init-roll button.dice-roll { width: auto; padding: 0; background: none; border: 0; }
 .chat-message .hardwipe-init .hardwipe-init-roll .rsr-multiroll { gap: 4px; }

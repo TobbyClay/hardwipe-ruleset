@@ -103,6 +103,15 @@ export function renderInitiative(message, element, content, { button, breakdown,
   const drawer = d20Drawer(message, button, roll, t("Label"), "check");
   if (drawer) panel.append(drawer);
   fillInitiative(panel, message);
+  // Ready Set Midi's + (Bless, Guidance or a number after the roll) moves in beside the switch. It is the same
+  // element, so its own click handler still runs it; it is added after this render, hence the second try.
+  const moveBonus = () => {
+    const bonus = element.querySelector(".message-header .rsr-addon-bonus-btn");
+    const switcher = panel.querySelector(".hardwipe-init-row > .hardwipe-adv");
+    if (bonus && switcher) switcher.before(bonus);
+  };
+  moveBonus();
+  setTimeout(moveBonus, 0);
   const left = arrivalWindow(message, "initiative", ARRIVAL_MS);
   if (left && !globalThis.matchMedia?.("(prefers-reduced-motion: reduce)").matches) {
     panel.classList.add("is-arriving");
