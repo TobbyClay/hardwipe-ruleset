@@ -4,9 +4,9 @@
 
 Hardwipe is a Foundry VTT module for running a Cyberpunk-flavoured game on the D&D5e system. Implants live in your real inventory, walls are physical cover that can be shot apart, the GM rules on every attack before it lands, and every roll arrives in chat as a piece of software: readable at a glance, and honest about what happened.
 
-[Install](#install) · [Player guide](docs/Players.md) · [GM guide](docs/GM.md) · [Braindance](docs/Braindance.md) · [Card gallery](docs/Cards.md) · [Rules reference](docs/Reference.md)
+[Install](#install) · [Edge](#edge-one-point-four-plays) · [Player guide](docs/Players.md) · [GM guide](docs/GM.md) · [Braindance](docs/Braindance.md) · [Card gallery](docs/Cards.md) · [Rules reference](docs/Reference.md)
 
-> **Which version is this?** This README describes **0.7.48**, which pairs with **Ready Set Midi 14.0.10.2**. It is the installer published on GitHub; the [release](https://github.com/TobbyClay/hardwipe-ruleset/releases/latest) carries both modules. Install them together.
+> **Which version is this?** This README describes **0.7.48**, which pairs with **Ready Set Midi 14.0.10.2**. It is the installer published on GitHub; the [release](https://github.com/TobbyClay/hardwipe-ruleset/releases/latest) carries both modules. Install them together. Sections marked **Next release** describe work merged on `main` since then; it ships with the next installer.
 
 ## Your body is your loadout
 
@@ -26,6 +26,9 @@ The **Turn** tab on the Hardwipe Character sheet shows where you are in the roun
 
 - **The netlink.** When the GM asks for a roll, or a contest or a concentration interrupt needs you, the strip at the top lists it with a **Roll** button. It only appears when something is waiting.
 - **Reactions that count.** The reaction chip reads Ready Set Midi's markers, or Hardwipe's own ledger, and Shield Block reads it in combat.
+- **Was that your reaction?** *(Next release)* An action used off your turn asks whether it was your reaction, and the chip follows your answer.
+- **Attack action or Action.** *(Next release)* A weapon swing is one attack of the Attack action; anything that costs the whole action says so on the sheet.
+- **Active effects with their clock.** *(Next release)* Buffs show what they grant and a ring that drains with the time left. A GM's own effects work too.
 
 [Read your turn →](docs/Players.md#read-your-turn)
 
@@ -45,6 +48,61 @@ One character sets it up; the rest of the crew pays it off. *Entry Stack*: Mags 
 - **The GM writes the rules.** **Game Settings → Crew maneuver types** decides what firing does (a weapon attack on the reaction, the feature's own activity, or the card alone), who fires it, and how long it stays armed. Strike, Support and Signal come ready.
 
 [Use crew maneuvers →](docs/Players.md#crew-maneuvers) · [Set up maneuver types →](docs/GM.md#crew-maneuvers)
+
+## Edge: one point, four plays
+
+**Next release:** merged on `main`, not in the 0.7.48 installer yet.
+
+| Spend it | Reroll anyone's die | The GM rules again |
+| --- | --- | --- |
+| <img src="docs/media/edge-picker.png" alt="Spend Edge picker: Reroll, Interrupt, Stabilize greyed (only at 0 HP) and Execute waiting for a target" width="250"> | <img src="docs/media/edge-reroll-attack-choose.png" alt="An NPC's attack card with Juno's Edge strip: keep the 10 for 16, a hit, or take the 19 for 25" width="230"> | <img src="docs/media/edge-reroll-gm-ruling.png" alt="The GM's view after a reroll took a confirmed hit to 8 against AC 15: Miss, take back damage, or Hit stands" width="230"> |
+
+Edge is earned by playing it cool, and you hold one at most. **Spend** opens a picker with four plays; one that can't apply right now is greyed with the reason.
+
+- **Reroll.** Any single die on any card, anyone's: an attack's d20, one die of a spell's damage, a save. The new die rolls at once, and both results sit on that card until you keep one. Everything downstream follows: applied damage is adjusted, a save that flips moves its target to saved or failed, and an attack the GM already ruled on goes back to the GM.
+- **Interrupt.** One action or bonus action, even on someone else's turn. The Turn tab holds it until you use it or the turn moves on.
+- **Stabilize.** From 0 back to 1 HP, Downed cleared, and the Strike from going down taken back.
+- **Execute.** A targeted mook drops with no damage roll. Anything with Legendary Resistance is immune.
+
+Each play posts its own cut-in card, and an award posts **Charged**.
+
+[Spend Edge →](docs/Players.md#edge-strikes-and-downed) · [What the GM handles →](docs/GM.md#edge) · [Every Edge card →](docs/Cards.md#edge-plays)
+
+## Every card from one family
+
+**Next release:** merged on `main`, not in the 0.7.48 installer yet.
+
+| Initiative | Consumables | Tools | Features |
+| --- | --- | --- | --- |
+| <img src="docs/media/initiative-order.png" alt="Initiative card: 4, fourth in the order, after Breach Guard, acts last, with the turn order strip" width="200"> | <img src="docs/media/consumable-damage.png" alt="Consumable card for a frag grenade: the blast scope, damage per target and the apply row" width="200"> | <img src="docs/media/tool-cards.png" alt="Six tool cards, one per family: Breach, Spoof, Synth, Fab, Nav and Signal" width="200"> | <img src="docs/media/feature-action-surge-card.png" alt="Action Surge card: +1 Action this turn" width="200"> |
+
+- **Initiative** shows your place in the turn order, and it updates as everyone else rolls.
+- **Consumables and features** read as one card. A heal draws a vitals trace, a grenade its blast and damage per target, and a buff what it grants and for how long.
+- **Tools** have a **Roll check** button. The result lands on the tool card in a scope drawn by its family (Breach, Spoof, Synth, Fab, Nav, Signal). Most rolls have no DC, so the card names the highest standard DC the total beats.
+- **Action Surge** gives the action back on the Turn tab.
+- **Ready Set Midi's +** (Bless, Guidance, any bonus) stays on every roll.
+- **Downed, Flatline, Edge spent and plain rolls** join the family too. A Downed card offers its owner **Stabilize** while they hold Edge.
+
+[Card gallery →](docs/Cards.md)
+
+## Chat that reads like comms
+
+**Next release:** merged on `main`, not in the 0.7.48 installer yet.
+
+| The feed | Light mode |
+| --- | --- |
+| <img src="docs/media/chat-thread-current.png" alt="Chat as a comm feed in QA Player's view: public bubbles, a joined run, phone texts by Smartphone Widget, Mags in character, an emote across the feed, two whispers and an NPC in character" width="280"> | <img src="docs/media/chat-light-mode.png" alt="The same feed in light mode, below a Charged card that stays dark" width="260"> |
+
+What people type reads as a comm feed. It has portraits and cut-corner bubbles, your own messages on the right, and a run of messages grouped under one name line.
+
+- **Public** (Foundry's default chat mode) is the plain bubble.
+- **In character** gets a cyan edge, red for NPCs.
+- **An emote** is a line across the feed.
+- **A whisper** is a dashed violet bubble that says who it went to.
+- **Smartphone Widget** texts show up as phone texts, to whom and in the sender's colour.
+- **Light mode works.** Typed chat turns light, while Hardwipe's cards stay dark terminals and readable in both schemes.
+
+[Chat modes →](docs/Players.md#chat) · [Card gallery →](docs/Cards.md#typed-messages)
 
 ## Roll calls: the GM asks, the crew answers
 
@@ -233,7 +291,7 @@ Built and tested on **Foundry VTT 14.367 · D&D5e 6.0.5 · Ready Set Midi 14.0.1
 
 | I want to… | Open |
 | --- | --- |
-| Play a character, read your Turn tab, fire crew maneuvers, or understand Edge and Strikes | [Player guide](docs/Players.md) |
+| Play a character, read your Turn tab, fire crew maneuvers, spend Edge, or chat in and out of character | [Player guide](docs/Players.md) |
 | Install or swap implants, use rarity colours, or change the doll | [Cyberware](docs/Cyberware.md) |
 | Roll Hit Dice, recover slots, or read a rest receipt | [Rests](docs/Rests.md) |
 | Review attacks, apply and undo damage, roll saves, or keep concentration | [Combat](docs/Combat.md) |
