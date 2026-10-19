@@ -4,9 +4,7 @@
 
 Hardwipe gives each kind of action its own software-inspired display. Click any image to open the full capture. The examples use synthetic characters and scenes, so the QA names are demonstration data.
 
-> **Captures:** each section says when its images were taken. The newest (2026-10-18) come from local work after the 0.7.48 installer: weapon outcomes, initiative, consumables, class features, tools, prompts and the system card scopes. Older captures are labelled with their version; the cards they show work the same way unless the text says otherwise. See [development status](Development.md) and [media provenance](Media.md).
-
-[Weapons](#weapon-outcomes-and-gm-review) · [Spells](#spell-programs) · [Checks](#checks-and-initiative) · [Consumables](#consumables) · [Features](#class-features) · [Tools](#tools) · [Prompts](#prompts) · [Crew](#crew-maneuvers) · [Roll calls](#roll-calls) · [Implants](#cyberware-diagnostics) · [Rests](#short-rest-monitor) · [System cards](#edge-strikes-and-downed) · [Heat](#mission-heat-styles) · [Braindance](#braindance)
+[Weapons](#weapon-outcomes-and-gm-review) · [Spells](#spell-programs) · [Concentration](#concentration-interrupts) · [Checks](#checks-and-initiative) · [Gear](#gear-and-class-features) · [Consumables](#consumables) · [Features](#class-features) · [Tools](#tools) · [Prompts](#prompts) · [Crew](#crew-maneuvers) · [Implants](#cyberware-diagnostics) · [Rests](#short-rest-monitor) · [Chat](#typed-messages) · [Rolls](#plain-rolls) · [System cards](#edge-strikes-and-downed) · [Roll calls](#roll-calls) · [Braindance](#braindance) · [Heat](#mission-heat-styles)
 
 ## Weapon outcomes and GM review
 
