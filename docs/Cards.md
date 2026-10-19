@@ -227,9 +227,9 @@ Completing the rest posts one combined receipt. Closing early produces an incomp
 
 ## Typed messages
 
-<a href="media/chat-thread-current.png"><img src="media/chat-thread-current.png" alt="Chat as one thread: public posts from the GM and two players, a follow-up joined to the post above, Mags in character, an emote, two whispers and the Breach Guard in character" width="300"></a>
+<a href="media/chat-thread-current.png"><img src="media/chat-thread-current.png" alt="Chat as a comm feed in QA Player's view: the GM and QA Player in public bubbles, Juno and Mags texting by phone, Mags in character, an emote across the feed, two whispers and the Breach Guard in character" width="300"></a>
 
-*2026-10-18, the GM's view.* What people type reads as one thread: a hairline between posts, a bar in the author's colour, the portrait beside the words. **Public** (Foundry's default mode) is the plain post, naming the player and the character they play. Only three kinds are marked: **in character** (the mode button or `/ic`) gets a cyan rule (red for anyone who isn't a player character); an **emote** (`/me`) is one italic line; a **whisper** (`/w Name`, `/gm`) is tinted violet and says who it went to. Messages in a row from the same voice, within five minutes, join the post above.
+*2026-10-18, QA Player's view.* What people type reads as a comm feed: notched portraits and cut-corner bubbles, your own on the right, a name line in the player's colour with the time. **Public** (Foundry's default mode) is the plain bubble, naming the player and the character they play. Marked: **in character** (the mode button or `/ic`) gets a cyan edge and a signal meter (red for anyone who isn't a player character); an **emote** (`/me`) is a status line across the feed; a **whisper** (`/w Name`, `/gm`) is a dashed violet bubble saying to whom; a **text from Smartphone Widget** is a green bubble saying to whom, by phone, in the sender's colour (the module's `[PHONE]` line becomes that tag). Messages in a row from the same voice, within five minutes, join the run above.
 
 ## Plain rolls
 

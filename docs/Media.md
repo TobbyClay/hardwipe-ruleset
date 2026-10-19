@@ -184,11 +184,11 @@ Captured on **2026-10-18** in the disposable QA world: three Heavy Pistol attack
 
 ## Chat thread capture
 
-Captured on **2026-10-18** in the disposable QA world, the GM's view of a short conversation typed through the chat box by the GM, QA Player (Mags) and QA Player 2 (Juno): public messages, `/ic`, `/me`, `/w` and the Breach Guard speaking in character.
+Captured on **2026-10-18** in the disposable QA world, QA Player's view of a short conversation typed through the chat box by the GM and QA Player (Mags): public messages, `/ic`, `/me`, `/w` and the Breach Guard in character. The phone texts between Juno and Mags were posted by the GM's client in Smartphone Widget's own shape (its header line, its flag, the sender as speaker); the module itself isn't installed in the QA world.
 
 | Published file | Subject |
 | --- | --- |
-| [chat-thread-current.png](media/chat-thread-current.png) | Public posts, a joined follow-up, in character, an emote and two whispers. |
+| [chat-thread-current.png](media/chat-thread-current.png) | Public bubbles, a joined run, phone texts, in character, an emote and two whispers. |
 
 ## Chat card captures
 

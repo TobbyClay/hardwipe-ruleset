@@ -69,47 +69,85 @@ function render(message, html) {
 /* Typed messages ---------------------------------------------------------------------------------- */
 
 const TALK_GROUP_MS = 5 * 60 * 1000;
+const PHONE = "smartphone-widget";
 
-/** Something a person typed: a plain message with no rolls, no card and no other module's data. */
+/** Smartphone Widget's chat copy of a text (not its group notices). */
+const phoneFlags = message => message.flags?.[PHONE]?.isSmartphoneMessage ? message.flags[PHONE] : null;
+
+/**
+ * Something a person typed: a plain message with no rolls and no card. Other modules' data rules a message out,
+ * except a Smartphone Widget text, which is a message someone typed on their phone.
+ */
 function isTalk(message, content) {
   if (message.type !== "base" || message.rolls?.length) return false;
-  if (Object.keys(message.flags ?? {}).some(scope => scope !== "core")) return false;
+  if (Object.keys(message.flags ?? {}).some(scope => scope !== "core" && scope !== PHONE)) return false;
+  if (message.flags?.[PHONE] && !phoneFlags(message)) return false;
   return !content.querySelector(".dice-roll, .chat-card, .card-buttons, [data-action]");
 }
 
-/** Public (Foundry's default mode) is the plain post; in character, emotes and whispers are marked. */
+/** Public (Foundry's default mode) is the plain message; phone texts, in character, emotes and whispers are marked. */
 function talkKind(message) {
+  const phone = phoneFlags(message);
+  if (phone) return phone.isSystemMessage ? "notice" : "phone";
   if (message.whisper?.length) return "whisper";
   if (message.style === CONST.CHAT_MESSAGE_STYLES.EMOTE) return "emote";
   if (message.style === CONST.CHAT_MESSAGE_STYLES.IC) return "ic";
   return "public";
 }
 
+/** Who a message really comes from: the speaking actor for phone texts (the GM's client posts them), else the author. */
+function talkVoice(message, kind) {
+  const actor = ChatMessage.implementation.getSpeakerActor?.(message.speaker) ?? null;
+  return kind === "phone" || kind === "notice" ? `actor:${actor?.id ?? message.speaker?.alias ?? ""}` : `user:${message.author?.id ?? ""}`;
+}
+
+/** This viewer's own message, drawn on the right: what they typed, or a phone text from their character. */
+function isMine(message, kind) {
+  if (kind !== "phone") return message.author?.id === game.user.id;
+  const actor = ChatMessage.implementation.getSpeakerActor?.(message.speaker) ?? null;
+  if (!actor) return false;
+  return game.user.isGM ? !actor.hasPlayerOwner : game.user.character?.id === actor.id || actor.isOwner;
+}
+
 /**
- * Typed messages as one thread: no box per message, a hairline between posts, a bar in the author's colour, the
- * portrait beside the words. Public posts name the player and the character they play; in character marks the
- * speaker (cyan, red for anyone not a player character); an emote is one italic line; a whisper says who it went
- * to. Messages in a row from the same voice join the post above. Foundry's own header controls stay.
+ * Typed messages as a comm feed: notched portraits and cut-corner bubbles, the viewer's own on the right. A name line
+ * (the player's colour, the time) heads each run; messages in a row from the same voice join the bubble run. Public
+ * names the player and their character. Marked: in character (cyan edge and a signal meter, red for anyone who isn't a
+ * player character), an emote (a status line across the feed), a whisper (dashed violet, and to whom) and a phone text
+ * from Smartphone Widget (to whom, by phone). Foundry's own header controls stay.
  */
 function talkCard(message, element, content) {
   const kind = talkKind(message);
+  const mine = isMine(message, kind);
   element.classList.add("hardwipe-talk", `is-${kind}`);
+  element.classList.toggle("is-mine", mine);
   const color = message.author?.color?.css ?? (message.author?.color ? String(message.author.color) : "");
-  if (color) element.style.setProperty("--hw-talk-user", color);
   const speaker = ChatMessage.implementation.getSpeakerActor?.(message.speaker) ?? null;
+  // A phone text takes its sender's player colour, not the GM's who posted it.
+  const owner = kind === "phone" && speaker ? game.users.find(user => !user.isGM && user.character?.id === speaker.id) : null;
+  const tint = owner?.color?.css ?? color;
+  if (tint) element.style.setProperty("--hw-talk-user", tint);
   if (kind === "ic" && speaker?.type !== "character") element.classList.add("is-npc");
   const subtitle = element.querySelector(".message-sender .subtitle");
+  let tag = "";
+  if (kind === "public") tag = message.author?.character?.name ?? "";
+  else if (kind === "ic") tag = t("Talk.InCharacter");
+  else if (kind === "whisper") {
+    const names = message.whisper.filter(id => id !== message.author?.id).map(id => game.users.get(id)?.name).filter(Boolean);
+    tag = names.length ? t("Talk.WhisperTo", { names: names.join(", ") }) : t("Talk.Whisper");
+  } else if (kind === "phone" || kind === "notice") {
+    // Smartphone Widget heads its chat copy "[PHONE] Mags → Juno": the recipient becomes the tag, the line goes.
+    const header = content.querySelector(":scope > .phone-message-header");
+    const text = header?.textContent.replace(/^\s*\[[^\]]*\]\s*/, "").trim() ?? "";
+    header?.remove();
+    const to = text.includes("→") ? text.split("→").slice(1).join("→").trim() : "";
+    tag = kind === "notice" ? text : to ? t("Talk.PhoneTo", { names: to }) : t("Talk.Phone");
+  }
   if (subtitle) {
-    let text = "";
-    if (kind === "public") text = message.author?.character?.name ?? "";
-    else if (kind === "ic") text = t("Talk.InCharacter");
-    else if (kind === "whisper") {
-      const names = message.whisper.filter(id => id !== message.author?.id).map(id => game.users.get(id)?.name).filter(Boolean);
-      text = names.length ? t("Talk.WhisperTo", { names: names.join(", ") }) : t("Talk.Whisper");
-    }
-    subtitle.textContent = text;
+    subtitle.textContent = tag;
     subtitle.classList.toggle("hardwipe-talk-tag", kind !== "public");
   }
+  if (kind === "ic") element.querySelector(".message-sender .name-stacked")?.insertAdjacentHTML("afterbegin", '<span class="hardwipe-talk-signal" aria-hidden="true"><i></i><i></i><i></i></span>');
   if (kind === "emote") {
     // Foundry writes the speaker's name in front of an emote: it becomes the line's name.
     const alias = String(message.speaker?.alias ?? "");
@@ -125,18 +163,20 @@ function talkCard(message, element, content) {
   if (joinsPrevious(message, kind)) element.classList.add("is-cont");
 }
 
-/** The same voice again, in the same mode, a moment later: it joins the post above (emotes and whispers stand alone). */
+/** The same voice again, in the same mode, a moment later: it joins the run above (emotes and notices stand alone). */
 function joinsPrevious(message, kind) {
-  if (kind !== "public" && kind !== "ic") return false;
+  if (kind === "emote" || kind === "notice") return false;
   const list = game.messages.contents;
   const index = list.indexOf(message);
   const previous = index > 0 ? list[index - 1] : null;
-  if (!previous?.visible || previous.author?.id !== message.author?.id) return false;
+  if (!previous?.visible) return false;
   if ((message.timestamp ?? 0) - (previous.timestamp ?? 0) > TALK_GROUP_MS) return false;
   const content = document.createElement("div");
   content.innerHTML = previous.content ?? "";
-  if (!isTalk(previous, content) || talkKind(previous) !== kind) return false;
-  return kind === "public" || (previous.speaker?.alias === message.speaker?.alias && previous.speaker?.token === message.speaker?.token);
+  if (!isTalk(previous, content) || talkKind(previous) !== kind || talkVoice(previous, kind) !== talkVoice(message, kind)) return false;
+  if (kind === "whisper" && String(previous.whisper) !== String(message.whisper)) return false;
+  if (kind === "phone") return previous.content.match(/phone-message-header">([^<]*)/)?.[1] === message.content.match(/phone-message-header">([^<]*)/)?.[1];
+  return kind !== "ic" || (previous.speaker?.alias === message.speaker?.alias && previous.speaker?.token === message.speaker?.token);
 }
 
 /* Hardwipe system cards ------------------------------------------------------------------------- */
