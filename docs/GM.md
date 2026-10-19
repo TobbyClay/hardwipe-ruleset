@@ -92,6 +92,10 @@ Spell colors have separate modes: one base color, by school, by player, or per s
 
 Fresh rolls have short entry animations; old cards do not replay them after reload. Reduced-motion preferences suppress animation.
 
+**Light mode.** *(Next release.)* Hardwipe's cards stay dark terminals in Foundry's light colour scheme; their contents are pinned to the dark theme, so totals and dice stay readable. Typed chat follows each viewer's interface scheme, with names in a deeper shade of the player's colour.
+
+**Typed chat and Smartphone Widget.** *(Next release.)* Typed messages show as a comm feed (see [Chat](Players.md#chat)). Smartphone Widget's texts join it as phone texts, but only when its **private chat logs** setting is off; otherwise the module keeps them out of chat.
+
 ## Roll Tracker
 
 <img src="media/roll-tracker-overview.webp" alt="Roll Tracker overview: headline counters for rolls and spells, the ranking, the Friday Night Firefight strip, awards and per-session charts" width="900">

@@ -6,6 +6,8 @@
 
 The public release is **Hardwipe Ruleset 0.7.48** with **Ready Set Midi 14.0.10.2**; both are attached to the [release](https://github.com/TobbyClay/hardwipe-ruleset/releases/latest), and Hardwipe's manifest installs the companion as a dependency. Release notes: [0.7.48](RELEASE-0.7.48.md).
 
+`main` carries work merged after 0.7.48 ([pull request 13](https://github.com/TobbyClay/hardwipe-ruleset/pull/13)): Edge's four plays, the card family pass, typed chat as a comm feed, and light mode. It is not in an installer yet; the guides mark it **Next release**.
+
 0.7.47 was built and documented but never published on GitHub; everything in it ships in 0.7.48, so the previous public installer was 0.7.40. The 0.7.41 audited preview below is historical; everything in it shipped too.
 
 ## Audited preview
@@ -85,6 +87,16 @@ Its matching tested Ready Set Midi JavaScript SHA256 is:
 This hash supersedes the earlier companion hash **for the Wall Effects preview only**. Keep both records with their respective audit scope. Native Foundry 14.367 / D&D5e 6.0.5 GM and Player checks cover normal and half damage, threshold boundaries, private approval, Ignore, stale and duplicate decisions, reload, optical gaps, breaches, grouped undo, multiple origins, overlapping areas, and the existing Spread mode. The geometry suite has 16 passing cases; the production placement-count helper has six passing cases. Emanations and rings remain manual wall-damage cases; a native ring cast verified the warning.
 
 **Superseded in 0.7.46:** emanations and rings now damage walls (an emanation from every point of the caster's space, a ring across its band), and the per-shape defaults offer the damage modes. Native player casts of every dnd5e area shape, GM approval, Ignore, breach, undo and a stale emanation were rechecked; the geometry suite has 20 passing cases. See `_release-audit/area-walls-0.7.46/QA-Report.md`.
+
+### Edge plays, card pass, typed chat and light mode, after 0.7.48
+
+Checked on Foundry 14.367, D&D5e 6.0.5 and Ready Set Midi 14.0.10.2 in the disposable QA world, with a GM and two players in separate browsers, each step clicked by the player it belongs to:
+
+- **Reroll** on an NPC's attack confirmed as a hit (keep, take, and a taken reroll that turned the hit into a miss, ruled again by the GM), on a failed spell save, and on a spell's damage after it was applied.
+- **Interrupt** used off turn without the Reaction? prompt; **Stabilize** from the picker and from the Downed card; **Execute** from a player's client, and refused on a Legendary Resistance target.
+- **Cards and chat:** the initiative, consumable, tool and feature cards; the typed-chat feed with phone texts; light mode across chat, the sheet, the Turn and Cyberware tabs, settings windows and dialogs, with a contrast check over every card.
+
+One reroll in the hit-to-miss check was forced low on the spender's client; every other die was as rolled. Smartphone Widget itself isn't installed in the QA world: its texts were posted in the module's exact message shape. 152 unit tests.
 
 ### Turn tab, roll calls and Crew Maneuvers, 0.7.48
 

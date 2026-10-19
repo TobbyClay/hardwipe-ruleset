@@ -18,6 +18,8 @@ An implant with an activity has a named action button on its **same inventory it
 
 Use weapons, spells, tools, and features through their normal activities. Their cards keep the relevant controls; selecting a roll total opens the dice breakdown.
 
+*(Next release.)* A **tool** card has a **Roll check** button: the check's result lands on the tool card, and the check's own message folds to one line with its **+** and DIS/ADV. A **consumable** or **feature** reads as one card: what it did, who it hit, and **Details** for the description. Your **initiative** card shows where you are in the turn order and follows the others' rolls.
+
 ## Read your turn
 
 <img src="media/turn-effects.png" alt="Active effects on the Turn tab: Overclock 30 sec, Steadied 9 min 30 sec, Night Optics 59 min 30 sec and Corp Sync 23 hr 59 min, each in a ring of its own length, with what they grant" width="420">
@@ -131,6 +133,20 @@ Open **Short Rest**, roll Hit Dice one at a time, and finish when ready. The cha
 ## Inside a braindance
 
 When the GM puts you in a memory, your NPC sheet opens and your token changes; play it like your own. The bar at the top right switches editing layers (**Alt+L**) and **Scan** (**Alt+S**) reads a spot on the canvas for clues. Traces only show on their layer. Your comfort controls are under the brain button; **Alt+Shift+B** hides the visuals on your screen. See the [Braindance guide](Braindance.md).
+
+## Chat
+
+*(Next release.)* What you type shows as a comm feed: your messages on the right, everyone else's on the left, a run of messages grouped under one name. The buttons over the chat box (or a command for one message) pick the kind:
+
+| You use | It shows as |
+| --- | --- |
+| **Public** (the globe, selected by default) | A plain bubble with your name and your character |
+| **In character** (the hat) or `/ic` | Your character speaking: a cyan edge |
+| `/me` (or `/emote`) | A line across the feed: *Mags checks the mag* |
+| **To GMs** (the spy), `/w Name` or `/gm` | A dashed violet bubble that says who it went to |
+| **Blind** or **Self** | A plain bubble; Foundry already hides it from whoever shouldn't see it |
+
+Texts sent with **Smartphone Widget** show as phone texts, to whom, in your colour. In Foundry's light mode the feed turns light; cards stay dark.
 
 ## Make cards comfortable to read
 
