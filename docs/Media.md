@@ -172,6 +172,115 @@ Captured on **2026-10-17** from the local Crew Maneuvers branch in a private cop
 | [crew-card-cam-duo.png](media/crew-card-cam-duo.png) | Chat, Combo cam: Mags firing Juno's Spotter Mark, two staggered feeds; cropped above the log's scroll button. |
 | [crew-card-feed.png](media/crew-card-feed.png) | Chat, Glitch feed: the same Entry Stack card after the style was switched. |
 
+## Gallery refresh captures
+
+Captured on **2026-10-18** in the disposable QA world: three Heavy Pistol attacks by the QA Player against a QA NPC, ruled Hit, Critical and Miss by the GM. (Edge spent and Flatline were recaptured later: see Chat card captures.)
+
+| Published file | Subject |
+| --- | --- |
+| [attack-hit-current.png](media/attack-hit-current.png) | Confirmed hit: 8 to hit, 9 damage. |
+| [attack-crit-current.png](media/attack-crit-current.png) | Critical hit: CRIT on the damage line, 21 piercing. |
+| [attack-miss-current.png](media/attack-miss-current.png) | Confirmed miss: 6 to hit, the target greyed. |
+
+## Chat thread capture
+
+Captured on **2026-10-18** in the disposable QA world, QA Player's view of a short conversation typed through the chat box by the GM and QA Player (Mags): public messages, `/ic`, `/me`, `/w` and the Breach Guard in character. The phone texts between Juno and Mags were posted by the GM's client in Smartphone Widget's own shape (its header line, its flag, the sender as speaker); the module itself isn't installed in the QA world.
+
+| Published file | Subject |
+| --- | --- |
+| [chat-thread-current.png](media/chat-thread-current.png) | Public bubbles, a joined run, phone texts, in character, an emote and two whispers. |
+
+## Light mode capture
+
+Captured on **2026-10-18** in the disposable QA world with QA Player's client set to Foundry's light colour scheme (applications and interface).
+
+| Published file | Subject |
+| --- | --- |
+| [chat-light-mode.png](media/chat-light-mode.png) | The Charged card (dark) above the typed feed in its light colours. |
+
+## Chat card captures
+
+Captured on **2026-10-18** in the disposable QA world: Edge spent with no play (Juno), the Downed card from a death save at 0 HP (Mags, holding Edge), Flatline at three Strikes (Juno), and a roll typed in chat, `/r 2d6 + 3 # Shotgun spread` (no item behind it).
+
+| Published file | Subject |
+| --- | --- |
+| [system-edge-current.png](media/system-edge-current.png) | Spent: the cell drains, Edge 0/1. |
+| [system-downed-current.png](media/system-downed-current.png) | Downed: Strike 1, 0 HP, Stabilize · 1 Edge. |
+| [system-flatline-current.png](media/system-flatline-current.png) | Flatline: Strike 3, no pulse. |
+| [roll-formula-current.png](media/roll-formula-current.png) | Shotgun spread: dice 2 and 4, + 3, total 9. |
+
+## Edge captures
+
+Captured on **2026-10-18** in the disposable QA world with three clients (GM, QA Player as Mags, QA Player 2 as Juno). The BD Memory Merc's Heavy Pistol attacked Mags, and a QA Fireball copy (8d6, no template) hit Mags and Juno. One Reroll was forced low on Juno's client to show a ruled hit becoming a miss; every other die is as rolled.
+
+| Published file | Subject |
+| --- | --- |
+| [edge-picker.png](media/edge-picker.png) | edge picker |
+| [edge-reroll-pick.png](media/edge-reroll-pick.png) | edge reroll pick |
+| [edge-reroll-attack-choose.png](media/edge-reroll-attack-choose.png) | edge reroll attack choose |
+| [edge-reroll-attack-waiting.png](media/edge-reroll-attack-waiting.png) | edge reroll attack waiting |
+| [edge-reroll-gm-ruling.png](media/edge-reroll-gm-ruling.png) | edge reroll gm ruling |
+| [edge-reroll-ruled-miss.png](media/edge-reroll-ruled-miss.png) | edge reroll ruled miss |
+| [edge-reroll-save-choose.png](media/edge-reroll-save-choose.png) | edge reroll save choose |
+| [edge-reroll-save-saved.png](media/edge-reroll-save-saved.png) | edge reroll save saved |
+| [edge-reroll-save-spell.png](media/edge-reroll-save-spell.png) | edge reroll save spell |
+| [edge-reroll-damage-choose.png](media/edge-reroll-damage-choose.png) | edge reroll damage choose |
+| [edge-reroll-damage-taken.png](media/edge-reroll-damage-taken.png) | edge reroll damage taken |
+| [edge-reroll-line.png](media/edge-reroll-line.png) | edge reroll line |
+| [edge-interrupt.png](media/edge-interrupt.png) | edge interrupt |
+| [edge-interrupt-used.png](media/edge-interrupt-used.png) | edge interrupt used |
+| [edge-interrupt-turn-tab.png](media/edge-interrupt-turn-tab.png) | edge interrupt turn tab |
+| [edge-stabilize.png](media/edge-stabilize.png) | edge stabilize |
+| [edge-execute.png](media/edge-execute.png) | edge execute |
+| [edge-picker-legendary.png](media/edge-picker-legendary.png) | edge picker legendary |
+| [edge-charged.png](media/edge-charged.png) | edge charged |
+
+## Prompt captures
+
+Captured on **2026-10-18** in the disposable QA world: the Reaction? prompt and the bonus dialog as the QA Player, the wall-type delete confirm as the GM.
+
+| Published file | Subject |
+| --- | --- |
+| [hardwipe-dialogs.png](media/hardwipe-dialogs.png) | Reaction?, Apply Retroactive Bonus and Delete wall type, side by side; combined from three captures. |
+
+## Feature captures
+
+Captured on **2026-10-18** in the disposable QA world, as the QA Player, on Mags's own turn in a started combat, after a Heavy Pistol shot had spent the action.
+
+| Published file | Subject |
+| --- | --- |
+| [feature-action-surge-card.png](media/feature-action-surge-card.png) | Action Surge: +1 Action this turn, 0/1 uses until a short rest. |
+| [feature-second-wind-card.png](media/feature-second-wind-card.png) | Second Wind: 2 hit points, 1d10 + 0, with +, Heal and Temp HP. |
+
+## Tool captures
+
+Captured on **2026-10-18** from the local tool-card branch in the disposable QA world, as the QA Player, dark theme. Each test tool was used and its Roll check pressed; only the Breach Kit's check has a DC (15).
+
+| Published file | Subject |
+| --- | --- |
+| [tool-cards.png](media/tool-cards.png) | Six tool cards, one per family, each above its slim check row; combined from six captures. |
+
+## Consumable and effect captures
+
+Captured on **2026-10-18** from the local consumable-card branch in the disposable QA world, as the QA Player, dark theme. The Stim Injector, Frag Grenade, Reflex Booster, Flashbang and Smoke Canister are test items; the grenades targeted two QA NPCs without a template. Steadied, Night Optics and Corp Sync are test effects on Mags, captured after 30 seconds of game time had passed.
+
+| Published file | Subject |
+| --- | --- |
+| [consumable-heal.png](media/consumable-heal.png) | Stim Injector: vitals trace, 7 hit points, Heal and Temp HP. |
+| [consumable-damage.png](media/consumable-damage.png) | Frag Grenade: blast with pinned targets, 15 fire, dice drawer open, both targets failed DEX 13. |
+| [consumable-buff.png](media/consumable-buff.png) | Reflex Booster: Overclock, 1 minute, AC 13 → 15, Speed 30 → 40 ft, ADV on DEX saves. |
+| [consumable-condition.png](media/consumable-condition.png) | Flashbang: Blinded, CON 12, both targets failed. |
+| [consumable-utility.png](media/consumable-utility.png) | Smoke Canister: Deployed, 20 ft emanation, 1 minute. |
+| [turn-effects.png](media/turn-effects.png) | Turn tab, Active effects: four effects from 1 minute to 1 day, rings partly drained; cropped. |
+
+## Initiative capture
+
+Captured on **2026-10-18** from the local initiative-card branch in the disposable QA world, as the QA Player, dark theme, after the GM rolled the NPCs and both players rolled at once. A hidden NPC (20) is left out of the player's view.
+
+| Published file | Subject |
+| --- | --- |
+| [initiative-order.png](media/initiative-order.png) | Four initiative cards in the player's log, 1st to 4th; the newest (Juno) shows the order strip; cropped to the cards. |
+
 ## Action type capture
 
 Captured on **2026-10-18** from the local Action type branch in the disposable QA world, as the GM, dark theme. *Burst Fire* is a test activity added to the synthetic Heavy Pistol.

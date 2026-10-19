@@ -1,10 +1,13 @@
 import { MODULE_ID, EdgeManager, StrikesManager, DownedManager, canControlActor, plainActivityLabel, responsibleFor } from "./hardwipe-state.js";
 import { CyberwareManager } from "./hardwipe-cyberware.js";
 import { CrewManager, crewData } from "./hardwipe-crew.js";
+import { isActionSurge } from "./hardwipe-consumable-cards.js";
 import { pendingSaveTargets, rollPendingSaves } from "./hardwipe-attack-cards.js";
 import { pendingConcentration, rollConcentrationRequest } from "./hardwipe-concentration.js";
 import { RollRequestComposer, abilityAbbr, createRequest, parseRoll, pendingFor, rollFor, rollName } from "./hardwipe-requests.js";
 import { closedOf, limitWaiting, orderWaiting, waitingLimit } from "./hardwipe-comms.js";
+import { durationRing, effectRows } from "./hardwipe-effects.js";
+import { liveInterrupt, useInterrupt } from "./hardwipe-edge.js";
 
 /**
  * The Turn tab: what a character can do right now, and what this turn has already cost.
@@ -95,8 +98,8 @@ export function reactionHeld(stamp, now) {
  */
 export function recordUse(ledger, use, now) {
   if (!now?.combat) return null;
-  // Off-turn, an attack that costs an action is an opportunity attack: it spends the reaction.
-  const reaction = use.activation === "reaction" || (!now.isTurn && use.activation === "action" && use.attack);
+  // Off-turn, something that costs an action is a reaction only if the player says so (asksReaction).
+  const reaction = use.activation === "reaction";
   if (!reaction && (!now.isTurn || !["action", "bonus"].includes(use.activation))) return null;
   const next = currentLedger(ledger, now);
   if (reaction) {
@@ -107,6 +110,17 @@ export function recordUse(ledger, use, now) {
   if (use.activation === "action" && use.attack) next.attacks += 1;
   if (use.move) next.moves[use.move] = use.activation;
   return next;
+}
+
+/**
+ * Whether to ask the player if this use was their reaction: something that costs an action, used off their turn in
+ * combat, not already a reaction (the Reaction band tags its uses as one), while the reaction was still there.
+ * @param {{activation: string}} use
+ * @param {{combat: string, isTurn: boolean}|null} now
+ * @param {boolean} reactionSpent   Whether the reaction was already spent before this use.
+ */
+export function asksReaction(use, now, reactionSpent) {
+  return !!now?.combat && !now.isTurn && use?.activation === "action" && !reactionSpent;
 }
 
 /** A copy of the stored ledger for this combat, its action-side entries reset if they belong to an earlier turn. */
@@ -233,12 +247,15 @@ export class TurnTracker {
   static _registered = false;
   /** Activities used from the Reaction band although they cost an action: opportunity attacks. */
   static _pending = new Map();
+  /** Whether each activity's actor had already spent their reaction when the use began, by activity UUID. */
+  static _reactionBefore = new Map();
   /** The last answer per actor, for the strip's "Sent to the GM" line. */
   static _sent = new Map();
 
   static register() {
     if (this._registered) return;
     this._registered = true;
+    Hooks.on("dnd5e.preUseActivity", activity => this._beforeUse(activity));
     Hooks.on("dnd5e.postUseActivity", activity => { void this._onUse(activity).catch(reportError); });
     Hooks.on("combatTurnChange", combat => this._onTurnChange(combat));
     Hooks.on("updateCombat", combat => this._refreshCombat(combat));
@@ -264,6 +281,8 @@ export class TurnTracker {
       if (["x", "y", "elevation", "_movementHistory", "movementAction"].some(key => key in changes)) this._refreshActor(token.actor);
     });
     Hooks.on("renderActivitySheet", (app, element) => this._onRenderActivitySheet(app, element));
+    // Effect rings drain with game time.
+    Hooks.on("updateWorldTime", () => this._refreshAll());
   }
 
   /**
@@ -384,14 +403,81 @@ export class TurnTracker {
 
   /* Recording ---------------------------------------------------------------------------------- */
 
+  /** Give the action back: a new Attack action too, with its attacks. Standard actions it paid for stay taken. */
+  static async _surge(actor, now) {
+    const ledger = currentLedger(this.ledger(actor), now);
+    Object.assign(ledger, { action: false, attacks: 0 });
+    for (const [move, slot] of Object.entries(ledger.moves)) if (slot === "action") delete ledger.moves[move];
+    await writeLedger(actor, ledger);
+    if (actor.flags?.[MIDI]?.actions?.action === true) await midiApi()?.removeActionUsed?.(actor);
+    ui.notifications.info(game.i18n.format("HARDWIPE.Cons.SurgeNote", { name: actor.name }));
+  }
+
+  /** Note whether the reaction is already gone, before Ready Set Midi can mark an off-turn attack as one. */
+  static _beforeUse(activity) {
+    const actor = activity?.actor;
+    if (!actor || actor.type !== "character") return;
+    const now = this.now(actor);
+    if (now && !now.isTurn) this._reactionBefore.set(activity.uuid, this.economy(actor, now).economy.reaction.spent);
+  }
+
   static async _onUse(activity) {
+    const spentBefore = this._reactionBefore.get(activity?.uuid) ?? false;
+    this._reactionBefore.delete(activity?.uuid);
     const actor = activity?.actor;
     if (!actor || actor.type !== "character" || !canControlActor(actor)) return;
     const now = this.now(actor);
     if (!now) return;
     const activation = this._pending.get(activity.uuid) ?? activity.activation?.type ?? "";
-    const next = recordUse(this.ledger(actor), { activation, attack: isAttackAction(activity), move: generalMoveOf(activity) }, now);
+    const use = { activation, attack: isAttackAction(activity), move: generalMoveOf(activity) };
+    if (await this._spendInterrupt(actor, activity, use, now, spentBefore)) return;
+    const next = recordUse(this.ledger(actor), use, now);
     if (next) await writeLedger(actor, next);
+    // Action Surge: one more action this turn. The ledger's action (and Ready Set Midi's marker) comes back.
+    if (now.isTurn && isActionSurge(activity.item)) await this._surge(actor, now);
+    if (asksReaction(use, now, spentBefore)) await this._askReaction(actor, activity);
+  }
+
+  /**
+   * An Interrupt bought with Edge pays for one action or bonus action: off turn (instead of the Reaction? prompt, and
+   * taking back Ready Set Midi's reaction marker), or on the actor's own turn once that slot is already spent. The
+   * Attack action's later attacks stay on the action.
+   */
+  static async _spendInterrupt(actor, activity, use, now, spentBefore) {
+    if (!["action", "bonus"].includes(use.activation) || !liveInterrupt(actor)) return false;
+    if (now.isTurn) {
+      const own = readLedger(this.ledger(actor), now);
+      const attacks = attacksPerAction(actor.items, item => CyberwareManager.isOperational(item)).count;
+      if (!own[use.activation]) return false;
+      if (use.activation === "action" && use.attack && own.attacks > 0 && own.attacks < attacks) return false;
+    }
+    await useInterrupt(actor, use.activation, activity.item?.name ?? activity.name ?? "");
+    if (!now.isTurn && !spentBefore && this.economy(actor, now).economy.reaction.spent) await this.toggle(actor, "reaction");
+    return true;
+  }
+
+  /**
+   * Ask whoever used it whether an off-turn action was their reaction, and make the reaction match the answer. Ready
+   * Set Midi may already have marked an off-turn attack as one; "No" takes that back.
+   */
+  static async _askReaction(actor, activity) {
+    const t = (key, data) => data ? game.i18n.format(`HARDWIPE.Turn.AskReaction.${key}`, data) : game.i18n.localize(`HARDWIPE.Turn.AskReaction.${key}`);
+    const escape = text => foundry.utils.escapeHTML(String(text ?? ""));
+    const name = activity.item?.name ?? activity.name;
+    const answer = await foundry.applications.api.DialogV2.wait({
+      window: { title: t("Title"), icon: "fa-solid fa-rotate-left" },
+      classes: ["hardwipe-dialog", "is-reaction", "hardwipe-ask-reaction"],
+      content: `<p>${t("Content", { actor: escape(actor.name), item: escape(name) })}</p>`,
+      buttons: [
+        { action: "yes", label: t("Yes"), icon: "fa-solid fa-rotate-left", default: true },
+        { action: "no", label: t("No"), icon: "fa-solid fa-xmark" }
+      ],
+      rejectClose: false
+    });
+    if (answer !== "yes" && answer !== "no") return;
+    const now = this.now(actor);
+    if (!now) return;
+    if (this.economy(actor, now).economy.reaction.spent !== (answer === "yes")) await this.toggle(actor, "reaction");
   }
 
   /**
@@ -469,6 +555,7 @@ export class TurnTracker {
         return;
       }
       case "drop-condition": return this.dropCondition(actor, target.dataset.effectId);
+      case "drop-buff": return actor.effects.get(target.dataset.effectId)?.delete();
       case "crew-trigger": return this.crewTrigger(actor, target, event, sheet);
       case "crew-cancel": return CrewManager.cancel(actor, target.dataset.effectId);
     }
@@ -755,6 +842,7 @@ export class TurnTracker {
       view.economy = SLOTS.map(kind => ({
         kind, label: game.i18n.localize(`HARDWIPE.Turn.Slot.${kind}`), icon: SLOT_ICONS[kind], ...slotState(kind, economy[kind], now, canControl)
       }));
+      if (liveInterrupt(actor)) view.interrupt = { label: game.i18n.localize("HARDWIPE.Turn.Interrupt"), state: game.i18n.localize("HARDWIPE.EdgePlay.Ready") };
       if (attacking) {
         Object.assign(view.economy[0], { state: "partial", stateLabel: game.i18n.format("HARDWIPE.Turn.AttacksLeftShort", { n: attacks.count - usedAttacks }) });
       }
@@ -804,6 +892,14 @@ export class TurnTracker {
       const item = actor.items.get(data.id) ?? (data.data ? { name: data.data.name, img: data.data.img } : null);
       return { id: effect.id, name: item?.name ?? effect.name, img: item?.img ?? effect.img, canEnd: canControl };
     });
+    view.buffs = [];
+    for (const effect of actor.allApplicableEffects?.() ?? actor.effects) {
+      if (!effect.active || !effect.isTemporary || isSystemEffect(effect) || crewData(effect)) continue;
+      const changes = effect.system?.changes ?? effect.changes ?? [];
+      // A plain condition (no changes of its own) is listed under Conditions instead.
+      if (conditionStatuses(effect).length && !changes.length) continue;
+      view.buffs.push(buffEntry(actor, effect, canControl));
+    }
     view.conditions = [];
     for (const effect of actor.allApplicableEffects?.() ?? actor.effects) {
       if (!effect.active || isSystemEffect(effect)) continue;
@@ -966,13 +1062,37 @@ function labels() {
     title: t("Title"), movement: t("Movement"), standard: t("StandardActions"), programs: t("Programs"), running: t("Running"),
     waiting: t("Waiting.Label"), roll: t("Waiting.Roll"), requestCheck: t("Request.Button"),
     netSent: t("Net.Sent"), dcHidden: t("Net.DcHidden"),
-    conditions: t("Conditions"), runningPrograms: t("RunningPrograms"), noPrograms: t("NoPrograms"), noConditions: t("NoConditions"),
+    conditions: t("Conditions"), effects: t("Buff.Title"), runningPrograms: t("RunningPrograms"), noPrograms: t("NoPrograms"), noConditions: t("NoConditions"),
     resources: t("Resources"), attacks: t("Attacks"), attacksLeft: t("AttacksLeftLabel"), economy: t("Economy"), noCombat: t("NoCombat"), unstaged: t("Unstaged"), yourTurn: t("YourTurn"),
     upNow: t("UpNow"), nothing: t("Nothing"), dashOn: t("DashOn"), noToken: t("NoToken"), slots: t("Slots"),
     endProgram: game.i18n.localize("HARDWIPE.Conc.End"), edge: game.i18n.localize("HARDWIPE.Edge.Title"),
     strikes: game.i18n.localize("HARDWIPE.Strikes.Title"), spend: game.i18n.localize("HARDWIPE.Edge.SpendShort"),
     spendEdge: game.i18n.localize("HARDWIPE.Edge.Spend"), award: game.i18n.localize("HARDWIPE.Edge.Award"),
     recover: game.i18n.localize("HARDWIPE.Edge.RecoverShort"), from: t("From"), left: t("Left"), over: t("Over")
+  };
+}
+
+const RING_R = 16;
+const RING_C = 2 * Math.PI * RING_R;
+
+/** An effect on the Turn tab: its ring (as long as it lasts, lit for the time left), what it grants as short chips. */
+function buffEntry(actor, effect, canControl) {
+  const duration = effect.duration ?? {};
+  const ring = durationRing(duration.seconds, duration.secondsRemaining);
+  const statusName = id => game.i18n.localize(CONFIG.statusEffects.find(status => status.id === id)?.name ?? id);
+  const rows = effectRows({ changes: effect.system?.changes ?? effect.changes, statuses: effect.statuses, description: effect.description },
+    { read: path => foundry.utils.getProperty(actor, path), applied: true, statusName });
+  const own = effect.parent === actor;
+  return {
+    id: effect.id, name: effect.name, img: effect.img,
+    track: `${(ring.length * RING_C).toFixed(1)} ${RING_C.toFixed(1)}`,
+    lit: `${(ring.lit * RING_C).toFixed(1)} ${RING_C.toFixed(1)}`,
+    indefinite: ring.indefinite,
+    time: ring.indefinite ? game.i18n.localize("HARDWIPE.Turn.Buff.Indefinite") : duration.label ?? "",
+    grants: rows.slice(0, 4).map(row => row.change === "ON" || !row.change ? row.label : `${row.label} ${row.change}${row.unit ?? ""}`),
+    more: Math.max(0, rows.length - 4),
+    canRemove: canControl && own,
+    removeLabel: game.i18n.format("HARDWIPE.Turn.Buff.Remove", { name: effect.name })
   };
 }
 

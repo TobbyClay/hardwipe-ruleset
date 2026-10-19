@@ -1,4 +1,5 @@
 <section class="hardwipe-wall-types-editor">
+<div class="hardwipe-wall-types-scroll">
 <p class="hint">Durability applies to each five-foot section. Editing a type changes its preset; walls already configured keep their current values.</p>
 <div class="hardwipe-wall-types-toolbar">
   <div class="form-group">
@@ -31,6 +32,7 @@
   <input id="{{rootId}}-threshold" name="damageThreshold" type="number" min="0" step="any" value="{{type.damageThreshold}}" required>
   <p class="hint">A damage roll below this value deals no damage. A qualifying roll then loses armor reduction. Use 0 to allow every hit.</p>
 </div>
+</div>
 <footer class="form-footer hardwipe-wall-types-footer">
   <button type="button" data-action="duplicate"><i class="fas fa-copy" inert></i> Duplicate</button>
   {{#if canDelete}}<button type="button" data-action="remove"><i class="fas fa-trash" inert></i> Delete</button>{{/if}}
@@ -38,5 +40,6 @@
 </footer>
 {{else}}
 <p>Create a wall type to define its HP, armor, and damage threshold.</p>
+</div>
 {{/if}}
 </section>

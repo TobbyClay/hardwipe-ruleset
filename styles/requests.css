@@ -180,17 +180,24 @@ button.hardwipe-request-linked:hover { color: var(--hw-hi); border-color: var(--
   display: flex;
   align-items: center;
   padding-left: 4px;
+  /* Foundry colours the title h1 itself; it takes the bar's dark text instead. */
+  color: inherit;
   font: 700 13px var(--hw-font-disp);
   letter-spacing: 0.18em;
   text-transform: uppercase;
 }
 .hardwipe-composer .window-header :is(.window-icon, button) { color: #05100c; }
+.application.hardwipe-composer { min-width: 400px; min-height: 320px; }
 .hardwipe-composer .window-content {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
   padding: 0;
   color: var(--hw-hi);
   background: repeating-linear-gradient(to bottom, rgba(0, 0, 0, 0.22) 0 1px, transparent 1px 3px), linear-gradient(150deg, var(--hw-panel), var(--hw-ink));
 }
-.hardwipe-composer-body { display: grid; gap: 0; font-family: var(--hw-font-mono); }
+.hardwipe-composer-tabs { flex: none; }
+.hardwipe-composer-body { display: grid; flex: 1; align-content: start; gap: 0; min-height: 0; overflow-y: auto; font-family: var(--hw-font-mono); }
 .hardwipe-composer-body > section {
   display: grid;
   gap: 6px;
@@ -330,7 +337,7 @@ button.hardwipe-request-linked:hover { color: var(--hw-hi); border-color: var(--
 .hardwipe-composer.is-contest .hardwipe-composer-row { display: none; }
 
 /* Send */
-.hardwipe-composer-body > footer.form-footer { display: flex; margin: 0; padding: 10px 12px 12px; background: rgba(0, 0, 0, 0.35); }
+.hardwipe-composer-body > footer.form-footer { position: sticky; bottom: 0; z-index: 1; display: flex; margin: 0; padding: 10px 12px 12px; background: color-mix(in srgb, var(--hw-ink) 92%, #000); }
 .hardwipe-composer-body > footer.form-footer > button.hardwipe-btn.hardwipe-btn {
   flex: 1;
   height: 32px;

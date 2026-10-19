@@ -79,7 +79,8 @@
   display: grid;
   /* The default scan is 804 × 1486, so this width makes the figure exactly as tall as a slot column.
      Custom paper dolls are letterboxed into the same column, so the cards never narrow. */
-  grid-template-columns: minmax(0, 1fr) calc(var(--hw-cw-column-h) * 0.541) minmax(0, 1fr);
+  grid-template-columns: minmax(0, 320px) calc(var(--hw-cw-column-h) * 0.541) minmax(0, 320px);
+  justify-content: center;
   gap: 8px;
   align-items: center;
 }

@@ -1,4 +1,5 @@
 import { MODULE_ID, EdgeManager, StrikesManager, DownedManager, canControlActor, isCharacter, plainActivityLabel } from "./hardwipe-state.js";
+import { awardEdge, openEdgePicker, stabilize } from "./hardwipe-edge.js";
 import { ShieldManager } from "./hardwipe-shields.js";
 import { BODY_REGION_ANCHORS, BODY_REGION_PATHS, BODY_REGION_PINGS, CyberwareManager, MIRRORED_BODY_REGIONS } from "./hardwipe-cyberware.js";
 import { TurnTracker } from "./hardwipe-turn.js";
@@ -107,7 +108,7 @@ export class HardwipeSheet {
         if (!canControlActor(this.actor) || this.actor.limited) return;
         if (!game.user.can("FILES_BROWSE")) {
           const current = paperDollPath(this.actor.getFlag(MODULE_ID, "paperDoll")) ?? BODY_ART;
-          const path = await foundry.applications.api.DialogV2.prompt({
+          const path = await foundry.applications.api.DialogV2.prompt({ classes: ["hardwipe-dialog"],
             window: { title: game.i18n.localize("HARDWIPE.Cyberware.PaperDollChoose") },
             content: `<div class="form-group stacked"><label>${label("HARDWIPE.Cyberware.PaperDollPath")}</label>
               <input type="text" name="paperDoll" value="${escapeSheetHTML(current)}" aria-label="${label("HARDWIPE.Cyberware.PaperDollPath")}" required>
@@ -503,9 +504,9 @@ export class HardwipeSheet {
     const action = target.dataset.hardwipeRule;
     if (["award-edge", "add-strike", "reset-strikes", "set-strikes"].includes(action) && !game.user.isGM) return;
     switch (action) {
-      case "edge-recover": await DownedManager.recover(actor, { hp: 1, spendEdge: true }); break;
-      case "spend-edge": await EdgeManager.spend(actor, game.i18n.localize("HARDWIPE.Edge.GenericReason")); break;
-      case "award-edge": await EdgeManager.award(actor); break;
+      case "edge-recover": await stabilize(actor); break;
+      case "spend-edge": await openEdgePicker(actor); break;
+      case "award-edge": await awardEdge(actor, game.i18n.localize("HARDWIPE.EdgePlay.charged.ByGM")); break;
       case "add-strike": await StrikesManager.add(actor); break;
       case "reset-strikes":
         await StrikesManager.reset(actor);

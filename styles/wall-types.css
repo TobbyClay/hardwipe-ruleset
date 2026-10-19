@@ -48,3 +48,11 @@
 .wall-config .hardwipe-wall-config-toggles { display: flex; flex-wrap: wrap; gap: 0.5rem 1rem; margin-bottom: 0.5rem; }
 .wall-config .hardwipe-wall-config-toggles > label { display: inline-flex; align-items: center; gap: 0.4rem; font-size: var(--font-size-12); }
 .wall-config .hardwipe-wall-config-toggles input { margin: 0; }
+
+/* Resizable: the editor scrolls inside the window and its buttons stay at the bottom. */
+.application.hardwipe-wall-types { min-width: 380px; min-height: 300px; }
+.hardwipe-wall-types .window-content { overflow: hidden; }
+.hardwipe-wall-types .hardwipe-wall-types-editor { flex: 1; min-height: 0; }
+.hardwipe-wall-types .hardwipe-wall-types-scroll { display: flex; flex: 1; flex-direction: column; gap: 0.75rem; min-height: 0; overflow-y: auto; }
+.hardwipe-wall-types .hardwipe-wall-types-scroll > .hint { margin: 0; }
+.hardwipe-wall-types .hardwipe-wall-types-footer { flex: none; }

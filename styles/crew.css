@@ -413,12 +413,16 @@ body.hardwipe-text-large .chat-message.hardwipe-crew-message > .message-content 
 body.hardwipe-text-xlarge .chat-message.hardwipe-crew-message > .message-content { zoom: 1.2; }
 
 /* ---- GM settings: Crew maneuver types ---- */
-.hardwipe-crew-types .window-content { display: flex; flex-direction: column; gap: 10px; }
+/* Resizable down to where the selects still show their labels; the table scrolls and the buttons stay in view. */
+.application.hardwipe-crew-types { min-width: 700px; min-height: 300px; }
+.hardwipe-crew-types .window-content { display: flex; flex-direction: column; gap: 10px; overflow: hidden; }
+.hardwipe-crew-types-body { flex: 1; min-height: 0; overflow-y: auto; }
+.hardwipe-crew-types-body > .hint:first-child { margin-top: 0; }
 .hardwipe-crew-types-table { width: 100%; margin: 0; border-collapse: collapse; }
 .hardwipe-crew-types-table th { padding: 4px 6px; text-align: left; font-size: var(--font-size-12, 12px); }
 .hardwipe-crew-types-table td { padding: 3px 4px; vertical-align: middle; }
 .hardwipe-crew-types-table td:first-child { width: 28%; }
-.hardwipe-crew-types .form-footer { display: flex; gap: 8px; }
+.hardwipe-crew-types .form-footer { display: flex; flex: none; gap: 8px; }
 .hardwipe-crew-types .form-footer > button { flex: 1; }
 .hardwipe-crew-types-table td:last-child { width: 32px; text-align: center; }
 .hardwipe-crew-types-table input[type="text"],

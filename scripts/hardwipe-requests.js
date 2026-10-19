@@ -548,7 +548,7 @@ function composerClass() {
   return class RollRequestComposerApp extends foundry.applications.api.ApplicationV2 {
     static DEFAULT_OPTIONS = {
       id: COMPOSER_ID, tag: "form", classes: ["hardwipe-composer"],
-      window: { title: "HARDWIPE.Request.Composer.Title", icon: "fa-solid fa-bullhorn" },
+      window: { title: "HARDWIPE.Request.Composer.Title", icon: "fa-solid fa-bullhorn", resizable: true },
       position: { width: 480, height: "auto" },
       form: { handler: RollRequestComposerApp.#onSubmit, closeOnSubmit: true },
       actions: {

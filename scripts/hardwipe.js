@@ -14,13 +14,15 @@ import { registerCardColors } from "./hardwipe-card-colors.js";
 import { ShortRestManager } from "./hardwipe-rests.js";
 import { registerRestReceipts } from "./hardwipe-rest-receipt.js";
 import { registerConcentrationCards } from "./hardwipe-concentration.js";
-import { registerMessageCards } from "./hardwipe-message-cards.js";
+import { registerCardTheme, registerMessageCards } from "./hardwipe-message-cards.js";
 import { RangedAttackManager } from "./hardwipe-ranged.js";
 import { registerAssembly } from "./hardwipe-assembly.js";
 import { registerDamageSync } from "./hardwipe-attack-cards.js";
 import { applyNpcSavesDefault, registerNpcSaves } from "./hardwipe-npc-saves.js";
 import { registerEffectChoice } from "./hardwipe-effect-choice.js";
 import { registerSaveCards } from "./hardwipe-check-cards.js";
+import { registerInitiativeCards } from "./hardwipe-initiative.js";
+import { registerToolCards } from "./hardwipe-tool-cards.js";
 import { registerRollTracker } from "./hardwipe-roll-tracker.js";
 import { RecapDialog, RollTrackerApp, SessionDialog } from "./hardwipe-roll-tracker-app.js";
 import { registerBraindance, initializeBraindance } from "./hardwipe-braindance.js";
@@ -28,6 +30,7 @@ import { TurnTracker } from "./hardwipe-turn.js";
 import { registerRequests } from "./hardwipe-requests.js";
 import { registerComms } from "./hardwipe-comms.js";
 import { CrewManager } from "./hardwipe-crew.js";
+import { registerEdgePlays } from "./hardwipe-edge.js";
 
 export const MODULE_ID = "hardwipe-ruleset";
 export const MODULE_TITLE = "Hardwipe Ruleset";
@@ -58,6 +61,13 @@ Hooks.once("init", async () => {
   registerNpcSaves();
   registerEffectChoice();
   registerSaveCards();
+  registerInitiativeCards();
+  registerToolCards();
+  // Ready Set Midi's retroactive bonus dialog (the + on a roll) wears Hardwipe's dialog style.
+  Hooks.on("renderDialogV2", (app, element) => {
+    const root = element instanceof HTMLElement ? element : element?.[0];
+    if (root?.querySelector?.(".rsm-bonus-dialog")) root.classList.add("hardwipe-dialog", "is-bonus");
+  });
   AttackReviewManager.registerSettings();
   RangedAttackManager.registerHooks();
   AttackReviewManager.registerHooks();
@@ -75,6 +85,9 @@ Hooks.once("init", async () => {
   registerRequests();
   registerComms();
   CrewManager.register();
+  registerEdgePlays();
+  // Last: pins each Hardwipe card to the dark theme once every renderer has marked it.
+  registerCardTheme();
 
   await foundry.applications.handlebars.loadTemplates([
     "modules/hardwipe-ruleset/templates/heat-hud.hbs",

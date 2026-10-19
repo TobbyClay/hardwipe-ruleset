@@ -3685,3 +3685,107 @@ button.hardwipe-adv-btn.is-crit { --hw-adv: var(--hw-c-critical, var(--hw-cyan))
 
 /* Looping card animations pause while their message is scrolled out of view. */
 .chat-message.hardwipe-offscreen, .chat-message.hardwipe-offscreen *, .chat-message.hardwipe-offscreen *::before, .chat-message.hardwipe-offscreen *::after { animation-play-state: paused !important; }
+
+/* ---------------------------------------------------------------------------------------------
+ * Initiative: one compact row (total, place, after / before, the switch); the newest initiative
+ * card of a combat opens to the turn order as a strip of portraits, earlier ones fold to the row.
+ * ------------------------------------------------------------------------------------------- */
+.hardwipe-check.hardwipe-init { padding: 0; }
+.hardwipe-init-row { display: flex; align-items: center; gap: 7px; padding: 7px; }
+.hardwipe-init-row > .hardwipe-init-flow { flex: 1; }
+.hardwipe-init-row > .rsr-addon-bonus-btn { position: static; flex: none; margin: 0; color: var(--hw-check); font-size: 15px; opacity: 0.8; transform: none; cursor: pointer; }
+.hardwipe-init-row > .rsr-addon-bonus-btn:hover { opacity: 1; text-shadow: 0 0 4px var(--hw-check); }
+.chat-message .hardwipe-init .hardwipe-init-roll { margin: 0; }
+.chat-message .hardwipe-init .hardwipe-init-roll button.dice-roll { width: auto; padding: 0; background: none; border: 0; }
+.chat-message .hardwipe-init .hardwipe-init-roll .rsr-multiroll { gap: 4px; }
+.chat-message .hardwipe-init .hardwipe-init-roll .rsr-multiroll::before,
+.chat-message .hardwipe-init .hardwipe-init-roll .rsr-multiroll::after { display: none; }
+.chat-message .hardwipe-init .hardwipe-init-roll .rsr-multiroll > .total {
+  min-width: 46px;
+  height: 36px;
+  padding: 0 6px;
+  font: 700 22px/1 var(--hw-font-disp);
+  background: rgba(70, 230, 220, 0.07);
+}
+/* Only the kept total: the lit switch says which mode, and the dice drawer keeps both d20s. */
+.chat-message .hardwipe-init .hardwipe-init-roll .rsr-multiroll > .total.ignored { display: none; }
+/* The total itself opens the dice; the caret would crowd the ordinal. */
+.chat-message .hardwipe-init .hardwipe-init-roll .hardwipe-drawer-caret { display: none; }
+.hardwipe-init-ord { min-width: 38px; color: var(--hw-check); font: italic 700 27px/0.9 var(--hw-font-disp); letter-spacing: -0.02em; }
+.hardwipe-init-ord > sup { margin-left: 1px; font-size: 11px; letter-spacing: 0.05em; text-transform: uppercase; vertical-align: top; }
+.hardwipe-init-ord.is-moved { animation: hardwipe-init-moved 0.6s ease-out; }
+@keyframes hardwipe-init-moved { 0% { color: var(--hw-warn); transform: translateY(-3px); } }
+.hardwipe-init-flow { display: grid; min-width: 0; color: var(--hw-dim); font: 500 12px/1.25 var(--hw-font-disp); }
+.hardwipe-init-flow > small { color: var(--hw-check); font: 700 9.5px var(--hw-font-disp); letter-spacing: 0.16em; text-transform: uppercase; }
+.hardwipe-init-flow > span { overflow-wrap: anywhere; }
+.hardwipe-init-flow > span:empty { display: none; }
+.hardwipe-init-flow b { color: var(--hw-hi); font-weight: 600; }
+.hardwipe-init .hardwipe-init-row > .hardwipe-adv { flex-direction: column; align-self: center; clip-path: none; }
+/* Labels only: the row is narrow, and the switch stacks DIS over ADV. */
+.hardwipe-init .hardwipe-init-row > .hardwipe-adv button.hardwipe-adv-btn { justify-content: center; width: 100%; height: 19px; padding: 0 6px; font-size: 9.5px; letter-spacing: 0.1em; }
+.hardwipe-init .hardwipe-init-row > .hardwipe-adv button.hardwipe-adv-btn > i { display: none; }
+.hardwipe-init .hardwipe-init-row > .hardwipe-adv button.hardwipe-adv-btn + button.hardwipe-adv-btn { border-left: 0; border-top: 1px solid rgba(143, 207, 176, 0.28); }
+.hardwipe-init.is-superseded .hardwipe-init-ord { color: var(--hw-dim-2); }
+.hardwipe-init.is-superseded .hardwipe-init-row { opacity: 0.6; }
+
+.hardwipe-init-queue { display: flex; margin: 0; padding: 0 8px; list-style: none; max-height: 0; overflow: hidden; border-top: 0 solid var(--hw-line); opacity: 0; transition: max-height 0.3s, padding 0.3s, opacity 0.2s; }
+.hardwipe-init.is-newest .hardwipe-init-queue { max-height: 90px; padding: 6px 8px; border-top-width: 1px; opacity: 1; }
+.hardwipe-init-queue > li { position: relative; display: grid; flex: 1; justify-items: center; gap: 1px; min-width: 0; margin: 0; }
+.hardwipe-init-queue > li + li::before { content: "›"; position: absolute; left: -4px; top: 5px; color: var(--hw-dim-2); font: 700 15px var(--hw-font-disp); }
+.hardwipe-init-queue img { width: 32px; height: 32px; object-fit: cover; background: #000; border: 1px solid var(--hw-line-2); border-radius: 0; filter: grayscale(0.6) brightness(0.8); }
+.hardwipe-init-queue .is-foe img { border-color: color-mix(in srgb, var(--hw-alert) 70%, transparent); }
+.hardwipe-init-queue .is-self img { border: 2px solid var(--hw-check); filter: none; box-shadow: 0 0 9px color-mix(in srgb, var(--hw-check) 55%, transparent); }
+.hardwipe-init-queue .is-pending img { border-style: dashed; opacity: 0.3; }
+.hardwipe-init-queue span { color: var(--hw-dim); font: 700 10.5px var(--hw-font-mono); }
+.hardwipe-init-queue .is-self span { color: var(--hw-check); }
+.hardwipe-init-cursor { font-style: normal; animation: hardwipe-init-blink 1s steps(2, start) infinite; }
+@keyframes hardwipe-init-blink { to { visibility: hidden; } }
+.hardwipe-init.is-arriving .hardwipe-init-roll { animation: hardwipe-init-slam 0.45s cubic-bezier(0.2, 0.9, 0.3, 1.3) both; }
+.hardwipe-init.is-arriving .hardwipe-init-ord { animation: hardwipe-init-cut 0.35s 0.15s ease-out both; }
+@keyframes hardwipe-init-slam { from { transform: scale(1.5); opacity: 0; filter: blur(3px); } }
+@keyframes hardwipe-init-cut { from { clip-path: inset(0 100% 0 0); } to { clip-path: inset(0 0 0 0); } }
+@media (prefers-reduced-motion: reduce) {
+  .hardwipe-init *, .hardwipe-init-queue { animation: none !important; transition: none !important; }
+}
+
+/* ---------------------------------------------------------------------------------------------
+ * Hardwipe dialogs: Hardwipe's own prompts and Ready Set Midi's bonus dialog. A terminal window:
+ * an accent header bar, a scanlined dark body, outlined buttons with the default one filled.
+ * ------------------------------------------------------------------------------------------- */
+.application.dialog.hardwipe-dialog {
+  --hwd: var(--hw-phos);
+  --hwd-ink: #04110c;
+  color: var(--hw-hi);
+  background: var(--hw-ink);
+  border: 1px solid color-mix(in srgb, var(--hwd) 55%, transparent);
+  border-radius: 0;
+  box-shadow: 0 0 0 1px #000, 0 12px 40px rgba(0, 0, 0, 0.6), 0 0 14px color-mix(in srgb, var(--hwd) 22%, transparent);
+}
+.application.dialog.hardwipe-dialog.is-reaction { --hwd: var(--hw-cyan); --hwd-ink: #021214; }
+.application.dialog.hardwipe-dialog.is-bonus { --hwd: #b48cff; --hwd-ink: #10061f; }
+.application.dialog.hardwipe-dialog.is-danger { --hwd: var(--hw-alert); --hwd-ink: #1a0308; }
+.hardwipe-dialog .window-header { margin: 0; color: var(--hwd-ink); background: var(--hwd); border-bottom: 0; }
+.hardwipe-dialog .window-header .window-title { color: inherit; font: 700 13px var(--hw-font-disp); letter-spacing: 0.16em; text-transform: uppercase; }
+.hardwipe-dialog .window-header :is(.window-icon, button) { color: var(--hwd-ink); }
+.hardwipe-dialog .window-content {
+  color: var(--hw-hi);
+  background: repeating-linear-gradient(to bottom, rgba(0, 0, 0, 0.22) 0 1px, transparent 1px 3px), linear-gradient(150deg, var(--hw-panel), var(--hw-ink));
+}
+.hardwipe-dialog .dialog-content { font: 500 14px/1.45 var(--hw-font-disp); }
+.hardwipe-dialog .dialog-content p { margin: 0 0 8px; }
+.hardwipe-dialog .dialog-content :is(input[type="text"], input[type="number"], select, textarea) {
+  color: var(--hw-hi); background: rgba(0, 0, 0, 0.45); border: 1px solid color-mix(in srgb, var(--hwd) 45%, transparent); border-radius: 0; font-family: var(--hw-font-mono);
+}
+.hardwipe-dialog .dialog-content :is(input, select, textarea):focus { border-color: var(--hwd); box-shadow: 0 0 0 1px var(--hwd); outline: none; }
+.hardwipe-dialog .dialog-content input[type="radio"], .hardwipe-dialog .dialog-content input[type="checkbox"] { accent-color: var(--hwd); }
+.hardwipe-dialog .form-footer { gap: 8px; }
+.hardwipe-dialog .form-footer button {
+  height: 32px; color: var(--hw-dim); background: rgba(0, 0, 0, 0.4); border: 1px solid var(--hw-line-2); border-radius: 0;
+  font: 700 12px var(--hw-font-disp); letter-spacing: 0.14em; text-transform: uppercase;
+  clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 0 100%);
+}
+.hardwipe-dialog .form-footer button:is(:hover, :focus-visible) { color: var(--hw-hi); border-color: var(--hwd); box-shadow: none; }
+.hardwipe-dialog .form-footer button:is([autofocus], .default) { color: var(--hwd-ink); background: var(--hwd); border-color: var(--hwd); box-shadow: 0 0 10px color-mix(in srgb, var(--hwd) 40%, transparent); }
+.hardwipe-dialog .rsm-bonus-choice { display: flex; align-items: center; gap: 8px; margin: 0 0 8px; }
+.hardwipe-dialog .rsm-bonus-choice span { display: flex; align-items: baseline; gap: 8px; }
+.hardwipe-dialog .rsm-bonus-choice small { color: var(--hw-dim); font: 600 11px var(--hw-font-mono); }

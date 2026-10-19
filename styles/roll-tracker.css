@@ -82,7 +82,7 @@
 .hwhr-tab:hover { color: var(--hr-text); box-shadow: none; }
 .hwhr-tab.is-active { color: var(--hr-cy); border-bottom-color: var(--hr-cy); background: linear-gradient(0deg, rgba(94, 240, 245, 0.13), transparent); }
 .hwhr-sub { display: flex; align-items: center; gap: 12px; padding: 7px 24px; color: var(--hr-dim); font-size: 14px; border-bottom: 1px solid rgba(76, 27, 29, 0.6); }
-.hwhr-sub > span:first-child { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.hwhr-sub > span:first-child { flex: 1; min-width: 0; line-height: 1.35; }
 .hwhr-sub b { color: var(--hr-text); font-weight: 600; }
 .hwhr-brand { color: var(--hr-red); font-weight: 700; letter-spacing: 0.08em; }
 .hwhr-live { color: var(--hr-n1); }
@@ -315,6 +315,8 @@
 /* Dialogs: session ("Jack in") and recap */
 .hwhr-dialog { min-width: 0; border-color: var(--hr-red); }
 .hwhr-dialog .window-header { color: #160a0b; background: var(--hr-red); }
+/* Foundry colours window titles itself; Hardwipe's headers set their own text colour, and the title follows it. */
+:is(.hardwipe-tracker, .hwhr-dialog) .window-header .window-title { color: inherit; }
 .hwhr.hwhr-jack { display: grid; gap: 12px; height: auto; padding: 16px 18px 18px; }
 .hwhr-jack-intro { margin: 0; color: var(--hr-text); font-size: 15px; }
 .hwhr-jack-intro b { color: var(--hr-cy); }

@@ -451,7 +451,7 @@ async function writeWords(scene, clueId, words) {
 async function clueDialog(title, clue = {}) {
   const gridDistance = canvas.scene.grid.distance || 5;
   const radiusFeet = Math.round((clue.radius ?? canvas.dimensions.size) / canvas.dimensions.size * gridDistance);
-  return foundry.applications.api.DialogV2.input({
+  return foundry.applications.api.DialogV2.input({ classes: ["hardwipe-dialog"],
     window: { title },
     content: `<div class="form-group"><label>${escapeHTML(bdText("ClueForm.Label"))}</label><input name="label" type="text" maxlength="80" value="${escapeHTML(clue.label ?? "")}" required></div>
       <div class="form-group stacked"><label>${escapeHTML(bdText("ClueForm.Text"))}</label><textarea name="text" rows="4" maxlength="2000">${escapeHTML(clue.text ?? "")}</textarea></div>

@@ -579,3 +579,24 @@
   .hardwipe-turn-resources { grid-template-columns: minmax(0, 1fr); }
   .hardwipe-turn-strikes { border-left: none; border-top: var(--dnd5e-border-dotted, 1px dotted var(--hw-turn-line)); }
 }
+
+/* Active effects: the icon in a ring as long as the effect lasts (a round a sliver, a day the whole ring), lit for
+   the time left; the name, the time left and what it grants. */
+.hardwipe-turn-buffs { display: grid; gap: 6px; margin: 0; padding: 6px 8px; }
+.hardwipe-turn-buff { display: grid; grid-template-columns: 40px minmax(0, 1fr) auto; align-items: center; gap: 9px; }
+.hardwipe-turn-buff-ring { position: relative; width: 40px; height: 40px; }
+.hardwipe-turn-buff-ring svg { position: absolute; inset: 0; width: 40px; height: 40px; transform: rotate(-90deg); }
+.hardwipe-turn-buff-ring circle { fill: none; stroke-width: 3; }
+.hardwipe-turn-buff-ring .bg { stroke: rgba(70, 230, 220, 0.08); }
+.hardwipe-turn-buff-ring .track { stroke: rgba(70, 230, 220, 0.25); }
+.hardwipe-turn-buff-ring .lit { stroke: var(--hw-cyan, #46e6dc); filter: drop-shadow(0 0 2px var(--hw-cyan, #46e6dc)); transition: stroke-dasharray 0.6s ease-out; }
+.hardwipe-turn-buff-ring.is-indefinite .lit { stroke-dasharray: 3 3 !important; opacity: 0.7; }
+.hardwipe-turn-buff-ring img { position: absolute; left: 9px; top: 9px; width: 22px; height: 22px; object-fit: cover; border: 0; border-radius: 50%; }
+.hardwipe-turn-buff-body { display: grid; gap: 2px; min-width: 0; }
+.hardwipe-turn-buff-head { display: flex; align-items: baseline; gap: 8px; min-width: 0; }
+.hardwipe-turn-buff-head b { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.hardwipe-turn-buff-head small { flex: none; color: var(--hw-cyan, #46e6dc); font-size: 11px; font-weight: 600; }
+.hardwipe-turn-buff-grants { display: flex; flex-wrap: wrap; gap: 3px; }
+.hardwipe-turn-buff-grants i { padding: 0 5px; font-size: 10.5px; font-style: normal; border: 1px solid rgba(70, 230, 220, 0.4); }
+.hardwipe-turn-buff-grants i.is-more { opacity: 0.7; }
+@media (prefers-reduced-motion: reduce) { .hardwipe-turn-buff-ring .lit { transition: none; } }

@@ -188,7 +188,7 @@ function buildWallTypesConfig() {
   return class WallTypesConfig extends HandlebarsApplicationMixin(ApplicationV2) {
     static DEFAULT_OPTIONS = {
       id: "hardwipe-wall-types", tag: "form", classes: ["hardwipe-wall-types"],
-      window: { title: "Manage wall types", icon: "fas fa-cubes", resizable: false, contentClasses: ["standard-form"] },
+      window: { title: "Manage wall types", icon: "fas fa-cubes", resizable: true, contentClasses: ["standard-form"] },
       position: { width: 460, height: "auto" },
       form: { handler: WallTypesConfig.prototype._onSubmit, closeOnSubmit: false },
       actions: {
@@ -237,7 +237,7 @@ function buildWallTypesConfig() {
       let current;
       try { current = WallTypes.validate(this._formInput()); } catch { current = null; }
       if (!this._draft && JSON.stringify(current) === JSON.stringify(this._loaded)) return true;
-      return DialogV2.confirm({ window: { title: "Unsaved wall type" }, content: "<p>Discard the unsaved changes to this wall type?</p>", rejectClose: false });
+      return DialogV2.confirm({ classes: ["hardwipe-dialog", "is-danger"], window: { title: "Unsaved wall type" }, content: "<p>Discard the unsaved changes to this wall type?</p>", rejectClose: false });
     }
 
     async _select(id) {
@@ -280,7 +280,7 @@ function buildWallTypesConfig() {
     async _onRemove() {
       return this._run(async () => {
         if (!this._loaded) return;
-        const accepted = await DialogV2.confirm({ window: { title: "Delete wall type" },
+        const accepted = await DialogV2.confirm({ classes: ["hardwipe-dialog", "is-danger"], window: { title: "Delete wall type" },
           content: "<p>Delete this preset? Walls already placed in scenes will keep their current values.</p>", rejectClose: false });
         if (!accepted) return;
         await WallTypes.delete(this._selectedId, { expected: this._loaded });

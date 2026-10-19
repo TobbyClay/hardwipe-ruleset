@@ -817,7 +817,7 @@ export class CoverManager {
     if (!walls.length) { ui.notifications.warn("Select one or more walls first."); return; }
     const types = WallTypes.materials;
     const current = walls[0].getFlag(MODULE_ID, "cover") ?? { material: "concrete", max: 40, hp: 40, armor: 5, ac: 10, damageThreshold: 0 };
-    const input = await foundry.applications.api.DialogV2.input({
+    const input = await foundry.applications.api.DialogV2.input({ classes: ["hardwipe-dialog"],
       window: { title: `Configure cover: ${walls.length} wall${walls.length === 1 ? "" : "s"}` },
       content: `<p>Durability applies to each five-foot section. Open doors allow shots through.</p>
         <div class="form-group"><label>Wall type</label><select name="preset">

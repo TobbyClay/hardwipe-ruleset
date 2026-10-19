@@ -1,0 +1,194 @@
+/* ---------------------------------------------------------------------------------------------
+ * Consumable cards (hardwipe-consumable-cards.js): the item bar with doses, the name, a scope drawn
+ * by what the consumable did with the readout on it, then the dice, the apply strip, the rows and
+ * the foot. The drawing never takes the pointer; the roll in the readout is the real roll button.
+ * ------------------------------------------------------------------------------------------- */
+.hardwipe-gear.hardwipe-cons { --pay: var(--hw-phos); --pay-rgb: 143, 207, 176; padding-bottom: 0; }
+.hardwipe-gear.hardwipe-cons.is-damage { --pay: #ff8a3d; --pay-rgb: 255, 138, 61; }
+.hardwipe-gear.hardwipe-cons.is-buff { --pay: var(--hw-cyan); --pay-rgb: 70, 230, 220; }
+.hardwipe-gear.hardwipe-cons.is-condition { --pay: #ff4fa3; --pay-rgb: 255, 79, 163; }
+.hardwipe-gear.hardwipe-cons.is-utility { --pay: #9fb4ad; --pay-rgb: 159, 180, 173; }
+.hardwipe-cons :is(.hardwipe-props, .hardwipe-gear-uses, .hardwipe-implant-effect, .hardwipe-gear-saves) { display: none; }
+.hardwipe-cons-message .midi-results.hardwipe-cons-folded { display: none; }
+.hardwipe-cons .hardwipe-desc[hidden] { display: none; }
+
+.hardwipe-cons-vials { display: inline-flex; align-items: center; gap: 3px; }
+.hardwipe-cons-vials > i { width: 7px; height: 14px; border: 1px solid currentColor; border-radius: 2px 2px 3px 3px; background: linear-gradient(to top, currentColor 72%, transparent 72%); }
+.hardwipe-cons-vials > i.is-spent { background: none; opacity: 0.35; }
+.hardwipe-cons-vials > em { margin-left: 3px; font: 700 10px var(--hw-font-disp); font-style: normal; letter-spacing: 0.08em; }
+.hardwipe-cons-line { display: block; color: var(--hw-dim); font: 600 10.5px var(--hw-font-mono); text-transform: none; }
+
+.hardwipe-cons-scope {
+  position: relative;
+  height: 76px;
+  margin: 8px 10px 0;
+  overflow: hidden;
+  background:
+    repeating-linear-gradient(90deg, rgba(var(--pay-rgb), 0.07) 0 1px, transparent 1px 16px),
+    repeating-linear-gradient(0deg, rgba(var(--pay-rgb), 0.07) 0 1px, transparent 1px 16px),
+    rgba(0, 0, 0, 0.38);
+  border: 1px solid rgba(var(--pay-rgb), 0.35);
+  border-left: 3px solid var(--pay);
+  border-bottom: 0;
+}
+.hardwipe-cons-art { position: absolute; inset: 0; pointer-events: none; }
+.hardwipe-cons-art > svg { position: absolute; left: 0; top: 0; height: 100%; }
+.hardwipe-cons.is-heal .hardwipe-cons-art > svg { width: 100%; }
+.hardwipe-cons-trace { fill: none; stroke: var(--pay); stroke-width: 2; stroke-dasharray: 520; filter: drop-shadow(0 0 4px var(--pay)); }
+.hardwipe-cons-ring { fill: none; stroke: var(--pay); stroke-opacity: 0.5; stroke-dasharray: 4 3; }
+.hardwipe-cons-blast { fill: rgba(var(--pay-rgb), 0.18); stroke: var(--pay); }
+.hardwipe-cons-core { fill: var(--pay); }
+.hardwipe-cons-cloud { fill: rgba(var(--pay-rgb), 0.16); }
+.hardwipe-cons-art > svg.hardwipe-cons-dial { left: 12px; top: 8px; width: 60px; height: 60px; transform: rotate(-90deg); }
+.hardwipe-cons-dial .bg { fill: none; stroke: rgba(var(--pay-rgb), 0.15); stroke-width: 4; }
+.hardwipe-cons-dial .ring { fill: none; stroke: var(--pay); stroke-width: 4; filter: drop-shadow(0 0 3px var(--pay)); }
+.hardwipe-cons-dial .ring.is-indefinite { stroke-dasharray: 4 3 !important; }
+.hardwipe-cons-dial .ticks { fill: none; stroke: rgba(var(--pay-rgb), 0.55); stroke-width: 2; stroke-dasharray: 1 11.6; }
+.hardwipe-cons-dial-icon { position: absolute; left: 27px; top: 23px; width: 30px; height: 30px; object-fit: cover; border: 1px solid var(--pay); border-radius: 50%; box-shadow: 0 0 10px rgba(var(--pay-rgb), 0.5); pointer-events: none; }
+.hardwipe-cons-pin { position: absolute; transform: translate(-50%, -50%); pointer-events: auto; cursor: help; }
+.hardwipe-cons-pin > img { display: block; width: 22px; height: 22px; object-fit: cover; background: #000; border: 1px solid var(--hw-dim-2); border-radius: 0; }
+.hardwipe-cons-pin.is-failed > img { border-color: var(--hw-alert); box-shadow: 0 0 6px rgba(255, 63, 95, 0.6); }
+.hardwipe-cons-pin.is-saved > img { border-color: var(--hw-phos); }
+
+/* The readout: the roll (Hardwipe's own total button, which opens the dice) or the effect's name. */
+.hardwipe-cons-readout { position: absolute; right: 8px; top: 6px; z-index: 2; display: grid; justify-items: end; max-width: 62%; text-align: right; }
+.hardwipe-cons-readout small { display: block; margin-top: 2px; padding: 0 4px; color: var(--pay); background: rgba(0, 0, 0, 0.55); font: 700 10px var(--hw-font-mono); letter-spacing: 0.06em; text-transform: uppercase; }
+.hardwipe-cons-readout small.is-formula { color: var(--hw-dim); font-weight: 600; letter-spacing: 0.02em; text-transform: none; }
+.hardwipe-cons-readout .hardwipe-damage-summary { display: flex; align-items: center; justify-content: flex-end; gap: 4px; margin: 0; padding: 0; background: none; border: 0; }
+.hardwipe-cons-readout button.hardwipe-damage-total { width: auto; min-width: 0; margin: 0; padding: 1px 4px 1px 6px; background: rgba(0, 0, 0, 0.6); border: 1px solid rgba(var(--pay-rgb), 0.5); }
+.hardwipe-cons-readout button.hardwipe-damage-total:hover { border-color: var(--pay); }
+.hardwipe-cons-readout .hardwipe-damage-box { width: auto; min-width: 0; height: auto; padding: 0; background: none; border: 0; box-shadow: none; white-space: nowrap; }
+.hardwipe-cons-readout .hardwipe-damage-box strong { color: var(--hw-hi); font: 700 30px/1 var(--hw-font-disp); text-shadow: 0 0 10px var(--pay); }
+.hardwipe-cons-readout .hardwipe-damage-split { display: none; }
+.hardwipe-cons-word { padding: 1px 6px; color: var(--hw-hi); background: rgba(0, 0, 0, 0.55); font: italic 700 21px/1.05 var(--hw-font-disp); letter-spacing: 0.02em; text-transform: uppercase; text-shadow: 0 0 8px var(--pay); overflow-wrap: anywhere; }
+.hardwipe-cons-word.is-pending { font-size: 16px; opacity: 0.75; }
+
+/* Under the scope: the dice drawer, the apply strip, the apply log, the rows. */
+.hardwipe-cons-below { margin: 0 10px; border: 1px solid rgba(var(--pay-rgb), 0.35); border-top: 1px dashed rgba(var(--pay-rgb), 0.35); border-left: 3px solid var(--pay); border-bottom: 0; background: rgba(0, 0, 0, 0.45); }
+.hardwipe-cons-below .hardwipe-roll-drawer { margin: 0; }
+.hardwipe-cons-acts { display: flex; flex-wrap: wrap; gap: 4px; margin: 0 10px; padding: 6px 8px; background: rgba(var(--pay-rgb), 0.06); border: 1px solid rgba(var(--pay-rgb), 0.35); border-top: 0; border-left: 3px solid var(--pay); }
+.hardwipe-cons-acts.is-empty { padding: 0; height: 4px; }
+.hardwipe-cons-acts .hardwipe-apply-row { margin: 0; padding: 0; background: none; border: 0; }
+.hardwipe-cons .hardwipe-apply-log { margin: 4px 10px 0; }
+button.hardwipe-cons-btn { width: auto; height: 22px; margin: 0; padding: 0 9px; color: var(--hw-dim); background: rgba(0, 0, 0, 0.45); border: 1px solid var(--hw-line-2); border-radius: 0; font: 700 10px var(--hw-font-disp); letter-spacing: 0.12em; text-transform: uppercase; cursor: pointer; }
+button.hardwipe-cons-btn.is-main { color: #04110c; background: var(--pay); border-color: var(--pay); }
+button.hardwipe-cons-btn:disabled { opacity: 0.45; cursor: default; }
+.hardwipe-cons-rows { margin: 4px 10px 0; }
+.hardwipe-cons-rows .hardwipe-save-block { margin: 0; }
+.hardwipe-cons-out { color: var(--pay); font: 700 13px var(--hw-font-disp); letter-spacing: 0; }
+.hardwipe-cons-row { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; gap: 8px; align-items: center; padding: 3px 0; border-top: 1px dashed var(--hw-line); font: 600 11.5px var(--hw-font-disp); }
+.hardwipe-cons-row > em { color: var(--hw-dim); font: 600 10.5px var(--hw-font-mono); font-style: normal; white-space: nowrap; }
+.hardwipe-cons-row > b { min-width: 26px; color: var(--pay); font: 700 12px var(--hw-font-disp); text-align: right; }
+.hardwipe-cons-row > b.is-on { font-size: 10px; letter-spacing: 0.12em; }
+.hardwipe-cons .hardwipe-desc { margin: 6px 10px 0; }
+.hardwipe-cons-foot { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 6px; padding: 7px 10px 8px; }
+button.hardwipe-cons-details { width: auto; height: auto; margin: 0; padding: 0; color: var(--hw-dim); background: none; border: 0; font: 600 10.5px var(--hw-font-disp); letter-spacing: 0.1em; text-transform: uppercase; cursor: pointer; }
+button.hardwipe-cons-details::after { content: " ▸"; }
+button.hardwipe-cons-details[aria-expanded="true"]::after { content: " ▾"; }
+.hardwipe-cons-foot .hardwipe-gear-actions { display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: 4px; margin: 0; padding: 0; background: none; border: 0; }
+.hardwipe-cons-foot .hardwipe-gear-buttons { display: flex; flex-wrap: wrap; gap: 4px; margin: 0; }
+.hardwipe-cons-foot button.hardwipe-program-action { width: auto; height: 22px; min-height: 0; margin: 0; padding: 0 8px; font-size: 10px; letter-spacing: 0.1em; }
+.hardwipe-cons-out { margin-left: 4px; }
+
+/* One entrance: the drawing arrives, then the readout lands. */
+.hardwipe-cons.is-arriving .hardwipe-cons-trace { animation: hardwipe-cons-draw 1.1s 0.15s ease-out both; }
+.hardwipe-cons.is-arriving :is(.hardwipe-cons-blast, .hardwipe-cons-core) { animation: hardwipe-cons-pop 0.6s 0.1s cubic-bezier(0.2, 0.9, 0.3, 1.2) both; transform-box: fill-box; transform-origin: center; }
+.hardwipe-cons.is-arriving .hardwipe-cons-ring { animation: hardwipe-cons-wave 0.9s 0.1s ease-out both; transform-box: fill-box; transform-origin: center; }
+.hardwipe-cons.is-arriving .hardwipe-cons-dial .ring { animation: hardwipe-cons-sweep 0.9s 0.15s ease-out both; }
+.hardwipe-cons.is-arriving .hardwipe-cons-readout { animation: hardwipe-cons-slam 0.45s 0.35s cubic-bezier(0.2, 0.9, 0.3, 1.3) both; }
+.hardwipe-cons.is-arriving .hardwipe-cons-pin { animation: hardwipe-cons-pin 0.3s 0.55s ease-out both; }
+@keyframes hardwipe-cons-draw { from { stroke-dashoffset: 520; } to { stroke-dashoffset: 0; } }
+@keyframes hardwipe-cons-pop { from { transform: scale(0.1); opacity: 0; } }
+@keyframes hardwipe-cons-wave { from { transform: scale(0.3); opacity: 1; } }
+@keyframes hardwipe-cons-sweep { from { stroke-dashoffset: 163.4; } }
+@keyframes hardwipe-cons-slam { from { transform: scale(1.4); opacity: 0; filter: blur(3px); } }
+@keyframes hardwipe-cons-pin { from { transform: translate(-50%, -50%) scale(0.2); opacity: 0; } }
+@media (prefers-reduced-motion: reduce) {
+  .hardwipe-cons * { animation: none !important; }
+}
+.hardwipe-cons-rows .hardwipe-save-row { grid-template-columns: minmax(0, 1fr) auto auto; }
+.hardwipe-cons-rows .hardwipe-save-row > b { white-space: nowrap; }
+
+/* Ready Set Midi's + (a bonus after the roll), at the head of the apply strip. */
+.hardwipe-cons-acts > .rsr-addon-bonus-btn { position: static; display: grid; place-items: center; width: 24px; height: 22px; margin: 0; color: var(--pay); background: rgba(0, 0, 0, 0.45); border: 1px solid rgba(var(--pay-rgb), 0.5); font-size: 13px; transform: none; opacity: 0.9; cursor: pointer; }
+.hardwipe-cons-acts > .rsr-addon-bonus-btn:hover { opacity: 1; text-shadow: 0 0 4px var(--pay); }
+
+/* ---------------------------------------------------------------------------------------------
+ * Tool cards (hardwipe-tool-cards.js): the scope drawn by the tool's family, the readout with the
+ * total and its stamp, the meter line. Cyan with no DC; green or red once there is one.
+ * ------------------------------------------------------------------------------------------- */
+.hardwipe-gear.hardwipe-tool { --pay: var(--hw-warn); --pay-rgb: 255, 194, 77; }
+.hardwipe-gear.hardwipe-tool.is-tool-open { --pay: var(--hw-cyan); --pay-rgb: 70, 230, 220; }
+.hardwipe-gear.hardwipe-tool.is-tool-success { --pay: var(--hw-phos); --pay-rgb: 143, 207, 176; }
+.hardwipe-gear.hardwipe-tool.is-tool-failure { --pay: var(--hw-alert); --pay-rgb: 255, 63, 95; }
+.hardwipe-tool .hardwipe-gear-bar { gap: 6px; }
+.hardwipe-tool .hardwipe-gear-tag { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.hardwipe-tool-prof { margin-left: auto; padding: 0 5px; border: 1px solid currentColor; font-size: 9.5px; letter-spacing: 0.12em; }
+.hardwipe-tool-scope { height: 80px; }
+.hardwipe-tool-art { position: absolute; left: 8px; top: 4px; width: 150px; height: 56px; pointer-events: none; }
+.hardwipe-tool-art svg { display: block; overflow: visible; }
+.hardwipe-tool-art .stroke { fill: none; stroke: var(--pay); stroke-width: 1.4; }
+.hardwipe-tool-art .dim { fill: none; stroke: rgba(var(--pay-rgb), 0.3); stroke-width: 1; }
+.hardwipe-tool-art .lit { fill: var(--pay); }
+.hardwipe-tool-art .faint { fill: rgba(var(--pay-rgb), 0.22); }
+.hardwipe-tool-art .glow { filter: drop-shadow(0 0 3px var(--pay)); }
+.hardwipe-tool-art .glyph { fill: var(--pay); font: 700 13px var(--hw-font-mono); }
+.hardwipe-tool-art .glyph.off { fill: rgba(var(--pay-rgb), 0.35); font-size: 10px; }
+.hardwipe-tool-art .sweep { fill: rgba(var(--pay-rgb), 0.25); transform-origin: 30px 28px; }
+.hardwipe-tool-meter { position: absolute; left: 0; bottom: 0; padding: 1px 8px; color: var(--pay); background: rgba(0, 0, 0, 0.6); font: 700 9.5px var(--hw-font-mono); letter-spacing: 0.08em; text-transform: uppercase; text-shadow: 0 0 4px rgba(var(--pay-rgb), 0.6); }
+button.hardwipe-tool-total { width: auto; height: auto; margin: 0; padding: 1px 4px 1px 6px; color: var(--hw-hi); background: rgba(0, 0, 0, 0.6); border: 1px solid rgba(var(--pay-rgb), 0.5); border-radius: 0; font: 700 28px/1 var(--hw-font-disp); text-shadow: 0 0 10px var(--pay); cursor: pointer; }
+button.hardwipe-tool-total::after { content: " ▾"; color: var(--pay); font-size: 12px; text-shadow: none; }
+button.hardwipe-tool-total[aria-expanded="true"]::after { content: " ▴"; }
+.hardwipe-tool-stamp { margin-top: 3px; padding: 1px 6px; color: #04110c; background: var(--pay); font: italic 700 12px var(--hw-font-disp); letter-spacing: 0.1em; text-transform: uppercase; }
+.hardwipe-tool-stamp.is-ladder { font-style: normal; font-size: 10.5px; letter-spacing: 0.06em; }
+button.hardwipe-tool-roll { width: auto; height: auto; margin: 0; padding: 5px 10px; color: #1a1205; background: var(--pay); border: 0; border-radius: 0; font: 700 13px var(--hw-font-disp); letter-spacing: 0.14em; text-transform: uppercase; clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 0 100%); box-shadow: 0 0 10px rgba(var(--pay-rgb), 0.5); cursor: pointer; }
+button.hardwipe-tool-roll:disabled { opacity: 0.6; cursor: progress; }
+.hardwipe-tool-dice[hidden] { display: none; }
+.hardwipe-tool-dice-row { display: flex; align-items: center; gap: 4px; padding: 5px 8px; font: 600 10.5px var(--hw-font-mono); color: var(--hw-dim); }
+.hardwipe-tool-dice-row em { flex: 1; margin-left: 6px; font-style: normal; }
+.hardwipe-tool-dice-row b { color: var(--hw-hi); font: 700 14px var(--hw-font-disp); }
+.hardwipe-cons-row.is-earlier { opacity: 0.75; }
+.hardwipe-tool.is-arriving .hardwipe-tool-art g.is-on { animation: hardwipe-tool-lock 0.5s calc(var(--i, 0) * 0.1s) steps(5) both; }
+.hardwipe-tool.is-arriving .hardwipe-tool-art .draw { stroke-dasharray: 400; animation: hardwipe-cons-draw 1s 0.1s ease-out both; }
+.hardwipe-tool.is-arriving .hardwipe-tool-art .pop { animation: hardwipe-cons-pop 0.4s calc(var(--i, 0) * 0.08s) ease-out both; transform-box: fill-box; transform-origin: center; }
+.hardwipe-tool.is-arriving .hardwipe-tool-art .sweep { animation: hardwipe-tool-sweep 1.2s ease-out both; }
+.hardwipe-tool.is-arriving .hardwipe-tool-art rect.lit { animation: hardwipe-tool-rise 0.5s calc(var(--i, 0) * 0.04s) ease-out both; transform-box: fill-box; transform-origin: bottom; }
+.hardwipe-tool.is-arriving .hardwipe-cons-readout { animation: hardwipe-cons-slam 0.45s 0.4s cubic-bezier(0.2, 0.9, 0.3, 1.3) both; }
+@keyframes hardwipe-tool-lock { from { transform: translateY(-14px); opacity: 0.2; } }
+@keyframes hardwipe-tool-sweep { from { transform: rotate(-200deg); } }
+@keyframes hardwipe-tool-rise { from { transform: scaleY(0.1); } }
+
+/* The tool check's own card, folded to a row: total, what it was for and how it read, +, the switch. */
+.hardwipe-check.is-slim { padding: 0; }
+.hardwipe-check.is-slim .hardwipe-check-head { display: flex; align-items: center; gap: 8px; margin: 0; padding: 5px 8px; }
+.hardwipe-check.is-slim .hardwipe-check-roll { margin: 0; }
+.chat-message .hardwipe-check.is-slim .hardwipe-check-roll button.dice-roll { width: auto; padding: 0; background: none; border: 0; }
+.chat-message .hardwipe-check.is-slim .hardwipe-check-roll .rsr-multiroll::before,
+.chat-message .hardwipe-check.is-slim .hardwipe-check-roll .rsr-multiroll::after { display: none; }
+.chat-message .hardwipe-check.is-slim .hardwipe-check-roll .rsr-multiroll > .total { min-width: 40px; height: 30px; padding: 0 5px; font: 700 18px/1 var(--hw-font-disp); }
+.chat-message .hardwipe-check.is-slim .hardwipe-check-roll .rsr-multiroll > .total.ignored { display: none; }
+.hardwipe-check.is-slim .hardwipe-check-name { flex: 1; display: grid; gap: 1px; min-width: 0; padding-left: 10px; }
+.hardwipe-tool-slim-for { color: var(--hw-dim); font: 600 10.5px var(--hw-font-mono); }
+.hardwipe-tool-slim-read { color: var(--hw-hi); font: 700 11px var(--hw-font-disp); letter-spacing: 0.08em; text-transform: uppercase; }
+.hardwipe-check.is-slim.is-tool-success { --hw-check: var(--hw-phos); }
+.hardwipe-check.is-slim.is-tool-failure { --hw-check: var(--hw-alert); }
+.hardwipe-check.is-slim.is-tool-open { --hw-check: var(--hw-cyan); }
+.hardwipe-check.is-slim .hardwipe-check-head > .hardwipe-adv { flex-direction: column; clip-path: none; }
+.hardwipe-check.is-slim .hardwipe-check-head > .hardwipe-adv button.hardwipe-adv-btn { justify-content: center; width: 100%; height: 17px; padding: 0 6px; font-size: 9px; }
+.hardwipe-check.is-slim .hardwipe-check-head > .hardwipe-adv button.hardwipe-adv-btn > i { display: none; }
+.hardwipe-check.is-slim .hardwipe-check-head > .hardwipe-adv button.hardwipe-adv-btn + button.hardwipe-adv-btn { border-left: 0; border-top: 1px solid rgba(143, 207, 176, 0.28); }
+.hardwipe-check.is-slim .hardwipe-check-head > .rsr-addon-bonus-btn { position: static; flex: none; margin: 0; color: var(--hw-check); font-size: 15px; opacity: 0.8; transform: none; cursor: pointer; }
+@media (prefers-reduced-motion: reduce) { .hardwipe-tool *, .hardwipe-tool-art * { animation: none !important; } }
+
+/* Features: the bar's colour stays the feature's; uses as pips with the recovery period. */
+.hardwipe-gear.hardwipe-cons.is-feature { --acc-bar: var(--hw-warn); }
+.hardwipe-cons-vials.is-uses > i { width: 8px; height: 8px; border-radius: 0; transform: rotate(45deg); background: currentColor; }
+.hardwipe-cons-vials.is-uses > i.is-spent { background: none; }
+/* Action Surge: a second action chip lights up beside the first. */
+.hardwipe-cons-chip { fill: rgba(var(--pay-rgb), 0.12); stroke: rgba(var(--pay-rgb), 0.5); }
+.hardwipe-cons-chip.is-new { fill: rgba(var(--pay-rgb), 0.4); stroke: var(--pay); filter: drop-shadow(0 0 4px var(--pay)); }
+.hardwipe-cons-trace.is-short { stroke-dasharray: none; }
+.hardwipe-cons.is-arriving .hardwipe-cons-chip.is-new { animation: hardwipe-cons-pop 0.5s 0.2s cubic-bezier(0.2, 0.9, 0.3, 1.3) both; transform-box: fill-box; transform-origin: center; }
+
+/* A feature with nothing to roll takes the feature's own orange rather than the utility grey. */
+.hardwipe-gear.hardwipe-cons.is-feature.is-utility { --pay: var(--hw-warn); --pay-rgb: 255, 194, 77; }

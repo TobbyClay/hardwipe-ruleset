@@ -69,6 +69,8 @@
   background: var(--ms-head);
   border-bottom: 1px solid var(--ms-line);
 }
+/* Foundry colours window titles itself; Hardwipe's headers set their own text colour, and the title follows it. */
+.hardwipe-short-rest .window-header .window-title { color: inherit; }
 /* dnd5e centres a large title below the bar; the monitor keeps it in the bar. */
 .hardwipe-short-rest .window-header .window-title {
   position: static;

@@ -118,6 +118,9 @@
       </button>
       {{/each}}
     </div>
+    {{#if interrupt}}
+    <div class="hardwipe-turn-interrupt"><i class="fas fa-bolt" inert></i><span>{{interrupt.label}}</span><b>{{interrupt.state}}</b></div>
+    {{/if}}
 
     <div class="hardwipe-turn-meter hardwipe-turn-movement {{movement.tone}} {{#unless movement.isTurn}}is-standby{{/unless}}">
       <div class="hardwipe-turn-meter-head">
@@ -204,6 +207,28 @@
       <li class="hardwipe-turn-empty">{{labels.noPrograms}}</li>
       {{/each}}
     </ul>
+    {{#if buffs.length}}
+    <header class="header"><h3>{{labels.effects}}</h3></header>
+    <ul class="unlist hardwipe-turn-buffs">
+      {{#each buffs}}
+      <li class="hardwipe-turn-buff" data-effect-id="{{id}}">
+        <span class="hardwipe-turn-buff-ring {{#if indefinite}}is-indefinite{{/if}}" data-tooltip="{{time}}" aria-hidden="true">
+          <svg viewBox="0 0 40 40"><circle class="bg" cx="20" cy="20" r="16"/><circle class="track" cx="20" cy="20" r="16" style="stroke-dasharray: {{track}}"/>
+            <circle class="lit" cx="20" cy="20" r="16" style="stroke-dasharray: {{lit}}"/></svg>
+          <img src="{{img}}" alt="">
+        </span>
+        <span class="hardwipe-turn-buff-body">
+          <span class="hardwipe-turn-buff-head"><b>{{name}}</b><small>{{time}}</small></span>
+          <span class="hardwipe-turn-buff-grants">{{#each grants}}<i>{{this}}</i>{{/each}}{{#if more}}<i class="is-more">+{{more}}</i>{{/if}}</span>
+        </span>
+        {{#if canRemove}}
+        <button type="button" class="unbutton always-interactive hardwipe-turn-drop" data-action="hardwipeTurn" data-turn-action="drop-buff" data-effect-id="{{id}}"
+          aria-label="{{removeLabel}}" data-tooltip="{{removeLabel}}"><i class="fas fa-xmark" inert></i></button>
+        {{/if}}
+      </li>
+      {{/each}}
+    </ul>
+    {{/if}}
     <header class="header"><h3>{{labels.conditions}}</h3></header>
     <ul class="unlist hardwipe-turn-conditions">
       {{#each conditions}}

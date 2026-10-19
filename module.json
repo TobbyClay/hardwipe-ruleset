@@ -67,6 +67,7 @@
   "styles": [
     "styles/fonts.css",
     "styles/hardwipe.css",
+    "styles/consumables.css",
     "styles/cyberware-tab.css",
     "styles/turn-tab.css",
     "styles/crew.css",
@@ -74,7 +75,9 @@
     "styles/wall-types.css",
     "styles/short-rest.css",
     "styles/roll-tracker.css",
-    "styles/braindance.css"
+    "styles/braindance.css",
+    "styles/edge.css",
+    "styles/chat.css"
   ],
   "languages": [
     {

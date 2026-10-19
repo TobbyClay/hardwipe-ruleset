@@ -163,7 +163,7 @@ export class ShieldManager {
     if (!this.canBlock(actor)) return false;
     const shield = this.get(actor);
     const absorb = Math.min(shield.hp, payload.amount);
-    const accepted = await foundry.applications.api.DialogV2.confirm({
+    const accepted = await foundry.applications.api.DialogV2.confirm({ classes: ["hardwipe-dialog"],
       window: { title: game.i18n.format("HARDWIPE.Shield.AskTitle", { name: actor.name }) },
       content: `<p>${game.i18n.format("HARDWIPE.Shield.AskDamage", { name: escapeHTML(actor.name), amount: `<strong>${Number(payload.amount)}</strong>` })}</p>
         <p>${game.i18n.format("HARDWIPE.Shield.AskSpend", { absorb: `<strong>${Number(absorb)}</strong>` })}</p>`,
@@ -567,7 +567,7 @@ export class ShieldManager {
     }
     if (valid.length === 1) return valid[0];
 
-    const result = await foundry.applications.api.DialogV2.input({
+    const result = await foundry.applications.api.DialogV2.input({ classes: ["hardwipe-dialog"],
       window: { title: game.i18n.localize("HARDWIPE.Shield.PickTarget") },
       content: `
         ${valid.map((candidate, index) => `
