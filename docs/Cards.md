@@ -231,6 +231,10 @@ Completing the rest posts one combined receipt. Closing early produces an incomp
 
 *2026-10-18, QA Player's view.* What people type reads as a comm feed: notched portraits and cut-corner bubbles, your own on the right, a name line in the player's colour with the time. **Public** (Foundry's default mode) is the plain bubble, naming the player and the character they play. Marked: **in character** (the mode button or `/ic`) gets a cyan edge and a signal meter (red for anyone who isn't a player character); an **emote** (`/me`) is a status line across the feed; a **whisper** (`/w Name`, `/gm`) is a dashed violet bubble saying to whom; a **text from Smartphone Widget** is a green bubble saying to whom, by phone, in the sender's colour (the module's `[PHONE]` line becomes that tag). Messages in a row from the same voice, within five minutes, join the run above.
 
+<a href="media/chat-light-mode.png"><img src="media/chat-light-mode.png" alt="The same feed in light mode: light bubbles under the Charged card, which stays dark" width="260"></a>
+
+*Light mode (2026-10-18).* With Foundry's interface set to light, the feed turns light, with names in a deeper shade of each player's colour. Hardwipe's cards stay dark terminals in both schemes; their contents are pinned to the dark theme so Foundry's light text colours can't reach inside them.
+
 ## Plain rolls
 
 <a href="media/roll-formula-current.png"><img src="media/roll-formula-current.png" alt="Roll card: Shotgun spread, 2d6 + 3, dice 2 and 4, plus 3, total 9" width="260"></a>

@@ -14,7 +14,7 @@ import { registerCardColors } from "./hardwipe-card-colors.js";
 import { ShortRestManager } from "./hardwipe-rests.js";
 import { registerRestReceipts } from "./hardwipe-rest-receipt.js";
 import { registerConcentrationCards } from "./hardwipe-concentration.js";
-import { registerMessageCards } from "./hardwipe-message-cards.js";
+import { registerCardTheme, registerMessageCards } from "./hardwipe-message-cards.js";
 import { RangedAttackManager } from "./hardwipe-ranged.js";
 import { registerAssembly } from "./hardwipe-assembly.js";
 import { registerDamageSync } from "./hardwipe-attack-cards.js";
@@ -86,6 +86,8 @@ Hooks.once("init", async () => {
   registerComms();
   CrewManager.register();
   registerEdgePlays();
+  // Last: pins each Hardwipe card to the dark theme once every renderer has marked it.
+  registerCardTheme();
 
   await foundry.applications.handlebars.loadTemplates([
     "modules/hardwipe-ruleset/templates/heat-hud.hbs",

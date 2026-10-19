@@ -42,6 +42,20 @@ export function registerMessageCards() {
   Hooks.on("updateActor", actor => rerender(message => message.flags?.[MODULE_ID]?.actorId === actor.id && message.flags?.[MODULE_ID]?.kind === "downed"));
 }
 
+/**
+ * Hardwipe's cards are dark terminals in either colour scheme. In light mode Foundry's and dnd5e's light text colours
+ * would reach inside them (a roll's total, its dice), so a card's content is pinned to the dark theme. Typed chat
+ * follows the chat's own theme instead. Registered last, once every card renderer has marked its message.
+ */
+export function registerCardTheme() {
+  Hooks.once("setup", () => Hooks.on("dnd5e.renderChatMessage", (message, html) => {
+    const element = html instanceof HTMLElement ? html : html?.[0];
+    if (!element || element.classList.contains("hardwipe-talk")) return;
+    if (![...element.classList].some(name => /^hardwipe-.+-message$/.test(name))) return;
+    element.querySelector(".message-content")?.classList.add("themed", "theme-dark");
+  }));
+}
+
 function rerender(filter) {
   for (const element of document.querySelectorAll("#chat .chat-message[data-message-id], .chat-popout .chat-message[data-message-id]")) {
     const message = game.messages.get(element.dataset.messageId);

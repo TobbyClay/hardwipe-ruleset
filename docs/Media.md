@@ -190,6 +190,14 @@ Captured on **2026-10-18** in the disposable QA world, QA Player's view of a sho
 | --- | --- |
 | [chat-thread-current.png](media/chat-thread-current.png) | Public bubbles, a joined run, phone texts, in character, an emote and two whispers. |
 
+## Light mode capture
+
+Captured on **2026-10-18** in the disposable QA world with QA Player's client set to Foundry's light colour scheme (applications and interface).
+
+| Published file | Subject |
+| --- | --- |
+| [chat-light-mode.png](media/chat-light-mode.png) | The Charged card (dark) above the typed feed in its light colours. |
+
 ## Chat card captures
 
 Captured on **2026-10-18** in the disposable QA world: Edge spent with no play (Juno), the Downed card from a death save at 0 HP (Mags, holding Edge), Flatline at three Strikes (Juno), and a roll typed in chat, `/r 2d6 + 3 # Shotgun spread` (no item behind it).
