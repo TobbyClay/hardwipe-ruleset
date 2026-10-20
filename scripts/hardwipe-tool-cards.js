@@ -162,7 +162,11 @@ export function renderTool(message, element, panel, item, activity) {
   if (profKey) panel.querySelector(".hardwipe-gear-bar")?.insertAdjacentHTML("beforeend", `<span class="hardwipe-tool-prof">${escapeHTML(t(`Prof.${profKey}`))}</span>`);
   // The bar names the family; the line under the name gives the tool's own D&D5e name.
   const tag = panel.querySelector(".hardwipe-gear-tag");
-  if (tag) tag.innerHTML = `<i class="fas fa-screwdriver-wrench" inert></i>${escapeHTML(game.i18n.localize("TYPES.Item.tool"))} · ${escapeHTML(t(`Family.${family}`))}`;
+  if (tag) {
+    const label = `${game.i18n.localize("TYPES.Item.tool")} · ${t(`Family.${family}`)}`;
+    tag.innerHTML = `<i class="fas fa-screwdriver-wrench" inert></i><span>${escapeHTML(label)}</span>`;
+    tag.dataset.tooltip = label;
+  }
   const toolKey = item.system?.type?.baseItem || item.system?.type?.value || "";
   let kind = "";
   try { kind = toolKey ? dnd5e.documents.Trait.keyLabel(toolKey, { trait: "tool" }) : ""; } catch { kind = ""; }

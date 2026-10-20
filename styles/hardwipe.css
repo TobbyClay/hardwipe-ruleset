@@ -2491,6 +2491,7 @@ button.hardwipe-adv-btn:disabled { cursor: default; }
 }
 .hardwipe-gear-tag { flex: 1; display: inline-flex; align-items: center; gap: 6px; min-width: 0; overflow: hidden; white-space: nowrap; }
 .hardwipe-gear-tag > i { flex: none; font-size: 11px; }
+.hardwipe-gear-tag > span { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
 .hardwipe-gear-side { flex: none; font-size: 11px; opacity: 0.82; white-space: nowrap; }
 .hardwipe-gear-body { display: flex; align-items: center; gap: 12px; margin: 12px 14px 0; }
 .hardwipe-gear-icon {

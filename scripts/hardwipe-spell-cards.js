@@ -56,7 +56,7 @@ export function renderSpellCard(message, element, attack = null) {
   // Output: the saving throws, in the window.
   if (saves) program.querySelector(".hardwipe-program-output").append(saveBlock(message, saves, { variant: "window" }));
   // The spell's own buttons go to the action strip under the roll card.
-  const actions = actionStrip(content, "is-spell", action => FOOTER_SKIP.has(action));
+  const actions = actionStrip(content, "is-spell", action => FOOTER_SKIP.has(action), { message, activity });
   content.prepend(program);
   element.classList.add("hardwipe-program-ready");
 
