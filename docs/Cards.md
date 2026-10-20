@@ -110,12 +110,14 @@ Use the item or feature through its native activity. The card exposes uses, roll
 
 ## Consumables
 
-One card per use: the item with the doses left, then a scope drawn by what it did, with the result on it. Where there's a roll, the number **is** the roll: click it for the dice. Targets and what happened to them are written out under the scope. **Details** opens the description; the item's own buttons (Refund, Place template) sit beside it. [Effects on the Turn tab →](Players.md#read-your-turn)
+One card per use: the item with the doses left (a vial each up to three; past that, one vial and the count, so a stack of 200 rounds still fits), then a scope drawn by what it did, with the result on it. Where there's a roll, the number **is** the roll: click it for the dice. Targets and what happened to them are written out under the scope. **Details** opens the description; the item's own buttons (Refund, Damage) sit beside it.
+
+**Reposition** appears on any card whose use puts down an area (grenades, spells, features), for its user and the GM. It runs D&D5e's placement again and moves the region that use put down, keeping its effects and links; if that region is gone, it reads **Place area** and puts down a new one. Escape cancels. A player can move a region the GM placed for them; the GM's client makes the change. [Effects on the Turn tab →](Players.md#read-your-turn)
 
 <table>
   <tr>
     <td valign="top"><a href="media/consumable-heal.png"><img src="media/consumable-heal.png" alt="Stim Injector card: a vitals trace behind 7 hit points, 2d4 + 2, with Heal, Temp HP and the target count" width="250"></a><br><strong>Heal</strong><br>A vitals trace; the healing roll, Heal and Temp HP.</td>
-    <td valign="top"><a href="media/consumable-damage.png"><img src="media/consumable-damage.png" alt="Frag Grenade card: blast radius with two pinned targets, 15 fire with DEX 13 half, the dice drawer open, both targets failed and took 15" width="250"></a><br><strong>Damage and a save</strong><br>The blast with each target pinned (hover for who), the damage roll with its dice open, each target's save and damage.</td>
+    <td valign="top"><a href="media/consumable-damage.png"><img src="media/consumable-damage.png" alt="Frag Grenade card: Consumable · Ammo with 48 left, a blast radius with two pinned targets, 12 fire with DEX 13 half; Breach Guard saved and took 6, Area QA Dummy failed and took 12; Damage and Reposition" width="250"></a><br><strong>Damage and a save</strong><br>The blast with each target pinned (hover for who), the damage roll, each target's save and damage, and Reposition for the area.</td>
     <td valign="top"><a href="media/consumable-buff.png"><img src="media/consumable-buff.png" alt="Reflex Booster card: Overclock for 1 minute on Mags in a cyan ring, AC 13 to 15, Speed 30 to 40 ft, advantage on DEX saves, Remove" width="250"></a><br><strong>Buff</strong><br>A ring as long as the effect lasts; what it grants, before → after.</td>
   </tr>
   <tr>

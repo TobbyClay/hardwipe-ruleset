@@ -40,7 +40,7 @@ export function renderGearCard(message, element) {
   panel.className = `hardwipe-gear ${feature ? "is-feature" : "is-item"}`;
   panel.innerHTML = `
     <div class="hardwipe-gear-bar">
-      <span class="hardwipe-gear-tag"><i class="fas ${feature ? "fa-bolt" : "fa-box-open"}" inert></i>${escapeHTML(tagLabel(item, feature))}</span>
+      <span class="hardwipe-gear-tag" data-tooltip="${escapeHTML(tagLabel(item, feature))}"><i class="fas ${feature ? "fa-bolt" : "fa-box-open"}" inert></i><span>${escapeHTML(tagLabel(item, feature))}</span></span>
       ${side ? `<span class="hardwipe-gear-side">${escapeHTML(side)}</span>` : ""}
     </div>
     <div class="hardwipe-gear-body">
@@ -64,7 +64,7 @@ export function renderGearCard(message, element) {
   if (!slot.childElementCount) slot.remove();
 
   // The action strip under the rolls. A save button gives way to the save block when the card knows who must save.
-  const actions = actionStrip(content, feature ? "is-feature" : "is-item", action => action === "rollAttack" || (!!saves && action === "rollSave"));
+  const actions = actionStrip(content, feature ? "is-feature" : "is-item", action => action === "rollAttack" || (!!saves && action === "rollSave"), { message, activity });
   content.prepend(panel);
   element.classList.add("hardwipe-gear-ready");
   bindBrief(message, element, item);
@@ -124,7 +124,8 @@ function sameCheckSpeaker(left, right) {
 /** "Consumable · Potion · Rare", or "Feature · Class Feature". */
 function tagLabel(item, feature) {
   const typeLabel = game.i18n.localize(CONFIG.Item.typeLabels?.[item.type] ?? item.type);
-  const subtype = item.system?.type?.label ?? "";
+  // Ammunition is a long word on a short bar.
+  const subtype = item.system?.type?.value === "ammo" ? game.i18n.localize("HARDWIPE.Gear.Ammo") : item.system?.type?.label ?? "";
   const rarity = item.system?.rarity;
   // Common is the default rarity: left out of the bar.
   const rarityLabel = rarity && rarity !== "common" ? game.i18n.localize(CONFIG.DND5E.itemRarity?.[rarity] ?? rarity) : "";

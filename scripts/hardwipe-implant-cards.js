@@ -67,7 +67,7 @@ export function renderImplantCard(message, element, attack = null) {
   else panel.querySelector(".hardwipe-implant-saves").remove();
 
   // The item's own buttons (damage, effects, refund, template) go to the action strip under the roll card.
-  const actions = actionStrip(content, "is-implant", action => FOOTER_SKIP.has(action));
+  const actions = actionStrip(content, "is-implant", action => FOOTER_SKIP.has(action), { message, activity });
   content.prepend(panel);
   element.classList.add("hardwipe-implant-ready");
   bindBrief(message, element, item);

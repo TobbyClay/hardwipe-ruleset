@@ -267,7 +267,7 @@ Captured on **2026-10-18** from the local consumable-card branch in the disposab
 | Published file | Subject |
 | --- | --- |
 | [consumable-heal.png](media/consumable-heal.png) | Stim Injector: vitals trace, 7 hit points, Heal and Temp HP. |
-| [consumable-damage.png](media/consumable-damage.png) | Frag Grenade: blast with pinned targets, 15 fire, dice drawer open, both targets failed DEX 13. |
+| [consumable-damage.png](media/consumable-damage.png) | Frag Grenade (recaptured 2026-10-19): a stack of 48 ammo, a 10 ft area placed over two QA NPCs, 12 fire; one saved (6), one failed (12); Damage and Reposition. |
 | [consumable-buff.png](media/consumable-buff.png) | Reflex Booster: Overclock, 1 minute, AC 13 → 15, Speed 30 → 40 ft, ADV on DEX saves. |
 | [consumable-condition.png](media/consumable-condition.png) | Flashbang: Blinded, CON 12, both targets failed. |
 | [consumable-utility.png](media/consumable-utility.png) | Smoke Canister: Deployed, 20 ft emanation, 1 minute. |

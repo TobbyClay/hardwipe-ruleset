@@ -32,6 +32,12 @@ export function consumableKind({ type, damageParts = 0, effects = 0 }) {
 /** Where up to six target pins sit around the blast's centre (x, y in px within the scope). */
 const PIN_SPOTS = [[40, 26], [80, 54], [28, 58], [86, 22], [58, 64], [16, 32]];
 
+/** A vial per dose while they fit (and one for the dose just used); a big stack shows one vial and the number. Pure. */
+export const VIAL_LIMIT = 3;
+export function vialCount(left) {
+  return left <= VIAL_LIMIT ? left + 1 : 1;
+}
+
 /** The vials: the doses left in the stack, and the one just used. */
 function vialsHTML(item, t) {
   const uses = item.system?.uses;
@@ -39,9 +45,10 @@ function vialsHTML(item, t) {
   const max = Number(uses?.max) || 0;
   // A stack of single-use items counts items; a multi-charge item counts the charges left in the whole stack.
   const left = max > 1 ? Math.max(0, (quantity - 1) * max + (Number(uses.value) || 0)) : quantity;
-  const shown = Math.min(6, left + 1);
+  const shown = vialCount(left);
   const vials = Array.from({ length: shown }, (_, i) => `<i class="${i < left ? "" : "is-spent"}"></i>`).join("");
-  return `<span class="hardwipe-cons-vials" data-tooltip="${escapeHTML(t("Left", { n: left }))}">${vials}<em>${escapeHTML(t("Left", { n: left }))}</em></span>`;
+  const text = t("Left", { n: left.toLocaleString(game.i18n.lang) });
+  return `<span class="hardwipe-cons-vials${shown < left ? " is-stack" : ""}" data-tooltip="${escapeHTML(text)}">${vials}<em>${escapeHTML(text)}</em></span>`;
 }
 
 /** A feature's uses: pips for what's left, and the recovery period. */

@@ -31,6 +31,7 @@ import { registerRequests } from "./hardwipe-requests.js";
 import { registerComms } from "./hardwipe-comms.js";
 import { CrewManager } from "./hardwipe-crew.js";
 import { registerEdgePlays } from "./hardwipe-edge.js";
+import { registerAreaReposition } from "./hardwipe-area-reposition.js";
 
 export const MODULE_ID = "hardwipe-ruleset";
 export const MODULE_TITLE = "Hardwipe Ruleset";
@@ -86,6 +87,7 @@ Hooks.once("init", async () => {
   registerComms();
   CrewManager.register();
   registerEdgePlays();
+  registerAreaReposition();
   // Last: pins each Hardwipe card to the dark theme once every renderer has marked it.
   registerCardTheme();
 
