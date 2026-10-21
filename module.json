@@ -77,7 +77,9 @@
     "styles/roll-tracker.css",
     "styles/braindance.css",
     "styles/edge.css",
-    "styles/chat.css"
+    "styles/chat.css",
+    "styles/eye.css",
+    "styles/manufacturers.css"
   ],
   "languages": [
     {

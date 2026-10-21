@@ -226,6 +226,11 @@ export function isCharacter(actor) {
   return resolveActor(actor)?.type === "character";
 }
 
+/** A mook: anything that isn't a player character and has no Legendary Resistance (Edge's Execute, Coup de Grace). */
+export function isMook(actor) {
+  return !!actor && actor.type !== "character" && !(Number(actor.system?.resources?.legres?.max) > 0);
+}
+
 export function getActorFlag(actor, flag, fallback = null) {
   return resolveActor(actor)?.getFlag(MODULE_ID, flag) ?? fallback;
 }
@@ -265,6 +270,19 @@ export async function postSystemCard({ actor, kicker, title, subtitle = "", meta
  */
 export function plainActivityLabel(text) {
   return String(text ?? "").replace(/^Midi\s+/i, "");
+}
+
+/**
+ * Whether an activity's name only repeats what the card already says: the weapon's own name, or a word of a label
+ * beside it ("Attack" next to "Ranged Attack"). A named activity ("Burst Fire") is worth showing.
+ */
+export function repeatsLabel(name, ...labels) {
+  const plain = String(name ?? "").trim().toLowerCase();
+  if (!plain) return true;
+  return labels.some(label => {
+    const text = String(label ?? "").trim().toLowerCase();
+    return !!text && (text === plain || text.split(/\s+/).includes(plain));
+  });
 }
 
 export function escapeHTML(value) {

@@ -1,0 +1,222 @@
+/* ---------------------------------------------------------------------------------------------
+ * Manufacturers (hardwipe-manufacturers.js): a weapon from a known maker gets that maker's attack card.
+ * Each brand reshapes the head: the bar and its wordmark, the title's type, an emblem, a serial plate,
+ * the roll card's rail. The outcome still reads where it always does: the outline, the verdict strip and
+ * the targets keep their hit / miss / critical colours, and a miss fades the brand. A maker without a
+ * style keeps the base card with its name on the bar; an unbranded weapon keeps the base card.
+ * ------------------------------------------------------------------------------------------- */
+.chat-message.hardwipe-branded .hardwipe-attack-head { background: var(--m-bg); }
+.chat-message.hardwipe-branded .hardwipe-attack-namebar { position: relative; align-items: center; gap: 8px; color: var(--m-ink); background: var(--m-bar); box-shadow: none; overflow: hidden; }
+.chat-message.hardwipe-branded .hardwipe-attack-type { position: relative; z-index: 1; text-align: right; opacity: 0.72; }
+.chat-message.hardwipe-branded :is(.hardwipe-title-row, .hardwipe-attack-kind-row, .hardwipe-props, .hardwipe-verdict, .hardwipe-targets) { position: relative; z-index: 1; }
+.chat-message.hardwipe-branded .hardwipe-roll-card { border-left-color: var(--m-rail) !important; }
+.chat-message.hw-mfr-clean .hardwipe-chat-title[data-text]::before,
+.chat-message.hw-mfr-clean .hardwipe-chat-title[data-text]::after { display: none; }
+.hwm-mark { position: relative; z-index: 1; flex: none; display: inline-flex; align-items: center; gap: 6px; font: 800 12px/1 var(--hw-font-disp); letter-spacing: 0.2em; white-space: nowrap; }
+.hwm-emblem { position: absolute; z-index: 0; pointer-events: none; }
+.hwm-plate { position: relative; z-index: 1; display: flex; align-items: center; justify-content: flex-end; gap: 8px; margin: 10px 14px 0; color: var(--m-note); font: 700 8.5px var(--hw-font-mono); letter-spacing: 0.16em; text-transform: uppercase; white-space: nowrap; }
+
+/* ARASAKA · corporate lacquer: black, a red sun with the name, a clean white title. ------------------------ */
+.chat-message.hw-mfr-arasaka { --m-bar: #050505; --m-ink: #f4f4f4; --m-rail: #c8001c; --m-note: rgba(255, 255, 255, 0.45);
+  --m-bg: linear-gradient(115deg, transparent 55%, rgba(255, 255, 255, 0.03) 55% 62%, transparent 62%), linear-gradient(160deg, #0c0c0d, #030303 70%); }
+.hw-mfr-arasaka .hardwipe-attack-namebar { border-top: 2px solid #e1001f; }
+.hw-mfr-arasaka .hwm-mark { font-weight: 600; letter-spacing: 0.5em; }
+.hw-mfr-arasaka .hwm-mark::before { content: ""; width: 7px; height: 7px; background: #e1001f; }
+.hw-mfr-arasaka .hwm-sun { right: -26px; top: 26px; width: 104px; height: 104px; border-radius: 50%; background: radial-gradient(circle at 38% 34%, #ff2a3d, #c8001c 60%, #8d0013); box-shadow: 0 0 24px rgba(200, 0, 28, 0.35); }
+.hw-mfr-arasaka .hwm-sun span { position: absolute; left: 28px; top: 18px; color: #fff; font: 700 17px/1.05 "Yu Mincho", "MS Mincho", serif; letter-spacing: 0.12em; writing-mode: vertical-rl; }
+.hw-mfr-arasaka .hardwipe-title-row { margin-right: 76px; }
+.hw-mfr-arasaka :is(.hardwipe-attack-kind-row, .hardwipe-props) { margin-right: 62px; }
+.hw-mfr-arasaka .hardwipe-chat-title { color: #fff; font-weight: 600; letter-spacing: 0.06em; text-shadow: none; }
+.hw-mfr-arasaka .hwm-plate::before { content: ""; flex: 1; height: 1px; background: linear-gradient(90deg, transparent, #e1001f); }
+
+/* MILITECH · stencil and spec plate: olive drab, a stencil-cut title, rivets, hazard chevrons. --------------- */
+.chat-message.hw-mfr-militech { --m-bar: #0e1008; --m-ink: #f2c200; --m-rail: #8d9441; --m-note: #f2c200;
+  --m-bg: radial-gradient(circle at 100% 0, rgba(242, 194, 0, 0.1), transparent 55%), linear-gradient(160deg, #2c3218, #13160a 75%); }
+.hw-mfr-militech .hardwipe-attack-namebar { padding-right: 46px; }
+.hw-mfr-militech .hardwipe-attack-namebar::after { content: ""; position: absolute; right: 0; top: 0; bottom: 0; width: 38px; background: repeating-linear-gradient(-45deg, #f2c200 0 5px, #0e1008 5px 10px); }
+.hw-mfr-militech .hwm-mark { font-weight: 900; letter-spacing: 0.26em; }
+.hw-mfr-militech .hwm-rivets { inset: 26px 6px 6px 6px; background:
+    radial-gradient(circle, #8a904c 2px, #3b4020 2.5px, transparent 3px) 0 0 / 8px 8px no-repeat,
+    radial-gradient(circle, #8a904c 2px, #3b4020 2.5px, transparent 3px) 100% 0 / 8px 8px no-repeat,
+    radial-gradient(circle, #8a904c 2px, #3b4020 2.5px, transparent 3px) 0 100% / 8px 8px no-repeat,
+    radial-gradient(circle, #8a904c 2px, #3b4020 2.5px, transparent 3px) 100% 100% / 8px 8px no-repeat; }
+.hw-mfr-militech .hardwipe-chat-title { color: #ece6c6; letter-spacing: 0.06em; text-shadow: none; -webkit-mask: linear-gradient(#000 0 45%, transparent 45% 53%, #000 53%); mask: linear-gradient(#000 0 45%, transparent 45% 53%, #000 53%); }
+.hw-mfr-militech .hwm-plate { justify-content: stretch; gap: 0; color: #d9d2a8; border: 1px solid rgba(242, 194, 0, 0.45); background: rgba(0, 0, 0, 0.35); }
+.hw-mfr-militech .hwm-plate span { flex: 1; padding: 4px 8px; border-right: 1px solid rgba(242, 194, 0, 0.3); }
+.hw-mfr-militech .hwm-plate span:last-child { border-right: 0; text-align: right; }
+.hw-mfr-militech .hwm-plate b { color: #f2c200; margin-right: 6px; }
+
+/* KANG TAO · smart-link HUD: teal glass, a gold hex reticle, a gold title, locked targets. ------------------- */
+.chat-message.hw-mfr-kang-tao { --m-bar: linear-gradient(90deg, #08332e, #0f5248); --m-ink: #f2d27e; --m-rail: #2fae98; --m-note: rgba(242, 210, 126, 0.7);
+  --m-bg: radial-gradient(circle at 88% 22%, rgba(242, 210, 126, 0.14), transparent 45%), linear-gradient(160deg, #0a2421, #040d0c 72%); }
+.hw-mfr-kang-tao .hardwipe-attack-namebar { border-top: 1px solid rgba(242, 210, 126, 0.6); border-bottom: 1px solid rgba(242, 210, 126, 0.6); }
+.hw-mfr-kang-tao .hwm-mark::before { content: ""; width: 7px; height: 7px; border: 1.5px solid #f2d27e; transform: rotate(45deg); box-shadow: 0 0 5px rgba(242, 210, 126, 0.9); }
+.hw-mfr-kang-tao .hwm-reticle { right: 12px; top: 30px; width: 62px; height: 62px; filter: drop-shadow(0 0 4px rgba(242, 210, 126, 0.6)); }
+.hw-mfr-kang-tao .hwm-link { right: 42px; top: 94px; bottom: 48px; width: 1px; background: linear-gradient(rgba(242, 210, 126, 0.7), rgba(242, 210, 126, 0.1)); }
+.hw-mfr-kang-tao .hardwipe-title-row { margin-right: 80px; }
+.hw-mfr-kang-tao :is(.hardwipe-attack-kind-row, .hardwipe-props) { margin-right: 66px; }
+.hw-mfr-kang-tao .hardwipe-chat-title { color: #f2d27e; background: linear-gradient(180deg, #fff6d8, #f2d27e 55%, #b98a2e); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; text-shadow: none; filter: drop-shadow(0 0 6px rgba(242, 210, 126, 0.35)); }
+.hw-mfr-kang-tao .hardwipe-target { box-shadow: inset 0 0 0 1px rgba(242, 210, 126, 0.25); background-image: linear-gradient(#f2d27e, #f2d27e), linear-gradient(#f2d27e, #f2d27e), linear-gradient(#f2d27e, #f2d27e), linear-gradient(#f2d27e, #f2d27e);
+  background-size: 8px 1.5px, 1.5px 8px, 8px 1.5px, 1.5px 8px; background-position: 100% 0, 100% 0, 100% 100%, 100% 100%; background-repeat: no-repeat; }
+.hw-mfr-kang-tao .hardwipe-target::after { content: "LINKED"; margin-left: auto; padding-right: 10px; color: #f2d27e; font: 700 8.5px var(--hw-font-mono); letter-spacing: 0.18em; }
+.hw-mfr-kang-tao .hwm-plate::before { content: ""; flex: 1; height: 1px; background: linear-gradient(90deg, transparent, rgba(242, 210, 126, 0.6)); }
+
+/* TSUNAMI · precision instrument: ivory and indigo, a ruler under the bar, a 津波 seal, a wave band. -------- */
+.chat-message.hw-mfr-tsunami { --m-bar: #efe9dc; --m-ink: #18275a; --m-rail: #5d78c9; --m-note: rgba(214, 222, 255, 0.6);
+  --m-bg: linear-gradient(160deg, #0d1736, #060a18 72%); }
+.hw-mfr-tsunami .hardwipe-attack-namebar { margin-bottom: 0; }
+.hw-mfr-tsunami .hwm-ruler { position: relative; z-index: 1; display: block; height: 9px; margin: 0 0 9px; background:
+    repeating-linear-gradient(90deg, rgba(239, 233, 220, 0.85) 0 1px, transparent 1px 20px) 0 0 / 100% 9px no-repeat,
+    repeating-linear-gradient(90deg, rgba(239, 233, 220, 0.55) 0 1px, transparent 1px 4px) 0 0 / 100% 5px no-repeat; }
+.hw-mfr-tsunami .hwm-mark { font-weight: 700; letter-spacing: 0.32em; }
+.hw-mfr-tsunami .hwm-seal { right: 14px; top: 38px; display: grid; place-items: center; width: 40px; height: 40px; color: #fff; background: #c8283a; border-radius: 50%; box-shadow: inset 0 0 0 2px #c8283a, inset 0 0 0 3px rgba(255, 255, 255, 0.6); font: 700 14px/1 "Yu Mincho", "MS Mincho", serif; writing-mode: vertical-rl; letter-spacing: 0.05em; transform: rotate(-6deg); }
+.hw-mfr-tsunami .hwm-waves { left: 0; right: 0; bottom: 0; height: 46px; opacity: 0.3;
+  background: radial-gradient(circle at 50% 100%, transparent 6px, #c8d4ff 6px 7px, transparent 7px 10px, #c8d4ff 10px 11px, transparent 11px 14px, #c8d4ff 14px 15px, transparent 15px) 0 0 / 30px 15px;
+  -webkit-mask: linear-gradient(transparent, #000); mask: linear-gradient(transparent, #000); }
+.hw-mfr-tsunami .hardwipe-title-row { margin-right: 64px; }
+.hw-mfr-tsunami :is(.hardwipe-attack-kind-row, .hardwipe-props) { margin-right: 50px; }
+.hw-mfr-tsunami .hardwipe-chat-title { color: #f3efe4; font-weight: 600; letter-spacing: 0.05em; text-shadow: none; }
+.hw-mfr-tsunami .hwm-plate { color: #efe9dc; }
+
+/* BUDGET ARMS · blister pack: orange and grey plastic, a VALUE! burst, a price tag, a warning label. ------- */
+.chat-message.hw-mfr-budget-arms { --m-bar: #ff6a00; --m-ink: #121212; --m-rail: #ff6a00; --m-note: #121212;
+  --m-bg: radial-gradient(circle, rgba(255, 255, 255, 0.05) 1px, transparent 1.5px) 0 0 / 7px 7px, linear-gradient(160deg, #232326, #141416 72%); }
+.hw-mfr-budget-arms .hwm-mark { font-weight: 900; font-style: italic; letter-spacing: 0.04em; font-size: 13px; }
+.hw-mfr-budget-arms .hwm-mark small { padding: 1px 4px; color: #ff6a00; background: #121212; font: 800 8px var(--hw-font-disp); font-style: normal; letter-spacing: 0.08em; }
+.hw-mfr-budget-arms .hwm-burst { right: 6px; top: 28px; display: grid; place-items: center; width: 70px; height: 54px; color: #d10000; background: #ffe600; font: 900 14px/1 var(--hw-font-disp); letter-spacing: 0.02em; transform: rotate(12deg);
+  clip-path: polygon(50% 0, 61% 18%, 82% 8%, 80% 32%, 100% 40%, 82% 56%, 94% 78%, 70% 76%, 62% 100%, 50% 82%, 38% 100%, 30% 76%, 6% 78%, 18% 56%, 0 40%, 20% 32%, 18% 8%, 39% 18%); filter: drop-shadow(2px 2px 0 #000); }
+.hw-mfr-budget-arms .hwm-tag { right: 18px; top: 86px; padding: 3px 7px 3px 12px; color: #121212; background: #f4f1e8; font: 800 12px var(--hw-font-mono); transform: rotate(-8deg); clip-path: polygon(8px 0, 100% 0, 100% 100%, 8px 100%, 0 50%); box-shadow: 0 0 0 1px #121212; }
+.hw-mfr-budget-arms .hwm-tag::before { content: ""; position: absolute; left: 5px; top: 50%; width: 4px; height: 4px; margin-top: -2px; border-radius: 50%; background: #232326; }
+.hw-mfr-budget-arms .hwm-tag sup { font-size: 8px; }
+.hw-mfr-budget-arms .hardwipe-title-row { margin-right: 74px; }
+.hw-mfr-budget-arms :is(.hardwipe-attack-kind-row, .hardwipe-props) { margin-right: 60px; }
+.hw-mfr-budget-arms .hardwipe-chat-title { color: #fff; font-style: italic; letter-spacing: 0.01em; transform: skewX(-6deg); text-shadow: 2px 2px 0 #ff6a00; }
+.hw-mfr-budget-arms .hwm-plate { justify-content: space-between; padding: 3px 8px; color: #121212; background: #ffe600; font-size: 8.5px; }
+.hw-mfr-budget-arms .hwm-plate i { width: 52px; height: 11px; background: repeating-linear-gradient(90deg, #121212 0 1px, transparent 1px 3px, #121212 3px 5px, transparent 5px 6px, #121212 6px 7px, transparent 7px 9px); }
+
+/* MALORIAN ARMS · hand-built chrome: brushed steel, a chrome title, brass corners, a maker's cartouche. ---- */
+.chat-message.hw-mfr-malorian { --m-bar: linear-gradient(180deg, #d9dde2, #8b9198 52%, #b4b9bf); --m-ink: #1a1d21; --m-rail: #b8915a; --m-note: #c9a46a;
+  --m-bg: linear-gradient(118deg, transparent 30%, rgba(255, 255, 255, 0.05) 42%, transparent 52%), linear-gradient(160deg, #1d2024, #0b0c0e 72%); }
+.hw-mfr-malorian .hardwipe-attack-namebar { border-bottom: 1px solid #b8915a; }
+.hw-mfr-malorian .hwm-mark { font-weight: 800; letter-spacing: 0.28em; text-shadow: 0 1px 0 rgba(255, 255, 255, 0.6), 0 -1px 0 rgba(0, 0, 0, 0.35); }
+.hw-mfr-malorian .hardwipe-attack-type { text-shadow: 0 1px 0 rgba(255, 255, 255, 0.45); }
+.hw-mfr-malorian .hwm-corners { inset: 30px 6px 6px 6px; --c: #b8915a; background:
+    linear-gradient(var(--c), var(--c)) 0 0 / 14px 1px, linear-gradient(var(--c), var(--c)) 0 0 / 1px 14px,
+    linear-gradient(var(--c), var(--c)) 100% 0 / 14px 1px, linear-gradient(var(--c), var(--c)) 100% 0 / 1px 14px,
+    linear-gradient(var(--c), var(--c)) 0 100% / 14px 1px, linear-gradient(var(--c), var(--c)) 0 100% / 1px 14px,
+    linear-gradient(var(--c), var(--c)) 100% 100% / 14px 1px, linear-gradient(var(--c), var(--c)) 100% 100% / 1px 14px; background-repeat: no-repeat; }
+.hw-mfr-malorian .hwm-cartouche { right: 16px; top: 36px; display: grid; place-items: center; width: 46px; height: 32px; color: #e6c48c; border: 1px solid #b8915a; border-radius: 50%; box-shadow: inset 0 0 0 2px #0f1012, inset 0 0 0 3px rgba(184, 145, 90, 0.5); font: 800 11px/1 var(--hw-font-disp); letter-spacing: 0.08em; }
+.hw-mfr-malorian .hwm-cartouche small { display: block; margin-top: 1px; font: 700 6.5px var(--hw-font-mono); letter-spacing: 0.14em; opacity: 0.8; }
+.hw-mfr-malorian .hardwipe-title-row { margin-right: 70px; }
+.hw-mfr-malorian :is(.hardwipe-attack-kind-row, .hardwipe-props) { margin-right: 56px; }
+.hw-mfr-malorian .hardwipe-chat-title { color: #dfe3e8; background: linear-gradient(180deg, #ffffff 0%, #e4e8ec 38%, #5c6168 50%, #9ca2a9 62%, #ffffff 100%); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; text-shadow: none; filter: drop-shadow(0 1px 0 #000) drop-shadow(0 0 6px rgba(255, 255, 255, 0.15)); }
+.hw-mfr-malorian .hwm-plate::before { content: ""; flex: 1; height: 1px; background: #b8915a; opacity: 0.6; }
+
+/* CONSTITUTIONAL ARMS · Americana: navy and cream, a flag, a letterpress title, a round seal. ------------- */
+.chat-message.hw-mfr-constitutional { --m-bar: #13213f; --m-ink: #f3ead8; --m-rail: #c8323a; --m-note: rgba(243, 234, 216, 0.6);
+  --m-bg: radial-gradient(circle at 100% 0, rgba(200, 50, 58, 0.16), transparent 55%), linear-gradient(160deg, #101a33, #070b16 72%); }
+.hw-mfr-constitutional .hardwipe-attack-namebar { border-bottom: 4px solid transparent; border-image: repeating-linear-gradient(90deg, #c8323a 0 10px, #f3ead8 10px 20px) 4; }
+.hw-mfr-constitutional .hwm-mark { letter-spacing: 0.12em; }
+.hw-mfr-constitutional .hwm-mark::before { content: "★"; color: #c8323a; font-size: 11px; }
+.hw-mfr-constitutional .hwm-flag { right: 12px; top: 36px; width: 66px; height: 40px; transform: rotate(-3deg); box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.5);
+  background: radial-gradient(circle, #f3ead8 1.2px, transparent 1.6px) 3px 3px / 7px 7px, linear-gradient(#1c2f5c, #1c2f5c) 0 0 / 28px 22px no-repeat, repeating-linear-gradient(#c8323a 0 5.7px, #f3ead8 5.7px 11.4px); background-repeat: repeat, no-repeat, repeat; }
+.hw-mfr-constitutional .hwm-flag::after { content: ""; position: absolute; left: 28px; top: 0; right: 0; bottom: 18px; }
+.hw-mfr-constitutional .hardwipe-title-row { margin-right: 80px; }
+.hw-mfr-constitutional :is(.hardwipe-attack-kind-row, .hardwipe-props) { margin-right: 66px; }
+.hw-mfr-constitutional .hardwipe-chat-title { color: #f3ead8; letter-spacing: 0.03em; text-shadow: 2px 2px 0 #c8323a; }
+.hw-mfr-constitutional .hwm-plate svg { flex: none; width: 34px; height: 34px; margin: -8px 0 -8px; }
+.hw-mfr-constitutional .hwm-plate::before { content: ""; flex: 1; height: 1px; background: repeating-linear-gradient(90deg, #c8323a 0 6px, transparent 6px 10px); }
+
+/* TECHTRONIKA · constructivist: brick red and parchment, a red wedge through a circle, a heavy title. ------ */
+.chat-message.hw-mfr-techtronika { --m-bar: #a3221a; --m-ink: #f1e4c6; --m-rail: #d24a2e; --m-note: rgba(241, 228, 198, 0.65);
+  --m-bg: linear-gradient(160deg, #1a100d, #0b0706 72%); }
+.hw-mfr-techtronika .hardwipe-attack-namebar { padding-right: 60px; }
+.hw-mfr-techtronika .hardwipe-attack-namebar::after { content: ""; position: absolute; right: 0; top: 0; bottom: 0; width: 70px; background: #0f0a09; clip-path: polygon(38% 0, 100% 0, 100% 100%, 0 100%); }
+.hw-mfr-techtronika .hardwipe-attack-type { position: absolute; right: 8px; z-index: 2; color: #f1e4c6; font-size: 9px; opacity: 0.85; }
+.hw-mfr-techtronika .hwm-mark { font-weight: 900; letter-spacing: 0.1em; font-size: 13px; }
+.hw-mfr-techtronika .hwm-wedge { right: 6px; top: 28px; width: 78px; height: 72px; }
+.hw-mfr-techtronika .hardwipe-title-row { margin-right: 78px; }
+.hw-mfr-techtronika :is(.hardwipe-attack-kind-row, .hardwipe-props) { margin-right: 64px; }
+.hw-mfr-techtronika .hardwipe-chat-title { color: #f1e4c6; font-weight: 800; letter-spacing: 0.01em; text-shadow: none; box-shadow: inset 0 -4px 0 #c8281c; }
+.hw-mfr-techtronika .hwm-plate b { color: #f1e4c6; font: 800 10px var(--hw-font-disp); letter-spacing: 0.08em; }
+.hw-mfr-techtronika .hwm-plate::before { content: ""; flex: 1; height: 6px; background: linear-gradient(90deg, transparent, #a3221a); clip-path: polygon(0 40%, 100% 0, 100% 100%, 0 60%); }
+
+/* A miss fades the brand with the base card's title: the outcome still leads. */
+.chat-message.hardwipe-branded .hardwipe-attack-head:is(.is-miss, .is-fumble) :is(.hardwipe-chat-title, .hwm-emblem) { opacity: 0.5; filter: grayscale(0.7); }
+
+/* PALE · the Blackwall is a grid, and something made of pixels is pushing it out of shape: the mesh bulges
+ * around a hand that's being rendered, not lit; slices of it shear; the wall tears at two fingertips and
+ * pixels and code spill out. The outcome stays on top. -------------------------------------------------- */
+.chat-message.hw-mfr-pale { --m-bar: #c4f3d0; --m-ink: #06120b; --m-rail: #c4f3d0; --m-note: rgba(214, 255, 226, 0.7);
+  --m-bg: radial-gradient(ellipse 45% 70% at 76% 46%, rgba(196, 243, 208, 0.1), transparent 70%), linear-gradient(160deg, #0a140e, #020403 72%); }
+.hw-mfr-pale .hwm-mark { font-weight: 800; letter-spacing: 0.6em; }
+.hw-mfr-pale .hwm-mark small { font: 700 7.5px var(--hw-font-mono); letter-spacing: 0.14em; opacity: 0.6; }
+/* The bar's pixels come loose where the hand pushes up under it. */
+.hw-mfr-pale .hardwipe-attack-namebar { background:
+    linear-gradient(90deg, transparent 66%, #06120b 66% 67.5%, transparent 67.5% 71%, #06120b 71% 72%, transparent 72%) 0 100% / 100% 3px no-repeat,
+    linear-gradient(90deg, transparent 69%, #f6fff9 69% 70.5%, transparent 70.5%) 0 0 / 100% 4px no-repeat, var(--m-bar); }
+.hw-mfr-pale .hwm-press { z-index: 2; overflow: visible; }
+/* The circuit runs through the card itself, under the text. */
+.hw-mfr-pale .hwm-circuit { z-index: 0; overflow: visible; }
+.hw-mfr-pale .hwm-pulse { stroke-dasharray: 2.5 34; animation: hwm-flow 2.6s linear infinite; }
+@keyframes hwm-flow { from { stroke-dashoffset: 36.5; } to { stroke-dashoffset: 0; } }
+@media (prefers-reduced-motion: reduce) { .hw-mfr-pale .hwm-pulse { animation: none; } }
+.hw-mfr-pale .hwm-px { z-index: 2; width: 4px; height: 4px; background: #e8fff0; }
+.chat-message.hw-mfr-pale .hardwipe-attack-head :is(.hardwipe-verdict, .hardwipe-targets) { z-index: 3; }
+.hw-mfr-pale .hardwipe-title-row { margin-right: 70px; }
+.hw-mfr-pale :is(.hardwipe-attack-kind-row, .hardwipe-props) { margin-right: 92px; }
+.hw-mfr-pale .hardwipe-chat-title { color: #d2f7dc; letter-spacing: 0.03em; text-shadow: 2px 0 0 rgba(255, 45, 85, 0.25), -1px 0 0 rgba(232, 255, 240, 0.4); }
+.hw-mfr-pale .hwm-plate b { color: #f6fff9; text-shadow: 0 0 6px rgba(196, 243, 208, 0.6); }
+.hw-mfr-pale .hwm-plate i { flex: 1; height: 5px; border: 1px solid rgba(196, 243, 208, 0.45); background: linear-gradient(90deg, #c4f3d0 0 13%, transparent 13%), repeating-linear-gradient(90deg, rgba(196, 243, 208, 0.12) 0 3px, transparent 3px 6px); }
+
+/* PALE's card is slightly damaged: a chipped corner and edge, scratches, a stuck pixel row, dead pixels, the bar out of register. */
+.chat-message.hw-mfr-pale.hw-mfr-damaged .hardwipe-attack-head { clip-path: polygon(0 0, calc(100% - var(--hw-notch)) 0, 100% var(--hw-notch), 100% 44%, calc(100% - 4px) 46.5%, calc(100% - 2px) 49%, 100% 51%, 100% 100%, 30px 100%, 24px calc(100% - 5px), 17px calc(100% - 2px), 11px calc(100% - 8px), 0 calc(100% - 13px)); }
+.hw-mfr-pale.hw-mfr-damaged .hardwipe-attack-namebar { transform: translateX(2px); box-shadow: -2px 0 0 rgba(255, 45, 85, 0.35), 2px 0 0 rgba(70, 230, 220, 0.25); }
+.hw-mfr-pale .hwm-scratch { z-index: 4; inset: 0; width: 100%; height: 100%; }
+.hw-mfr-pale .hwm-deadrow { z-index: 4; left: 38%; right: 6%; top: 49%; height: 1px; background: linear-gradient(90deg, transparent, rgba(234, 255, 241, 0.55) 12%, rgba(234, 255, 241, 0.55) 70%, transparent); }
+.hw-mfr-pale .hwm-dead { z-index: 4; width: 2px; height: 2px; background: #000; box-shadow: 2px 0 #000, 2px 2px #000, 4px 2px rgba(234, 255, 241, 0.7), 0 4px #000; }
+/* ???? · the card failing: static, a dead battery, a title with chunks missing, half the head dark. -------- */
+.chat-message.hw-mfr-unknown { --m-bar: #1a1c1c; --m-ink: rgba(220, 226, 222, 0.75); --m-rail: #4a4f4d; --m-note: rgba(220, 226, 222, 0.5);
+  --m-bg: linear-gradient(160deg, #151817, #070808 72%); }
+.hw-mfr-unknown .hwm-mark { font: 800 13px/1 var(--hw-font-mono); letter-spacing: 0.4em; animation: hwm-flicker 3.2s steps(1) infinite; }
+.hw-mfr-unknown .hwm-mark small { font: 700 7.5px var(--hw-font-mono); letter-spacing: 0.14em; opacity: 0.6; animation: none; }
+.hw-mfr-unknown .hwm-battery { position: relative; z-index: 1; flex: none; width: 22px; height: 10px; margin-left: auto; border: 1px solid rgba(220, 226, 222, 0.6); background: linear-gradient(90deg, #ff3f5f 0 18%, transparent 18%) 1px 1px / calc(100% - 2px) calc(100% - 2px) no-repeat; }
+.hw-mfr-unknown .hwm-battery::after { content: ""; position: absolute; right: -4px; top: 2px; width: 2px; height: 4px; background: rgba(220, 226, 222, 0.6); }
+.hw-mfr-unknown .hardwipe-attack-type { flex: none; }
+.hw-mfr-unknown .hwm-static { right: 0; top: 24px; width: 46%; bottom: 0; opacity: 0.32;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='90'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.95' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.85 0 0 0 0 0.9 0 0 0 0 0.86 0 0 0 0.9 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  -webkit-mask: linear-gradient(90deg, transparent, #000 35%); mask: linear-gradient(90deg, transparent, #000 35%); }
+.hw-mfr-unknown .hwm-dark { right: 0; bottom: 0; width: 52%; height: 58%; background: linear-gradient(200deg, rgba(0, 0, 0, 0.82) 40%, transparent 85%); }
+.hw-mfr-unknown .hwm-dark::after { content: "LOW POWER"; position: absolute; right: 12px; top: 10px; color: rgba(255, 63, 95, 0.75); font: 700 8.5px var(--hw-font-mono); letter-spacing: 0.22em; animation: hwm-flicker 2.4s steps(1) infinite; }
+.hw-mfr-unknown .hardwipe-chat-title { color: #dde3df; text-shadow: none; -webkit-mask: linear-gradient(90deg, #000 0 18%, transparent 18% 22%, #000 22% 51%, transparent 51% 54%, #000 54% 78%, transparent 78% 83%, #000 83%) 0 0 / 100% 55% no-repeat, linear-gradient(#000, #000) 0 100% / 100% 45% no-repeat;
+  mask: linear-gradient(90deg, #000 0 18%, transparent 18% 22%, #000 22% 51%, transparent 51% 54%, #000 54% 78%, transparent 78% 83%, #000 83%) 0 0 / 100% 55% no-repeat, linear-gradient(#000, #000) 0 100% / 100% 45% no-repeat; }
+.hw-mfr-unknown .hardwipe-title-row { transform: translateX(3px); }
+.hw-mfr-unknown .hardwipe-attack-kind-row { transform: translateX(-2px); opacity: 0.85; }
+.hw-mfr-unknown .hwm-plate b { color: #ff3f5f; }
+.hw-mfr-unknown .hwm-plate i { display: inline-block; width: 6px; height: 10px; background: rgba(220, 226, 222, 0.6); animation: hwm-blink 1s steps(2) infinite; }
+@keyframes hwm-flicker { 0%, 100% { opacity: 1; } 7% { opacity: 0.2; } 9% { opacity: 1; } 46% { opacity: 0.55; } 48% { opacity: 1; } }
+@keyframes hwm-blink { 50% { opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .hw-mfr-unknown :is(.hwm-mark, .hwm-dark::after, .hwm-plate i) { animation: none; } }
+
+/* MAELSTROM · gang-modded scrap: a torn bar, welded plate, a cluster of red optics, a spray tag. ----------- */
+.chat-message.hw-mfr-maelstrom { --m-bar: #0a0a0a; --m-ink: #ff1e2d; --m-rail: #e0001b; --m-note: #ff1e2d;
+  --m-bg: linear-gradient(97deg, transparent 49.6%, rgba(255, 255, 255, 0.06) 49.6% 50%, transparent 50%), radial-gradient(circle at 80% 30%, rgba(224, 0, 27, 0.22), transparent 55%), linear-gradient(160deg, #1b1b1d, #08080a 72%); }
+.hw-mfr-maelstrom .hardwipe-attack-namebar { padding-bottom: 7px; clip-path: polygon(0 0, 100% 0, 100% 72%, 94% 100%, 86% 76%, 77% 100%, 66% 78%, 55% 100%, 45% 80%, 33% 100%, 22% 78%, 11% 100%, 0 82%); border-top: 2px solid #e0001b; }
+.hw-mfr-maelstrom .hwm-mark { font: 900 14px/1 var(--hw-font-disp); letter-spacing: 0.16em; text-shadow: 0 0 6px rgba(255, 30, 45, 0.8); }
+.hw-mfr-maelstrom .hwm-optics { right: 10px; top: 32px; width: 70px; height: 50px; }
+.hw-mfr-maelstrom .hwm-bolts { inset: 30px 6px 6px 6px; background:
+    radial-gradient(circle, #6a6a70 2px, #232326 2.5px, transparent 3px) 0 0 / 8px 8px no-repeat,
+    radial-gradient(circle, #6a6a70 2px, #232326 2.5px, transparent 3px) 100% 100% / 8px 8px no-repeat,
+    radial-gradient(circle, #6a6a70 2px, #232326 2.5px, transparent 3px) 0 100% / 8px 8px no-repeat; }
+.hw-mfr-maelstrom .hwm-tag { right: 14px; top: 86px; width: 76px; height: 34px; opacity: 0.7; filter: blur(0.4px) drop-shadow(0 0 2px rgba(255, 30, 45, 0.7)); }
+.hw-mfr-maelstrom .hardwipe-title-row { margin-right: 82px; }
+.hw-mfr-maelstrom :is(.hardwipe-attack-kind-row, .hardwipe-props) { margin-right: 68px; }
+.hw-mfr-maelstrom .hardwipe-chat-title { color: #f2f2f2; letter-spacing: 0.02em; text-shadow: 0 2px 0 #e0001b, 0 0 14px rgba(224, 0, 27, 0.55); }
+.hw-mfr-maelstrom .hwm-plate { font: 900 10px var(--hw-font-disp); letter-spacing: 0.14em; text-shadow: 0 0 3px rgba(255, 30, 45, 0.9), 0 0 8px rgba(255, 30, 45, 0.5); }
+.hw-mfr-maelstrom .hwm-plate::before { content: ""; flex: 1; height: 3px; background: repeating-linear-gradient(-60deg, #e0001b 0 6px, transparent 6px 11px); opacity: 0.8; }
+
+/* A maker without a style: the base card, the name on the bar. */
+.hardwipe-attack-namebar > .hwm-mark.is-plain { display: inline-block; max-width: 48%; overflow: hidden; font-size: 11px; letter-spacing: 0.16em; text-overflow: ellipsis; }
+
+/* The Manufacturer field on the item sheet. */
+.hardwipe-manufacturer .hint { margin-top: 4px; }

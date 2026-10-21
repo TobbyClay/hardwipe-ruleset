@@ -1,0 +1,107 @@
+/* ---------------------------------------------------------------------------------------------
+ * The Eye (hardwipe-eye.js): the AIs behind the Blackwall looking back. A card from no sender in a
+ * variant (swarm, wall, close-up, dark, crack, feeds, halo, letters, waking), what they say, whom they
+ * see. A fresh card opens its eyes one by one; motion stops for anyone with reduced motion turned on.
+ * ------------------------------------------------------------------------------------------- */
+.chat-message.hardwipe-eye-message { background: #020403 !important; border-color: rgba(196, 243, 208, 0.35) !important; }
+.chat-message.hardwipe-eye-message .message-header .name-stacked .title { color: #d2f7dc !important; letter-spacing: 0.3em; }
+.chat-message.hardwipe-eye-message .message-header .name-stacked .subtitle { color: #ff2d55 !important; }
+.chat-message.hardwipe-eye-message .message-sender .avatar { flex: none; width: 36px; height: 36px; }
+.hardwipe-eye-avatar { display: block; width: 36px; height: 36px; background: #020403; border: 1px solid #c4f3d0; }
+
+.hw-eyecard { position: relative; overflow: hidden; color: #d2f7dc; background:
+    radial-gradient(ellipse 70% 55% at 50% 40%, rgba(196, 243, 208, 0.12), transparent 70%),
+    radial-gradient(circle, rgba(196, 243, 208, 0.28) 0.8px, transparent 1.3px) 0 0 / 6px 6px, #020403;
+  border: 1px solid rgba(196, 243, 208, 0.4); box-shadow: inset 0 0 40px rgba(0, 0, 0, 0.9); font-family: var(--hw-font-mono); }
+.hw-eyecard .ec-top { position: relative; z-index: 3; display: flex; align-items: center; gap: 7px; padding: 5px 9px; color: #06120b; background: #c4f3d0; font: 800 10px var(--hw-font-mono); letter-spacing: 0.2em; text-transform: uppercase; }
+.hw-eyecard .ec-top i { width: 7px; height: 7px; border-radius: 50%; background: #ff2d55; box-shadow: 0 0 6px #ff2d55; animation: ec-pulse 1.3s steps(2) infinite; }
+.hw-eyecard .ec-top span { margin-left: auto; opacity: 0.7; }
+.hw-eyecard .ec-field { position: relative; height: 220px; }
+.hw-eyecard .ec-eye { position: absolute; transform: rotate(var(--r, 0deg)); }
+.hw-eyecard .ec-eye svg { display: block; width: 100%; height: auto; overflow: visible; transform-origin: 50% 50%; animation: ec-blink var(--bd, 7s) var(--bdl, 0s) infinite; }
+.hw-eyecard .ec-eye.is-main svg { filter: drop-shadow(0 0 14px rgba(255, 45, 85, 0.55)) drop-shadow(0 0 3px rgba(196, 243, 208, 0.8)); }
+.hw-eyecard .ec-eye:not(.is-main) svg { filter: drop-shadow(0 0 4px rgba(196, 243, 208, 0.35)); }
+.hw-eyecard .ec-white { fill: #050b07; stroke: #c4f3d0; stroke-width: 1.6; }
+.hw-eyecard .ec-iris { animation: ec-look var(--ld, 9s) var(--ldl, 0s) ease-in-out infinite; }
+.hw-eyecard .ec-lid { fill: #020403; stroke: #c4f3d0; stroke-width: 1.2; }
+.hw-eyecard .ec-text { position: relative; z-index: 3; margin-top: -64px; padding: 26px 12px 10px; background: linear-gradient(transparent, rgba(2, 4, 3, 0.92) 38%); }
+.hw-eyecard .ec-text small { display: block; color: rgba(196, 243, 208, 0.6); font: 700 8.5px var(--hw-font-mono); letter-spacing: 0.22em; text-transform: uppercase; }
+.hw-eyecard .ec-text small b { color: #ff2d55; }
+.hw-eyecard .ec-text strong { display: flex; flex-wrap: wrap; align-items: center; gap: 1px; margin: 3px 0 2px; color: #f2fff6; font: 800 30px/1 var(--hw-font-disp); letter-spacing: 0.04em; text-shadow: 0 0 14px rgba(196, 243, 208, 0.5), 0 3px 0 rgba(255, 45, 85, 0.45); }
+.hw-eyecard .ec-text strong svg.ec-o { flex: none; width: 18px; height: 22.5px; margin: 0 1.5px 0 1px; align-self: center; transform: translateY(-1px);
+  filter: drop-shadow(0 3px 0 rgba(255, 45, 85, 0.45)) drop-shadow(0 0 6px rgba(255, 45, 85, 0.6)); }
+.hw-eyecard .ec-text > span { color: #c4f3d0; font: 700 10.5px var(--hw-font-mono); letter-spacing: 0.08em; }
+.hw-eyecard .ec-foot { position: relative; z-index: 3; overflow: hidden; padding: 4px 0; color: rgba(196, 243, 208, 0.35); border-top: 1px solid rgba(196, 243, 208, 0.25); font: 700 8.5px var(--hw-font-mono); letter-spacing: 0.32em; white-space: nowrap; }
+.hw-eyecard .ec-foot span { display: inline-block; animation: ec-crawl 22s linear infinite; }
+.hw-eyecard .ec-foot b { color: rgba(255, 45, 85, 0.7); }
+
+/* Wall: rows of eyes, blinking in a wave and looking as one. */
+.hw-eyecard.is-wall .ec-field { background: rgba(0, 0, 0, 0.35); }
+.hw-eyecard.is-wall .ec-eye svg { filter: none; }
+
+/* Close-up: one eye too close, code turning around the iris, the subject in the pupil. */
+.hw-eyecard.is-closeup .ec-eye.is-close { left: 50%; top: 50%; width: 132%; transform: translate(-50%, -54%); }
+.hw-eyecard.is-closeup .ec-ring { position: absolute; z-index: 1; left: 50%; top: 46%; width: 218px; height: 218px; transform: translate(-50%, -50%); animation: ec-spin 40s linear infinite; pointer-events: none; }
+.hw-eyecard.is-closeup .ec-ring text { fill: rgba(196, 243, 208, 0.55); font: 700 7.5px var(--hw-font-mono); letter-spacing: 2.4px; }
+
+/* Dark: no wall, only pairs of slits at different depths. */
+.hw-eyecard.is-dark { background: radial-gradient(ellipse 80% 70% at 50% 45%, #050807, #000 80%); }
+.hw-eyecard.is-dark .ec-pair { position: absolute; display: flex; gap: calc(var(--w) * 0.4); opacity: calc(0.35 + var(--depth) * 0.65); filter: blur(calc((1 - var(--depth)) * 1.4px)); }
+.hw-eyecard.is-dark .ec-pair i { width: var(--w); height: calc(var(--w) * 0.34); border-radius: 50%;
+  background: radial-gradient(ellipse 18% 60% at 50% 50%, #000 45%, transparent 55%), radial-gradient(ellipse at 50% 50%, #e9fff0, #9fe6b8 45%, rgba(159, 230, 184, 0) 72%);
+  box-shadow: 0 0 calc(var(--w) * 0.4) rgba(159, 230, 184, 0.45); animation: ec-blink var(--bd, 7s) var(--bdl, 0s) infinite; }
+.hw-eyecard.is-dark .ec-pair.is-red i { background: radial-gradient(ellipse 18% 60% at 50% 50%, #000 45%, transparent 55%), radial-gradient(ellipse at 50% 50%, #ffb3c2, #ff2d55 45%, rgba(255, 45, 85, 0) 72%); box-shadow: 0 0 calc(var(--w) * 0.5) rgba(255, 45, 85, 0.55); }
+
+/* Crack: the wall splits; behind it, one eye pressed close. */
+.hw-eyecard.is-crack .ec-crackglow { position: absolute; inset: 0; filter: drop-shadow(0 0 2px #e8fff0) drop-shadow(0 0 10px rgba(196, 243, 208, 0.75)); }
+.hw-eyecard.is-crack .ec-crack { position: absolute; inset: 0; background: #000;
+  clip-path: polygon(46% 0, 55% 0, 52% 10%, 62% 22%, 55% 34%, 66% 46%, 57% 58%, 63% 70%, 53% 82%, 56% 100%, 44% 100%, 47% 84%, 37% 72%, 44% 60%, 33% 47%, 44% 34%, 37% 22%, 46% 10%); }
+.hw-eyecard.is-crack .ec-eye.is-behind { left: 50%; top: 44%; width: 118%; transform: translate(-50%, -50%); }
+
+/* Feeds: every camera on the building, and every one of them is looking back. */
+.hw-eyecard.is-feeds .ec-field { display: grid; grid-template-columns: repeat(3, 1fr); gap: 3px; padding: 3px; background: #000; }
+.hw-eyecard.is-feeds .ec-feed { position: relative; overflow: hidden; border: 1px solid rgba(196, 243, 208, 0.35); background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='80'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.6 0 0 0 0 0.85 0 0 0 0 0.7 0 0 0 0.18 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"), #030806; }
+.hw-eyecard.is-feeds .ec-feed small { position: absolute; z-index: 2; left: 3px; top: 2px; display: flex; align-items: center; gap: 3px; color: rgba(214, 255, 226, 0.8); font: 700 7px var(--hw-font-mono); letter-spacing: 0.1em; }
+.hw-eyecard.is-feeds .ec-feed small i { width: 4px; height: 4px; border-radius: 50%; background: #ff2d55; animation: ec-pulse 1.1s steps(2) infinite; }
+.hw-eyecard.is-feeds .ec-feed .ec-eye svg { filter: drop-shadow(0 0 3px rgba(196, 243, 208, 0.5)); }
+.hw-eyecard.is-feeds .ec-feed.is-subject img { display: block; width: 100%; height: 100%; object-fit: cover; filter: grayscale(1) contrast(1.2) sepia(0.3) hue-rotate(80deg); opacity: 0.85; }
+.hw-eyecard.is-feeds .ec-feed.is-subject { border-color: #ff2d55; box-shadow: 0 0 8px rgba(255, 45, 85, 0.5); }
+.hw-eyecard.is-feeds .ec-mark { position: absolute; inset: 22% 26%; border: 1px solid #ff2d55; box-shadow: 0 0 6px #ff2d55; }
+.hw-eyecard.is-feeds .ec-feed em { position: absolute; right: 3px; bottom: 2px; color: #ff2d55; font: 800 7px var(--hw-font-mono); font-style: normal; letter-spacing: 0.14em; text-transform: uppercase; }
+
+/* Halo: the subject in the middle, three rings of eyes turning against each other. */
+.hw-eyecard.is-halo .ec-face { position: absolute; z-index: 2; left: 50%; top: 50%; width: 64px; height: 64px; transform: translate(-50%, -54%); overflow: hidden; border-radius: 50%; border: 2px solid #ff2d55; box-shadow: 0 0 18px rgba(255, 45, 85, 0.6); }
+.hw-eyecard.is-halo .ec-face img { width: 100%; height: 100%; object-fit: cover; filter: grayscale(0.6) contrast(1.1); }
+.hw-eyecard.is-halo .ec-orbit { position: absolute; left: 50%; top: 46%; width: 0; height: 0; animation: ec-spin 60s linear infinite; }
+.hw-eyecard.is-halo .ec-orbit.is-1 { animation-direction: reverse; animation-duration: 80s; }
+.hw-eyecard.is-halo .ec-orbit.is-2 { animation-duration: 120s; }
+.hw-eyecard.is-halo .ec-orbit .ec-eye { left: 0; top: 0; transform: translate(-50%, -50%) rotate(var(--a)) translateY(calc(var(--rad) * -1)); }
+
+/* Letters: the line spelled in eyes. */
+.hw-eyecard.is-letters .ec-field { display: grid; place-items: center; padding: 14px 12px 50px; height: auto; min-height: 150px; }
+.hw-eyecard.is-letters .ec-matrix { position: relative; width: 100%; }
+.hw-eyecard.is-letters .ec-dot { position: absolute; aspect-ratio: 1; transform: translate(-50%, -50%); }
+.hw-eyecard.is-letters .ec-dot i { display: block; width: 100%; height: 100%; border-radius: 50%; animation: ec-blink var(--bd, 7s) var(--bdl, 0s) infinite;
+  background: radial-gradient(ellipse 22% 48% at calc(50% + var(--lx, 0px) * 0.3) 50%, #020403 50%, transparent 56%), radial-gradient(circle, #9fe6b8 0 38%, #f2fff6 40% 100%); box-shadow: 0 0 4px rgba(196, 243, 208, 0.6); }
+.hw-eyecard.is-letters .ec-dot.is-red i { background: radial-gradient(ellipse 22% 48% at 50% 50%, #000 50%, transparent 56%), radial-gradient(circle, #ff2d55 0 38%, #f2fff6 40% 100%); box-shadow: 0 0 5px rgba(255, 45, 85, 0.7); }
+
+/* Waking: closed eyes everywhere; a few half open; three awake. */
+.hw-eyecard.is-waking .ec-shut { position: absolute; transform: rotate(var(--r, 0deg)); opacity: 0.55; }
+.hw-eyecard.is-waking .ec-shut svg { display: block; width: 100%; height: auto; }
+
+/* A fresh card opens its eyes one by one. */
+.chat-message.hardwipe-eye-message.is-fresh .ec-eye svg { animation: ec-open 0.5s var(--open, 0s) cubic-bezier(0.3, 1.4, 0.5, 1) both, ec-blink var(--bd, 7s) var(--bdl, 0s) infinite; }
+
+@keyframes ec-blink { 0%, 93%, 100% { transform: scaleY(1); } 95.5% { transform: scaleY(0.06); } }
+@keyframes ec-look { 0%, 100% { transform: translate(0, 0); } 30% { transform: translate(var(--lx, 6px), var(--ly, 0px)); } 62% { transform: translate(calc(var(--lx, 6px) * -1), calc(var(--ly, 0px) * -0.5)); } }
+@keyframes ec-open { from { transform: scaleY(0); } to { transform: scaleY(1); } }
+@keyframes ec-pulse { 50% { opacity: 0.25; } }
+@keyframes ec-crawl { to { transform: translateX(-50%); } }
+@keyframes ec-spin { to { transform: translate(-50%, -50%) rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) {
+  .hw-eyecard :is(.ec-eye svg, .ec-iris, .ec-top i, .ec-foot span, .ec-ring, .ec-orbit, .ec-pair i, .ec-dot i, .ec-feed small i) { animation: none !important; }
+}
+
+/* The GM's window, in the Eye's pale. */
+.application.dialog.hardwipe-dialog.is-eye { --hwd: #c4f3d0; --hwd-ink: #06120b; }

@@ -7,6 +7,7 @@ import { ShieldManager } from "./hardwipe-shields.js";
 import { CyberwareManager } from "./hardwipe-cyberware.js";
 import { CoverManager } from "./hardwipe-cover.js";
 import { AttackReviewManager } from "./hardwipe-attacks.js";
+import { registerCoupDeGrace } from "./hardwipe-coup.js";
 import { registerCardSettings, registerFallenStamps } from "./hardwipe-attack-cards.js";
 import { registerSpellSheetColor } from "./hardwipe-spell-cards.js";
 import { registerCardTools } from "./hardwipe-card-tools.js";
@@ -22,6 +23,9 @@ import { applyNpcSavesDefault, registerNpcSaves } from "./hardwipe-npc-saves.js"
 import { registerEffectChoice } from "./hardwipe-effect-choice.js";
 import { registerSaveCards } from "./hardwipe-check-cards.js";
 import { registerInitiativeCards } from "./hardwipe-initiative.js";
+import { registerInitiativeChoice } from "./hardwipe-initiative-choice.js";
+import { registerEye } from "./hardwipe-eye.js";
+import { registerManufacturers } from "./hardwipe-manufacturers.js";
 import { registerToolCards } from "./hardwipe-tool-cards.js";
 import { registerRollTracker } from "./hardwipe-roll-tracker.js";
 import { RecapDialog, RollTrackerApp, SessionDialog } from "./hardwipe-roll-tracker-app.js";
@@ -62,6 +66,9 @@ Hooks.once("init", async () => {
   registerEffectChoice();
   registerSaveCards();
   registerInitiativeCards();
+  registerInitiativeChoice();
+  registerEye();
+  registerManufacturers();
   registerToolCards();
   // Ready Set Midi's retroactive bonus dialog (the + on a roll) wears Hardwipe's dialog style.
   Hooks.on("renderDialogV2", (app, element) => {
@@ -71,6 +78,7 @@ Hooks.once("init", async () => {
   AttackReviewManager.registerSettings();
   RangedAttackManager.registerHooks();
   AttackReviewManager.registerHooks();
+  registerCoupDeGrace();
   registerCardSettings();
   registerFallenStamps();
   registerSpellSheetColor();

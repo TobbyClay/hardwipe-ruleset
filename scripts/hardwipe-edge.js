@@ -1,4 +1,4 @@
-import { MODULE_ID, EdgeManager, StrikesManager, DownedManager, canControlActor, resolveActor, escapeHTML } from "./hardwipe-state.js";
+import { MODULE_ID, EdgeManager, StrikesManager, DownedManager, canControlActor, isMook, resolveActor, escapeHTML } from "./hardwipe-state.js";
 import { arrivalWindow, reruleTarget, saveState, resyncSaveTarget } from "./hardwipe-attack-cards.js";
 
 /**
@@ -714,7 +714,7 @@ function executeTarget() {
   const token = targets[0];
   const actor = token.actor;
   if (!actor || actor.type === "character") return { ok: false, note: t("execute.NotMook") };
-  if (Number(actor.system?.resources?.legres?.max) > 0) return { ok: false, note: t("execute.Legendary") };
+  if (!isMook(actor)) return { ok: false, note: t("execute.Legendary") };
   if (!(Number(actor.system?.attributes?.hp?.value) > 0)) return { ok: false, note: t("execute.AlreadyDown") };
   return { ok: true, token };
 }
@@ -736,7 +736,7 @@ async function execute(actor) {
 async function gmExecute(tokenUuid) {
   const token = foundry.utils.fromUuidSync(tokenUuid);
   const actor = token?.actor;
-  if (!actor || actor.type === "character" || Number(actor.system?.resources?.legres?.max) > 0) return null;
+  if (!isMook(actor)) return null;
   const hp = Number(actor.system?.attributes?.hp?.value) || 0;
   if (hp <= 0) return null;
   await actor.update({ "system.attributes.hp.value": 0 });

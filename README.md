@@ -76,7 +76,7 @@ Each play posts its own cut-in card, and an award posts **Charged**.
 | --- | --- | --- | --- |
 | <img src="docs/media/initiative-order.png" alt="Initiative card: 4, fourth in the order, after Breach Guard, acts last, with the turn order strip" width="200"> | <img src="docs/media/consumable-damage.png" alt="Consumable card for a frag grenade: the blast scope, damage per target and the apply row" width="200"> | <img src="docs/media/tool-cards.png" alt="Six tool cards, one per family: Breach, Spoof, Synth, Fab, Nav and Signal" width="200"> | <img src="docs/media/feature-action-surge-card.png" alt="Action Surge card: +1 Action this turn" width="200"> |
 
-- **Initiative** shows your place in the turn order, and it updates as everyone else rolls.
+- **Initiative** shows your place in the turn order, and it updates as everyone else rolls. *(Next release.)* Rolling it puts you on the air with a pirate radio host, or under an NCPD dispatcher's camera, taking turns: ordinary initiative, or any skill as your initiative, and the card names the skill.
 - **Consumables and features** read as one card. A heal draws a vitals trace, a grenade its blast and damage per target, and a buff what it grants and for how long.
 - **Tools** have a **Roll check** button. The result lands on the tool card in a scope drawn by its family (Breach, Spoof, Synth, Fab, Nav, Signal). Most rolls have no DC, so the card names the highest standard DC the total beats.
 - **Action Surge** gives the action back on the Turn tab.
@@ -128,6 +128,7 @@ When a player attacks, the GM sees the total, the target's AC (cover included) a
 - **No flicker.** The attack card stays out of the chat log while Ready Set Midi rolls, checks hits and rolls damage, then appears once, complete, reading *Awaiting GM*. The GM's review appears with it.
 - **Damage you can take back.** Damage applied by the workflow is logged on the card as **Auto**, with an **Undo** that restores the hit points. The damage row (×1, ½, ×2, Targets) logs its applications the same way.
 - **Rolls you can change.** Switch a pending attack to advantage, add a bonus, reroll a die or roll critical damage, and everything downstream follows. The GM gets a fresh review, a wall proposal still waiting for the GM is re-posted, and damage that was already applied is adjusted by the difference (*Auto · adjusted*). Undo still restores the original hit points. A natural 20 that only arrives with advantage counts as a critical.
+- **Who made it.** *(Next release.)* Set a weapon's **Manufacturer** and its card wears that maker: Arasaka, Militech, Kang Tao, Tsunami, Budget Arms, Malorian Arms, Constitutional Arms, Techtronika, Maelstrom, PALE or ????. [Every maker's card →](docs/Cards.md#weapon-makers)
 - **CRIT on the damage line.** The roller can roll critical damage (the damage dice again) until the GM rules; the GM can at any time. The GM's review notes when the roller added crit dice.
 
 [Combat, damage and shields →](docs/Combat.md) · [Edge, Strikes and Downed →](docs/Players.md#edge-strikes-and-downed)
@@ -202,7 +203,9 @@ Spend Hit Dice one at a time and watch the med-scan climb. Use rest abilities li
 
 <img src="docs/media/heat-police-scanner.webp" alt="Mission Heat police-scanner style with radar and escalation meter" width="720">
 
-A scene-level Heat meter tracks how loud the crew has been. Each mission picks how Heat is announced: **Threat broadcast**, **Corrupted feed** or **Police scanner**. A world setting picks one of three turn-start card styles. Card colours are configurable, and motion stops for anyone with reduced motion turned on.
+A scene-level Heat meter tracks how loud the crew has been. *(Next release.)* The budget splits into thirds, **Clean**, **Hot** and **Critical**, as the rules set it, then **Lockdown**. Until Critical, a hit on a surprised mook can be a **Coup de Grace**: the GM's attack review offers it as its own button, and the mook dies outright. Each mission picks how Heat is announced: **Threat broadcast**, **Corrupted feed** or **Police scanner**. A world setting picks one of three turn-start card styles. Card colours are configurable, and motion stops for anyone with reduced motion turned on.
+
+*(Next release.)* When the Blackwall thins, the GM's **Eye** tool lets the AIs look back: a card from no sender, in one of nine ways of being watched. [The Eye →](docs/GM.md#the-eye)
 
 [Mission Heat and interface settings →](docs/GM.md#mission-heat)
 

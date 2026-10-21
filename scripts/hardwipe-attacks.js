@@ -1,10 +1,12 @@
-import { MODULE_ID, escapeHTML, plainActivityLabel } from "./hardwipe-state.js";
+import { MODULE_ID, escapeHTML, plainActivityLabel, repeatsLabel } from "./hardwipe-state.js";
 import { HardwipeRules } from "./hardwipe-rules.js";
 import {
   aggregateCriticalDamage, bindBrief, briefHTML, decorateRollCard, fallenTargets, insertAfterDamage, markDamageTypes, stampHTML, propertyChipsHTML, rarityClasses, recordSaveTargets,
   recordWorkflowDamage, rollCriticalDice, saveBlock, saveState
 } from "./hardwipe-attack-cards.js";
 import { settleCard } from "./hardwipe-assembly.js";
+import { applyCoupDeGrace, coupDeGraceFor, coupTargets } from "./hardwipe-coup.js";
+import { brandCard, itemMaker } from "./hardwipe-manufacturers.js";
 import { isSpellCard, renderSpellCard } from "./hardwipe-spell-cards.js";
 import { isImplantCard, renderImplantCard } from "./hardwipe-implant-cards.js";
 import { isCheckCard, renderCheckCard } from "./hardwipe-check-cards.js";
@@ -500,12 +502,19 @@ export class AttackReviewManager {
     const state = card?.getFlag(MODULE_ID, CARD_FLAG);
     if (!card || state?.unavailable || (data.attackKey && data.attackKey !== state?.attackKey)) return false;
     const final = {};
+    const coup = [];
     for (const target of data.targets) {
       const chosen = outcomes?.[target.uuid];
+      // Coup de Grace: the GM's choice for a surprised mook. The workflow sees a hit (a natural 20 stays a critical).
+      if (chosen === "coup" && target.suggested !== "fumble") {
+        coup.push(target.uuid);
+        final[target.uuid] = target.locked ? target.suggested : "hit";
+        continue;
+      }
       final[target.uuid] = target.locked ? target.suggested : OUTCOMES.has(chosen) && chosen !== "fumble" ? chosen : target.suggested;
     }
     const decision = data.targets.map(target => final[target.uuid]);
-    await review.setFlag(MODULE_ID, REVIEW_FLAG, { ...data, decision, decidedBy: game.user.id, decidedAt: Date.now() });
+    await review.setFlag(MODULE_ID, REVIEW_FLAG, { ...data, decision, coup, decidedBy: game.user.id, decidedAt: Date.now() });
     if (!this._matchesAttack(card, data.attackKey)) return false;
     let delivered = false;
     try {
@@ -518,6 +527,7 @@ export class AttackReviewManager {
     }
     if (delivered === null) return false;
     if (!delivered) await this._applyFromGM(data, final);
+    if (coup.length) await applyCoupDeGrace(card, coup);
     return true;
   }
 
@@ -575,6 +585,8 @@ export class AttackReviewManager {
       element.classList.add("hardwipe-attack-message", "hardwipe-weapon-message");
       element.classList.toggle("hardwipe-review-pending", view.pending);
       element.querySelector(".message-content")?.insertAdjacentHTML("afterbegin", weaponHeadHTML(view, item, message.getAssociatedActivity?.()));
+      // The maker's style, or the base card (hardwipe-manufacturers.js).
+      brandCard(element, itemMaker(item), message.id);
       bindBrief(message, element, item);
       decorateRollCard(message, element, { pending: view.pending, saves, tone: view.tone, locked });
       return;
@@ -609,7 +621,10 @@ export class AttackReviewManager {
         const block = element.querySelector(`.hardwipe-review-target[data-uuid="${CSS.escape(target.uuid)}"]`);
         const outcome = data.decision[index];
         if (!OUTCOMES.has(outcome)) continue;
-        block?.insertAdjacentHTML("beforeend", `<div class="hardwipe-review-decision is-${outcome}"><i class="fas ${OUTCOME_ICONS[outcome]}" inert></i>${escapeHTML(outcomeLabel(outcome))}</div>`);
+        const coup = Array.isArray(data.coup) && data.coup.includes(target.uuid);
+        block?.insertAdjacentHTML("beforeend", coup
+          ? `<div class="hardwipe-review-decision is-coup"><i class="fas fa-skull" inert></i>${escapeHTML(game.i18n.localize("HARDWIPE.Coup.Stamp"))}</div>`
+          : `<div class="hardwipe-review-decision is-${outcome}"><i class="fas ${OUTCOME_ICONS[outcome]}" inert></i>${escapeHTML(outcomeLabel(outcome))}</div>`);
       }
       return;
     }
@@ -626,22 +641,36 @@ export class AttackReviewManager {
       if (!block) continue;
       const row = element.ownerDocument.createElement("div");
       row.className = "hardwipe-review-outcomes";
-      for (const outcome of target.locked ? [target.suggested] : ["hit", "critical", "miss"]) {
+      const buttons = [];
+      const choice = (outcome, label, icon, parent, extra = "") => {
         const button = element.ownerDocument.createElement("button");
         button.type = "button";
         button.dataset.outcome = outcome;
-        button.className = `hardwipe-hud-btn ${outcome === target.suggested ? "is-primary is-suggested" : ""}`;
-        const label = target.locked ? game.i18n.format("HARDWIPE.Attack.ConfirmOutcome", { outcome: outcomeLabel(outcome) }) : outcomeLabel(outcome, true);
-        button.innerHTML = `<i class="fas ${OUTCOME_ICONS[outcome]}" inert></i><span>${escapeHTML(label)}</span>`;
+        button.className = `hardwipe-hud-btn ${extra} ${outcome === target.suggested ? "is-primary is-suggested" : ""}`;
+        button.innerHTML = `<i class="fas ${icon}" inert></i><span>${escapeHTML(label)}</span>`;
         button.addEventListener("click", async event => {
           event.preventDefault();
           if (open.length === 1) return this._submit(message, element, { [target.uuid]: outcome });
           selected[target.uuid] = outcome;
-          row.querySelectorAll("button").forEach(other => other.classList.toggle("is-primary", other === button));
+          buttons.forEach(other => other.classList.toggle("is-primary", other === button));
         });
-        row.append(button);
+        buttons.push(button);
+        parent.append(button);
+        return button;
+      };
+      for (const outcome of target.locked ? [target.suggested] : ["hit", "critical", "miss"]) {
+        const label = target.locked ? game.i18n.format("HARDWIPE.Attack.ConfirmOutcome", { outcome: outcomeLabel(outcome) }) : outcomeLabel(outcome, true);
+        choice(outcome, label, OUTCOME_ICONS[outcome], row);
       }
       block.append(row);
+      // Coup de Grace: its own button, for a surprised mook while Heat is below Critical.
+      if (target.suggested !== "fumble" && !coupDeGraceFor(foundry.utils.fromUuidSync(target.uuid))) {
+        const coupRow = element.ownerDocument.createElement("div");
+        coupRow.className = "hardwipe-review-outcomes is-coup";
+        const coup = choice("coup", game.i18n.localize("HARDWIPE.Coup.Stamp"), "fa-skull", coupRow, "hardwipe-review-coup");
+        coup.dataset.tooltip = game.i18n.localize("HARDWIPE.Coup.Hint");
+        block.append(coupRow);
+      }
     }
     if (open.length > 1 && slot) {
       slot.innerHTML = "";
@@ -753,9 +782,11 @@ function nameBarHTML(name, rarity, status) {
 /** Attack type tag and the activity; the weapon heads the card and the actor heads the message. */
 function kindRowHTML(kind, activity, weapon) {
   const config = ATTACK_KINDS[kind];
-  const detail = activity && activity !== weapon ? activity : "";
+  const label = config ? game.i18n.localize(config.label) : "";
+  // "Ranged Attack · Attack" says it twice: a default activity name gives way to the tag.
+  const detail = repeatsLabel(activity, weapon, label) ? "" : activity;
   if (!config && !detail) return "";
-  const tag = config ? `<span class="hardwipe-attack-kind is-${kind}"><i class="fas ${config.icon}" inert></i>${escapeHTML(game.i18n.localize(config.label))}</span>` : "";
+  const tag = config ? `<span class="hardwipe-attack-kind is-${kind}"><i class="fas ${config.icon}" inert></i>${escapeHTML(label)}</span>` : "";
   return `<div class="hardwipe-attack-kind-row">${tag}${detail ? `<span class="hardwipe-attack-activity">${escapeHTML(detail)}</span>` : ""}</div>`;
 }
 
@@ -793,7 +824,8 @@ function attackView(message) {
   const state = message.getFlag(MODULE_ID, CARD_FLAG);
   if (!Array.isArray(state?.targets)) return null;
   const fallen = fallenTargets(message);
-  const targets = state.targets.map(target => ({ ...target, outcome: target.outcome ?? "pending", fallen: fallen.get(target.uuid) }));
+  const coups = coupTargets(message);
+  const targets = state.targets.map(target => ({ ...target, outcome: target.outcome ?? "pending", fallen: fallen.get(target.uuid), coup: coups.has(target.uuid) }));
   // Other targets of the same attack (player characters) keep Ready Set Midi's own result.
   for (const target of midi?.targets ?? []) {
     if (!target?.uuid || stateTarget(state, target.uuid)) continue;
@@ -859,12 +891,13 @@ function midiAttackView(message) {
   const midi = message.flags?.[MIDI];
   if (!midi || midi.d20AttackRoll === undefined || !midi.targets?.length) return null;
   const fallen = fallenTargets(message);
+  const coups = coupTargets(message);
   const targets = midi.targets.filter(target => target?.uuid).map(target => {
     const document = foundry.utils.fromUuidSync(target.uuid);
     const hit = (midi.hitTargetUuids ?? []).includes(target.uuid) || (midi.hitECTargetUuids ?? []).includes(target.uuid);
     const outcome = midi.isFumble ? "fumble" : hit ? (midi.isCritical ? "critical" : "hit") : "miss";
     return { uuid: target.uuid, name: target.name ?? document?.name ?? "", img: document?.texture?.src ?? document?.actor?.img ?? "", outcome,
-      fallen: fallen.get(target.uuid) };
+      fallen: fallen.get(target.uuid), coup: coups.has(target.uuid) };
   });
   const outcomes = new Set(targets.map(target => target.outcome));
   const tone = outcomes.size === 1 ? [...outcomes][0] : "mixed";
@@ -883,7 +916,7 @@ function targetsHTML(view) {
   return `<div class="hardwipe-targets">${view.targets.map(target => `<div class="hardwipe-target is-${target.outcome}${target.fallen ? ` is-fallen is-${target.fallen}` : ""}">
       <span class="hardwipe-lock">${target.img ? `<img src="${escapeHTML(target.img)}" alt="">` : ""}</span>
       <span class="hardwipe-target-text"><span class="hardwipe-target-name">${escapeHTML(target.name)}</span>${coverHTML(target.cover)}</span>
-      ${stampHTML(target.fallen)}
+      ${stampHTML(target.coup ? "coup" : target.fallen)}
       ${mixed ? `<em><i class="fas ${OUTCOME_ICONS[target.outcome] ?? "fa-hourglass-half"}" inert></i></em>` : ""}
     </div>`).join("")}</div>`;
 }

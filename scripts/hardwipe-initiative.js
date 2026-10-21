@@ -1,5 +1,6 @@
 import { escapeHTML } from "./hardwipe-state.js";
 import { advControlHTML, arrivalWindow, d20Drawer } from "./hardwipe-attack-cards.js";
+import { initiativeSkill, skillLabel } from "./hardwipe-initiative-choice.js";
 
 /**
  * Initiative cards: a compact row (the total with its natural d20, your place in the order as an ordinal, who you act
@@ -85,12 +86,15 @@ const t = (key, data) => data ? game.i18n.format(`HARDWIPE.Init.${key}`, data) :
 export function renderInitiative(message, element, content, { button, breakdown, row, roll }) {
   const panel = document.createElement("div");
   panel.className = "hardwipe-check is-initiative hardwipe-init";
+  // Variant initiative: the skill it was rolled with.
+  const skill = initiativeSkill(roll);
+  const label = skill ? game.i18n.format("HARDWIPE.InitPick.CardLabel", { skill: skillLabel(skill) }) : t("Label");
   panel.style.setProperty("--hw-check", "var(--hw-cyan)");
   panel.innerHTML = `
     <div class="hardwipe-init-row">
       <div class="hardwipe-check-roll hardwipe-init-roll"></div>
       <span class="hardwipe-init-ord" aria-live="polite"></span>
-      <div class="hardwipe-init-flow"><small>${escapeHTML(t("Label"))}</small><span></span><span></span></div>
+      <div class="hardwipe-init-flow"><small>${escapeHTML(label)}</small><span></span><span></span></div>
       ${advControlHTML(message, roll, button.dataset.rsmRollKey || "", {})}
     </div>
     <ol class="hardwipe-init-queue"></ol>`;
@@ -100,7 +104,7 @@ export function renderInitiative(message, element, content, { button, breakdown,
   row?.classList.add("hardwipe-check-source");
   content.prepend(panel);
   // The dice open under the whole row rather than inside the narrow total.
-  const drawer = d20Drawer(message, button, roll, t("Label"), "check");
+  const drawer = d20Drawer(message, button, roll, label, "check");
   if (drawer) panel.append(drawer);
   fillInitiative(panel, message);
   // Ready Set Midi's + (Bless, Guidance or a number after the roll) moves in beside the switch. It is the same

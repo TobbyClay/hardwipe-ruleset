@@ -113,6 +113,22 @@ Each play posts its own card; an award posts a **Charged** card.
 
 The module blocks ordinary character death-save rolls and explains the replacement in chat. Healing and ally assistance remain available through the game's normal actions and the GM's adjudication.
 
+## Who made your gun
+
+*(Next release.)* A weapon, armour, consumable or tool has a **Manufacturer** field on its Details tab. Type a name or pick one from the list: Night City's makers from Cyberpunk 2077 and Cyberpunk RED, plus the campaign's own. A weapon from a maker with a style gets that maker's attack card (Arasaka, Militech, Kang Tao, Tsunami, Budget Arms, Malorian Arms, Constitutional Arms, Techtronika, Maelstrom, PALE and ????); any other maker shows its name on the card's bar. Leave it empty for the plain card. [Every maker's card →](Cards.md#weapon-makers)
+
+## Roll initiative your way
+
+| On the air | Under the camera |
+| --- | --- |
+| <img src="media/initiative-radio.png" alt="96.6 Pirate FM call-in: ON AIR, the host Mikey Max shouting 'Is that a flatline I hear? Not on my show! Move it, Mags!', Mags as the caller, a station dial, Your move caller: Initiative (DEX) +3, Go live and Hang up" width="360"> | <img src="media/initiative-ncpd.png" alt="NCPD dispatch terminal: 10-34 shots fired, round 1, 3 hostile; Mags on cam 19; a Post-it on the monitor reading 'Logging this one for the report. Method of engagement?'; Method of engagement: Initiative (DEX) +3; Log it and Look away" width="360"> |
+
+*(Next release.)* Rolling initiative, from your sheet or the combat tracker, opens a window that asks what you're using. Two voices take turns: **96.6 Pirate FM**, where the host puts you on the air as the caller and the dial tunes to your pick, and **NCPD dispatch**, a night-shift cop watching the fight on a camera, with his question on a Post-it stuck to the monitor. Each has its own lines, and both mention the scene and the round.
+
+The dropdown lists ordinary initiative first, then every skill with your bonus. Blending into a crowd when it kicks off, roll Deception; chasing your target, Athletics. The GM has the final say on what fits.
+
+A skill rolls in place of your initiative modifier; condition penalties still apply. The initiative card names the skill, and its DIS/ADV switch works as usual. **Hang up** or **Look away** rolls nothing. The window can be resized, and it opens in the middle of the screen. NPCs and the GM's **Roll All** keep ordinary initiative.
+
 ## Attack and react
 
 1. Target the creature and use your weapon or attack activity.
