@@ -1,6 +1,6 @@
 # GM setup and interface controls
 
-[← Overview](../README.md) · [Player guide](Players.md) · [Walls](Walls.md) · [Combat](Combat.md)
+[← Overview](../README.md) · [The Eye](#the-eye) · [Player guide](Players.md) · [Walls](Walls.md) · [Combat](Combat.md)
 
 ## Installation and first run
 
@@ -23,7 +23,7 @@ For a first-session setup: configure implant categories and service access, leav
 
 <img src="media/mission-heat-config.webp" alt="Start Mission dialog lets the GM choose the Heat card style" width="750">
 
-Use **Start Mission** on the Heat HUD. Choose the mission maximum and card style. The meter tracks the scene's escalation, with Hot at 50%, Critical at 75%, and Lockdown at its maximum. Drag the HUD by its header; each client's position persists. The thermometer in Token Controls shows or hides it.
+Use **Start Mission** on the Heat HUD. Choose the mission maximum and card style. The meter tracks the scene's escalation. *(Next release.)* The budget splits into thirds, **Clean**, **Hot** and **Critical**, and when it doesn't divide by three Critical gets the smallest range: a budget of 6 is two marks of each, 7 is 3, 2, 2. Spending the whole budget is **Lockdown**. **−** takes back a mark the crew genuinely erased. Drag the HUD by its header; each client's position persists. The thermometer in Token Controls shows or hides it.
 
 | Threat broadcast | Corrupted feed | Police scanner |
 | --- | --- | --- |
@@ -195,6 +195,19 @@ Award Edge with **+** beside it on the sheet or the Turn tab: it posts a **Charg
 
 - **Rerolls.** You can press Keep or Reroll for an absent player. Writing someone else's die goes through the card's author (who holds the Midi workflow) or you. When a reroll flips an attack you already ruled, the card asks you again (**Miss · take back damage** / **Hit stands**, or the reverse). Hardwipe otherwise keeps a ruled attack locked. A rerolled save that answers a spell moves its target between the saved and failed lists, and applied damage follows. The Strike from a drop to 0 stays; take it off on the Strikes tray if the reroll means it never happened.
 - **Execute** runs on your client. It refuses anything with Legendary Resistance (`system.resources.legres.max` above 0) and characters.
+
+## The Eye
+
+<img src="media/eye-variants.webp" alt="Nine Eye cards from no sender: a swarm of eyes, a wall of eyes, a close-up with Mags reflected in the pupil, pairs of eyes in the dark, an eye at a crack, nine camera feeds of eyes with Mags marked as subject, a halo of eyes around Mags, LET US IN spelled in eyes, and closed eyes waking" width="760">
+
+*(Next release.)* The AIs behind the Blackwall want through, and sometimes they look back. The **eye** in Token Controls (GM only) posts a card from no sender, **∅**, at a character:
+
+- **Who it sees:** a player character, or no one in particular. The card names them, the scene and the round, and some variants show their portrait.
+- **How it looks:** one of nine variants, or **Random**: Swarm, Wall of eyes, Close-up, In the dark, Crack in the wall, Every camera, Halo, Spelled in eyes, Waking.
+- **What it says:** leave it empty and each variant says its own line ("WE SEE YOU", "BE NOT AFRAID", "WE ARE WAKING"); type one and every variant uses it, with the first O opened into an eye. **Spelled in eyes** writes the line itself in eyes.
+- **Who gets the message:** everyone, or only that character's players and the GM.
+
+A fresh card opens its eyes one by one; after that they blink and glance on their own timing. Every client draws the same card, laid out from the message itself. Motion stops for anyone with reduced motion turned on. Macros can call `game.hardwipe.eye.post(actor, { line, variant, onlyThem })`, or `game.hardwipe.eye.open()` for the window.
 
 ## Custom effects on cards and the Turn tab
 

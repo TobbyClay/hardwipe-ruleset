@@ -1,6 +1,6 @@
 # Attacks, shields, saves, and concentration
 
-[← Overview](../README.md) · [Player guide](Players.md) · [Walls](Walls.md) · [Card gallery](Cards.md)
+[← Overview](../README.md) · [Coup de Grace](#coup-de-grace) · [Variant initiative](#variant-initiative) · [Player guide](Players.md) · [Walls](Walls.md) · [Card gallery](Cards.md)
 
 ## GM-confirmed attacks
 
@@ -19,6 +19,18 @@ Natural 20 and natural 1 outcomes still require explicit confirmation. A natural
 > **Audited preview:** critical damage is combined per target before native mitigation and Shield Block. If the attacker's live workflow is gone, approval stops safely; the GM must have the attacker roll again. It does not reconstruct and automatically apply stale stored damage. See [development status](Development.md).
 
 If no GM can review, the workflow stops without applying damage. Deleting a pending attack card cancels its waiting workflow. While a decision is pending, switching the roll to advantage or disadvantage, or adding a bonus, keeps the damage on the card and posts a fresh review with the new total. A natural 20 that only arrives with advantage counts as a critical. Once the GM has ruled, the attack roll is settled: the advantage switch and the attack's bonus button lock. *(Next release.)* An Edge **Reroll** is the exception: if the new die flips a ruled hit into a miss (or a miss into a hit), the card asks the GM to rule again. **Miss · take back damage** returns the damage applied to that target; **Hit · apply damage** applies it.
+
+## Coup de Grace
+
+*(Next release.)* Hit a mook that is **Surprised** and it dies: the target drops to 0 HP, whatever the damage. Melee, ranged and spell attacks all count. A mook is any creature that isn't a player character and has no Legendary Resistance. Mark surprised creatures with D&D5e's **Surprised** status on the token.
+
+Once the mission's Heat reaches **Critical**, enemies are alert and Coup de Grace is off. With no mission running, it applies.
+
+With GM-confirmed attacks on, it's the GM's call: when Coup de Grace can apply, the target's review row gets its own **Coup de grâce** button under **Hit / Critical / Miss**. Choosing it counts as a hit (a natural 20 stays a critical) and drops the target. **Hit** stays an ordinary hit. The attack card stamps the target **Coup de grâce**. With the review off, there is no one to ask, so a hit recorded by Ready Set Midi kills a qualifying mook automatically, applied by the GM's client, so a GM must be online.
+
+## Variant initiative
+
+*(Next release.)* A player character's initiative can be a skill check. The window that opens on rolling (sheet or combat tracker), in the pirate radio or the NCPD dispatch voice by turns, offers ordinary initiative, then every skill with its bonus; the chosen skill's total replaces D&D5e's initiative modifier, proficiency and initiative bonuses, while condition penalties and the Dexterity tiebreaker stay. D&D5e's roll dialog is skipped after the window, and advantage is set on the initiative card's switch. The card's label names the skill. NPCs, fixed initiative scores, and the GM's **Roll All** / **Roll NPCs** stay ordinary initiative.
 
 ## Ranged hints name the actual source
 

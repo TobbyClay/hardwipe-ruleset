@@ -1,3 +1,4 @@
+import { heatBand, heatBandStarts } from "./heat-bands.js";
 import { MODULE_ID, escapeHTML } from "./hardwipe-state.js";
 import { rendersRequest } from "./hardwipe-requests.js";
 import { arrivalWindow } from "./hardwipe-attack-cards.js";
@@ -310,11 +311,15 @@ function heatCells(heat) {
   const cells = [];
   for (let i = 1; i <= count; i++) {
     const value = i * max / count;
-    const zone = value / max >= 0.75 ? "is-red" : value / max >= 0.5 ? "is-amber" : "is-green";
+    // The band this mark puts Heat in.
+    const band = heatBand(Math.ceil(value), max);
+    const zone = band === "clean" ? "is-green" : band === "hot" ? "is-amber" : "is-red";
     if (value <= to) cells.push(`<i class="${zone}${value > from ? " is-new" : ""}"></i>`);
     else cells.push(`<i class="${value <= from ? "is-ghost" : ""}"></i>`);
   }
-  const zones = ["clean", "hot", "critical", "lockdown"].map((zone, index) => `<span style="--at: ${[0, 50, 75, 100][index]}%">${escapeHTML(t(`Heat.Zone.${zone}`))}</span>`).join("");
+  const starts = heatBandStarts(max);
+  const at = [0, starts.hot, starts.critical, max].map(marks => Math.round(marks / max * 100));
+  const zones = ["clean", "hot", "critical", "lockdown"].map((zone, index) => `<span style="--at: ${at[index]}%">${escapeHTML(t(`Heat.Zone.${zone}`))}</span>`).join("");
   const reading = from === to ? `${pad(to)} / ${pad(max)}` : `${pad(from)} ▸ ${pad(to)} / ${pad(max)}`;
   return `<div class="hwh-meter"><div class="hwh-meter-top"><span>${escapeHTML(t("Heat.Meter"))}</span><b>${escapeHTML(reading)}</b></div>`
     + `<div class="hwh-cells" style="--count: ${count}">${cells.join("")}</div><div class="hwh-zones">${zones}</div></div>`;

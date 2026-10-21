@@ -298,4 +298,29 @@ The later **Wall Effects development preview** adds three actual native captures
 - **Synthetic data is visible.** QA labels, deliberate damaged items, and test roll values are native demonstration content, not a campaign export.
 - **Defaults can differ.** Colors, text size, folding, rarity integration, and third-party module configuration can change what a reader sees.
 
+## Variant initiative capture
+
+Captured on **2026-10-20** in the disposable QA world, as the QA Player, from the combat tracker's roll button for Mags, two openings in a row; captured at 2× and shown at 360 px. Lines, listener count, camera number and clock are as drawn that time.
+
+| Published file | Subject |
+| --- | --- |
+| [initiative-radio.png](media/initiative-radio.png) | 96.6 Pirate FM: ON AIR, the host's line, Mags as caller, the dial, Initiative (DEX) +3, Go live and Hang up. |
+| [initiative-ncpd.png](media/initiative-ncpd.png) | NCPD dispatch: 10-34 in round 1 with 3 hostile, Mags on camera, the Post-it, Initiative (DEX) +3, Log it and Look away. |
+
+## The Eye capture
+
+Captured on **2026-10-20** in the disposable QA world, as the QA Player: the nine variants drawn by `hardwipe-eye.js` from mock messages aimed at Mags in the Crew Breach QA scene, round 2, with each variant's own line; animation paused 2.5 seconds in; captured at 2× and saved as WebP.
+
+| Published file | Subject |
+| --- | --- |
+| [eye-variants.webp](media/eye-variants.webp) | The Eye: Swarm, Wall of eyes, Close-up, In the dark, Crack in the wall, Every camera, Halo, Spelled in eyes, Waking. |
+
+## Weapon maker capture
+
+Captured on **2026-10-21** in the disposable QA world, as the QA Player: one live Heavy Pistol attack (a confirmed hit on the Breach Guard), cloned twelve times and branded by `hardwipe-manufacturers.js`; roll card left out; captured at 2× and saved as WebP. The same styles were checked on real attacks after setting the field on the weapon's sheet.
+
+| Published file | Subject |
+| --- | --- |
+| [weapon-makers.webp](media/weapon-makers.webp) | Unbranded, Arasaka, Militech, Kang Tao, Tsunami Defense Systems, Budget Arms, Malorian Arms, Constitutional Arms, Techtronika, PALE, ???? and Maelstrom. |
+
 The originals remain in the development audit. Documentation media contains no machine-specific file paths, campaign databases, QA result JSON, or recreated UI.
