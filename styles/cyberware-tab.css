@@ -178,6 +178,7 @@
 /* Carried alternatives: a dark tag on the image corner, legible over light and dark item art. */
 .hardwipe-slot-extra {
   position: absolute;
+  z-index: 2;
   right: -5px;
   bottom: -4px;
   min-width: 17px;
@@ -271,8 +272,9 @@
 .hardwipe-cyberware-item.is-damaged { --row-state: var(--hw-cw-bad); }
 
 .hardwipe-cyberware-item-row { display: flex; align-items: center; gap: 8px; }
-.hardwipe-cyberware-tab button.hardwipe-item-image.gold-icon { --gold-icon-size: 36px; display: block; padding: 0; overflow: hidden; }
-.hardwipe-item-image > img { display: block; width: 100%; height: 100%; border: 0; border-radius: 0; object-fit: cover; }
+/* The button only takes the click; its image is the gold frame, like the slot icon. Nothing clips it, so SC's icon effects show. */
+.hardwipe-cyberware-tab button.hardwipe-item-image { position: relative; display: grid; flex: none; place-items: center; width: 36px; height: 36px; min-height: 0; padding: 0; }
+.hardwipe-item-image > img.gold-icon { --gold-icon-size: 36px; display: block; }
 .hardwipe-cyberware-item-name { display: flex; flex: 1; flex-direction: column; align-items: flex-start; gap: 3px; min-width: 0; }
 .hardwipe-cyberware-tab .hardwipe-cyberware-item-name > button.unbutton {
   width: auto;
@@ -365,9 +367,17 @@
 .hardwipe-cyberware-hints p { margin: 0; line-height: 1.4; }
 .hardwipe-cyberware-hints i { margin-right: 3px; color: var(--hardwipe-gold); }
 
-/* ---- SC Item Rarity Colors: rarity frames the image and colours the title; surfaces and rails stay Hardwipe's ---- */
+/* ---- SC Item Rarity Colors: rarity frames the image and colours the title; surfaces and rails stay Hardwipe's ----
+   SC 3.0.15 also draws a pulse or emanation behind each frame and covers unidentified images: absolutely placed
+   elements just before the <img>, sized to it, in the icon's 30/36px grid, which SC isolates. The +N tag stays on top. */
 .hardwipe-cyberware-tab .hardwipe-slot-group.scirc-inv-gradient-enabled,
 .hardwipe-cyberware-tab .hardwipe-cyberware-item.scirc-inv-gradient-enabled { background: none !important; }
+/* A title colour chosen for that gradient (SC's Unidentified style is near-white) is mixed with the ink on light sheets.
+   SC's own title rule has the same layer and (0,4,0) specificity and loads later, hence the extra `.item`. */
+.hardwipe-cyberware-tab .item.scirc-inv-gradient-enabled.scirc-inv-title-color-enabled .item-name {
+  color: light-dark(color-mix(in srgb, var(--scirc-inv-title-color, var(--color-text-primary)) 35%, var(--color-text-primary)),
+    var(--scirc-inv-title-color, var(--color-text-primary))) !important;
+}
 
 /* ---- Doll overlay: installed regions lit and hatched, selection in gold ---- */
 .hardwipe-hatch > rect { fill: rgba(143, 207, 176, 0.08); }
