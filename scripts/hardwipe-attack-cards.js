@@ -51,13 +51,29 @@ export function blendDamageColor(parts) {
 }
 
 /**
+ * The SC rarity key this viewer sees on an item. SC 3.0.15 can draw unidentified items in its own
+ * "Unidentified" style so their colours don't give the rarity away; its setting says who sees that style
+ * (players, everyone or nobody). Without that setting (older SC) the real rarity shows. Blank rarity is Common.
+ */
+export function scRarityKey(item, { viewers = "nobody", isGM = false } = {}) {
+  const unidentified = item?.system?.identified === false && (viewers === "everyone" || (viewers === "players" && !isGM));
+  if (unidentified) return "scircunidentifiedstyle";
+  const raw = item?.system?.rarity?.value ?? item?.system?.rarity ?? "";
+  return String(raw || "common").toLowerCase().replace(/[^a-z0-9]+/g, "");
+}
+
+/**
  * SC Item Rarity Colors publishes each rarity's colours as variables on its own classes; giving an
- * element those classes lets SC colour it with the user's palette and toggles. Blank rarity is Common.
+ * element those classes lets SC colour it with the user's palette and toggles.
  */
 export function rarityClasses(item) {
   if (!item || !game.modules.get("sc-item-rarity-colors")?.active) return "";
-  const raw = item.system?.rarity?.value ?? item.system?.rarity ?? "";
-  const key = String(raw || "common").toLowerCase().replace(/[^a-z0-9]+/g, "");
+  let viewers = "nobody";
+  if (game.settings.settings.has("sc-item-rarity-colors.unidentifiedStyleViewers")) {
+    try { viewers = game.settings.get("sc-item-rarity-colors", "unidentifiedStyleViewers"); } catch { /* keep the real rarity */ }
+    if (!["players", "everyone", "nobody"].includes(viewers)) viewers = "players";
+  }
+  const key = scRarityKey(item, { viewers, isGM: game.user.isGM });
   return `scirc-managed-item-row scirc-inv-title-color-enabled scirc-inv-border-managed scirc-rarity-${key}`;
 }
 

@@ -68,7 +68,9 @@ Using the activity posts a diagnostic card with the region, charges, effect info
 
 ## Rarity colors
 
-With **SC – Item Rarity Colors** active, implant images and names follow its inventory border and title settings, including supported custom tiers, gradients, and glow. The current screenshot shows different rarity frames. Row background gradients stay off in this tab, and state rails and labels remain visible so rarity cannot conceal Disabled or Damaged. Without SC, images use the sheet's native gold frame. Compatibility was verified against SC 3.0.14.
+With **SC – Item Rarity Colors** active, implant images and names follow its inventory border and title settings, including supported custom tiers, gradients, and glow. The current screenshot shows different rarity frames. Row background gradients stay off in this tab, and state rails and labels remain visible so rarity cannot conceal Disabled or Damaged. Without SC, images use the sheet's native gold frame.
+
+SC 3.0.15 adds animated effects. The inventory icon pulse and emanation it configures per rarity also play behind implant images in this tab, and its **Animations** switch and the system's reduced-motion setting stop them. Unidentified implants take SC's Unidentified style and image cover here as in the inventory, and chat cards colour unidentified items the same way for the viewers SC names. On light sheets, a title colour chosen for SC's row gradient, such as the near-white Unidentified title, is darkened to stay readable. Compatibility was verified against SC 3.0.15.
 
 ## Personal paper dolls
 
