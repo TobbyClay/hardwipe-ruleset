@@ -1,5 +1,6 @@
 {{#*inline "hardwipeSlotCard"}}
-{{!-- SC recognizes `.item` rows, `.item-image.gold-icon` frames and `.item-name` titles; it owns palette/settings refresh. --}}
+{{!-- SC recognizes `.item` rows, `.item-image.gold-icon` frames and `.item-name` titles; it owns palette/settings refresh.
+  The frame is the <img> itself, as in the native inventory: SC 3.0.15 places its icon effects and unidentified cover just before it. --}}
 <div class="hardwipe-slot-group {{#if previewItem}}{{#if rarityColors}}item{{/if}}{{/if}}" data-slot="{{id}}" {{#if previewItem}}data-item-id="{{previewItem.id}}"{{/if}}>
   <button type="button" class="unbutton always-interactive hardwipe-slot-card is-{{stateKey}} {{#if selected}}is-selected{{/if}} {{#if previewItem}}is-filled{{else}}is-empty{{/if}} {{#if occupied}}is-occupied{{/if}}"
     data-action="hardwipeSelectRegion" data-slot="{{id}}" aria-pressed="{{selected}}" aria-label="{{ariaLabel}}"
@@ -92,9 +93,9 @@
       <li class="hardwipe-cyberware-item {{#if ../rarityColors}}item{{/if}} is-{{stateKey}} {{#if installed}}is-installed{{/if}} {{#if queued}}is-queued{{/if}}"
         data-item-id="{{id}}">
         <div class="hardwipe-cyberware-item-row">
-          <button type="button" class="unbutton always-interactive item-image gold-icon hardwipe-item-image" data-action="hardwipeCyberware"
+          <button type="button" class="unbutton always-interactive hardwipe-item-image" data-action="hardwipeCyberware"
             data-cyberware-action="open" data-tooltip="{{../labels.open}}: {{name}}" aria-label="{{../labels.open}}: {{name}}">
-            <img src="{{img}}" alt="">
+            <img class="item-image gold-icon" src="{{img}}" alt="">
           </button>
           <div class="hardwipe-cyberware-item-name">
             <button type="button" class="unbutton always-interactive {{#if ../rarityColors}}item-name{{/if}}" data-action="hardwipeCyberware" data-cyberware-action="open">{{name}}</button>
