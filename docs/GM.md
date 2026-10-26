@@ -198,9 +198,15 @@ Award Edge with **+** beside it on the sheet or the Turn tab: it posts a **Charg
 
 ## Legendary cards
 
-<img src="media/legendary-picker.webp" alt="The Legendary card window for Saint's Due: the standard card and the designs, each drawn with the weapon's own name, maker, art and chips, with Apply and Cancel" width="560">
+<img src="media/legendary-editor.webp" alt="The Legendary card window for Silver Tongue: Standard, Its own card and Signature; its own card starts from Engraved with a painting as art, a hue, a title colour, a line above the name and a flavour line, and the card on the right shows the result as it will look" width="620">
 
-*(Next release.)* Give a rare weapon its own attack card: click the **crown** on the bar of one of its cards in chat and pick a design, or **Standard card** to go back. Only you see the crown, and only on weapons at or above **Legendary cards from** in Hardwipe's settings. The rarities come in the rarity list's order, so Custom D&D's own tiers count as you rank them (say Gonk, Street, Nova, Preem, Iconic); **Automatic** is the top tier. [The designs →](Cards.md#legendary-cards)
+*(Next release.)* Give a rare weapon its own attack card: click the **crown** on the bar of one of its cards in chat. Only you see the crown, and only on weapons at or above **Legendary cards from** in Hardwipe's settings. The rarities come in the rarity list's order, so Custom D&D's own tiers count as you rank them (say Gonk, Street, Nova, Preem, Iconic); **Automatic** is the top tier.
+
+- **Its own card:** pick a design to start from, then make it this weapon's: art (any image, shown behind the design's panel at the strength you set), a hue, the title's type and colour, a line above and below the name, a badge (the design's stamp, seal, pass band or speech bubble) and a flavour line. The card on the right follows as you edit.
+- **Signature:** a card hand-built for one weapon. Each is on one weapon at a time: giving it to another takes it off the first, which goes back to the standard card. The list says where each one is.
+- **Standard** goes back to the plain card or the maker's style; the weapon keeps what you made for it if you switch back.
+
+[Every design and signature card →](Cards.md#legendary-cards)
 
 ## The Eye
 

@@ -583,15 +583,15 @@ export class AttackReviewManager {
     if (view) {
       const item = message.getAssociatedItem?.();
       const activity = message.getAssociatedActivity?.();
-      const design = legendaryDesign(item);
+      const card = legendaryDesign(item);
       element.querySelectorAll(".hardwipe-attack-head").forEach(node => node.remove());
       element.classList.add("hardwipe-attack-message", "hardwipe-weapon-message");
       element.classList.toggle("hardwipe-review-pending", view.pending);
-      element.querySelector(".message-content")?.insertAdjacentHTML("afterbegin", weaponHeadHTML(view, item, activity, design));
-      // The weapon's legendary design, else the maker's style, else the base card (hardwipe-legendary.js, hardwipe-manufacturers.js).
-      dressLegendary(element, design);
-      brandCard(element, design ? "" : itemMaker(item), message.id);
-      bindLegendControl(element, item, id => weaponHeadHTML({ ...view, tone: "attack", status: "" }, item, activity, id, { preview: true }));
+      element.querySelector(".message-content")?.insertAdjacentHTML("afterbegin", weaponHeadHTML(view, item, activity, card));
+      // The weapon's legendary card, else the maker's style, else the base card (hardwipe-legendary.js, hardwipe-manufacturers.js).
+      dressLegendary(element, card);
+      brandCard(element, card ? "" : itemMaker(item), message.id);
+      bindLegendControl(element, item, spec => weaponHeadHTML({ ...view, tone: "attack", status: "" }, item, activity, spec, { preview: true }));
       bindBrief(message, element, item);
       decorateRollCard(message, element, { pending: view.pending, saves, tone: view.tone, locked });
       return;
@@ -966,10 +966,10 @@ function coverSnapshot(workflow, token) {
 
 /**
  * Weapon banner: type and rarity, the name as the title, attack type, property chips, verdict, targets, description.
- * With a legendary design the same parts go into that design's head. A preview (the GM's design picker) leaves out
- * the result, the description and the crown.
+ * With a legendary card the same parts go into that card's head. A preview (the GM's card editor) leaves out the
+ * result, the description and the crown.
  */
-function weaponHeadHTML(view, item, activity, design = "", { preview = false } = {}) {
+function weaponHeadHTML(view, item, activity, card = null, { preview = false } = {}) {
   const typeLabel = item?.system?.type?.label || (item ? game.i18n.localize(CONFIG.Item.typeLabels?.[item.type] ?? item.type) : "");
   // Like D&D5e's sheet, a player doesn't see an unidentified weapon's rarity.
   const rarity = item?.system?.identified === false && !game.user.isGM ? "" : item?.system?.rarity;
@@ -981,7 +981,7 @@ function weaponHeadHTML(view, item, activity, design = "", { preview = false } =
     meta: !preview && view.application === "gm" ? `<div class="hardwipe-chat-meta">${escapeHTML(game.i18n.localize("HARDWIPE.Attack.AppliedByGM"))}</div>` : "",
     control: preview ? "" : legendControlHTML(item)
   };
-  if (design) return legendaryHeadHTML(design, parts, item);
+  if (card) return legendaryHeadHTML(card, parts, item);
   const rarityClass = rarityClasses(item);
   return `<div class="hardwipe-attack-head hardwipe-weapon-head is-${view.tone}">
     <div class="hardwipe-attack-namebar"><span class="hardwipe-attack-type">${[parts.type, parts.rarity].filter(Boolean).join(" · ")}</span>

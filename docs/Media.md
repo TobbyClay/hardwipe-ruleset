@@ -325,12 +325,12 @@ Captured on **2026-10-21** in the disposable QA world, as the QA Player: one liv
 
 ## Legendary card capture
 
-Captured on **2026-10-26** in the disposable QA world with Custom D&D's rarities set to Gonk, Street, Nova, Preem and Iconic. Each gallery is four live attacks by the QA Player's Iconic weapons (SRD stand-ins renamed) on the QA Cover Target, ruled by the GM; their heads were cloned side by side as the player sees them, descriptions left out. The window is the GM's, opened from the crown on Malorian Arms 3516. The galleries are captured at 2×, the window at 1.25×, all saved as WebP.
+Captured on **2026-10-26** in the disposable QA world with Custom D&D's rarities set to Gonk, Street, Nova, Preem and Iconic. Each gallery is four live attacks by the QA Player's Iconic weapons (SRD stand-ins renamed) on the QA Cover Target, ruled by the GM; their heads were cloned side by side as the player sees them, descriptions left out. The own cards were made in the GM's window, which is shown open on Silver Tongue. The galleries are captured at 2×, the window at 1.25×, all saved as WebP.
 
 | Published file | Subject |
 | --- | --- |
-| [legendary-cards.webp](media/legendary-cards.webp) | Engraved, Holo foil, Evidence file and Neon shrine: hit, critical, miss, hit. |
-| [legendary-iconic.webp](media/legendary-iconic.webp) | Silverhand, La Dorada, Satori and Skippy: hit, critical, hit, miss. |
-| [legendary-picker.webp](media/legendary-picker.webp) | The GM's Legendary card window: the standard card and the designs drawn with the weapon's own parts. |
+| [legendary-own.webp](media/legendary-own.webp) | Own cards: Silver Tongue (Engraved, with art and a hue), La Chingona Dorada (Gilded), Saint's Due (Neon shrine), Satori (Ink and seal). |
+| [legendary-signatures.webp](media/legendary-signatures.webp) | Signature cards: Exhibit C (hit), Malorian Arms 3516 (critical), Skippy (hit), Guts (critical). |
+| [legendary-editor.webp](media/legendary-editor.webp) | The GM's Legendary card window on Silver Tongue's own card. |
 
 The originals remain in the development audit. Documentation media contains no machine-specific file paths, campaign databases, QA result JSON, or recreated UI.

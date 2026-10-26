@@ -37,25 +37,22 @@ Eleven makers have a style: **Arasaka**, **Militech**, **Kang Tao**, **Tsunami D
 
 ### Legendary cards
 
-<img src="media/legendary-cards.webp" alt="Four Iconic weapons' attack cards in their own designs: Silver Tongue engraved on brushed chrome in a brass frame, Prism as a holographic foil card showing the crossbow's art, Exhibit C as a typed evidence sheet stamped Do not release, and Ghost Blade as a pink neon sign on brick under a gold halo" width="900">
+*(Next release.)* A rare enough weapon can have a chat card of its own, in place of the plain card and its maker's style. Every card of that weapon wears it, the ones already in chat too. There are two kinds. [Making one →](GM.md#legendary-cards)
 
-*(Next release.)* A rare enough weapon can wear a design of its own in place of the plain card and its maker's style. The GM clicks the **crown** on the weapon's attack card and picks one; every card of that weapon wears it, the ones already in chat too. [Choosing a design →](GM.md#legendary-cards)
+<img src="media/legendary-own.webp" alt="Four weapons' own cards: Silver Tongue on engraved chrome turned blue, with a painting behind the plate and its own lines; La Chingona Dorada on gold leaf, the name in script, Para Jackie above it; Saint's Due as a neon sign with Our Lady of the Combat Zone above the name and a flavour line; Satori in ink on washi with its seal" width="900">
 
-- **Engraved:** brushed chrome in a brass frame, the name cut into it, filigree corners.
-- **Holo foil:** the weapon's art in a window, a holographic seal, a sheen across the card.
-- **Evidence file:** a typed case sheet clipped to the card, with the weapon's class, grade and maker, and a stamp.
-- **Neon shrine:** the name in a pink tube on brick, under a gold halo.
+**Its own card.** The GM starts from a design and makes it that weapon's own: its art behind the panel, a hue, the title's type and colour, a line above and below the name, a badge, a flavour line. It's saved on that weapon and no other. The designs to start from: **Engraved** (brushed chrome, brass filigree), **Holo foil** (the weapon's art in a window, a sheen), **Evidence file** (a typed case sheet, a stamp), **Neon shrine** (a pink tube on brick, a halo), **Backstage pass** (a chrome pass on a lanyard), **Gilded** (gold leaf, marigolds, papel picado), **Ink and seal** (washi, a brushed circle, a seal) and **Smart-link screen** (a pixel face with a word on every shot).
 
-<img src="media/legendary-iconic.webp" alt="Four known weapons' attack cards: Malorian Arms 3516 as a chrome all-access pass on a red lanyard, La Chingona Dorada on gold leaf with marigolds under papel picado, Satori in ink on washi with a brushed circle and a red seal, and Skippy as a smart-link screen whose pixel face says Missed. Not my fault." width="900">
+<img src="media/legendary-signatures.webp" alt="Four signature cards: Exhibit C with crime-scene tape, a photo of the sledgehammer with an evidence marker and a scale, and a sealed evidence bag; Malorian Arms 3516 as a worn record sleeve in Johnny Silverhand's name with the record sliding out; Skippy as a message thread saying Nailed it. You're welcome.; Guts as a pink and cyan card covered in stickers, BANG! and a Property of Rebecca tag" width="900">
 
-Four more are made for known weapons, and work on any weapon you give them to:
+**A signature card.** Hand-built for one known weapon, and on one weapon at a time:
 
-- **Silverhand** (Johnny Silverhand's Malorian Arms 3516): a chrome all-access pass on a red lanyard, a red slash, a cigarette burn.
-- **La Dorada** (Jackie Welles' La Chingona Dorada): gold leaf with the name in script, marigolds, papel picado overhead.
-- **Satori** (Saburo Arasaka's katana): ink on washi, a brushed circle, a red seal.
-- **Skippy** (the talking smart pistol): a pixel face on the smart-link screen that has a word for each outcome.
+- **Exhibit C**, a sledgehammer used in a crime: crime-scene tape, the scene photo with its marker and scale, the sealed evidence bag. A critical fires the camera's flash.
+- **Malorian Arms 3516**, Johnny Silverhand's pistol: a worn record sleeve in his name, the record sliding out. A critical spins it.
+- **Skippy**, the talking smart pistol: its message thread. It types while the GM decides, and has something to say about every result.
+- **Guts**, Rebecca's shotgun: a card bombed with stickers in pink and cyan, BANG! included.
 
-The outline, the verdict strip and the targets keep their hit, miss and critical colours, and a miss dims the design. A player sees an unidentified weapon's plain card, without its rarity.
+The outline, the verdict strip and the targets keep their hit, miss and critical colours, and a miss dims the card. A player sees an unidentified weapon's plain card, without its rarity.
 
 ## Spell programs
 
