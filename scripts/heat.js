@@ -1,3 +1,5 @@
+import { heatBand, heatBandStarts } from "./heat-bands.js";
+
 const MODULE_ID = "hardwipe-ruleset";
 const HEAT_FLAG = "heat";
 const LOCKDOWN_CHAT_FLAG = "hardwipe-lockdown";
@@ -204,14 +206,16 @@ export class HeatManager {
     };
   }
 
+  /** The budget in thirds: Clean, Hot, Critical (the smallest when it doesn't divide), then Lockdown. */
   static getStatusKey(heat) {
-    if (heat.max <= 0) return "idle";
-    if (heat.current >= heat.max) return "lockdown";
+    return heatBand(heat.current, heat.max);
+  }
 
-    const ratio = heat.current / heat.max;
-    if (ratio >= 0.75) return "critical";
-    if (ratio >= 0.5) return "hot";
-    return "clean";
+  /** Where the meter's Hot and Critical ticks sit, in percent of the budget. */
+  static tickPercents(heat) {
+    if (heat.max <= 0) return { hotAt: 0, criticalAt: 0 };
+    const starts = heatBandStarts(heat.max);
+    return { hotAt: Math.round(starts.hot / heat.max * 100), criticalAt: Math.round(starts.critical / heat.max * 100) };
   }
 
   static getPercent(heat) {
@@ -508,6 +512,7 @@ class HeatHud extends HandlebarsApplicationMixin(ApplicationV2) {
       hasMission: heat.max > 0,
       isGM: game.user.isGM,
       percent: HeatManager.getPercent(heat),
+      ...HeatManager.tickPercents(heat),
       sceneId: scene?.id ?? "",
       sceneName: scene?.name ?? game.i18n.localize("HARDWIPE.Heat.NoScene"),
       status: status.label,

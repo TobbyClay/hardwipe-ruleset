@@ -25,8 +25,8 @@
   <div class="hardwipe-heat-meter" role="meter" aria-label="{{localize "HARDWIPE.Heat.Title"}}"
        aria-valuemin="0" aria-valuenow="{{current}}" aria-valuemax="{{max}}" aria-valuetext="{{current}} / {{max}} · {{status}}">
     <div class="hardwipe-heat-meter-fill" style="width: {{percent}}%"></div>
-    <span class="hardwipe-heat-tick is-hot" style="left: 50%"></span>
-    <span class="hardwipe-heat-tick is-critical" style="left: 75%"></span>
+    <span class="hardwipe-heat-tick is-hot" style="left: {{hotAt}}%"></span>
+    <span class="hardwipe-heat-tick is-critical" style="left: {{criticalAt}}%"></span>
   </div>
 
   {{#if isGM}}

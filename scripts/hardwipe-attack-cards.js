@@ -1324,8 +1324,10 @@ export function fallenTargets(message) {
 }
 
 export function stampHTML(state, compact = false) {
-  if (state !== "downed" && state !== "flatlined") return "";
-  const label = game.i18n.localize(state === "downed" ? "HARDWIPE.Attack.StampDowned" : "HARDWIPE.Attack.StampFlatlined");
+  if (state !== "downed" && state !== "flatlined" && state !== "coup") return "";
+  // A Coup de Grace kill is a flatline with its own word.
+  const label = game.i18n.localize(state === "downed" ? "HARDWIPE.Attack.StampDowned" : state === "coup" ? "HARDWIPE.Coup.Stamp" : "HARDWIPE.Attack.StampFlatlined");
+  if (state === "coup") state = "flatlined is-coup";
   if (compact) return `<i class="hardwipe-stamp-icon is-${state} fas ${state === "downed" ? "fa-heart-crack" : "fa-skull"}" data-tooltip="${escapeHTML(label)}" aria-label="${escapeHTML(label)}"></i>`;
   return `<span class="hardwipe-stamp is-${state}">${escapeHTML(label)}</span>`;
 }
