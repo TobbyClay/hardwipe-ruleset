@@ -89,7 +89,7 @@ test("a signature card is on one weapon at a time", () => {
 
 test("every base and signature card keeps the card's working parts: status, crown, kind, chips, verdict, targets, brief, meta", () => {
   assert.equal(BASE_IDS.length, 8);
-  assert.deepEqual(SIGNATURE_IDS, ["exhibit-c", "malorian-3516", "skippy", "guts"]);
+  assert.deepEqual(SIGNATURE_IDS, ["exhibit-c", "malorian-3516", "skippy", "guts", "plan-b", "overwatch", "lizzie", "la-chingona-dorada", "satori"]);
   const specs = [...BASE_IDS.map(base => ({ kind: "own", own: cleanOwn({ base }) })), ...SIGNATURE_IDS.map(id => ({ kind: "signature", id }))];
   for (const spec of specs) {
     const name = spec.own?.base ?? spec.id;
@@ -142,7 +142,8 @@ test("a signature card shows the world's own logo where it has room, escaped; wi
   assert.ok(sleeve("").includes("<b>HARDWIPE.Legend.Sig.Band</b>") && !sleeve("").includes("hws-logo"));
   assert.ok(sleeve('worlds/x/samurai".webp').includes('<img class="hws-logo is-band" src="worlds/x/samurai&quot;.webp"'));
   assert.ok(!sleeve("worlds/x/samurai.webp").includes("HARDWIPE.Legend.Sig.Band"));
-  for (const [id, cls] of [["exhibit-c", "is-badge"], ["skippy", "is-avatar"], ["guts", "is-sticker"]]) {
+  for (const [id, cls] of [["exhibit-c", "is-badge"], ["skippy", "is-avatar"], ["guts", "is-sticker"], ["plan-b", "is-crest"], ["overwatch", "is-patch"],
+    ["lizzie", "is-sticker"], ["la-chingona-dorada", "is-photo"], ["satori", "is-mon"]]) {
     assert.ok(legendaryHeadHTML({ kind: "signature", id, logo: "worlds/x/logo.webp" }, PARTS, ITEM).includes(`class="hws-logo ${cls}"`), id);
     assert.ok(!legendaryHeadHTML({ kind: "signature", id }, PARTS, ITEM).includes("hws-logo"), id);
   }
@@ -150,4 +151,10 @@ test("a signature card shows the world's own logo where it has room, escaped; wi
   assert.ok(!legendaryHeadHTML({ kind: "own", own: cleanOwn({ base: "neon" }), logo: "x.webp" }, PARTS, ITEM).includes("hws-logo"));
   assert.equal(cleanLogo("  a.webp "), "a.webp");
   assert.equal(cleanLogo("x".repeat(900)).length, 500);
+});
+
+test("Plan B's bill has a line for every outcome", () => {
+  for (const tone of ["attack", "pending", "hit", "critical", "miss", "mixed", "fumble"]) {
+    assert.ok(legendaryHeadHTML({ kind: "signature", id: "plan-b" }, { ...PARTS, tone }, ITEM).includes(`<em>HARDWIPE.Legend.Sig.PlanB.${tone}</em>`), tone);
+  }
 });

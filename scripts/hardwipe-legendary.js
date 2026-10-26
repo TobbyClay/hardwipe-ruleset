@@ -134,6 +134,13 @@ const joined = (...parts) => parts.filter(Boolean).join(" · ");
 const kicker = p => p.kicker ? `<div class="hwl-kicker">${p.kicker}</div>` : "";
 const quote = p => p.quote ? `<div class="hwl-quote">${p.quote}</div>` : "";
 const art = p => p.art ? `<img class="hwl-art" src="${p.art}" alt="" draggable="false">` : "";
+const KATANA = '<svg class="hws-blade" viewBox="0 0 240 24">'
+  + '<path d="M64 10.5C120 9 180 7 236 3.5c2-.1 3 .9 1.5 1.7C182 10.5 122 13.6 64 14.5z" fill="#d8dde2"/>'
+  + '<path d="M64 13.6C122 12.8 182 10 237 5" stroke="#fff" stroke-width="0.8" fill="none" opacity="0.9"/>'
+  + '<rect x="56" y="8.5" width="9" height="8" fill="#b8932f"/><ellipse cx="54" cy="12.5" rx="3" ry="9" fill="#1a1a1a" stroke="#b8932f"/>'
+  + '<rect x="4" y="9.5" width="48" height="6" rx="2" fill="#2a0c0c"/>'
+  + `<path d="${Array.from({ length: 8 }, (_, i) => `M${6 + i * 6} 9.5l6 6M${12 + i * 6} 9.5l-6 6`).join("")}" stroke="#b3141c" stroke-width="1.2"/>`
+  + '<rect x="2" y="9" width="4" height="7" rx="1" fill="#b8932f"/></svg>';
 const logo = (p, cls) => p.logo ? `<img class="hws-logo ${cls}" src="${p.logo}" alt="" draggable="false">` : "";
 const OUTCOMES = new Set(["attack", "pending", "hit", "critical", "miss", "mixed", "fumble"]);
 const outcome = tone => OUTCOMES.has(tone) ? tone : "attack";
@@ -232,6 +239,37 @@ const SIGNATURES = {
     <div class="hws-bomb"><i class="hws-dots"></i><span class="hws-stickers hwl-fold">${STICKERS}${logo(p, "is-sticker")}</span><span class="hws-bang">${tx("Sig.Bang")}</span>
       <div class="hws-tag"><small>${tx("Sig.Hello")}</small><b>${tx("Sig.Owner")}</b></div>${title(p)}
       <div class="hws-sub">${joined(p.type, p.maker)}</div></div>
+    ${tail(p)}`,
+  // Plan B, Dexter DeShawn's pistol, which pays for every shot from the wallet: the fixer's card, and the bill.
+  "plan-b": p => `<div class="hwl-top">${top(p, `<span class="hwl-rarity">${p.rarity}</span>`)}</div>
+    <div class="hws-deal"><div class="hws-bizcard">${p.logo ? logo(p, "is-crest") : `<span class="hws-monogram">${tx("Sig.Monogram")}</span>`}
+        <div class="hws-fixer"><b>${tx("Sig.Dex")}</b><small>${tx("Sig.Fixer")}</small></div>${title(p)}</div>
+      <div class="hws-receipt hwl-fold"><b>${tx("Sig.PlanB.Head")}</b><span><i>${tx("Sig.PlanB.Shot")}</i><i>€$</i></span><em>${tx(`Sig.PlanB.${outcome(p.tone)}`)}</em></div></div>
+    ${tail(p)}`,
+  // Overwatch, Panam Palmer's suppressed sniper rifle: the Badlands at dusk, its scope, the Aldecaldos.
+  overwatch: p => `<div class="hwl-top">${top(p, `<span class="hwl-rarity">${p.rarity}</span>`)}</div>
+    <div class="hws-badlands"><i class="hws-sun"></i><i class="hws-mesa"></i>
+      <span class="hws-scope hwl-fold"><i class="hws-cross"></i><small>${tx("Sig.Range")}</small></span>
+      ${p.logo ? logo(p, "is-patch") : `<span class="hws-patch">${tx("Sig.Aldecaldos")}</span>`}
+      ${title(p)}<div class="hws-sub">${joined(tx("Sig.Panam"), p.maker)}</div><span class="hws-suppressed">${tx("Sig.Suppressed")}</span></div>
+    ${tail(p)}`,
+  // Lizzie, the pink pistol from Judy's den at Lizzie's Bar: a braindance shard, a sticker, the Mox.
+  lizzie: p => `<div class="hwl-top">${top(p, `<span class="hwl-rarity">${p.rarity}</span>`)}</div>
+    <div class="hws-shard"><i class="hws-pins"></i>${p.logo ? logo(p, "is-sticker") : '<span class="hws-heart">♥</span>'}
+      <div class="hws-shard-label"><span class="hws-club">${tx("Sig.Lizzies")}</span>${title(p)}<div class="hws-sub">${joined(tx("Sig.BD"), p.maker)}</div></div>
+      <span class="hws-mox">${tx("Sig.Mox")}</span></div>
+    ${tail(p)}`,
+  // La Chingona Dorada, Jackie Welles' pistols, left on his ofrenda at El Coyote Cojo: candles, marigolds, his frame.
+  "la-chingona-dorada": p => `<div class="hwl-top">${top(p, `<span class="hwl-rarity">${p.rarity}</span>`)}</div>
+    <div class="hws-ofrenda"><i class="hws-glow"></i>
+      <span class="hws-frame">${p.logo ? logo(p, "is-photo") : '<i class="hws-silhouette"></i>'}<small>${tx("Sig.Jackie")}</small></span>
+      <div class="hws-words">${title(p)}<div class="hws-sub">${tx("Sig.ParaJackie")}</div></div>
+      <span class="hws-candles hwl-fold">${"<i></i>".repeat(5)}</span><span class="hws-petals hwl-fold">${MARIGOLD.repeat(3)}</span></div>
+    ${tail(p)}`,
+  // Satori, Saburo Arasaka's katana, taken in the Konpeki Plaza heist: a black lacquer case, the blade, a silk cord.
+  satori: p => `<div class="hwl-top">${top(p, `<span class="hwl-rarity">${p.rarity}</span>`)}</div>
+    <div class="hws-lacquer"><i class="hws-wave"></i><i class="hws-cord hwl-fold"></i>${p.logo ? logo(p, "is-mon") : '<span class="hws-mon">荒坂</span>'}
+      <div class="hws-slip">${title(p)}<div class="hws-sub">${joined(tx("Sig.Saburo"), tx("Sig.Konpeki"))}</div></div>${KATANA}</div>
     ${tail(p)}`
 };
 export const SIGNATURE_IDS = Object.keys(SIGNATURES);

@@ -398,6 +398,141 @@
 .hwl-sig-guts .hwl-head:is(.is-miss, .is-mixed) .hws-bomb { filter: saturate(0.3) brightness(0.75); }
 @keyframes hws-throb { 50% { scale: 1.18; } }
 
+/* PLAN B · made for Dexter DeShawn's pistol, which pays for every shot in eddies: the fixer's card, and the bill. -- */
+.chat-message.hwl-sig-plan-b { --l-rail: #d4af37; }
+.hwl-sig-plan-b .hwl-head { background: radial-gradient(80% 60% at 20% 30%, rgba(212, 175, 55, 0.16), transparent 70%), linear-gradient(165deg, #17140c, #070604 70%); }
+.hwl-sig-plan-b .hwl-top { display: flex; align-items: center; gap: 8px; padding: 7px 14px 6px; color: #e8c766; font: 700 9px var(--hw-font-mono); letter-spacing: 0.24em; text-transform: uppercase; }
+.hwl-sig-plan-b .hwl-rarity { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.hwl-sig-plan-b .hws-deal { display: grid; grid-template-columns: minmax(0, 1fr) 96px; align-items: start; margin: 4px 12px 0; }
+.hwl-sig-plan-b .hws-bizcard {
+  position: relative; z-index: 1; padding: 12px 12px 12px 14px; color: #e8c766; border: 1px solid #b8932f; border-radius: 4px; transform: rotate(-2deg);
+  background: linear-gradient(135deg, #1d1b17, #0c0b09); box-shadow: inset 0 0 0 3px #0c0b09, inset 0 0 0 4px rgba(232, 199, 102, 0.45), 0 4px 10px rgba(0, 0, 0, 0.6);
+}
+.hwl-sig-plan-b .hws-monogram { float: right; display: grid; place-items: center; width: 30px; height: 30px; margin-left: 8px; color: #0c0b09; background: radial-gradient(circle at 35% 30%, #fff1b8, #d4af37 55%, #8a6a1a); border-radius: 50%; font: 900 11px var(--hw-font-disp); letter-spacing: 0.04em; }
+.hwl-sig-plan-b .hws-logo.is-crest { float: right; width: 32px; height: 32px; margin-left: 8px; }
+.hwl-sig-plan-b .hws-fixer b { display: block; font: 700 11px "Palatino Linotype", Georgia, serif; letter-spacing: 0.14em; text-transform: uppercase; }
+.hwl-sig-plan-b .hws-fixer small { display: block; color: rgba(232, 199, 102, 0.65); font: 700 8px var(--hw-font-mono); letter-spacing: 0.3em; text-transform: uppercase; }
+.hwl-sig-plan-b .hwl-head .hwl-title {
+  clear: both; margin-top: 10px; font: 800 24px/1 "Palatino Linotype", Georgia, serif; letter-spacing: 0.06em; text-transform: uppercase; text-shadow: none;
+  background: linear-gradient(180deg, #fff3c4, #e8c766 45%, #a7801f 55%, #f3d98a); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+}
+.hwl-sig-plan-b .hws-receipt {
+  position: relative; z-index: 2; margin: 16px 0 0 -10px; padding: 7px 8px 13px; color: #222; background: #f4f1e8; font: 700 8.5px/1.35 "Courier New", Courier, monospace; transform: rotate(4deg);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.6);
+  clip-path: polygon(0 0, 100% 0, 100% calc(100% - 5px), 90% 100%, 80% calc(100% - 5px), 70% 100%, 60% calc(100% - 5px), 50% 100%, 40% calc(100% - 5px), 30% 100%, 20% calc(100% - 5px), 10% 100%, 0 calc(100% - 5px));
+}
+.hwl-sig-plan-b .hws-receipt b { display: block; padding-bottom: 3px; border-bottom: 1px dashed #888; letter-spacing: 0.14em; text-transform: uppercase; }
+.hwl-sig-plan-b .hws-receipt span { display: flex; justify-content: space-between; margin: 3px 0; }
+.hwl-sig-plan-b .hws-receipt i { font-style: normal; }
+.hwl-sig-plan-b .hws-receipt em { display: block; padding-top: 3px; border-top: 1px dashed #888; color: #a11; font-style: normal; text-transform: uppercase; }
+.hwl-sig-plan-b .hwl-head.is-critical .hws-bizcard { box-shadow: inset 0 0 0 3px #0c0b09, inset 0 0 0 4px rgba(232, 199, 102, 0.6), 0 0 16px rgba(232, 199, 102, 0.5); }
+.hwl-sig-plan-b .hwl-head:is(.is-miss, .is-mixed) .hws-bizcard { filter: grayscale(0.7) brightness(0.75); }
+
+/* OVERWATCH · made for Panam Palmer's suppressed sniper rifle: the Badlands at dusk through its scope. ------------ */
+.chat-message.hwl-sig-overwatch { --l-rail: #ff8a3d; }
+.hwl-sig-overwatch .hwl-head { background: linear-gradient(170deg, #1d1410, #0a0706 70%); }
+.hwl-sig-overwatch .hwl-top { display: flex; align-items: center; gap: 8px; padding: 7px 14px 6px; color: #ffb27a; font: 700 9px var(--hw-font-mono); letter-spacing: 0.24em; text-transform: uppercase; }
+.hwl-sig-overwatch .hwl-rarity { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.hwl-sig-overwatch .hws-badlands {
+  position: relative; min-height: 124px; margin: 2px 12px 0; padding: 14px 96px 22px 14px; overflow: hidden; color: #fff4e8; border-radius: 3px;
+  background: linear-gradient(180deg, #2a1b4a 0%, #8a3a5c 38%, #ff7a3d 66%, #ffc06a 78%, #3a2416 78%); box-shadow: inset 0 0 0 1px rgba(255, 180, 120, 0.35);
+}
+.hwl-sig-overwatch .hws-sun { position: absolute; left: 34%; bottom: 20%; width: 48px; height: 48px; border-radius: 50%; background: radial-gradient(circle, #fff4c8, #ffb24a 58%, transparent 70%); }
+.hwl-sig-overwatch .hws-mesa { position: absolute; left: 0; right: 0; bottom: 0; height: 36%; background: #1f130c; clip-path: polygon(0 62%, 8% 60%, 10% 30%, 24% 28%, 26% 56%, 40% 62%, 52% 64%, 56% 22%, 72% 20%, 75% 58%, 88% 64%, 92% 40%, 100% 38%, 100% 100%, 0 100%); }
+.hwl-sig-overwatch .hws-scope {
+  position: absolute; z-index: 1; right: 10px; top: 46%; width: 78px; height: 78px; translate: 0 -50%; border: 3px solid #120c09; border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 240, 220, 0.1), rgba(0, 0, 0, 0.35) 70%); box-shadow: 0 0 0 1px rgba(255, 180, 120, 0.45), inset 0 0 12px rgba(0, 0, 0, 0.6);
+}
+.hwl-sig-overwatch .hws-cross { position: absolute; inset: 6px; background: linear-gradient(#120c09, #120c09) center / 1px 100% no-repeat, linear-gradient(#120c09, #120c09) center / 100% 1px no-repeat; }
+.hwl-sig-overwatch .hws-cross::after { content: ""; position: absolute; left: 50%; top: 50%; width: 10px; height: 10px; translate: -50% -50%; border: 1px solid #c11a1a; border-radius: 50%; }
+.hwl-sig-overwatch .hws-scope small { position: absolute; left: 50%; bottom: -15px; translate: -50% 0; color: #ffe2bf; font: 700 8px var(--hw-font-mono); letter-spacing: 0.08em; white-space: nowrap; text-shadow: 0 1px 2px #000; }
+.hwl-sig-overwatch .hws-patch { display: inline-block; margin-bottom: 8px; padding: 3px 8px; color: #ffe2bf; background: #5a2a14; border: 1px dashed #ffb27a; border-radius: 3px; outline: 2px solid #5a2a14; font: 900 9px var(--hw-font-disp); letter-spacing: 0.24em; text-transform: uppercase; }
+.hwl-sig-overwatch .hws-logo.is-patch { width: 40px; height: 40px; margin-bottom: 6px; }
+.hwl-sig-overwatch .hwl-head .hwl-title { position: relative; color: #fff4e8; font: 900 26px/1 var(--hw-font-disp); font-stretch: 80%; letter-spacing: 0.08em; text-transform: uppercase; text-shadow: 0 2px 0 rgba(42, 27, 74, 0.85); }
+.hwl-sig-overwatch .hws-sub { position: relative; margin-top: 4px; color: #ffe2bf; font: 700 9px var(--hw-font-mono); letter-spacing: 0.2em; text-transform: uppercase; text-shadow: 0 1px 2px #000; }
+.hwl-sig-overwatch .hws-suppressed { position: absolute; left: 14px; bottom: 6px; color: #ffe2bf; font: 700 7.5px var(--hw-font-mono); letter-spacing: 0.3em; text-transform: uppercase; opacity: 0.85; }
+.hwl-sig-overwatch .hwl-head.is-critical .hws-cross::after { border-color: #ff2a2a; box-shadow: 0 0 6px #ff2a2a, inset 0 0 4px #ff2a2a; }
+.hwl-sig-overwatch .hwl-head:is(.is-miss, .is-mixed) .hws-badlands { filter: saturate(0.35) brightness(0.75); }
+.hwl-sig-overwatch .hwl-head:is(.is-miss, .is-mixed) .hws-scope { filter: blur(0.7px); }
+
+/* LIZZIE · made for the pink pistol from Judy's den at Lizzie's Bar: a braindance shard, a sticker, the Mox. ------ */
+.chat-message.hwl-sig-lizzie { --l-rail: #ff5fb4; }
+.hwl-sig-lizzie .hwl-head { background: radial-gradient(70% 50% at 50% 40%, rgba(255, 95, 180, 0.18), transparent 70%), linear-gradient(165deg, #1e0d18, #09050a 70%); }
+.hwl-sig-lizzie .hwl-top { display: flex; align-items: center; gap: 8px; padding: 7px 14px 6px; color: #ff9fd2; font: 700 9px var(--hw-font-mono); letter-spacing: 0.24em; text-transform: uppercase; }
+.hwl-sig-lizzie .hwl-rarity { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.hwl-sig-lizzie .hws-shard {
+  position: relative; margin: 8px 22px 0; padding: 12px 12px 26px; color: #2a0b1e; border-radius: 12px 12px 4px 4px;
+  background: linear-gradient(160deg, #ffd1ea, #ff7cc4 55%, #e2489f); box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7), inset 0 -3px 0 rgba(0, 0, 0, 0.15), 0 4px 12px rgba(0, 0, 0, 0.6);
+}
+.hwl-sig-lizzie .hws-pins { position: absolute; left: 12%; right: 42%; bottom: 5px; height: 11px; background: repeating-linear-gradient(90deg, #e9c46a 0 5px, transparent 5px 8px); }
+.hwl-sig-lizzie .hws-shard-label { position: relative; padding: 10px 12px; background: #fff7fb; border-radius: 6px; box-shadow: inset 0 0 0 1px rgba(226, 72, 159, 0.35); }
+.hwl-sig-lizzie .hws-club { display: block; color: #e2489f; font: italic 700 18px/1 "Segoe Script", "Brush Script MT", cursive; }
+.hwl-sig-lizzie .hwl-head .hwl-title { margin-top: 5px; color: #2a0b1e; font: 900 22px/1.05 var(--hw-font-disp); letter-spacing: 0.04em; text-transform: uppercase; text-shadow: none; }
+.hwl-sig-lizzie .hws-sub { margin-top: 3px; color: rgba(42, 11, 30, 0.65); font: 700 8.5px var(--hw-font-mono); letter-spacing: 0.16em; text-transform: uppercase; }
+.hwl-sig-lizzie .hws-heart {
+  position: absolute; z-index: 1; right: -8px; top: -10px; display: grid; place-items: center; width: 32px; height: 32px; color: #fff; border-radius: 50%; transform: rotate(12deg);
+  background: radial-gradient(circle at 30% 30%, #ffe5f3, #ff3d9a 60%); box-shadow: 0 0 0 2px #fff, 0 2px 4px rgba(0, 0, 0, 0.4); font: 900 16px/1 var(--hw-font-disp);
+}
+.hwl-sig-lizzie .hws-logo.is-sticker { position: absolute; z-index: 1; right: -8px; top: -10px; max-width: 36px; max-height: 36px; padding: 2px; background: #fff; border-radius: 6px; transform: rotate(12deg); box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4); }
+.hwl-sig-lizzie .hws-mox { position: absolute; right: 10px; bottom: 6px; padding: 1px 5px; color: #fff; background: #2a0b1e; font: 800 7.5px var(--hw-font-mono); letter-spacing: 0.14em; text-transform: uppercase; transform: rotate(-4deg); }
+.hwl-sig-lizzie .hwl-head.is-critical .hws-heart { animation: hws-throb 1.4s ease-in-out infinite; }
+.hwl-sig-lizzie .hwl-head:is(.is-miss, .is-mixed) .hws-shard { filter: saturate(0.3) brightness(0.8); }
+
+/* LA CHINGONA DORADA · made for Jackie Welles' pistols, left on his ofrenda at El Coyote Cojo. --------------------- */
+.chat-message.hwl-sig-la-chingona-dorada { --l-rail: #f2b13b; }
+.hwl-sig-la-chingona-dorada .hwl-head { background: radial-gradient(80% 60% at 50% 70%, rgba(255, 170, 60, 0.2), transparent 70%), linear-gradient(170deg, #1f1209, #0a0604 70%); }
+.hwl-sig-la-chingona-dorada .hwl-top { display: flex; align-items: center; gap: 8px; padding: 7px 14px 6px; color: #ffcf7a; font: 700 9px var(--hw-font-mono); letter-spacing: 0.24em; text-transform: uppercase; }
+.hwl-sig-la-chingona-dorada .hwl-rarity { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.hwl-sig-la-chingona-dorada .hws-ofrenda {
+  position: relative; display: grid; grid-template-columns: 72px minmax(0, 1fr); align-items: center; gap: 12px; margin: 2px 12px 0; padding: 12px 12px 38px; border-radius: 3px;
+  background: linear-gradient(180deg, rgba(90, 40, 14, 0.55), rgba(40, 18, 6, 0.85)), repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.03) 0 2px, transparent 2px 9px);
+  border-top: 3px solid #7a3f12; box-shadow: inset 0 0 0 1px rgba(255, 190, 110, 0.18);
+}
+.hwl-sig-la-chingona-dorada .hws-glow { position: absolute; inset: 0; background: radial-gradient(60% 45% at 50% 100%, rgba(255, 170, 60, 0.35), transparent 70%); pointer-events: none; }
+.hwl-sig-la-chingona-dorada .hws-frame { position: relative; display: flex; flex-direction: column; align-items: center; padding: 5px 5px 4px; background: linear-gradient(135deg, #e9c46a, #a8761d); border-radius: 3px; box-shadow: 0 2px 6px rgba(0, 0, 0, 0.6); transform: rotate(-3deg); }
+.hwl-sig-la-chingona-dorada .hws-frame :is(.hws-logo, .hws-silhouette) { display: block; width: 62px; height: 70px; object-fit: cover; background: #2a1a10; }
+.hwl-sig-la-chingona-dorada .hws-silhouette { background: radial-gradient(circle at 50% 36%, #6a4630 0 13px, transparent 14px), radial-gradient(ellipse at 50% 108%, #6a4630 0 28px, transparent 29px), #2a1a10; }
+.hwl-sig-la-chingona-dorada .hws-frame small { margin-top: 3px; color: #2a1406; font: 800 6.5px var(--hw-font-mono); letter-spacing: 0.1em; text-transform: uppercase; white-space: nowrap; }
+.hwl-sig-la-chingona-dorada .hwl-head .hwl-title { color: #ffd27a; font: italic 700 24px/1.05 "Palatino Linotype", "Book Antiqua", Georgia, serif; letter-spacing: 0.01em; text-transform: none; text-shadow: 0 0 10px rgba(255, 170, 60, 0.45); }
+.hwl-sig-la-chingona-dorada .hws-sub { margin-top: 5px; color: #ffcf9a; font: 700 8.5px var(--hw-font-mono); letter-spacing: 0.16em; text-transform: uppercase; }
+.hwl-sig-la-chingona-dorada .hws-words { position: relative; }
+.hwl-sig-la-chingona-dorada .hws-candles { position: absolute; left: 14px; right: 14px; bottom: 7px; display: flex; justify-content: space-around; align-items: flex-end; height: 26px; }
+.hwl-sig-la-chingona-dorada .hws-candles i { position: relative; width: 7px; height: 14px; background: linear-gradient(#fff3dc, #e2c99a); border-radius: 1px; }
+.hwl-sig-la-chingona-dorada .hws-candles i:nth-child(2n) { height: 10px; }
+.hwl-sig-la-chingona-dorada .hws-candles i:nth-child(3) { height: 17px; }
+.hwl-sig-la-chingona-dorada .hws-candles i::before {
+  content: ""; position: absolute; left: 50%; bottom: 100%; width: 6px; height: 10px; translate: -50% 1px; border-radius: 50% 50% 45% 45%;
+  background: radial-gradient(circle at 50% 70%, #fff6c8, #ffb02e 55%, rgba(255, 120, 30, 0) 75%); animation: hws-flicker 2.2s ease-in-out infinite;
+}
+.hwl-sig-la-chingona-dorada .hws-candles i:nth-child(2n)::before { animation-delay: -0.8s; }
+.hwl-sig-la-chingona-dorada .hws-petals { position: absolute; right: 8px; top: 6px; display: flex; gap: 2px; }
+.hwl-sig-la-chingona-dorada .hws-petals svg { width: 15px; height: 15px; }
+.hwl-sig-la-chingona-dorada .hwl-head.is-critical .hws-glow { background: radial-gradient(70% 55% at 50% 100%, rgba(255, 190, 80, 0.55), transparent 72%); }
+.hwl-sig-la-chingona-dorada .hwl-head:is(.is-miss, .is-mixed) .hws-ofrenda { filter: brightness(0.7) saturate(0.6); }
+@keyframes hws-flicker { 0%, 100% { scale: 1 1; opacity: 1; } 40% { scale: 0.88 1.12; opacity: 0.85; } 70% { scale: 1.06 0.92; } }
+
+/* SATORI · made for Saburo Arasaka's katana, taken in the Konpeki Plaza heist: a lacquer case, the blade, a cord. */
+.chat-message.hwl-sig-satori { --l-rail: #c9a45c; }
+.hwl-sig-satori .hwl-head { background: linear-gradient(165deg, #140c0c, #050303 70%); }
+.hwl-sig-satori .hwl-top { display: flex; align-items: center; gap: 8px; padding: 7px 14px 6px; color: #e6c98a; font: 700 9px var(--hw-font-mono); letter-spacing: 0.24em; text-transform: uppercase; }
+.hwl-sig-satori .hwl-rarity { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.hwl-sig-satori .hws-lacquer {
+  position: relative; min-height: 120px; margin: 2px 12px 0; padding: 14px 14px 30px 24px; overflow: hidden; color: #f2e6c8; border-radius: 3px;
+  background: radial-gradient(120% 80% at 80% 0%, rgba(255, 255, 255, 0.08), transparent 50%), linear-gradient(160deg, #1b0d0d, #080404 60%, #160909);
+  box-shadow: inset 0 0 0 1px #c9a45c, inset 0 0 0 4px #0a0505, inset 0 0 0 5px rgba(201, 164, 92, 0.4), 0 3px 10px rgba(0, 0, 0, 0.6);
+}
+.hwl-sig-satori .hws-wave { position: absolute; left: 0; right: 0; bottom: 0; height: 24px; opacity: 0.35; background: radial-gradient(circle at 50% 100%, transparent 7px, #c9a45c 7px 8px, transparent 8px 11px, #c9a45c 11px 12px, transparent 12px) 0 0 / 24px 12px; }
+.hwl-sig-satori .hws-mon { position: absolute; right: 12px; top: 10px; display: grid; place-items: center; width: 36px; height: 36px; color: #c9a45c; border: 1px solid #c9a45c; border-radius: 50%; font: 700 11px/1 "Yu Mincho", "MS Mincho", serif; writing-mode: vertical-rl; }
+.hwl-sig-satori .hws-logo.is-mon { position: absolute; right: 12px; top: 10px; width: 38px; height: 38px; }
+.hwl-sig-satori .hws-cord { position: absolute; left: 7px; top: 0; bottom: 0; width: 6px; background: repeating-linear-gradient(45deg, #b3141c 0 3px, #7c0c12 3px 6px); }
+.hwl-sig-satori .hws-cord::after { content: ""; position: absolute; left: -5px; top: 44%; width: 16px; height: 16px; background: #b3141c; border-radius: 50% 50% 4px 4px; transform: rotate(45deg); box-shadow: inset 0 0 0 2px #7c0c12; }
+.hwl-sig-satori .hws-slip { position: relative; padding-right: 44px; }
+.hwl-sig-satori .hwl-head .hwl-title { color: #f2e6c8; font: 600 26px/1.05 "Yu Mincho", "MS Mincho", "Palatino Linotype", serif; letter-spacing: 0.2em; text-transform: uppercase; text-shadow: 0 0 12px rgba(201, 164, 92, 0.35); }
+.hwl-sig-satori .hws-sub { margin-top: 4px; color: rgba(242, 230, 200, 0.65); font: 700 8.5px var(--hw-font-mono); letter-spacing: 0.18em; text-transform: uppercase; }
+.hwl-sig-satori .hws-blade { position: relative; display: block; width: 100%; max-width: 236px; height: 22px; margin: 10px 0 0; filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.8)); }
+.hwl-sig-satori .hwl-head.is-critical .hws-blade { filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.8)) drop-shadow(0 1px 2px rgba(0, 0, 0, 0.8)); }
+.hwl-sig-satori .hwl-head:is(.is-miss, .is-mixed) .hws-lacquer { filter: brightness(0.7) saturate(0.6); }
+
 /* A signature card's logo: an image from the world's own files, where each card has room for one. */
 .hwl-sig .hws-logo { display: block; border: 0; object-fit: contain; pointer-events: none; }
 .hwl-sig-exhibit-c .hws-logo.is-badge { position: absolute; z-index: 1; right: -10px; top: -14px; width: 32px; height: 32px; transform: rotate(10deg); filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.8)); }
@@ -429,7 +564,7 @@
 
 @media (prefers-reduced-motion: reduce) {
   .hwl-holo .hwl-foil, .hwl-neon .hwl-head .hwl-title, .hwl-smartlink .hwl-face i, .hwl-sig-exhibit-c .hws-flash, .hwl-sig-malorian-3516 .hws-record,
-  .hwl-sig-skippy .hws-dots i, .hwl-sig-guts .hws-bang { animation: none; }
+  .hwl-sig-skippy .hws-dots i, .hwl-sig-guts .hws-bang, .hwl-sig-lizzie .hws-heart, .hwl-sig-la-chingona-dorada .hws-candles i::before { animation: none; }
 }
 
 /* The GM's card editor: the form on the left, this weapon's card as it will look on the right. */

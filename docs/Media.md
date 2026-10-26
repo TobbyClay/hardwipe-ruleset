@@ -331,6 +331,7 @@ Captured on **2026-10-26** in the disposable QA world with Custom D&D's rarities
 | --- | --- |
 | [legendary-own.webp](media/legendary-own.webp) | Own cards: Silver Tongue (Engraved, with art and a hue), La Chingona Dorada (Gilded), Saint's Due (Neon shrine), Satori (Ink and seal). |
 | [legendary-signatures.webp](media/legendary-signatures.webp) | Signature cards: Exhibit C (hit), Malorian Arms 3516 (critical), Skippy (hit), Guts (critical). |
+| [legendary-signatures-2.webp](media/legendary-signatures-2.webp) | Signature cards: Plan B (hit), Overwatch (critical), Lizzie (hit), La Chingona Dorada (critical), Satori (miss). |
 | [legendary-editor.webp](media/legendary-editor.webp) | The GM's Legendary card window on Silver Tongue's own card. |
 
 The originals remain in the development audit. Documentation media contains no machine-specific file paths, campaign databases, QA result JSON, or recreated UI.

@@ -52,7 +52,15 @@ Eleven makers have a style: **Arasaka**, **Militech**, **Kang Tao**, **Tsunami D
 - **Skippy**, the talking smart pistol, in Stone Cold Killer mode: its message thread. It types while the GM decides, and has something to say about every result.
 - **Guts**, Rebecca's shotgun: a card bombed with stickers in pink and cyan, BANG! included.
 
-Each signature card has a slot for a logo from your own files: the band's logo on Johnny's sleeve, a badge on the evidence bag, Skippy's picture in the chat, one more sticker on Guts. It shows in your world only; Hardwipe ships no logos or art from either game, and without one each card uses its own lettering.
+<img src="media/legendary-signatures-2.webp" alt="Five more signature cards: Plan B as Dexter DeShawn's gold-edged business card with a bill reading Worth every eddie; Overwatch as the Badlands at dusk seen beside a scope, with an Aldecaldos patch; Lizzie as a pink braindance shard from Lizzie's Bar, protected by the Mox; La Chingona Dorada on Jackie Welles' ofrenda with candles, marigolds and his frame; Satori in a black lacquer case with the blade and a red silk cord, dimmed on a miss" width="680">
+
+- **Plan B**, Dexter DeShawn's pistol, which pays for every shot in eddies: the fixer's card, and the bill, whose last line follows the result.
+- **Overwatch**, Panam Palmer's suppressed sniper rifle: the Badlands at dusk beside its scope, an Aldecaldos patch. A critical lights the reticle.
+- **Lizzie**, the pink pistol from Judy's den at Lizzie's Bar: a braindance shard with a heart sticker, protected by the Mox.
+- **La Chingona Dorada**, Jackie Welles' pistols, left on his ofrenda at El Coyote Cojo: candles, marigolds and a frame for his photo.
+- **Satori**, Saburo Arasaka's katana, taken in the Konpeki Plaza heist: a black lacquer case, the blade, a red silk cord.
+
+Each signature card has a slot for a logo from your own files: the band's logo on Johnny's sleeve, a badge on the evidence bag, Skippy's picture in the chat, a sticker on Guts or Lizzie, a patch on Overwatch, a mark on Dex's card, a photo of Jackie in his frame, a crest on Satori's case. It shows in your world only; Hardwipe ships no logos or art from either game, and without one each card uses its own lettering.
 
 The outline, the verdict strip and the targets keep their hit, miss and critical colours, and a miss dims the card. A player sees an unidentified weapon's plain card, without its rarity.
 
