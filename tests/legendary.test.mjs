@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import {
-  BASE_IDS, SIGNATURE_IDS, cardDesign, cardSpec, cleanOwn, heldElsewhere, legendaryHeadHTML, rarityFloor, reachesFloor, rootClasses, serialOf
+  BASE_IDS, SIGNATURE_IDS, cardDesign, cardSpec, cleanLogo, cleanOwn, heldElsewhere, legendaryHeadHTML, rarityFloor, reachesFloor, rootClasses, serialOf
 } from "../scripts/hardwipe-legendary.js";
 
 globalThis.foundry ??= { utils: { escapeHTML: text => text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;") } };
@@ -135,4 +135,19 @@ test("a weapon's serial is four digits and the same everywhere", () => {
   assert.match(serialOf("Actor.a.Item.b"), /^\d{4}$/);
   assert.equal(serialOf("Actor.a.Item.b"), serialOf("Actor.a.Item.b"));
   assert.notEqual(serialOf("Actor.a.Item.b"), serialOf("Actor.a.Item.c"));
+});
+
+test("a signature card shows the world's own logo where it has room, escaped; without one it keeps its own lettering", () => {
+  const sleeve = logo => legendaryHeadHTML({ kind: "signature", id: "malorian-3516", logo }, PARTS, ITEM);
+  assert.ok(sleeve("").includes("<b>HARDWIPE.Legend.Sig.Band</b>") && !sleeve("").includes("hws-logo"));
+  assert.ok(sleeve('worlds/x/samurai".webp').includes('<img class="hws-logo is-band" src="worlds/x/samurai&quot;.webp"'));
+  assert.ok(!sleeve("worlds/x/samurai.webp").includes("HARDWIPE.Legend.Sig.Band"));
+  for (const [id, cls] of [["exhibit-c", "is-badge"], ["skippy", "is-avatar"], ["guts", "is-sticker"]]) {
+    assert.ok(legendaryHeadHTML({ kind: "signature", id, logo: "worlds/x/logo.webp" }, PARTS, ITEM).includes(`class="hws-logo ${cls}"`), id);
+    assert.ok(!legendaryHeadHTML({ kind: "signature", id }, PARTS, ITEM).includes("hws-logo"), id);
+  }
+  // A weapon's own card has no logo slot (its art is its own image).
+  assert.ok(!legendaryHeadHTML({ kind: "own", own: cleanOwn({ base: "neon" }), logo: "x.webp" }, PARTS, ITEM).includes("hws-logo"));
+  assert.equal(cleanLogo("  a.webp "), "a.webp");
+  assert.equal(cleanLogo("x".repeat(900)).length, 500);
 });

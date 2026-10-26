@@ -285,8 +285,9 @@
   box-shadow: inset 0 0 12px rgba(255, 255, 255, 0.06), 0 2px 6px rgba(0, 0, 0, 0.5);
 }
 .hwl-sig-exhibit-c .hws-zip { height: 7px; margin: 0 -10px 6px; border-bottom: 1px solid rgba(220, 230, 240, 0.35); background: repeating-linear-gradient(90deg, rgba(220, 230, 240, 0.5) 0 2px, transparent 2px 4px); }
-.hwl-sig-exhibit-c .hws-print { display: flex; justify-content: space-between; align-items: baseline; gap: 6px; padding: 2px 6px; color: #fff; background: #c41e24; font: 900 9px var(--hw-font-disp); letter-spacing: 0.22em; text-transform: uppercase; }
-.hwl-sig-exhibit-c .hws-print span { font: 700 8px var(--hw-font-mono); letter-spacing: 0.1em; }
+.hwl-sig-exhibit-c .hws-print { display: flex; justify-content: space-between; align-items: baseline; gap: 6px; padding: 2px 6px; color: #fff; background: #c41e24; font: 900 9px var(--hw-font-disp); letter-spacing: 0.12em; text-transform: uppercase; }
+.hwl-sig-exhibit-c .hws-print b { white-space: nowrap; }
+.hwl-sig-exhibit-c .hws-print span { font: 700 8px var(--hw-font-mono); letter-spacing: 0.1em; white-space: nowrap; }
 .hwl-sig-exhibit-c .hwl-head .hwl-title { margin: 7px 0 3px; color: #f4f6f8; font: 700 21px/1.05 "Courier New", Courier, monospace; letter-spacing: 0.02em; text-transform: uppercase; text-shadow: none; }
 .hwl-sig-exhibit-c .hws-note { color: rgba(238, 241, 244, 0.72); font: 700 9px/1.3 var(--hw-font-mono); letter-spacing: 0.08em; text-transform: uppercase; }
 .hwl-sig-exhibit-c .hws-custody { display: flex; align-items: center; gap: 6px; margin-top: 7px; padding-top: 5px; border-top: 1px dashed rgba(238, 241, 244, 0.3); color: rgba(238, 241, 244, 0.6); font: 700 7.5px var(--hw-font-mono); letter-spacing: 0.12em; text-transform: uppercase; }
@@ -325,7 +326,7 @@
   background: linear-gradient(180deg, #ffffff, #b9c0c7 48%, #6f767d 52%, #e9ecef); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
   filter: drop-shadow(0 2px 0 rgba(225, 29, 42, 0.55));
 }
-.hwl-sig-malorian-3516 .hws-live { position: relative; padding-right: 44px; color: rgba(232, 232, 232, 0.6); font: 700 8.5px var(--hw-font-mono); letter-spacing: 0.2em; text-transform: uppercase; }
+.hwl-sig-malorian-3516 .hws-live { position: relative; padding-right: 44px; color: rgba(232, 232, 232, 0.6); font: 700 8.5px var(--hw-font-mono); letter-spacing: 0.1em; text-transform: uppercase; }
 .hwl-sig-malorian-3516 .hws-sticker {
   position: absolute; right: 8px; bottom: 8px; display: grid; place-items: center; width: 40px; height: 40px; padding: 4px; border-radius: 50%; color: #111; background: #ffd23f;
   font: 900 7.5px/1.05 var(--hw-font-disp); letter-spacing: 0.06em; text-align: center; text-transform: uppercase; transform: rotate(14deg); box-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
@@ -396,6 +397,18 @@
 .hwl-sig-guts .hwl-head.is-critical .hws-bang { animation: hws-throb 1.4s ease-in-out infinite; }
 .hwl-sig-guts .hwl-head:is(.is-miss, .is-mixed) .hws-bomb { filter: saturate(0.3) brightness(0.75); }
 @keyframes hws-throb { 50% { scale: 1.18; } }
+
+/* A signature card's logo: an image from the world's own files, where each card has room for one. */
+.hwl-sig .hws-logo { display: block; border: 0; object-fit: contain; pointer-events: none; }
+.hwl-sig-exhibit-c .hws-logo.is-badge { position: absolute; z-index: 1; right: -10px; top: -14px; width: 32px; height: 32px; transform: rotate(10deg); filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.8)); }
+.hwl-sig-malorian-3516 .hws-band { position: relative; margin-bottom: 6px; }
+.hwl-sig-malorian-3516 .hws-band b { color: #e11d2a; font: 900 20px/1 var(--hw-font-disp); font-stretch: 70%; letter-spacing: 0.42em; text-shadow: 0 0 10px rgba(225, 29, 42, 0.45); }
+.hwl-sig-malorian-3516 .hws-logo.is-band { max-width: 82%; max-height: 40px; filter: drop-shadow(0 0 8px rgba(225, 29, 42, 0.35)); }
+.hwl-sig-malorian-3516 .hws-artist { font-size: 9.5px; color: rgba(232, 232, 232, 0.75); }
+.hwl-sig-skippy .hws-logo.is-avatar { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; }
+.hwl-sig-guts .hws-logo.is-sticker { position: absolute; left: 6px; top: 46px; max-width: 34px; max-height: 34px; padding: 3px; background: #fff; border-radius: 6px; box-shadow: 0 0 0 2px #111; transform: rotate(-8deg); }
+.hwl-sig-row .form-group { margin: -2px 0 8px 12px; }
+.hwl-sig-row:not(:has(input[name="signature"]:checked)) .form-group { display: none; }
 
 /* A weapon's own card: its art in the design's panel, a hue over the panel, its own title type and colour, its lines. */
 .hwl-show > .hwl-art { position: absolute; z-index: 0; inset: 0; width: 100%; height: 100%; object-fit: cover; border: 0; border-radius: inherit; opacity: var(--l-art, 0.35); pointer-events: none; }

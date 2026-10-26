@@ -203,7 +203,7 @@ Award Edge with **+** beside it on the sheet or the Turn tab: it posts a **Charg
 *(Next release.)* Give a rare weapon its own attack card: click the **crown** on the bar of one of its cards in chat. Only you see the crown, and only on weapons at or above **Legendary cards from** in Hardwipe's settings. The rarities come in the rarity list's order, so Custom D&D's own tiers count as you rank them (say Gonk, Street, Nova, Preem, Iconic); **Automatic** is the top tier.
 
 - **Its own card:** pick a design to start from, then make it this weapon's: art (any image, shown behind the design's panel at the strength you set), a hue, the title's type and colour, a line above and below the name, a badge (the design's stamp, seal, pass band or speech bubble) and a flavour line. The card on the right follows as you edit.
-- **Signature:** a card hand-built for one weapon. Each is on one weapon at a time: giving it to another takes it off the first, which goes back to the standard card. The list says where each one is.
+- **Signature:** a card hand-built for one weapon. Each is on one weapon at a time: giving it to another takes it off the first, which goes back to the standard card. The list says where each one is. Under the chosen card, **Logo** takes an image from your Foundry files (the Samurai logo for Johnny's sleeve, say). It is set once for the world and goes with the card; Hardwipe ships none.
 - **Standard** goes back to the plain card or the maker's style; the weapon keeps what you made for it if you switch back.
 
 [Every design and signature card →](Cards.md#legendary-cards)

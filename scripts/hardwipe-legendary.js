@@ -8,7 +8,9 @@ import { itemMaker } from "./hardwipe-manufacturers.js";
  * style. The GM makes it from the crown on the weapon's attack card, one of two ways:
  * - its own card: a base design made this weapon's own, with its art, a hue, its title's type and colour and its own
  *   lines, saved on the weapon;
- * - a signature card: hand-built here for one known weapon, and on one weapon at a time.
+ * - a signature card: hand-built here for one known weapon, and on one weapon at a time. Each has a slot for a logo
+ *   (the band's on Johnny's sleeve, a badge on the evidence bag): an image from the world's own files, which the GM
+ *   sets once per card. Hardwipe ships no game logos or art.
  * The choice is saved on the item (`flags["hardwipe-ruleset"].cardIdentity`), so every card of that weapon wears it,
  * the ones already in chat too. Which weapons qualify is a rarity floor in the system's rarity order, so Custom D&D's
  * own tiers count as the GM ranks them. The verdict, the targets and the roll card keep their outcome colours
@@ -16,6 +18,7 @@ import { itemMaker } from "./hardwipe-manufacturers.js";
  */
 export const FLAG = "cardIdentity";
 const SETTING = "legendaryRarity";
+const LOGOS = "legendaryLogos";
 const ROOT = "hardwipe-legendary";
 const t = key => game.i18n.localize(`HARDWIPE.Legend.${key}`);
 const tx = key => escapeHTML(t(key));
@@ -63,6 +66,11 @@ export function cleanOwn(own) {
     color: /^#[0-9a-f]{6}$/i.test(own?.color ?? "") ? own.color.toLowerCase() : "",
     kicker: text("kicker"), subtitle: text("subtitle"), badge: text("badge"), quote: text("quote")
   };
+}
+
+/** A signature card's logo as stored: a path, trimmed and bounded (it is escaped where it is drawn). */
+export function cleanLogo(path) {
+  return String(path ?? "").trim().slice(0, LIMITS.art);
 }
 
 /** What a flag asks for: the weapon's own card, a signature card, or null (the plain card, a newer schema, a design that's gone). */
@@ -126,6 +134,7 @@ const joined = (...parts) => parts.filter(Boolean).join(" · ");
 const kicker = p => p.kicker ? `<div class="hwl-kicker">${p.kicker}</div>` : "";
 const quote = p => p.quote ? `<div class="hwl-quote">${p.quote}</div>` : "";
 const art = p => p.art ? `<img class="hwl-art" src="${p.art}" alt="" draggable="false">` : "";
+const logo = (p, cls) => p.logo ? `<img class="hws-logo ${cls}" src="${p.logo}" alt="" draggable="false">` : "";
 const OUTCOMES = new Set(["attack", "pending", "hit", "critical", "miss", "mixed", "fumble"]);
 const outcome = tone => OUTCOMES.has(tone) ? tone : "attack";
 
@@ -192,16 +201,18 @@ const SIGNATURES = {
   "exhibit-c": p => `<div class="hwl-top hws-tape">${top(p, `<span class="hws-tape-text">${tx("Sig.Tape")}</span>`)}</div>
     <div class="hws-scene">
       <div class="hws-photo hwl-fold">${p.img ? `<img src="${p.img}" alt="" draggable="false">` : ""}<i class="hws-ruler"></i><i class="hws-tent">C</i><i class="hws-spatter"></i><i class="hws-flash"></i></div>
-      <div class="hws-bag"><div class="hws-zip"></div><div class="hws-print"><b>${tx("Evidence")}</b><span>${tx("Sig.Case")} ${p.serial}</span></div>
-        ${title(p)}<div class="hws-note">${tx("Sig.Recovered")}</div>
+      <div class="hws-bag"><div class="hws-zip"></div><div class="hws-print"><b>${tx("Sig.Print")}</b><span>#${p.serial}</span></div>
+        ${logo(p, "is-badge")}${title(p)}<div class="hws-note">${tx("Sig.Recovered")}</div>
         <div class="hws-custody"><span>${tx("Sig.Custody")}</span>${SCRAWL}<em>${tx("Sig.Sealed")}</em></div></div>
     </div>
     ${tail(p)}`,
-  // Johnny Silverhand's Malorian Arms 3516: a worn record sleeve in his name, the record sliding out.
+  // Johnny Silverhand's Malorian Arms 3516: a worn Samurai record sleeve, the record sliding out. The band's logo is
+  // the GM's to add; without it the band's name is set in Hardwipe's own type.
   "malorian-3516": p => `<div class="hwl-top">${top(p, `<span class="hwl-rarity">${p.rarity}</span>`)}</div>
     <div class="hws-deck"><i class="hws-record hwl-fold"><i class="hws-label"><b>3516</b><small>${tx("Sig.Side")}</small></i></i>
       <div class="hws-sleeve"><i class="hws-ring"></i><i class="hws-burn"></i>
-        <div class="hws-artist">${tx("Sig.Artist")}</div>${title(p)}<div class="hws-live">${joined(tx("Sig.Live"), p.maker)}</div>
+        <div class="hws-band">${p.logo ? logo(p, "is-band") : `<b>${tx("Sig.Band")}</b>`}</div>
+        <div class="hws-artist">${tx("Sig.Artist")}</div>${title(p)}<div class="hws-live">${tx("Sig.Tracks")}</div>
         <span class="hws-sticker hwl-fold">${tx("Sig.Sticker")}</span></div></div>
     ${tail(p)}`,
   // Skippy, the talking smart pistol: a message thread, and it has a word on every shot.
@@ -209,8 +220,8 @@ const SIGNATURES = {
     const tone = outcome(p.tone);
     const lines = [t(`Sig.Skippy.${tone}`), tone === "pending" ? "" : t(`Sig.Skippy.${tone}2`)].filter(Boolean);
     return `<div class="hwl-top">${top(p, `<span class="hwl-rarity">${p.rarity}</span>`)}</div>
-      <div class="hws-phone"><div class="hws-contact"><span class="hws-avatar"><i></i><i></i><b></b></span>
-        <span class="hws-who">${title(p)}<small>${tx(tone === "pending" ? "Sig.Typing" : "Sig.Online")}</small></span><span class="hws-aim">${tx("Sig.Aim")}</span></div>
+      <div class="hws-phone"><div class="hws-contact"><span class="hws-avatar">${p.logo ? logo(p, "is-avatar") : "<i></i><i></i><b></b>"}</span>
+        <span class="hws-who">${title(p)}<small>${tx(tone === "pending" ? "Sig.Typing" : "Sig.Online")}</small></span><span class="hws-aim">${tx("Sig.Mode")}</span></div>
         <div class="hws-thread">${lines.map(line => `<div class="hws-msg">${escapeHTML(line)}</div>`).join("")}
           ${tone === "pending" ? '<div class="hws-msg hws-dots"><i></i><i></i><i></i></div>' : ""}</div>
         <div class="hws-meta">${joined(p.type, p.maker)}</div></div>
@@ -218,7 +229,7 @@ const SIGNATURES = {
   },
   // Guts, Rebecca's shotgun: a card bombed with stickers in pink and cyan.
   guts: p => `<div class="hwl-top">${top(p, `<span class="hwl-rarity">${p.rarity}</span>`)}</div>
-    <div class="hws-bomb"><i class="hws-dots"></i><span class="hws-stickers hwl-fold">${STICKERS}</span><span class="hws-bang">${tx("Sig.Bang")}</span>
+    <div class="hws-bomb"><i class="hws-dots"></i><span class="hws-stickers hwl-fold">${STICKERS}${logo(p, "is-sticker")}</span><span class="hws-bang">${tx("Sig.Bang")}</span>
       <div class="hws-tag"><small>${tx("Sig.Hello")}</small><b>${tx("Sig.Owner")}</b></div>${title(p)}
       <div class="hws-sub">${joined(p.type, p.maker)}</div></div>
     ${tail(p)}`
@@ -239,7 +250,7 @@ export function rootClasses(spec) {
  */
 export function legendaryHeadHTML(spec, parts, item) {
   const p = { ...parts, maker: escapeHTML(itemMaker(item)), img: escapeHTML(item?.img ?? ""), serial: serialOf(item?.uuid),
-    kicker: "", subtitle: "", badge: "", quote: "", art: "" };
+    kicker: "", subtitle: "", badge: "", quote: "", art: "", logo: spec.kind === "signature" ? escapeHTML(cleanLogo(spec.logo)) : "" };
   const head = (inner, classes = [], style = []) => `<div class="hardwipe-attack-head hardwipe-weapon-head hwl-head is-${parts.tone}${classes.map(c => ` ${c}`).join("")}"`
     + `${style.length ? ` style="${style.join(";")}"` : ""}>${inner}</div>`;
   if (spec.kind === "signature") return head(SIGNATURES[spec.id](p));
@@ -261,9 +272,15 @@ export function canWearLegend(item) {
   return item?.type === "weapon" && reachesFloor(rarityKey(item), CONFIG.DND5E.itemRarity, chosenFloor());
 }
 
-/** The card this viewer sees on a weapon's attack card, or null. */
+/** The signature cards' logos in this world: card id -> image path. */
+function signatureLogos() {
+  return game.settings.settings.has(`${MODULE_ID}.${LOGOS}`) ? game.settings.get(MODULE_ID, LOGOS) ?? {} : {};
+}
+
+/** The card this viewer sees on a weapon's attack card, or null. A signature card brings its logo. */
 export function legendaryDesign(item) {
-  return cardDesign(item, { table: CONFIG.DND5E.itemRarity, chosen: chosenFloor(), isGM: game.user.isGM });
+  const spec = cardDesign(item, { table: CONFIG.DND5E.itemRarity, chosen: chosenFloor(), isGM: game.user.isGM });
+  return spec?.kind === "signature" ? { ...spec, logo: signatureLogos()[spec.id] ?? "" } : spec;
 }
 
 /** The GM's crown on the card's bar: it opens the weapon's card. Nothing for players or for a weapon not rare enough. */
@@ -312,6 +329,7 @@ async function editCard(item, preview) {
   own.base ||= BASE_IDS[0];
   const mode = spec?.kind ?? "default";
   const signature = spec?.kind === "signature" ? spec.id : "";
+  const logos = signatureLogos();
   const weapons = worldWeapons();
   const checked = on => on ? " checked" : "";
   const field = (key, input, hint = "") => `<div class="form-group"><label>${tx(`Field.${key}`)}</label>
@@ -321,8 +339,9 @@ async function editCard(item, preview) {
     const holder = heldElsewhere(weapons, id, item.uuid)[0];
     const where = holder ? escapeHTML(game.i18n.format("HARDWIPE.Legend.SignatureHeld", { weapon: holder.name, owner: holder.actor?.name ?? "—" }))
       : tx(signature === id ? "SignatureHere" : "SignatureFree");
-    return `<label class="hwl-sig-choice"><input type="radio" name="signature" value="${id}"${checked(signature === id || (!signature && id === SIGNATURE_IDS[0]))}>
-      <span><b>${tx(`Sig.${id}`)}</b><small>${tx(`Sig.${id}Hint`)}</small><em class="${holder ? "is-held" : ""}">${where}</em></span></label>`;
+    return `<div class="hwl-sig-row"><label class="hwl-sig-choice"><input type="radio" name="signature" value="${id}"${checked(signature === id || (!signature && id === SIGNATURE_IDS[0]))}>
+      <span><b>${tx(`Sig.${id}`)}</b><small>${tx(`Sig.${id}Hint`)}</small><em class="${holder ? "is-held" : ""}">${where}</em></span></label>
+      ${field("logo", `<file-picker name="logo-${id}" type="image" value="${escapeHTML(logos[id] ?? "")}"></file-picker>`, `Sig.${id}Logo`)}</div>`;
   };
   const content = `<div class="hwl-editor">
     <div class="hwl-ed-form">
@@ -355,7 +374,9 @@ async function editCard(item, preview) {
       const form = dialog.element.querySelector("form");
       const stage = dialog.element.querySelector(".hwl-ed-stage");
       const draw = () => {
-        const next = cardSpec(flagFromForm(new FormData(form).object));
+        const data = new FormData(form).object;
+        const next = cardSpec(flagFromForm(data));
+        if (next?.kind === "signature") next.logo = data[`logo-${next.id}`];
         stage.className = `hwl-ed-stage ${rootClasses(next)}`.trim();
         stage.innerHTML = preview(next);
       };
@@ -364,17 +385,23 @@ async function editCard(item, preview) {
       draw();
     },
     buttons: [
-      { action: "apply", label: "HARDWIPE.Legend.Apply", icon: "fas fa-check", default: true, callback: (event, button) => flagFromForm(new FormData(button.form).object) },
+      { action: "apply", label: "HARDWIPE.Legend.Apply", icon: "fas fa-check", default: true, callback: (event, button) => {
+        const data = new FormData(button.form).object;
+        return { flag: flagFromForm(data), logos: Object.fromEntries(SIGNATURE_IDS.map(id => [id, cleanLogo(data[`logo-${id}`])]).filter(([, path]) => path)) };
+      } },
       { action: "cancel", label: "Cancel", icon: "fas fa-xmark" }
     ]
   });
-  if (!picked || typeof picked !== "object") return;
-  if (picked.mode === "signature" && !picked.signature) picked.mode = "default";
+  if (!picked?.flag) return;
+  const { flag: next, logos: chosen } = picked;
+  if (next.mode === "signature" && !next.signature) next.mode = "default";
+  // The logos belong to the cards, wherever they are: one setting for the world.
+  if (!foundry.utils.equals(chosen, logos)) await game.settings.set(MODULE_ID, LOGOS, chosen);
   // A signature card is on one weapon at a time: applying it here takes it off any other.
-  if (picked.mode === "signature") {
-    for (const other of heldElsewhere(worldWeapons(), picked.signature, item.uuid)) await other.setFlag(MODULE_ID, FLAG, { schema: 1, mode: "default" });
+  if (next.mode === "signature") {
+    for (const other of heldElsewhere(worldWeapons(), next.signature, item.uuid)) await other.setFlag(MODULE_ID, FLAG, { schema: 1, mode: "default" });
   }
-  await item.setFlag(MODULE_ID, FLAG, picked);
+  await item.setFlag(MODULE_ID, FLAG, next);
 }
 
 /** The floor's choices, read when the settings open: Custom D&D can change the rarity list without a reload. */
@@ -393,6 +420,7 @@ export function registerLegendary() {
     name: "HARDWIPE.Legend.Rarity", hint: "HARDWIPE.Legend.RarityHint", scope: "world", config: true,
     type: String, default: "", choices: rarityChoices, onChange: () => rerenderCards()
   });
+  game.settings.register(MODULE_ID, LOGOS, { scope: "world", config: false, type: Object, default: {}, onChange: () => rerenderCards() });
   // A new card, rarity or identification redraws that weapon's cards already in the log.
   Hooks.on("updateItem", (item, changes) => {
     if (item.type !== "weapon") return;

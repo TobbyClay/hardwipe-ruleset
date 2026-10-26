@@ -43,14 +43,16 @@ Eleven makers have a style: **Arasaka**, **Militech**, **Kang Tao**, **Tsunami D
 
 **Its own card.** The GM starts from a design and makes it that weapon's own: its art behind the panel, a hue, the title's type and colour, a line above and below the name, a badge, a flavour line. It's saved on that weapon and no other. The designs to start from: **Engraved** (brushed chrome, brass filigree), **Holo foil** (the weapon's art in a window, a sheen), **Evidence file** (a typed case sheet, a stamp), **Neon shrine** (a pink tube on brick, a halo), **Backstage pass** (a chrome pass on a lanyard), **Gilded** (gold leaf, marigolds, papel picado), **Ink and seal** (washi, a brushed circle, a seal) and **Smart-link screen** (a pixel face with a word on every shot).
 
-<img src="media/legendary-signatures.webp" alt="Four signature cards: Exhibit C with crime-scene tape, a photo of the sledgehammer with an evidence marker and a scale, and a sealed evidence bag; Malorian Arms 3516 as a worn record sleeve in Johnny Silverhand's name with the record sliding out; Skippy as a message thread saying Nailed it. You're welcome.; Guts as a pink and cyan card covered in stickers, BANG! and a Property of Rebecca tag" width="900">
+<img src="media/legendary-signatures.webp" alt="Four signature cards: Exhibit C with NCPD crime-scene tape, a photo of the sledgehammer with an evidence marker and a scale, and a sealed NCPD evidence bag; Malorian Arms 3516 as a worn Samurai record sleeve with Johnny Silverhand's name and two track titles, the record sliding out; Skippy in Stone Cold Killer mode as a message thread saying Nailed it. You're welcome.; Guts as a pink and cyan card covered in stickers, BANG! and a Property of Rebecca tag" width="900">
 
 **A signature card.** Hand-built for one known weapon, and on one weapon at a time:
 
-- **Exhibit C**, a sledgehammer used in a crime: crime-scene tape, the scene photo with its marker and scale, the sealed evidence bag. A critical fires the camera's flash.
-- **Malorian Arms 3516**, Johnny Silverhand's pistol: a worn record sleeve in his name, the record sliding out. A critical spins it.
-- **Skippy**, the talking smart pistol: its message thread. It types while the GM decides, and has something to say about every result.
+- **Exhibit C**, a sledgehammer used in a crime: NCPD crime-scene tape, the scene photo with its marker and scale, the sealed NCPD evidence bag. A critical fires the camera's flash.
+- **Malorian Arms 3516**, Johnny Silverhand's pistol: a worn Samurai record sleeve (Chippin' In, Never Fade Away), the record sliding out. A critical spins it.
+- **Skippy**, the talking smart pistol, in Stone Cold Killer mode: its message thread. It types while the GM decides, and has something to say about every result.
 - **Guts**, Rebecca's shotgun: a card bombed with stickers in pink and cyan, BANG! included.
+
+Each signature card has a slot for a logo from your own files: the band's logo on Johnny's sleeve, a badge on the evidence bag, Skippy's picture in the chat, one more sticker on Guts. It shows in your world only; Hardwipe ships no logos or art from either game, and without one each card uses its own lettering.
 
 The outline, the verdict strip and the targets keep their hit, miss and critical colours, and a miss dims the card. A player sees an unidentified weapon's plain card, without its rarity.
 
