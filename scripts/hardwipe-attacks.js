@@ -7,6 +7,7 @@ import {
 import { settleCard } from "./hardwipe-assembly.js";
 import { applyCoupDeGrace, coupDeGraceFor, coupTargets } from "./hardwipe-coup.js";
 import { brandCard, itemMaker } from "./hardwipe-manufacturers.js";
+import { bindLegendControl, dressLegendary, legendControlHTML, legendaryDesign, legendaryHeadHTML } from "./hardwipe-legendary.js";
 import { isSpellCard, renderSpellCard } from "./hardwipe-spell-cards.js";
 import { isImplantCard, renderImplantCard } from "./hardwipe-implant-cards.js";
 import { isCheckCard, renderCheckCard } from "./hardwipe-check-cards.js";
@@ -581,12 +582,16 @@ export class AttackReviewManager {
     const saves = message.type === "usage" ? saveState(message, element) : null;
     if (view) {
       const item = message.getAssociatedItem?.();
+      const activity = message.getAssociatedActivity?.();
+      const design = legendaryDesign(item);
       element.querySelectorAll(".hardwipe-attack-head").forEach(node => node.remove());
       element.classList.add("hardwipe-attack-message", "hardwipe-weapon-message");
       element.classList.toggle("hardwipe-review-pending", view.pending);
-      element.querySelector(".message-content")?.insertAdjacentHTML("afterbegin", weaponHeadHTML(view, item, message.getAssociatedActivity?.()));
-      // The maker's style, or the base card (hardwipe-manufacturers.js).
-      brandCard(element, itemMaker(item), message.id);
+      element.querySelector(".message-content")?.insertAdjacentHTML("afterbegin", weaponHeadHTML(view, item, activity, design));
+      // The weapon's legendary design, else the maker's style, else the base card (hardwipe-legendary.js, hardwipe-manufacturers.js).
+      dressLegendary(element, design);
+      brandCard(element, design ? "" : itemMaker(item), message.id);
+      bindLegendControl(element, item, id => weaponHeadHTML({ ...view, tone: "attack", status: "" }, item, activity, id, { preview: true }));
       bindBrief(message, element, item);
       decorateRollCard(message, element, { pending: view.pending, saves, tone: view.tone, locked });
       return;
@@ -959,23 +964,35 @@ function coverSnapshot(workflow, token) {
   return { level: bonus >= 5 ? "threeQuarters" : "half", material: wallBonus >= statusBonus ? material() : "" };
 }
 
-/** Weapon banner: type and rarity, the name as the title, attack type, property chips, verdict, targets, description. */
-function weaponHeadHTML(view, item, activity) {
+/**
+ * Weapon banner: type and rarity, the name as the title, attack type, property chips, verdict, targets, description.
+ * With a legendary design the same parts go into that design's head. A preview (the GM's design picker) leaves out
+ * the result, the description and the crown.
+ */
+function weaponHeadHTML(view, item, activity, design = "", { preview = false } = {}) {
   const typeLabel = item?.system?.type?.label || (item ? game.i18n.localize(CONFIG.Item.typeLabels?.[item.type] ?? item.type) : "");
-  const rarity = item?.system?.rarity;
+  // Like D&D5e's sheet, a player doesn't see an unidentified weapon's rarity.
+  const rarity = item?.system?.identified === false && !game.user.isGM ? "" : item?.system?.rarity;
   const rarityLabel = rarity ? game.i18n.localize(CONFIG.DND5E.itemRarity?.[rarity] ?? rarity) : "";
-  const name = escapeHTML(view.weapon);
+  const parts = {
+    tone: view.tone, name: escapeHTML(view.weapon), type: escapeHTML(typeLabel), rarity: escapeHTML(rarityLabel), status: escapeHTML(view.status),
+    kind: kindRowHTML(view.kind, view.activity, view.weapon), props: propertyChipsHTML(item, activity),
+    verdict: preview ? "" : verdictHTML(view), targets: preview ? "" : targetsHTML(view), brief: preview ? "" : briefHTML(item),
+    meta: !preview && view.application === "gm" ? `<div class="hardwipe-chat-meta">${escapeHTML(game.i18n.localize("HARDWIPE.Attack.AppliedByGM"))}</div>` : "",
+    control: preview ? "" : legendControlHTML(item)
+  };
+  if (design) return legendaryHeadHTML(design, parts, item);
   const rarityClass = rarityClasses(item);
   return `<div class="hardwipe-attack-head hardwipe-weapon-head is-${view.tone}">
-    <div class="hardwipe-attack-namebar"><span class="hardwipe-attack-type">${escapeHTML([typeLabel, rarityLabel].filter(Boolean).join(" · "))}</span>
-      <span class="hardwipe-attack-status">${escapeHTML(view.status)}</span></div>
-    <div class="hardwipe-title-row">${rarityClass ? `<span class="hardwipe-gem ${rarityClass}"></span>` : ""}<div class="hardwipe-chat-title hardwipe-item-title ${rarityClass}" data-text="${name}">${name}</div></div>
-    ${kindRowHTML(view.kind, view.activity, view.weapon)}
-    ${propertyChipsHTML(item, activity)}
-    ${verdictHTML(view)}
-    ${targetsHTML(view)}
-    ${briefHTML(item)}
-    ${view.application === "gm" ? `<div class="hardwipe-chat-meta">${escapeHTML(game.i18n.localize("HARDWIPE.Attack.AppliedByGM"))}</div>` : ""}
+    <div class="hardwipe-attack-namebar"><span class="hardwipe-attack-type">${[parts.type, parts.rarity].filter(Boolean).join(" · ")}</span>
+      <span class="hardwipe-attack-status">${parts.status}</span>${parts.control}</div>
+    <div class="hardwipe-title-row">${rarityClass ? `<span class="hardwipe-gem ${rarityClass}"></span>` : ""}<div class="hardwipe-chat-title hardwipe-item-title ${rarityClass}" data-text="${parts.name}">${parts.name}</div></div>
+    ${parts.kind}
+    ${parts.props}
+    ${parts.verdict}
+    ${parts.targets}
+    ${parts.brief}
+    ${parts.meta}
   </div>`;
 }
 

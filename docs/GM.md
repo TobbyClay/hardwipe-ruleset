@@ -196,6 +196,12 @@ Award Edge with **+** beside it on the sheet or the Turn tab: it posts a **Charg
 - **Rerolls.** You can press Keep or Reroll for an absent player. Writing someone else's die goes through the card's author (who holds the Midi workflow) or you. When a reroll flips an attack you already ruled, the card asks you again (**Miss · take back damage** / **Hit stands**, or the reverse). Hardwipe otherwise keeps a ruled attack locked. A rerolled save that answers a spell moves its target between the saved and failed lists, and applied damage follows. The Strike from a drop to 0 stays; take it off on the Strikes tray if the reroll means it never happened.
 - **Execute** runs on your client. It refuses anything with Legendary Resistance (`system.resources.legres.max` above 0) and characters.
 
+## Legendary cards
+
+<img src="media/legendary-picker.webp" alt="The Legendary card window for Saint's Due: the standard card and the designs, each drawn with the weapon's own name, maker, art and chips, with Apply and Cancel" width="560">
+
+*(Next release.)* Give a rare weapon its own attack card: click the **crown** on the bar of one of its cards in chat and pick a design, or **Standard card** to go back. Only you see the crown, and only on weapons at or above **Legendary cards from** in Hardwipe's settings. The rarities come in the rarity list's order, so Custom D&D's own tiers count as you rank them (say Gonk, Street, Nova, Preem, Iconic); **Automatic** is the top tier. [The designs →](Cards.md#legendary-cards)
+
 ## The Eye
 
 <img src="media/eye-variants.webp" alt="Nine Eye cards from no sender: a swarm of eyes, a wall of eyes, a close-up with Mags reflected in the pupil, pairs of eyes in the dark, an eye at a crack, nine camera feeds of eyes with Mags marked as subject, a halo of eyes around Mags, LET US IN spelled in eyes, and closed eyes waking" width="760">

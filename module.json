@@ -79,7 +79,8 @@
     "styles/edge.css",
     "styles/chat.css",
     "styles/eye.css",
-    "styles/manufacturers.css"
+    "styles/manufacturers.css",
+    "styles/legendary.css"
   ],
   "languages": [
     {

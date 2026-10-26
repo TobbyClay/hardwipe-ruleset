@@ -115,7 +115,7 @@ The module blocks ordinary character death-save rolls and explains the replaceme
 
 ## Who made your gun
 
-*(Next release.)* A weapon, armour, consumable or tool has a **Manufacturer** field on its Details tab. Type a name or pick one from the list: Night City's makers from Cyberpunk 2077 and Cyberpunk RED, plus the campaign's own. A weapon from a maker with a style gets that maker's attack card (Arasaka, Militech, Kang Tao, Tsunami, Budget Arms, Malorian Arms, Constitutional Arms, Techtronika, Maelstrom, PALE and ????); any other maker shows its name on the card's bar. Leave it empty for the plain card. [Every maker's card →](Cards.md#weapon-makers)
+*(Next release.)* A weapon, armour, consumable or tool has a **Manufacturer** field on its Details tab. Type a name or pick one from the list: Night City's makers from Cyberpunk 2077 and Cyberpunk RED, plus the campaign's own. A weapon from a maker with a style gets that maker's attack card (Arasaka, Militech, Kang Tao, Tsunami, Budget Arms, Malorian Arms, Constitutional Arms, Techtronika, Maelstrom, PALE and ????); any other maker shows its name on the card's bar. Leave it empty for the plain card. A legendary weapon can wear a card of its own, which the GM picks. [Every maker's card →](Cards.md#weapon-makers)
 
 ## Roll initiative your way
 

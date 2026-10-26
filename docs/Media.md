@@ -323,4 +323,13 @@ Captured on **2026-10-21** in the disposable QA world, as the QA Player: one liv
 | --- | --- |
 | [weapon-makers.webp](media/weapon-makers.webp) | Unbranded, Arasaka, Militech, Kang Tao, Tsunami Defense Systems, Budget Arms, Malorian Arms, Constitutional Arms, Techtronika, PALE, ???? and Maelstrom. |
 
+## Legendary card capture
+
+Captured on **2026-10-26** in the disposable QA world with Custom D&D's rarities set to Gonk, Street, Nova, Preem and Iconic. The gallery is four live attacks by the QA Player's Iconic weapons on the QA Cover Target, ruled by the GM (hit, critical, miss, hit); their heads were cloned side by side as the player sees them, descriptions left out. The window is the GM's, opened from the crown on Saint's Due. Both captured at 2× (the window at 1.5×) and saved as WebP.
+
+| Published file | Subject |
+| --- | --- |
+| [legendary-cards.webp](media/legendary-cards.webp) | Engraved, Holo foil, Evidence file and Neon shrine. |
+| [legendary-picker.webp](media/legendary-picker.webp) | The GM's Legendary card window: the standard card and the designs drawn with the weapon's own parts. |
+
 The originals remain in the development audit. Documentation media contains no machine-specific file paths, campaign databases, QA result JSON, or recreated UI.

@@ -1,0 +1,167 @@
+/* ---------------------------------------------------------------------------------------------
+ * Legendary cards (hardwipe-legendary.js): a rare enough weapon's own design, in place of the base card and its
+ * maker's style. Each design lays the head out its own way. The outcome still reads where it always does: the
+ * outline, the verdict strip and the targets keep their hit, miss and critical colours, and a miss dims the design.
+ * Titles carry no data-text, so the base card's chromatic split stays off them.
+ * ------------------------------------------------------------------------------------------- */
+.hwl-head { padding-bottom: 12px; }
+.hwl-head :is(.hardwipe-attack-kind-row, .hardwipe-props, .hardwipe-verdict, .hardwipe-targets, .hardwipe-desc, .hardwipe-chat-meta) { position: relative; z-index: 1; }
+.hwl-head .hwl-title { position: relative; margin: 0; font-size: 24px; line-height: 1.05; overflow-wrap: anywhere; }
+.chat-message.hardwipe-legendary .hardwipe-roll-card { border-left-color: var(--l-rail) !important; }
+.chat-message.is-folded .hwl-fold { display: none !important; }
+
+/* The GM's crown: on the card's bar, opens the designs. */
+.hwl-pick, .chat-message .hwl-pick {
+  all: unset; flex: none; display: inline-grid; place-items: center; width: 16px; height: 16px; margin-left: 2px;
+  color: inherit; font-size: 10px; line-height: 1; opacity: 0.45; cursor: pointer;
+}
+.hwl-pick:is(:hover, :focus-visible) { opacity: 1; }
+.hwl-pick:focus-visible { outline: 1px solid currentColor; outline-offset: 1px; }
+
+/* ENGRAVED · hand-finished chrome: a brushed plate in a brass frame, the name cut into it, filigree corners. ---- */
+.chat-message.hwl-engraved { --l-rail: #c9a45c; }
+.hwl-engraved .hwl-head {
+  background: repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.03) 0 1px, transparent 1px 3px),
+    linear-gradient(165deg, #474b52 0%, #23262b 36%, #33373d 60%, #141619 100%);
+}
+.hwl-engraved .hwl-rail { display: flex; align-items: center; gap: 8px; padding: 7px 14px 6px; color: #d4b06a; font: 700 9px var(--hw-font-mono); letter-spacing: 0.26em; text-transform: uppercase; }
+.hwl-engraved .hwl-edition { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.hwl-engraved .hwl-edition::before { content: ""; display: inline-block; width: 5px; height: 5px; margin: 0 8px 1px 0; background: #d4b06a; transform: rotate(45deg); }
+.hwl-engraved .hwl-plate {
+  position: relative; margin: 0 10px; padding: 14px 26px 11px; text-align: center;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.07), rgba(0, 0, 0, 0.28));
+  border: 1px solid rgba(212, 176, 106, 0.5); box-shadow: inset 0 0 0 3px rgba(0, 0, 0, 0.35), inset 0 0 0 4px rgba(212, 176, 106, 0.25);
+}
+.hwl-engraved .hwl-filigree { position: absolute; width: 22px; height: 22px; color: #d4b06a; opacity: 0.85; }
+.hwl-engraved .hwl-filigree svg { display: block; width: 100%; height: 100%; }
+.hwl-engraved .hwl-filigree.is-tl { left: 4px; top: 4px; }
+.hwl-engraved .hwl-filigree.is-tr { right: 4px; top: 4px; transform: scaleX(-1); }
+.hwl-engraved .hwl-filigree.is-bl { left: 4px; bottom: 4px; transform: scaleY(-1); }
+.hwl-engraved .hwl-filigree.is-br { right: 4px; bottom: 4px; transform: scale(-1); }
+.hwl-engraved .hwl-over { margin-bottom: 5px; color: #d4b06a; font: 600 9px "Palatino Linotype", "Book Antiqua", Georgia, serif; letter-spacing: 0.34em; text-transform: uppercase; }
+.hwl-engraved .hwl-head .hwl-title {
+  font: 700 22px/1.1 "Palatino Linotype", "Book Antiqua", Georgia, serif; letter-spacing: 0.1em; text-transform: uppercase;
+  background: linear-gradient(180deg, #ffffff 0%, #ccd1d6 46%, #848a91 54%, #e6e9ec 100%); -webkit-background-clip: text; background-clip: text;
+  -webkit-text-fill-color: transparent; text-shadow: none; filter: drop-shadow(0 1px 0 rgba(0, 0, 0, 0.85)) drop-shadow(0 -1px 0 rgba(255, 255, 255, 0.1));
+}
+.hwl-engraved .hwl-rule { display: flex; align-items: center; gap: 8px; margin: 8px 12px 6px; }
+.hwl-engraved .hwl-rule i { flex: 1; height: 1px; background: linear-gradient(90deg, transparent, #d4b06a); }
+.hwl-engraved .hwl-rule i:last-child { background: linear-gradient(90deg, #d4b06a, transparent); }
+.hwl-engraved .hwl-rule b { width: 6px; height: 6px; background: #d4b06a; transform: rotate(45deg); }
+.hwl-engraved .hwl-sub { color: rgba(233, 236, 239, 0.62); font: 600 9px var(--hw-font-mono); letter-spacing: 0.22em; text-transform: uppercase; }
+.hwl-engraved .hwl-head.is-critical .hwl-plate { box-shadow: inset 0 0 0 3px rgba(0, 0, 0, 0.35), inset 0 0 0 4px rgba(212, 176, 106, 0.6), 0 0 12px rgba(212, 176, 106, 0.35); }
+.hwl-engraved .hwl-head:is(.is-miss, .is-mixed) .hwl-plate { filter: grayscale(0.7) brightness(0.75); }
+
+/* HOLO FOIL · a collector's card: the weapon's art in a window, a holographic seal, a sheen sweeping across. ---- */
+.chat-message.hwl-holo { --l-rail: #b48cff; }
+.hwl-holo .hwl-head {
+  background: radial-gradient(120% 80% at 0% 0%, rgba(255, 120, 220, 0.16), transparent 60%),
+    radial-gradient(120% 80% at 100% 30%, rgba(90, 240, 255, 0.13), transparent 60%), linear-gradient(170deg, #17122a, #0b0a14 70%);
+}
+.hwl-holo .hwl-top { display: flex; align-items: center; gap: 8px; padding: 7px 14px 6px; color: #e8ddff; font: 700 9px var(--hw-font-mono); letter-spacing: 0.24em; text-transform: uppercase; }
+.hwl-holo .hwl-rarity {
+  flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  background: linear-gradient(90deg, #ff9ef0, #9effff, #fff59e); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+}
+.hwl-holo .hwl-card {
+  position: relative; margin: 0 12px; padding: 8px 8px 9px; overflow: hidden; border-radius: 6px;
+  background: linear-gradient(135deg, #2b2442, #141022); border: 1px solid rgba(220, 200, 255, 0.4); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.06);
+}
+.hwl-holo .hwl-window {
+  position: relative; display: grid; place-items: center; height: 92px; overflow: hidden; border-radius: 4px; border: 1px solid rgba(255, 255, 255, 0.14);
+  background: repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.04) 0 1px, transparent 1px 3px), radial-gradient(circle at 50% 55%, rgba(180, 140, 255, 0.4), rgba(10, 8, 20, 0.92) 70%);
+}
+.hwl-holo .hwl-window img { width: 76px; height: 76px; object-fit: contain; border: 0; filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.65)); }
+.hwl-holo .hwl-seal {
+  position: absolute; right: 7px; bottom: 7px; display: grid; place-items: center; width: 26px; height: 26px; border-radius: 50%;
+  color: rgba(36, 26, 61, 0.85); font: normal 13px/1 var(--hw-font-disp);
+  background: conic-gradient(#ff9ef0, #9effff, #fff59e, #a8ffb0, #ff9ef0); box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.55), 0 0 6px rgba(200, 170, 255, 0.6);
+}
+.hwl-holo .hwl-namebox { display: flex; align-items: baseline; gap: 8px; margin-top: 8px; }
+.hwl-holo .hwl-head .hwl-title {
+  flex: 1; min-width: 0; font: 600 22px/1.05 var(--hw-font-disp); letter-spacing: 0.08em; text-transform: uppercase; text-shadow: none;
+  background: linear-gradient(100deg, #ffd6f6 0%, #c4fbff 30%, #fff7c2 55%, #e0c9ff 80%, #ffd6f6 100%); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+}
+.hwl-holo .hwl-num { flex: none; color: rgba(232, 221, 255, 0.6); font: 700 9px var(--hw-font-mono); letter-spacing: 0.14em; }
+.hwl-holo .hwl-sub { margin-top: 3px; color: rgba(232, 221, 255, 0.62); font: 600 9px var(--hw-font-mono); letter-spacing: 0.2em; text-transform: uppercase; }
+.hwl-holo .hwl-foil {
+  position: absolute; inset: 0; pointer-events: none; mix-blend-mode: color-dodge;
+  background: linear-gradient(115deg, transparent 30%, rgba(255, 130, 230, 0.26) 40%, rgba(120, 255, 245, 0.26) 48%, rgba(255, 245, 140, 0.2) 56%, transparent 66%) 0 0 / 300% 100%;
+  animation: hwl-sheen 7s linear infinite;
+}
+.hwl-holo .hwl-head.is-critical .hwl-foil { animation-duration: 2.4s; }
+.hwl-holo .hwl-head:is(.is-miss, .is-mixed) .hwl-card { filter: saturate(0.25) brightness(0.8); }
+.hwl-holo .hwl-head.is-miss .hwl-foil { animation: none; opacity: 0.3; }
+@keyframes hwl-sheen { from { background-position: 100% 0; } to { background-position: 0% 0; } }
+
+/* EVIDENCE FILE · a case sheet clipped to the card: typed, filed, stamped. --------------------------------------- */
+.chat-message.hwl-evidence { --l-rail: #c23a32; }
+.hwl-evidence .hwl-head { background: linear-gradient(170deg, #261e15, #120e0a 70%); }
+.hwl-evidence .hwl-tab { display: flex; align-items: center; gap: 10px; padding: 0 14px 0 12px; color: #d8c9a6; font: 700 9px var(--hw-font-mono); letter-spacing: 0.2em; text-transform: uppercase; }
+.hwl-evidence .hwl-tab > b { padding: 5px 10px 4px; color: #1d1912; background: #cdb88c; border-radius: 0 0 3px 3px; font-weight: 800; }
+.hwl-evidence .hwl-case { flex: 1; min-width: 0; opacity: 0.7; }
+.hwl-evidence .hwl-sheet {
+  position: relative; margin: 10px 12px 0; padding: 12px 14px 10px; color: #1f1b15; transform: rotate(-0.6deg);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.3), transparent 32%), repeating-linear-gradient(0deg, transparent 0 17px, rgba(60, 90, 140, 0.13) 17px 18px), #e8ddc3;
+  box-shadow: 0 2px 7px rgba(0, 0, 0, 0.6);
+}
+.hwl-evidence .hwl-clip { position: absolute; left: 46%; top: -12px; width: 11px; height: 30px; }
+.hwl-evidence .hwl-clip svg { display: block; width: 100%; height: 100%; }
+.hwl-evidence .hwl-label { color: #7a6a4f; font: 700 9px "Courier New", Courier, monospace; letter-spacing: 0.2em; text-transform: uppercase; }
+.hwl-evidence .hwl-head .hwl-title { margin: 3px 0 8px; color: #16130e; font: 700 21px/1.05 "Courier New", Courier, monospace; letter-spacing: 0.01em; text-transform: uppercase; text-shadow: 0 0 1px rgba(22, 19, 14, 0.45); }
+.hwl-evidence .hwl-fields { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin: 0; padding-top: 6px; border-top: 1px dashed rgba(31, 27, 21, 0.35); }
+.hwl-evidence .hwl-fields dt { color: #7a6a4f; font: 700 8px "Courier New", Courier, monospace; letter-spacing: 0.18em; text-transform: uppercase; }
+.hwl-evidence .hwl-fields dd { margin: 1px 0 0; color: #1f1b15; font: 700 10.5px/1.25 "Courier New", Courier, monospace; overflow-wrap: anywhere; }
+.hwl-evidence .hwl-redact { color: transparent; background: #16130e; text-decoration: none; }
+.hwl-evidence .hwl-stamp {
+  position: absolute; right: 10px; top: 8px; padding: 2px 6px; color: #b3262c; border: 2px solid #b3262c; border-radius: 2px;
+  font: 800 10px var(--hw-font-disp); letter-spacing: 0.16em; text-transform: uppercase; transform: rotate(8deg); opacity: 0.8; mix-blend-mode: multiply;
+}
+.hwl-evidence .hwl-head.is-critical .hwl-stamp { opacity: 1; box-shadow: inset 0 0 0 1px #b3262c; }
+.hwl-evidence .hwl-head:is(.is-miss, .is-mixed) .hwl-sheet { filter: sepia(0.35) brightness(0.78); }
+.hwl-evidence .hwl-head.is-miss .hwl-title { color: #4a443a; }
+
+/* NEON SHRINE · a sign on a brick wall: the name in a pink tube, a cyan frame, a gold halo above. ---------------- */
+.chat-message.hwl-neon { --l-rail: #ff3fb4; }
+.hwl-neon .hwl-head {
+  background: radial-gradient(70% 45% at 50% 38%, rgba(255, 63, 180, 0.2), transparent 70%),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='56' height='28'%3E%3Cpath d='M0 13.5h56M0 27.5h56M28.5 0v13.5M14.5 14v14M42.5 14v14' stroke='%23000' stroke-opacity='.5' fill='none'/%3E%3C/svg%3E"),
+    linear-gradient(160deg, #3b1e25, #1a0d11 75%);
+}
+.hwl-neon .hwl-top { display: flex; align-items: center; gap: 8px; padding: 7px 14px 0; color: #8ff8ff; font: 700 9px var(--hw-font-mono); letter-spacing: 0.24em; text-transform: uppercase; }
+.hwl-neon .hwl-tag { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; text-shadow: 0 0 4px #2ff3ff; }
+.hwl-neon .hwl-sign {
+  position: relative; margin: 20px 14px 0; padding: 16px 10px 11px; text-align: center; border: 2px solid #8ffcff; border-radius: 10px;
+  box-shadow: 0 0 4px #2ff3ff, 0 0 12px rgba(47, 243, 255, 0.5), inset 0 0 4px #2ff3ff, inset 0 0 12px rgba(47, 243, 255, 0.3);
+}
+.hwl-neon .hwl-halo {
+  position: absolute; left: 50%; top: -12px; width: 66px; height: 16px; translate: -50% 0; border: 2px solid #ffe27a; border-radius: 50%;
+  box-shadow: 0 0 4px #ffcc33, 0 0 10px rgba(255, 204, 51, 0.7), inset 0 0 4px #ffcc33;
+}
+.hwl-neon .hwl-head .hwl-title {
+  color: #fff2fb; font: 400 25px/1.1 var(--hw-font-disp); letter-spacing: 0.05em; text-transform: uppercase;
+  text-shadow: 0 0 2px #fff, 0 0 6px #ff4fd8, 0 0 14px #ff2fb9, 0 0 26px #ff2fb9; animation: hwl-tube 9s steps(1) infinite;
+}
+.hwl-neon .hwl-sub { margin-top: 6px; color: #8ff8ff; font: 600 9px var(--hw-font-mono); letter-spacing: 0.22em; text-transform: uppercase; text-shadow: 0 0 4px rgba(47, 243, 255, 0.8); }
+.hwl-neon .hwl-head.is-critical .hwl-title { animation-duration: 2.2s; }
+.hwl-neon .hwl-head:is(.is-miss, .is-mixed) .hwl-sign { border-color: rgba(143, 252, 255, 0.3); box-shadow: none; }
+.hwl-neon .hwl-head.is-miss .hwl-title { color: rgba(255, 242, 251, 0.45); text-shadow: 0 0 2px rgba(255, 79, 216, 0.4); animation: none; }
+.hwl-neon .hwl-head.is-miss .hwl-halo { box-shadow: none; opacity: 0.4; }
+@keyframes hwl-tube { 0%, 100% { opacity: 1; } 3% { opacity: 0.5; } 4% { opacity: 1; } 61% { opacity: 0.7; } 62% { opacity: 1; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .hwl-holo .hwl-foil, .hwl-neon .hwl-head .hwl-title { animation: none; }
+}
+
+/* The GM's design picker: the weapon's head in every design. */
+.application.dialog.hardwipe-dialog.is-legend { --hwd: #e2bf68; --hwd-ink: #1a1203; }
+.hwl-choices { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; max-height: 68vh; margin: 0 0 4px; padding: 2px 6px 2px 2px; overflow-y: auto; }
+.hwl-choice { position: relative; display: flex; flex-direction: column; gap: 8px; padding: 8px; background: rgba(0, 0, 0, 0.3); border: 1px solid var(--hw-line-2, rgba(143, 207, 176, 0.25)); cursor: pointer; }
+.hwl-choice:hover { border-color: color-mix(in srgb, var(--hwd) 60%, transparent); }
+.hwl-choice:has(input:checked) { border-color: var(--hwd); box-shadow: 0 0 0 1px var(--hwd), 0 0 12px color-mix(in srgb, var(--hwd) 30%, transparent); }
+.hwl-choice > input { position: absolute; opacity: 0; pointer-events: none; }
+.hwl-choice:has(input:focus-visible) { outline: 2px solid var(--hwd); outline-offset: 2px; }
+.hwl-choice-text { display: flex; flex-direction: column; gap: 2px; }
+.hwl-choice-text b { color: var(--hw-hi); font: 700 13px var(--hw-font-disp); letter-spacing: 0.12em; text-transform: uppercase; }
+.hwl-choice-text small { color: var(--hw-dim); font: 500 12px/1.3 var(--hw-font-disp); }
+.hwl-preview .hardwipe-attack-head { margin: 0; }

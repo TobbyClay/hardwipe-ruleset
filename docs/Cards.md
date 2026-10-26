@@ -4,7 +4,7 @@
 
 Hardwipe gives each kind of action its own software-inspired display. Click any image to open the full capture. The examples use synthetic characters and scenes, so the QA names are demonstration data.
 
-[Weapons](#weapon-outcomes-and-gm-review) · [Makers](#weapon-makers) · [Spells](#spell-programs) · [Concentration](#concentration-interrupts) · [Checks](#checks-and-initiative) · [Gear](#gear-and-class-features) · [Consumables](#consumables) · [Features](#class-features) · [Tools](#tools) · [Prompts](#prompts) · [Crew](#crew-maneuvers) · [Implants](#cyberware-diagnostics) · [Rests](#short-rest-monitor) · [Chat](#typed-messages) · [Rolls](#plain-rolls) · [System cards](#edge-strikes-and-downed) · [Roll calls](#roll-calls) · [Braindance](#braindance) · [Heat](#mission-heat-styles)
+[Weapons](#weapon-outcomes-and-gm-review) · [Makers](#weapon-makers) · [Legendary](#legendary-cards) · [Spells](#spell-programs) · [Concentration](#concentration-interrupts) · [Checks](#checks-and-initiative) · [Gear](#gear-and-class-features) · [Consumables](#consumables) · [Features](#class-features) · [Tools](#tools) · [Prompts](#prompts) · [Crew](#crew-maneuvers) · [Implants](#cyberware-diagnostics) · [Rests](#short-rest-monitor) · [Chat](#typed-messages) · [Rolls](#plain-rolls) · [System cards](#edge-strikes-and-downed) · [Roll calls](#roll-calls) · [Braindance](#braindance) · [Heat](#mission-heat-styles)
 
 ## Weapon outcomes and GM review
 
@@ -34,6 +34,19 @@ Use a weapon activity to make the roll; the GM confirms each target. The verdict
 *(Next release.)* Set a weapon's **Manufacturer** on its Details tab and its attack card wears that maker: the bar and wordmark, an emblem behind the head, the title's type, a serial plate, and the roll card's rail. The outcome still reads where it always does: the outline, the verdict strip and the targets keep their hit, miss and critical colours, and a miss fades the brand.
 
 Eleven makers have a style: **Arasaka**, **Militech**, **Kang Tao**, **Tsunami Defense Systems**, **Budget Arms**, **Malorian Arms**, **Constitutional Arms**, **Techtronika**, **Maelstrom**, and the campaign's own **PALE** (circuit hands forcing their way in through a damaged card) and **????** (a card running out of power). Any other maker shows its name on the plain card's bar; no maker keeps the plain card. A card follows the weapon's current maker, so changing it redraws the weapon's cards already in chat.
+
+### Legendary cards
+
+<img src="media/legendary-cards.webp" alt="Four Iconic weapons' attack cards in their own designs: Silver Tongue engraved on brushed chrome in a brass frame, Prism as a holographic foil card showing the crossbow's art, Exhibit C as a typed evidence sheet stamped Do not release, and Ghost Blade as a pink neon sign on brick under a gold halo" width="900">
+
+*(Next release.)* A rare enough weapon can wear a design of its own in place of the plain card and its maker's style. The GM clicks the **crown** on the weapon's attack card and picks one; every card of that weapon wears it, the ones already in chat too. [Choosing a design →](GM.md#legendary-cards)
+
+- **Engraved:** brushed chrome in a brass frame, the name cut into it, filigree corners.
+- **Holo foil:** the weapon's art in a window, a holographic seal, a sheen across the card.
+- **Evidence file:** a typed case sheet clipped to the card, with the weapon's class, grade and maker, and a stamp.
+- **Neon shrine:** the name in a pink tube on brick, under a gold halo.
+
+The outline, the verdict strip and the targets keep their hit, miss and critical colours, and a miss dims the design. A player sees an unidentified weapon's plain card, without its rarity.
 
 ## Spell programs
 
