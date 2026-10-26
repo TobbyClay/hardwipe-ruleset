@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { isActionSurge, consumableKind } from "../scripts/hardwipe-consumable-cards.js";
+import { isActionSurge, consumableKind, vialCount, VIAL_LIMIT } from "../scripts/hardwipe-consumable-cards.js";
 import { bulletRows, changeRow, durationRing, effectRows, midiFlagLabel, ringScale, tidyKey } from "../scripts/hardwipe-effects.js";
 
 test("the ring grows with the duration: a round is a sliver, a day is the whole ring", () => {
@@ -65,4 +65,12 @@ test("a consumable or feature's payload kind, and Action Surge by identifier or 
   assert.ok(isActionSurge({ name: "Action Surge", system: {} }));
   assert.ok(!isActionSurge({ name: "Action Surge (Two Uses)", system: {} }));
   assert.ok(!isActionSurge({ name: "Second Wind", system: { identifier: "second-wind" } }));
+});
+
+test("a big stack shows one vial and the number instead of a vial per dose", () => {
+  assert.equal(vialCount(0), 1);
+  assert.equal(vialCount(1), 2);
+  assert.equal(vialCount(VIAL_LIMIT), VIAL_LIMIT + 1);
+  assert.equal(vialCount(VIAL_LIMIT + 1), 1);
+  assert.equal(vialCount(240), 1);
 });

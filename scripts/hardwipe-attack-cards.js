@@ -1,3 +1,4 @@
+import { repositionButton } from "./hardwipe-area-reposition.js";
 import { MODULE_ID, StrikesManager, escapeHTML } from "./hardwipe-state.js";
 import { isAssembling } from "./hardwipe-assembly.js";
 
@@ -882,7 +883,7 @@ export function readableLabel(label, heal) {
 }
 
 /** Build the strip from the native card's buttons; `skip(action)` leaves a button behind. */
-export function actionStrip(content, accent, skip = () => false) {
+export function actionStrip(content, accent, skip = () => false, { message = null, activity = null } = {}) {
   const strip = document.createElement("div");
   strip.className = `hardwipe-gear-actions ${accent}`;
   const picker = content.querySelector(".chat-card recorded-targets");
@@ -892,8 +893,10 @@ export function actionStrip(content, accent, skip = () => false) {
   }
   const row = document.createElement("div");
   row.className = "hardwipe-gear-buttons";
+  // An area gets Hardwipe's Place / Reposition in place of D&D5e's Place Template, which only ever adds another region.
+  const area = message ? repositionButton(message, activity) : null;
   for (const button of content.querySelectorAll(".chat-card .card-buttons button[data-action], .chat-card section.icon-row button[data-action]")) {
-    if (skip(button.dataset.action)) continue;
+    if (skip(button.dataset.action) || (area && button.dataset.action === "placeTemplate")) continue;
     const raw = button.getAttribute("aria-label") || (button.dataset.tooltip ? game.i18n.localize(button.dataset.tooltip) : button.textContent.trim());
     const heal = /heal/i.test(button.dataset.action) || /heal/i.test(raw);
     const label = readableLabel(raw, heal);
@@ -902,6 +905,7 @@ export function actionStrip(content, accent, skip = () => false) {
     if (label && !button.querySelector(".hardwipe-program-action-label")) button.insertAdjacentHTML("beforeend", `<span class="hardwipe-program-action-label">${escapeHTML(label)}</span>`);
     row.append(button);
   }
+  if (area) row.append(area);
   if (row.childElementCount) strip.append(row);
   return strip;
 }
