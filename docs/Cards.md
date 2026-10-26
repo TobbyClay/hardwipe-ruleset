@@ -46,6 +46,15 @@ Eleven makers have a style: **Arasaka**, **Militech**, **Kang Tao**, **Tsunami D
 - **Evidence file:** a typed case sheet clipped to the card, with the weapon's class, grade and maker, and a stamp.
 - **Neon shrine:** the name in a pink tube on brick, under a gold halo.
 
+<img src="media/legendary-iconic.webp" alt="Four known weapons' attack cards: Malorian Arms 3516 as a chrome all-access pass on a red lanyard, La Chingona Dorada on gold leaf with marigolds under papel picado, Satori in ink on washi with a brushed circle and a red seal, and Skippy as a smart-link screen whose pixel face says Missed. Not my fault." width="900">
+
+Four more are made for known weapons, and work on any weapon you give them to:
+
+- **Silverhand** (Johnny Silverhand's Malorian Arms 3516): a chrome all-access pass on a red lanyard, a red slash, a cigarette burn.
+- **La Dorada** (Jackie Welles' La Chingona Dorada): gold leaf with the name in script, marigolds, papel picado overhead.
+- **Satori** (Saburo Arasaka's katana): ink on washi, a brushed circle, a red seal.
+- **Skippy** (the talking smart pistol): a pixel face on the smart-link screen that has a word for each outcome.
+
 The outline, the verdict strip and the targets keep their hit, miss and critical colours, and a miss dims the design. A player sees an unidentified weapon's plain card, without its rarity.
 
 ## Spell programs

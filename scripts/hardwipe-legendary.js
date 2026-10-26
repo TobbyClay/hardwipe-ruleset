@@ -69,6 +69,15 @@ const FILIGREE = '<svg viewBox="0 0 40 40" fill="none" stroke="currentColor" str
   + '<path d="M2 15c6.4 2.4 11.4-1 11.4-6.6 0-1.4-.3-2.6-.8-3.6"/><circle cx="7.4" cy="7.4" r="1.7" fill="currentColor" stroke="none"/></svg>';
 const CLIP = '<svg viewBox="0 0 14 38" fill="none" stroke-width="1.8" stroke-linecap="round">'
   + '<path d="M4.5 12V6a3.2 3.2 0 0 1 6.4 0v23a5.4 5.4 0 0 1-10.8 0V10" stroke="#aeb7bf"/></svg>';
+const MARIGOLD = '<svg viewBox="0 0 24 24" fill="#ff9f1c">'
+  + Array.from({ length: 10 }, (_, i) => `<ellipse cx="12" cy="5.6" rx="2.6" ry="5" transform="rotate(${i * 36} 12 12)"/>`).join("")
+  + '<circle cx="12" cy="12" r="3.6" fill="#9a4207"/></svg>';
+const PICADO = ["#ff4f9a", "#ff9f1c", "#2ec4b6", "#9b5de5", "#fee440", "#00bbf9", "#f15bb5", "#7bd389"];
+const ENSO = '<svg viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-linecap="round">'
+  + '<path d="M70 14C50 4 18 14 12 44S34 94 60 88s34-30 26-52" stroke-width="8" opacity="0.85"/>'
+  + '<path d="M66 17C46 10 22 19 16 44s20 46 44 40" stroke-width="2.5" opacity="0.5"/></svg>';
+// Skippy has a word for every outcome; anything else gets its ready line.
+const SKIPPY_TONES = new Set(["attack", "pending", "hit", "critical", "miss", "mixed", "fumble"]);
 
 const title = p => `<div class="hardwipe-chat-title hwl-title">${p.name}</div>`;
 const top = (p, label) => `${label}<span class="hardwipe-attack-status">${p.status}</span>${p.control}`;
@@ -101,6 +110,28 @@ const DESIGNS = {
     ${tail(p)}`,
   neon: p => `<div class="hwl-top">${top(p, `<span class="hwl-tag">${p.rarity}</span>`)}</div>
     <div class="hwl-sign"><i class="hwl-halo hwl-fold"></i>${title(p)}<div class="hwl-sub">${joined(p.type, p.maker)}</div></div>
+    ${tail(p)}`,
+  // Known weapons' own cards. Johnny Silverhand's Malorian Arms 3516: an all-access pass on a lanyard.
+  silverhand: p => `<i class="hwl-dots"></i><div class="hwl-top">${top(p, `<span class="hwl-tour">${p.rarity}</span>`)}</div>
+    <div class="hwl-pass"><i class="hwl-strap hwl-fold"></i><i class="hwl-punch"></i><i class="hwl-slash"></i><i class="hwl-burn hwl-fold"></i>
+      <div class="hwl-access">${escapeHTML(t("AllAccess"))}</div>${title(p)}<div class="hwl-sub">${joined(p.maker, p.type)}</div></div>
+    ${tail(p)}`,
+  // Jackie Welles' golden pistols: gold leaf and marigolds under papel picado.
+  dorada: p => `<div class="hwl-top">${top(p, `<span class="hwl-rarity">${p.rarity}</span>`)}</div>
+    <div class="hwl-picado hwl-fold">${PICADO.map(color => `<i style="--c:${color}"></i>`).join("")}</div>
+    <div class="hwl-gold"><i class="hwl-flower is-l">${MARIGOLD}</i><i class="hwl-flower is-r">${MARIGOLD}</i>
+      ${title(p)}<div class="hwl-sub">${joined(p.type, p.maker)}</div></div>
+    ${tail(p)}`,
+  // Saburo Arasaka's katana: ink on washi, a brushed circle, a seal.
+  satori: p => `<div class="hwl-top">${top(p, `<span class="hwl-rarity">${p.rarity}</span>`)}</div>
+    <div class="hwl-washi"><i class="hwl-enso hwl-fold">${ENSO}</i><span class="hwl-hanko">悟</span>
+      ${title(p)}<div class="hwl-sub">${joined(p.maker, p.type)}</div></div>
+    ${tail(p)}`,
+  // Skippy, the talking smart pistol: a pixel face on the smart-link screen, with a word on the shot.
+  skippy: p => `<div class="hwl-top">${top(p, `<span class="hwl-rarity">${p.rarity}</span>`)}</div>
+    <div class="hwl-screen"><div class="hwl-chat"><span class="hwl-face"><i></i><i></i><b></b></span>
+      <span class="hwl-bubble">${escapeHTML(t(`Skippy.${SKIPPY_TONES.has(p.tone) ? p.tone : "attack"}`))}</span></div>
+      ${title(p)}<div class="hwl-sub">${joined(p.type, p.maker)}</div></div>
     ${tail(p)}`
 };
 export const DESIGN_IDS = Object.keys(DESIGNS);
@@ -169,7 +200,7 @@ async function pickDesign(item, preview) {
   const picked = await foundry.applications.api.DialogV2.wait({
     window: { title: game.i18n.format("HARDWIPE.Legend.PickTitle", { name: item.name }), icon: "fas fa-crown" },
     classes: ["hardwipe-dialog", "is-legend"],
-    position: { width: 700 },
+    position: { width: 960 },
     content,
     rejectClose: false,
     buttons: [

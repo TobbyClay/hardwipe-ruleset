@@ -5,7 +5,7 @@
  * Titles carry no data-text, so the base card's chromatic split stays off them.
  * ------------------------------------------------------------------------------------------- */
 .hwl-head { padding-bottom: 12px; }
-.hwl-head :is(.hardwipe-attack-kind-row, .hardwipe-props, .hardwipe-verdict, .hardwipe-targets, .hardwipe-desc, .hardwipe-chat-meta) { position: relative; z-index: 1; }
+.hwl-head > * { position: relative; z-index: 1; }
 .hwl-head .hwl-title { position: relative; margin: 0; font-size: 24px; line-height: 1.05; overflow-wrap: anywhere; }
 .chat-message.hardwipe-legendary .hardwipe-roll-card { border-left-color: var(--l-rail) !important; }
 .chat-message.is-folded .hwl-fold { display: none !important; }
@@ -149,13 +149,113 @@
 .hwl-neon .hwl-head.is-miss .hwl-halo { box-shadow: none; opacity: 0.4; }
 @keyframes hwl-tube { 0%, 100% { opacity: 1; } 3% { opacity: 0.5; } 4% { opacity: 1; } 61% { opacity: 0.7; } 62% { opacity: 1; } }
 
+/* SILVERHAND · Johnny Silverhand's Malorian: a chrome all-access pass on a red lanyard, a red slash, a burn. ------- */
+.chat-message.hwl-silverhand { --l-rail: #d81f26; }
+.hwl-silverhand .hwl-head { background: linear-gradient(160deg, #1d0b0c, #070505 70%); }
+.hwl-silverhand .hwl-head > .hwl-dots {
+  position: absolute; z-index: 0; right: 0; top: 0; width: 75%; height: 180px; pointer-events: none;
+  background: radial-gradient(circle, rgba(216, 31, 38, 0.55) 1.2px, transparent 1.8px) 0 0 / 7px 7px;
+  -webkit-mask: linear-gradient(205deg, #000, transparent 70%); mask: linear-gradient(205deg, #000, transparent 70%);
+}
+.hwl-silverhand .hwl-top { display: flex; align-items: center; gap: 8px; padding: 7px 14px 0; color: #ff5a60; font: 800 9px var(--hw-font-mono); letter-spacing: 0.26em; text-transform: uppercase; }
+.hwl-silverhand .hwl-tour { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.hwl-silverhand .hwl-pass {
+  margin: 30px 22px 4px; padding: 20px 16px 12px; color: #111; border-radius: 8px; transform: rotate(-2.5deg);
+  background: linear-gradient(125deg, rgba(255, 255, 255, 0.55) 0 16%, transparent 30% 62%, rgba(255, 255, 255, 0.35) 70%, transparent 85%),
+    linear-gradient(160deg, #f2f4f6, #a7afb7 38%, #eef1f4 55%, #858e97 80%, #c9cfd5);
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.65), inset 0 0 0 1px rgba(255, 255, 255, 0.6);
+}
+.hwl-silverhand .hwl-strap { position: absolute; left: 50%; top: -32px; width: 30px; height: 40px; translate: -50% 0; border: 5px solid #c8141c; border-bottom: 0; border-radius: 6px 6px 0 0; }
+.hwl-silverhand .hwl-punch { position: absolute; left: 50%; top: 6px; width: 22px; height: 6px; translate: -50% 0; background: #1d0b0c; border-radius: 4px; box-shadow: inset 0 1px 2px #000; }
+.hwl-silverhand .hwl-slash { position: absolute; left: -6px; right: -6px; top: 52%; height: 18px; background: #d81f26; opacity: 0.88; transform: rotate(-7deg); }
+.hwl-silverhand .hwl-burn { position: absolute; right: 12px; bottom: 9px; width: 16px; height: 16px; border-radius: 50%; background: radial-gradient(circle, #120806 0 3px, #5a2a12 4px, rgba(120, 60, 20, 0.45) 6px, transparent 8px); }
+.hwl-silverhand .hwl-access { position: relative; display: inline-block; margin-bottom: 6px; padding: 2px 8px; color: #fff; background: #111; font: 800 9px var(--hw-font-mono); letter-spacing: 0.3em; text-transform: uppercase; }
+.hwl-silverhand .hwl-head .hwl-title { z-index: 1; color: #0d0d0d; font: 900 27px/1 var(--hw-font-disp); font-stretch: 78%; letter-spacing: 0.01em; text-transform: uppercase; text-shadow: 1px 1px 0 rgba(255, 255, 255, 0.55); }
+.hwl-silverhand .hwl-sub { position: relative; z-index: 1; margin-top: 7px; color: #2a2d31; font: 700 9px var(--hw-font-mono); letter-spacing: 0.2em; text-transform: uppercase; }
+.hwl-silverhand .hwl-head.is-critical .hwl-slash { box-shadow: 0 0 12px rgba(255, 40, 50, 0.85); }
+.hwl-silverhand .hwl-head:is(.is-miss, .is-mixed) .hwl-pass { filter: grayscale(0.8) brightness(0.72); }
+
+/* LA DORADA · Jackie Welles' golden pistols: gold leaf with engraved script, marigolds, papel picado above. ----- */
+.chat-message.hwl-dorada { --l-rail: #e3b341; }
+.hwl-dorada .hwl-head { background: radial-gradient(90% 60% at 50% 30%, rgba(227, 179, 65, 0.18), transparent 70%), linear-gradient(165deg, #2a1608, #120904 70%); }
+.hwl-dorada .hwl-top { display: flex; align-items: center; gap: 8px; padding: 7px 14px 4px; color: #f2cf73; font: 700 9px var(--hw-font-mono); letter-spacing: 0.24em; text-transform: uppercase; }
+.hwl-dorada .hwl-rarity { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.hwl-dorada .hwl-picado { display: flex; gap: 3px; height: 22px; margin: 0 12px; padding-top: 2px; border-top: 1px solid rgba(242, 207, 115, 0.6); }
+.hwl-dorada .hwl-picado i {
+  flex: 1; background: var(--c); opacity: 0.92;
+  clip-path: polygon(0 0, 100% 0, 100% 78%, 87.5% 100%, 75% 78%, 62.5% 100%, 50% 78%, 37.5% 100%, 25% 78%, 12.5% 100%, 0 78%);
+  -webkit-mask: radial-gradient(circle at 50% 40%, transparent 0 2.6px, #000 3px), radial-gradient(circle at 22% 24%, transparent 0 1.3px, #000 1.7px), radial-gradient(circle at 78% 24%, transparent 0 1.3px, #000 1.7px);
+  -webkit-mask-composite: source-in;
+  mask: radial-gradient(circle at 50% 40%, transparent 0 2.6px, #000 3px), radial-gradient(circle at 22% 24%, transparent 0 1.3px, #000 1.7px), radial-gradient(circle at 78% 24%, transparent 0 1.3px, #000 1.7px);
+  mask-composite: intersect;
+}
+.hwl-dorada .hwl-gold {
+  margin: 8px 12px 0; padding: 14px 40px 11px; text-align: center; color: #3b2405; border-radius: 3px;
+  background: radial-gradient(120% 140% at 30% 0%, rgba(255, 250, 220, 0.7), transparent 45%), linear-gradient(160deg, #fbe7a1, #d4a537 32%, #f7d774 50%, #a8761d 76%, #e9c25a);
+  box-shadow: inset 0 0 0 1px rgba(255, 245, 200, 0.7), inset 0 0 0 4px rgba(120, 80, 15, 0.35), 0 2px 8px rgba(0, 0, 0, 0.55);
+}
+.hwl-dorada .hwl-flower { position: absolute; top: 50%; width: 26px; height: 26px; translate: 0 -50%; }
+.hwl-dorada .hwl-flower.is-l { left: 9px; }
+.hwl-dorada .hwl-flower.is-r { right: 9px; }
+.hwl-dorada .hwl-flower svg { display: block; width: 100%; height: 100%; filter: drop-shadow(0 1px 0 rgba(90, 50, 5, 0.6)); }
+.hwl-dorada .hwl-head .hwl-title { color: #3b2405; font: italic 700 25px/1.05 "Palatino Linotype", "Book Antiqua", Georgia, serif; letter-spacing: 0.02em; text-transform: none; text-shadow: 0 1px 0 rgba(255, 244, 200, 0.7), 0 -1px 0 rgba(90, 55, 8, 0.5); }
+.hwl-dorada .hwl-sub { margin-top: 5px; color: rgba(59, 36, 5, 0.8); font: 700 9px var(--hw-font-mono); letter-spacing: 0.2em; text-transform: uppercase; }
+.hwl-dorada .hwl-head.is-critical .hwl-gold { box-shadow: inset 0 0 0 1px rgba(255, 245, 200, 0.7), inset 0 0 0 4px rgba(120, 80, 15, 0.35), 0 0 16px rgba(255, 214, 102, 0.6); }
+.hwl-dorada .hwl-head:is(.is-miss, .is-mixed) .hwl-gold { filter: grayscale(0.6) brightness(0.75); }
+
+/* SATORI · Saburo Arasaka's katana: ink on washi, a brushed circle, a red seal. ------------------------------------ */
+.chat-message.hwl-satori { --l-rail: #b8141c; }
+.hwl-satori .hwl-head { background: linear-gradient(165deg, #1a1515, #0b0909 70%); }
+.hwl-satori .hwl-top { display: flex; align-items: center; gap: 8px; padding: 7px 14px 6px; color: #e6dccb; font: 700 9px var(--hw-font-mono); letter-spacing: 0.26em; text-transform: uppercase; }
+.hwl-satori .hwl-rarity { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.hwl-satori .hwl-washi {
+  margin: 0 12px; padding: 18px 84px 14px 16px; color: #141210; overflow: hidden;
+  background: repeating-linear-gradient(97deg, rgba(120, 100, 70, 0.07) 0 1px, transparent 1px 7px), repeating-linear-gradient(8deg, rgba(120, 100, 70, 0.05) 0 1px, transparent 1px 11px), linear-gradient(180deg, #f3ecdd, #e4d9c2);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.6);
+}
+.hwl-satori .hwl-enso { position: absolute; right: 6px; top: 50%; width: 76px; height: 76px; translate: 0 -50%; color: rgba(20, 18, 16, 0.8); }
+.hwl-satori .hwl-enso svg { display: block; width: 100%; height: 100%; }
+.hwl-satori .hwl-hanko { position: absolute; z-index: 1; right: 30px; top: 50%; display: grid; place-items: center; width: 28px; height: 28px; translate: 0 -50%; color: #fff6ee; background: #b8141c; border-radius: 3px; font: 700 17px/1 "Yu Mincho", "MS Mincho", serif; transform: rotate(-4deg); box-shadow: inset 0 0 0 2px rgba(255, 240, 230, 0.35); }
+.hwl-satori .hwl-head .hwl-title { color: #141210; font: 600 24px/1.1 "Yu Mincho", "MS Mincho", "Palatino Linotype", Georgia, serif; letter-spacing: 0.14em; text-transform: uppercase; text-shadow: none; }
+.hwl-satori .hwl-sub { margin-top: 6px; color: rgba(20, 18, 16, 0.62); font: 600 9px var(--hw-font-mono); letter-spacing: 0.2em; text-transform: uppercase; }
+.hwl-satori .hwl-head.is-critical .hwl-hanko { box-shadow: inset 0 0 0 2px rgba(255, 240, 230, 0.35), 0 0 10px rgba(255, 40, 40, 0.7); }
+.hwl-satori .hwl-head:is(.is-miss, .is-mixed) .hwl-washi { filter: sepia(0.25) brightness(0.72); }
+
+/* SKIPPY · the talking smart pistol: a pixel face on the smart-link screen, with a word on every shot. ------------- */
+.chat-message.hwl-skippy { --l-rail: #6dff9a; }
+.hwl-skippy .hwl-head { background: linear-gradient(165deg, #10161a, #070a0c 70%); }
+.hwl-skippy .hwl-top { display: flex; align-items: center; gap: 8px; padding: 7px 14px 6px; color: #8dffb0; font: 700 9px var(--hw-font-mono); letter-spacing: 0.24em; text-transform: uppercase; }
+.hwl-skippy .hwl-rarity { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.hwl-skippy .hwl-screen {
+  margin: 0 12px; padding: 10px 12px; color: #8dffb0; border-radius: 6px;
+  background: repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.25) 0 1px, transparent 1px 3px), radial-gradient(120% 100% at 30% 20%, #0f3a22, #04150c 75%);
+  box-shadow: inset 0 0 0 2px #1f2a2e, inset 0 0 18px rgba(0, 0, 0, 0.7), 0 0 0 1px #000;
+}
+.hwl-skippy .hwl-chat { display: flex; align-items: center; gap: 12px; margin-bottom: 9px; }
+.hwl-skippy .hwl-face { --f: #8dffb0; position: relative; flex: none; width: 44px; height: 34px; border: 2px solid var(--f); border-radius: 8px; box-shadow: 0 0 6px color-mix(in srgb, var(--f) 60%, transparent); }
+.hwl-skippy .hwl-face i { position: absolute; top: 9px; width: 6px; height: 6px; background: var(--f); box-shadow: 0 0 4px var(--f); animation: hwl-blink 5s steps(1) infinite; }
+.hwl-skippy .hwl-face i:first-child { left: 10px; }
+.hwl-skippy .hwl-face i:nth-child(2) { right: 10px; }
+.hwl-skippy .hwl-face b { position: absolute; left: 50%; bottom: 6px; width: 16px; height: 6px; translate: -50% 0; border: 2px solid var(--f); border-top: 0; border-radius: 0 0 9px 9px; }
+.hwl-skippy .hwl-head:is(.is-attack, .is-pending) .hwl-face b { bottom: 8px; width: 8px; height: 2px; border: 0; border-radius: 0; background: var(--f); }
+.hwl-skippy .hwl-head.is-critical .hwl-face b { width: 20px; height: 9px; background: var(--f); }
+.hwl-skippy .hwl-head:is(.is-miss, .is-mixed) .hwl-face b { bottom: 8px; width: 14px; height: 2px; border: 0; border-radius: 0; background: var(--f); transform: rotate(-12deg); }
+.hwl-skippy .hwl-head.is-fumble .hwl-face { --f: #ff6b7a; }
+.hwl-skippy .hwl-head.is-fumble .hwl-face b { bottom: 6px; border: 2px solid var(--f); border-bottom: 0; border-radius: 9px 9px 0 0; }
+.hwl-skippy .hwl-bubble { position: relative; flex: 1; min-width: 0; padding: 6px 9px; color: #04150c; background: #8dffb0; border-radius: 8px; font: 700 11px/1.25 var(--hw-font-mono); box-shadow: 0 0 8px rgba(109, 255, 154, 0.45); }
+.hwl-skippy .hwl-bubble::before { content: ""; position: absolute; left: -6px; top: 50%; translate: 0 -50%; border: 6px solid transparent; border-right-color: #8dffb0; border-left: 0; }
+.hwl-skippy .hwl-head .hwl-title { color: #b9ffcf; font: 700 22px/1.05 var(--hw-font-mono); letter-spacing: 0.04em; text-transform: uppercase; text-shadow: 0 0 6px rgba(109, 255, 154, 0.8); }
+.hwl-skippy .hwl-sub { margin-top: 4px; color: rgba(141, 255, 176, 0.65); font: 600 9px var(--hw-font-mono); letter-spacing: 0.2em; text-transform: uppercase; }
+.hwl-skippy .hwl-head.is-miss .hwl-title { opacity: 0.6; }
+@keyframes hwl-blink { 0%, 100% { transform: scaleY(1); } 94% { transform: scaleY(0.15); } }
+
 @media (prefers-reduced-motion: reduce) {
-  .hwl-holo .hwl-foil, .hwl-neon .hwl-head .hwl-title { animation: none; }
+  .hwl-holo .hwl-foil, .hwl-neon .hwl-head .hwl-title, .hwl-skippy .hwl-face i { animation: none; }
 }
 
 /* The GM's design picker: the weapon's head in every design. */
 .application.dialog.hardwipe-dialog.is-legend { --hwd: #e2bf68; --hwd-ink: #1a1203; }
-.hwl-choices { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; max-height: 68vh; margin: 0 0 4px; padding: 2px 6px 2px 2px; overflow-y: auto; }
+.hwl-choices { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; max-height: 68vh; margin: 0 0 4px; padding: 2px 6px 2px 2px; overflow-y: auto; }
 .hwl-choice { position: relative; display: flex; flex-direction: column; gap: 8px; padding: 8px; background: rgba(0, 0, 0, 0.3); border: 1px solid var(--hw-line-2, rgba(143, 207, 176, 0.25)); cursor: pointer; }
 .hwl-choice:hover { border-color: color-mix(in srgb, var(--hwd) 60%, transparent); }
 .hwl-choice:has(input:checked) { border-color: var(--hwd); box-shadow: 0 0 0 1px var(--hwd), 0 0 12px color-mix(in srgb, var(--hwd) 30%, transparent); }

@@ -88,3 +88,10 @@ test("a weapon's serial is four digits and the same everywhere", () => {
   assert.equal(serialOf("Actor.a.Item.b"), serialOf("Actor.a.Item.b"));
   assert.notEqual(serialOf("Actor.a.Item.b"), serialOf("Actor.a.Item.c"));
 });
+
+test("Skippy has a line for each outcome and its ready line for anything else", () => {
+  const parts = { tone: "", name: "Skippy", type: "", rarity: "", status: "", kind: "", props: "", verdict: "", targets: "", brief: "", meta: "", control: "" };
+  const line = tone => legendaryHeadHTML("skippy", { ...parts, tone }, {}).match(/class="hwl-bubble">([^<]*)</)?.[1];
+  for (const tone of ["attack", "pending", "hit", "critical", "miss", "mixed", "fumble"]) assert.equal(line(tone), `HARDWIPE.Legend.Skippy.${tone}`);
+  assert.equal(line("unheard-of"), "HARDWIPE.Legend.Skippy.attack");
+});
