@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { initiativePlace, newestFor, ordinalKey } from "../scripts/hardwipe-initiative.js";
+import { initiativePlace, newestFor, ordinalKey, speakerCombatant } from "../scripts/hardwipe-initiative.js";
 
 const turns = [
   { id: "juno", name: "Juno", initiative: 19 },
@@ -36,4 +36,23 @@ test("only the newest initiative card of a combat carries the turn order", () =>
   assert.equal(newestFor(log, "c1"), "c");
   assert.equal(newestFor(log, "c2"), "b");
   assert.equal(newestFor(log, "c3"), null);
+});
+
+test("an initiative card moves only its own token's combatant, never another copy of the actor", () => {
+  const combatants = [
+    { id: "c1", tokenId: "t1", sceneId: "s1", actorId: "mook" },
+    { id: "c2", tokenId: "t2", sceneId: "s1", actorId: "mook" },
+    { id: "c3", tokenId: "t3", sceneId: "s1", actorId: "boss" }
+  ];
+  // The token's own combatant, even when an earlier entry shares the actor.
+  assert.equal(speakerCombatant(combatants, { token: "t2", actor: "mook", scene: "s1" })?.id, "c2");
+  assert.equal(speakerCombatant(combatants, { token: "t1", actor: "mook", scene: "s1" })?.id, "c1");
+  // A token on another scene, or not in this combat: nothing, and the actor is no fallback.
+  assert.equal(speakerCombatant(combatants, { token: "t2", actor: "mook", scene: "s2" }), null);
+  assert.equal(speakerCombatant(combatants, { token: "t9", actor: "mook", scene: "s1" }), null);
+  // No token: the actor, only when a single combatant has it.
+  assert.equal(speakerCombatant(combatants, { actor: "boss" })?.id, "c3");
+  assert.equal(speakerCombatant(combatants, { actor: "mook" }), null);
+  assert.equal(speakerCombatant(combatants, { actor: "nobody" }), null);
+  assert.equal(speakerCombatant(combatants, null), null);
 });

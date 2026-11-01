@@ -46,17 +46,31 @@ export function newestFor(messages, combatId) {
   return null;
 }
 
+/**
+ * The combatant an initiative card speaks for. A token speaker matches only its own combatant (on the speaker's
+ * scene, when it names one): unlinked mooks share an actor id, so an actor match could pick another copy. With no
+ * token the actor matches, and only when a single combatant has it.
+ * @param {Iterable<{tokenId?: string|null, sceneId?: string|null, actorId?: string|null}>} combatants
+ * @param {{token?: string|null, actor?: string|null, scene?: string|null}|null} speaker
+ */
+export function speakerCombatant(combatants, speaker) {
+  const { token, actor, scene } = speaker ?? {};
+  const list = Array.from(combatants ?? []);
+  if (token) return list.find(entry => entry.tokenId === token && (!scene || !entry.sceneId || entry.sceneId === scene)) ?? null;
+  if (!actor) return null;
+  const matches = list.filter(entry => entry.actorId === actor);
+  return matches.length === 1 ? matches[0] : null;
+}
+
 /* Combat lookup --------------------------------------------------------------------------------- */
 
 const isInitiative = message => !!message?.flags?.core?.initiativeRoll;
 
-/** The combat and combatant an initiative card belongs to: its speaker's token, else its actor. */
+/** The combat and combatant an initiative card belongs to: its speaker's token, else its actor when one combatant has it. */
 function combatantOf(message) {
-  const { token, actor } = message.speaker ?? {};
-  const match = combatant => (token && combatant.tokenId === token) || (!token && actor && combatant.actorId === actor);
   const combats = [game.combat, ...(game.combats ?? [])].filter(Boolean);
   for (const combat of combats) {
-    const combatant = combat.combatants.find(match);
+    const combatant = speakerCombatant(combat.combatants, message.speaker);
     if (combatant) return { combat, combatant };
   }
   return null;
