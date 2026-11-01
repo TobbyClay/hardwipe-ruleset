@@ -8,6 +8,8 @@ The public release is **Hardwipe Ruleset 0.7.49** with **Ready Set Midi 14.0.10.
 
 Ready Set Midi 14.0.10.3 is built from the TypeScript source of the [ready-set-midi](https://github.com/TobbyClay/ready-set-midi) workspace: the 14.0.10.2 companion's changes, now in source, plus the built-in cover calculation adapted from Simple Cover 5e (MIT). Its JavaScript SHA256 is `84693456C81911ABB73BE9286770A11F59FF2C57B408E5D8A5A8407A1DCCD382`.
 
+`main` carries work merged after 0.7.49: a wall's height now comes from its scene levels instead of Hardwipe's own top height, and the wall type windows use Foundry's form layout. It is not in an installer yet; the guides mark it **Next release**.
+
 0.7.47 was built and documented but never published on GitHub; everything in it shipped in 0.7.48, so the previous public installer was 0.7.40. The 0.7.41 audited preview below is historical; everything in it shipped too.
 
 ## Audited preview

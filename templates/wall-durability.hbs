@@ -1,0 +1,37 @@
+<fieldset class="hardwipe-wall-durability"{{#if disabled}} disabled{{/if}}>
+  <legend>{{localize "HARDWIPE.WallTypes.Durability"}}</legend>
+  <div class="form-group">
+    <label for="{{rootId}}-max">{{localize "HARDWIPE.WallTypes.HP"}}</label>
+    <div class="form-fields">
+      <label class="hardwipe-wall-unit" for="{{rootId}}-max">{{localize "HARDWIPE.WallTypes.Max"}}</label>
+      <input id="{{rootId}}-max" name="max" type="number" min="1" step="any" value="{{values.max}}" required>
+      <label class="hardwipe-wall-unit" for="{{rootId}}-hp">{{localize "HARDWIPE.WallTypes.Start"}}</label>
+      <input id="{{rootId}}-hp" name="hp" type="number" min="1" step="any" value="{{values.hp}}" placeholder="{{values.max}}">
+    </div>
+    <p class="hint">{{localize "HARDWIPE.WallTypes.HPHint"}}</p>
+  </div>
+  <div class="form-group">
+    <label for="{{rootId}}-armor">{{localize "HARDWIPE.WallTypes.Armor"}}</label>
+    <div class="form-fields">
+      <input id="{{rootId}}-armor" name="armor" type="number" min="0" step="any" value="{{values.armor}}" required>
+    </div>
+    <p class="hint">{{localize "HARDWIPE.WallTypes.ArmorHint"}}</p>
+  </div>
+  <div class="form-group">
+    <label for="{{rootId}}-threshold">{{localize "HARDWIPE.WallTypes.Threshold"}}</label>
+    <div class="form-fields">
+      <input id="{{rootId}}-threshold" name="damageThreshold" type="number" min="0" step="any" value="{{values.damageThreshold}}" required>
+    </div>
+    <p class="hint">{{localize "HARDWIPE.WallTypes.ThresholdHint"}}</p>
+  </div>
+</fieldset>
+<fieldset class="hardwipe-wall-targeting"{{#if disabled}} disabled{{/if}}>
+  <legend>{{localize "HARDWIPE.WallTypes.Targeting"}}</legend>
+  <div class="form-group">
+    <label for="{{rootId}}-ac">{{localize "HARDWIPE.WallTypes.AC"}}</label>
+    <div class="form-fields">
+      <input id="{{rootId}}-ac" name="ac" type="number" min="0" step="any" value="{{values.ac}}" required>
+    </div>
+    <p class="hint">{{localize "HARDWIPE.WallTypes.ACHint"}}</p>
+  </div>
+</fieldset>

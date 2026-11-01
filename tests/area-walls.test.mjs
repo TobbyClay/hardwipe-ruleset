@@ -60,7 +60,7 @@ test("explicit levels and elevation exclude unrelated physical walls", () => {
   assert.equal(isPhysicalAreaWall(upper, region({ elevation: { bottom: 20, top: 20 } }), { upper: { bottom: 20, top: 30 } }), true);
 });
 
-test("a wall's top height does not let a blast pass over it", () => {
+test("a leftover 0.7.49 top height never lets a blast pass over a wall", () => {
   const low = wall("low", [100, 0, 100, 100], { flags: { "hardwipe-ruleset": { cover: { height: 4 } } } });
   assert.equal(isPhysicalAreaWall(low, region({ elevation: { bottom: 5, top: 10 } })), true);
   assert.equal(isPhysicalAreaWall(low, region()), true);

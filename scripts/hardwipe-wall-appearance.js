@@ -1,4 +1,5 @@
 import { planWallWear } from "./hardwipe-wall-wear.js";
+import { levelRange } from "./hardwipe-wall-height.js";
 
 const ID = "hardwipe-ruleset";
 const copy = value => foundry.utils.deepClone(value);
@@ -168,7 +169,7 @@ export class WallAppearance {
       const width = Math.max(6, Math.round(scar.length * (0.32 + scar.stage * 0.12)));
       const height = Math.max(6, Math.round(Math.min(scar.length, cover.sectionPixels || scar.length) * (0.1 + scar.stage * 0.045)));
       const levels = base.levels instanceof Set ? [...base.levels] : base.levels ?? [];
-      const elevations = levels.map(id => scene.levels?.get(id)?.bottom).filter(Number.isFinite);
+      const elevations = levels.map(id => scene.levels?.get(id)).filter(Boolean).map(level => levelRange(level).bottom).filter(Number.isFinite);
       tiles.push(new CONFIG.Tile.documentClass({
         _id: foundry.utils.randomID(), name: "Wall surface damage", x: Math.round(scar.center.x), y: Math.round(scar.center.y),
         width, height, rotation: scar.rotation * 180 / Math.PI, alpha: open ? 0 : 0.85,

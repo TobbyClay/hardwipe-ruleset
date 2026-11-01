@@ -112,7 +112,8 @@ Hooks.once("init", async () => {
     "modules/hardwipe-ruleset/templates/heat-config.hbs",
     "modules/hardwipe-ruleset/templates/cyberware-tab.hbs",
     "modules/hardwipe-ruleset/templates/turn-tab.hbs",
-    "modules/hardwipe-ruleset/templates/roll-rules.hbs"
+    "modules/hardwipe-ruleset/templates/roll-rules.hbs",
+    "modules/hardwipe-ruleset/templates/wall-durability.hbs"
   ]);
 });
 

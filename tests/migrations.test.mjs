@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { MIGRATIONS, compareVersions, pendingMigrations, planCyberwareFlags, planSessionEnds, planShieldMax } from "../scripts/hardwipe-migrations.js";
+import { MIGRATIONS, compareVersions, pendingMigrations, planCyberwareFlags, planSessionEnds, planShieldMax, planWallHeight, planWallTypeHeights } from "../scripts/hardwipe-migrations.js";
 
 const FLAGS = "hardwipe-ruleset";
 const shield = (flag, extra = {}) => ({ _id: "s1", type: "equipment", system: { type: { value: "shield" } }, flags: flag === undefined ? {} : { [FLAGS]: { shield: flag } }, ...extra });
@@ -54,4 +54,22 @@ test("finished sessions without an end are ended at their last roll, and an arch
   assert.deepEqual(plan.sessions.map(session => session.end), [50, 30, 40, undefined]);
   assert.equal(planSessionEnds([{ id: "b", start: 20, end: 30 }]), null);
   assert.equal(planSessionEnds(undefined), null);
+});
+
+test("a wall's 0.7.49 top height is removed; walls without one are left alone", () => {
+  const wall = cover => ({ _id: "w1", flags: cover === undefined ? {} : { [FLAGS]: { cover } } });
+  assert.deepEqual(planWallHeight(wall({ material: "concrete", height: 4 })), { _id: "w1" });
+  assert.deepEqual(planWallHeight(wall({ material: "concrete", height: 0 })), { _id: "w1" });
+  assert.equal(planWallHeight(wall({ material: "concrete" })), null);
+  assert.equal(planWallHeight(wall(undefined)), null);
+  assert.equal(planWallHeight(null), null);
+});
+
+test("wall types lose their 0.7.49 top height and keep everything else", () => {
+  const value = { version: 1, revision: 3, types: [{ id: "a", name: "A", max: 10, height: 4 }, { id: "b", name: "B", max: 20 }] };
+  const plan = planWallTypeHeights(value);
+  assert.equal(plan.changed, 1);
+  assert.deepEqual(plan.value, { version: 1, revision: 3, types: [{ id: "a", name: "A", max: 10 }, { id: "b", name: "B", max: 20 }] });
+  assert.equal(planWallTypeHeights({ version: 1, types: [{ id: "b", max: 20 }] }), null);
+  assert.equal(planWallTypeHeights(undefined), null);
 });

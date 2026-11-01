@@ -2,6 +2,7 @@ import { getFiveFootPixels } from "./hardwipe-cover-geometry.js";
 import { coverRollSignatureData } from "./hardwipe-cover-rolls.js";
 import { WallAppearance } from "./hardwipe-wall-appearance.js";
 import { areaWallDamageMultiplier, areaWallRemainders, assessAreaWallDamage, exposedAreaWallSections } from "./hardwipe-area-wall-geometry.js";
+import { levelRange } from "./hardwipe-wall-height.js";
 
 const ID = "hardwipe-ruleset";
 const STATE = "coverAttack";
@@ -95,7 +96,7 @@ export class AreaWallManager {
     const regions = source.regions.map(region => ({ ...compute(region), levels: levelsOf(region),
       damageMultiplier: areaWallDamageMultiplier(region.flags?.["walled-regions"]) }));
     const walls = source.scene.walls.contents.map(wall => ({ ...wall.toObject(), id: wall.id }));
-    const levelRanges = Object.fromEntries((source.scene.levels?.contents ?? []).map(level => [level.id, { bottom: level.bottom, top: level.top }]));
+    const levelRanges = Object.fromEntries((source.scene.levels?.contents ?? []).map(level => [level.id, levelRange(level)]));
     const records = exposedAreaWallSections({ regions, walls, levelRanges, sectionPixels: getFiveFootPixels(source.scene) });
     return { regions, records };
   }
@@ -106,7 +107,7 @@ export class AreaWallManager {
     // expanding the blast or applying only the still-convenient pieces.
     return {
       grid: { size: source.scene.grid?.size, distance: source.scene.grid?.distance, units: source.scene.grid?.units },
-      levels: (source.scene.levels?.contents ?? []).map(level => ({ id: level.id, bottom: level.bottom, top: level.top })).sort((a, b) => a.id.localeCompare(b.id)),
+      levels: (source.scene.levels?.contents ?? []).map(level => ({ id: level.id, ...levelRange(level) })).sort((a, b) => a.id.localeCompare(b.id)),
       regions: source.regions.map((region, index) => ({ uuid: region.uuid, shapes: clone(region.toObject().shapes),
         elevation: clone(region.toObject().elevation), levels: levelsOf(region), attachment: clone(region.toObject().attachment),
         wallEffects: clone(region.flags?.["walled-regions"] ?? {}), origin: region.flags?.dnd5e?.origin,

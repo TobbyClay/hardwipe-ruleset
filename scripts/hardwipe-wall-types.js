@@ -1,11 +1,13 @@
 const MODULE_ID = "hardwipe-ruleset";
 const SETTING = "wallTypes";
 const DEFAULT_TYPES = Object.freeze([
-  { id: "glass", name: "Glass", material: "glass", ac: 10, max: 10, hp: 10, armor: 0, damageThreshold: 0, height: 0 },
-  { id: "light", name: "Light partition", material: "light", ac: 10, max: 20, hp: 20, armor: 2, damageThreshold: 3, height: 0 },
-  { id: "concrete", name: "Concrete", material: "concrete", ac: 10, max: 40, hp: 40, armor: 5, damageThreshold: 10, height: 0 },
-  { id: "reinforced", name: "Reinforced wall", material: "reinforced", ac: 10, max: 80, hp: 80, armor: 10, damageThreshold: 15, height: 0 }
+  { id: "glass", name: "Glass", material: "glass", ac: 10, max: 10, hp: 10, armor: 0, damageThreshold: 0 },
+  { id: "light", name: "Light partition", material: "light", ac: 10, max: 20, hp: 20, armor: 2, damageThreshold: 3 },
+  { id: "concrete", name: "Concrete", material: "concrete", ac: 10, max: 40, hp: 40, armor: 5, damageThreshold: 10 },
+  { id: "reinforced", name: "Reinforced wall", material: "reinforced", ac: 10, max: 80, hp: 80, armor: 10, damageThreshold: 15 }
 ].map(Object.freeze));
+/** Materials with their own damage surface; any other material name uses the concrete surface. */
+export const SURFACES = Object.freeze(["glass", "light", "concrete", "reinforced"]);
 
 function number(value, label, { minimum = 0, fallback } = {}) {
   if (value === undefined || value === null || value === "") {
@@ -83,9 +85,7 @@ export class WallTypes {
       id, name: text(input.name, "Name"), material: text(input.material ?? "concrete", "Material"),
       ac: number(input.ac, "Armor Class", { fallback: 10 }), max, hp,
       armor: number(input.armor, "Armor", { fallback: 0 }),
-      damageThreshold: number(input.damageThreshold, "Damage threshold", { fallback: 0 }),
-      // The wall's top in scene units; 0 is a full-height wall.
-      height: number(input.height, "Top height", { fallback: 0 })
+      damageThreshold: number(input.damageThreshold, "Damage threshold", { fallback: 0 })
     };
   }
 
@@ -190,8 +190,8 @@ function buildWallTypesConfig() {
   return class WallTypesConfig extends HandlebarsApplicationMixin(ApplicationV2) {
     static DEFAULT_OPTIONS = {
       id: "hardwipe-wall-types", tag: "form", classes: ["hardwipe-wall-types"],
-      window: { title: "Manage wall types", icon: "fas fa-cubes", resizable: true, contentClasses: ["standard-form"] },
-      position: { width: 460, height: "auto" },
+      window: { title: "HARDWIPE.WallTypes.Title", icon: "fas fa-cubes", resizable: true, contentClasses: ["standard-form"] },
+      position: { width: 480, height: "auto" },
       form: { handler: WallTypesConfig.prototype._onSubmit, closeOnSubmit: false },
       actions: {
         create: WallTypesConfig.prototype._onCreate,
@@ -200,7 +200,10 @@ function buildWallTypesConfig() {
       }
     };
 
-    static PARTS = { content: { template: "modules/hardwipe-ruleset/templates/wall-types.hbs" } };
+    static PARTS = {
+      content: { template: "modules/hardwipe-ruleset/templates/wall-types.hbs", scrollable: [""] },
+      footer: { template: "templates/generic/form-footer.hbs" }
+    };
     _selectedId = null;
     _loaded = null;
     _draft = null;
@@ -213,10 +216,16 @@ function buildWallTypesConfig() {
       this._selectedId = selected?.id ?? null;
       this._loaded = this._draft ? null : (selected ? { ...selected } : null);
       if (this._draft) types.push(this._draft);
+      const isNew = Boolean(this._draft);
       return {
-        rootId: this.id,
+        rootId: this.id, surfaces: SURFACES,
         types: types.map(type => ({ ...type, selected: type.id === this._selectedId })),
-        type: selected, hasType: Boolean(selected), isNew: Boolean(this._draft), canDelete: Boolean(selected && !this._draft)
+        type: selected, hasType: Boolean(selected),
+        buttons: selected ? [
+          { type: "button", action: "duplicate", icon: "fa-solid fa-copy", label: "HARDWIPE.WallTypes.Duplicate" },
+          { type: "button", action: "remove", icon: "fa-solid fa-trash", label: "HARDWIPE.WallTypes.Delete", hidden: isNew },
+          { type: "submit", icon: "fa-solid fa-floppy-disk", label: isNew ? "HARDWIPE.WallTypes.Create" : "HARDWIPE.WallTypes.Save" }
+        ] : []
       };
     }
 
@@ -231,7 +240,7 @@ function buildWallTypesConfig() {
     _formInput() {
       const field = name => this.element.querySelector(`[name='${name}']`)?.value;
       return { id: this._selectedId, name: field("name"), material: field("material"), ac: field("ac"),
-        max: field("max"), hp: field("hp"), armor: field("armor"), damageThreshold: field("damageThreshold"), height: field("height") };
+        max: field("max"), hp: field("hp"), armor: field("armor"), damageThreshold: field("damageThreshold") };
     }
 
     async _confirmLeave() {
