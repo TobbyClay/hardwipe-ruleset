@@ -22,7 +22,7 @@
         "manifest": "https://raw.githubusercontent.com/foundryvtt/dnd5e/master/system.json",
         "compatibility": {
           "minimum": "6.0.0",
-          "verified": "6.0.5"
+          "verified": "6.0.6"
         }
       }
     ],
@@ -54,8 +54,8 @@
         "id": "ready-set-midi",
         "type": "module",
         "compatibility": {
-          "minimum": "14.0.10.2",
-          "verified": "14.0.10.2"
+          "minimum": "14.0.10.3",
+          "verified": "14.0.10.3"
         },
         "manifest": "https://github.com/TobbyClay/hardwipe-ruleset/releases/latest/download/ready-set-midi-module.json"
       }

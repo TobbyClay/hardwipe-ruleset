@@ -31,13 +31,13 @@ Use a weapon activity to make the roll; the GM confirms each target. The verdict
 
 <img src="media/weapon-makers.webp" alt="Twelve Heavy Pistol attack cards, one confirmed hit each: unbranded, then Arasaka, Militech, Kang Tao, Tsunami Defense Systems, Budget Arms, Malorian Arms, Constitutional Arms, Techtronika, PALE, ???? and Maelstrom, each with its own bar, emblem and serial plate" width="900">
 
-*(Next release.)* Set a weapon's **Manufacturer** on its Details tab and its attack card wears that maker: the bar and wordmark, an emblem behind the head, the title's type, a serial plate, and the roll card's rail. The outcome still reads where it always does: the outline, the verdict strip and the targets keep their hit, miss and critical colours, and a miss fades the brand.
+Set a weapon's **Manufacturer** on its Details tab and its attack card wears that maker: the bar and wordmark, an emblem behind the head, the title's type, a serial plate, and the roll card's rail. The outcome still reads where it always does: the outline, the verdict strip and the targets keep their hit, miss and critical colours, and a miss fades the brand.
 
 Eleven makers have a style: **Arasaka**, **Militech**, **Kang Tao**, **Tsunami Defense Systems**, **Budget Arms**, **Malorian Arms**, **Constitutional Arms**, **Techtronika**, **Maelstrom**, and the campaign's own **PALE** (circuit hands forcing their way in through a damaged card) and **????** (a card running out of power). Any other maker shows its name on the plain card's bar; no maker keeps the plain card. A card follows the weapon's current maker, so changing it redraws the weapon's cards already in chat.
 
 ### Legendary cards
 
-*(Next release.)* A rare enough weapon can have a chat card of its own, in place of the plain card and its maker's style. Every card of that weapon wears it, the ones already in chat too. There are two kinds. [Making one →](GM.md#legendary-cards)
+A rare enough weapon can have a chat card of its own, in place of the plain card and its maker's style. Every card of that weapon wears it, the ones already in chat too. There are two kinds. [Making one →](GM.md#legendary-cards)
 
 <img src="media/legendary-own.webp" alt="Four weapons' own cards: Silver Tongue on engraved chrome turned blue, with a painting behind the plate and its own lines; La Chingona Dorada on gold leaf, the name in script, Para Jackie above it; Saint's Due as a neon sign with Our Lady of the Combat Zone above the name and a flavour line; Satori in ink on washi with its seal" width="900">
 

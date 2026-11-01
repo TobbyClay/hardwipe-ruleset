@@ -4,11 +4,11 @@
 
 ## What Foundry installs today
 
-The public release is **Hardwipe Ruleset 0.7.48** with **Ready Set Midi 14.0.10.2**; both are attached to the [release](https://github.com/TobbyClay/hardwipe-ruleset/releases/latest), and Hardwipe's manifest installs the companion as a dependency. Release notes: [0.7.48](RELEASE-0.7.48.md).
+The public release is **Hardwipe Ruleset 0.7.49** with **Ready Set Midi 14.0.10.3**; both are attached to the [release](https://github.com/TobbyClay/hardwipe-ruleset/releases/latest), and Hardwipe's manifest installs the companion as a dependency. Release notes: [0.7.49](RELEASE-0.7.49.md), [0.7.48](RELEASE-0.7.48.md).
 
-`main` carries work merged after 0.7.48 ([pull request 13](https://github.com/TobbyClay/hardwipe-ruleset/pull/13)): Edge's four plays, the card family pass, typed chat as a comm feed, and light mode. It is not in an installer yet; the guides mark it **Next release**.
+Ready Set Midi 14.0.10.3 is built from the TypeScript source of the [ready-set-midi](https://github.com/TobbyClay/ready-set-midi) workspace: the 14.0.10.2 companion's changes, now in source, plus the built-in cover calculation adapted from Simple Cover 5e (MIT). Its JavaScript SHA256 is `84693456C81911ABB73BE9286770A11F59FF2C57B408E5D8A5A8407A1DCCD382`.
 
-0.7.47 was built and documented but never published on GitHub; everything in it ships in 0.7.48, so the previous public installer was 0.7.40. The 0.7.41 audited preview below is historical; everything in it shipped too.
+0.7.47 was built and documented but never published on GitHub; everything in it shipped in 0.7.48, so the previous public installer was 0.7.40. The 0.7.41 audited preview below is historical; everything in it shipped too.
 
 ## Audited preview
 
@@ -24,7 +24,7 @@ The **0.7.41 / Ready Set Midi 14.0.10.2** source cohort is under review in the r
 
 <img src="media/ranged-advisory-current.webp" alt="Actual audited preview card with identified advantage and disadvantage sources" width="350">
 
-Hardwipe 0.7.48 ships with the **tested companion**, attached to the release and rebuilt by [`preview/merge-companion.py`](../preview/README.md):
+Hardwipe 0.7.48 shipped with the Ready Set Midi 14.0.10.2 **tested companion**, attached to that release and rebuilt by [`preview/merge-companion.py`](../preview/README.md):
 - the cover-bridge build;
 - the wall-effects changes;
 - removal of reviewed instantaneous areas once the GM decides;
@@ -100,7 +100,7 @@ This hash supersedes the earlier companion hash **for the Wall Effects preview o
 
 **Superseded in 0.7.46:** emanations and rings now damage walls (an emanation from every point of the caster's space, a ring across its band), and the per-shape defaults offer the damage modes. Native player casts of every dnd5e area shape, GM approval, Ignore, breach, undo and a stale emanation were rechecked; the geometry suite has 20 passing cases. See `_release-audit/area-walls-0.7.46/QA-Report.md`.
 
-### 0.7.49 preview, 2026-10-22 to 2026-10-26
+### Roll rules, wall height, migrations and the NPC sheet, 0.7.49
 
 Runtime-checked in a disposable copy of the QA world on Foundry 14.367, D&D5e 6.0.6 and Ready Set Midi 14.0.10.3, with a GM client and, in the final pass, a player client:
 
@@ -112,7 +112,7 @@ Runtime-checked in a disposable copy of the QA world on Foundry 14.367, D&D5e 6.
 
 Known limits: Ready Set Midi's own roll data names every source for anyone reading the console; the character inventory tab raises a harmless ResizeObserver notice, as 0.7.48 did.
 
-### Edge plays, card pass, typed chat and light mode, after 0.7.48
+### Edge plays, card pass, typed chat and light mode, 0.7.49
 
 Checked on Foundry 14.367, D&D5e 6.0.5 and Ready Set Midi 14.0.10.2 in the disposable QA world, with a GM and two players in separate browsers, each step clicked by the player it belongs to:
 

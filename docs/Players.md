@@ -18,7 +18,7 @@ An implant with an activity has a named action button on its **same inventory it
 
 Use weapons, spells, tools, and features through their normal activities. Their cards keep the relevant controls; selecting a roll total opens the dice breakdown.
 
-*(Next release.)* A **tool** card has a **Roll check** button: the check's result lands on the tool card, and the check's own message folds to one line with its **+** and DIS/ADV. A **consumable** or **feature** reads as one card: what it did, who it hit, and **Details** for the description. Your **initiative** card shows where you are in the turn order and follows the others' rolls.
+A **tool** card has a **Roll check** button: the check's result lands on the tool card, and the check's own message folds to one line with its **+** and DIS/ADV. A **consumable** or **feature** reads as one card: what it did, who it hit, and **Details** for the description. Your **initiative** card shows where you are in the turn order and follows the others' rolls.
 
 ## Read your turn
 
@@ -115,7 +115,7 @@ The module blocks ordinary character death-save rolls and explains the replaceme
 
 ## Who made your gun
 
-*(Next release.)* A weapon, armour, consumable or tool has a **Manufacturer** field on its Details tab. Type a name or pick one from the list: Night City's makers from Cyberpunk 2077 and Cyberpunk RED, plus the campaign's own. A weapon from a maker with a style gets that maker's attack card (Arasaka, Militech, Kang Tao, Tsunami, Budget Arms, Malorian Arms, Constitutional Arms, Techtronika, Maelstrom, PALE and ????); any other maker shows its name on the card's bar. Leave it empty for the plain card. A legendary weapon can have a chat card of its own, which the GM makes for it. [Every maker's card →](Cards.md#weapon-makers)
+A weapon, armour, consumable or tool has a **Manufacturer** field on its Details tab. Type a name or pick one from the list: Night City's makers from Cyberpunk 2077 and Cyberpunk RED, plus the campaign's own. A weapon from a maker with a style gets that maker's attack card (Arasaka, Militech, Kang Tao, Tsunami, Budget Arms, Malorian Arms, Constitutional Arms, Techtronika, Maelstrom, PALE and ????); any other maker shows its name on the card's bar. Leave it empty for the plain card. A legendary weapon can have a chat card of its own, which the GM makes for it. [Every maker's card →](Cards.md#weapon-makers)
 
 ## Roll initiative your way
 
@@ -123,7 +123,7 @@ The module blocks ordinary character death-save rolls and explains the replaceme
 | --- | --- |
 | <img src="media/initiative-radio.png" alt="96.6 Pirate FM call-in: ON AIR, the host Mikey Max shouting 'Is that a flatline I hear? Not on my show! Move it, Mags!', Mags as the caller, a station dial, Your move caller: Initiative (DEX) +3, Go live and Hang up" width="360"> | <img src="media/initiative-ncpd.png" alt="NCPD dispatch terminal: 10-34 shots fired, round 1, 3 hostile; Mags on cam 19; a Post-it on the monitor reading 'Logging this one for the report. Method of engagement?'; Method of engagement: Initiative (DEX) +3; Log it and Look away" width="360"> |
 
-*(Next release.)* Rolling initiative, from your sheet or the combat tracker, opens a window that asks what you're using. Two voices take turns: **96.6 Pirate FM**, where the host puts you on the air as the caller and the dial tunes to your pick, and **NCPD dispatch**, a night-shift cop watching the fight on a camera, with his question on a Post-it stuck to the monitor. Each has its own lines, and both mention the scene and the round.
+Rolling initiative, from your sheet or the combat tracker, opens a window that asks what you're using. Two voices take turns: **96.6 Pirate FM**, where the host puts you on the air as the caller and the dial tunes to your pick, and **NCPD dispatch**, a night-shift cop watching the fight on a camera, with his question on a Post-it stuck to the monitor. Each has its own lines, and both mention the scene and the round.
 
 The dropdown lists ordinary initiative first, then every skill with your bonus. Blending into a crowd when it kicks off, roll Deception; chasing your target, Athletics. The GM has the final say on what fits.
 
@@ -152,7 +152,7 @@ When the GM puts you in a memory, your NPC sheet opens and your token changes; p
 
 ## Chat
 
-*(Next release.)* What you type shows as a comm feed: your messages on the right, everyone else's on the left, a run of messages grouped under one name. The buttons over the chat box (or a command for one message) pick the kind:
+What you type shows as a comm feed: your messages on the right, everyone else's on the left, a run of messages grouped under one name. The buttons over the chat box (or a command for one message) pick the kind:
 
 | You use | It shows as |
 | --- | --- |

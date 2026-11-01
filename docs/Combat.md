@@ -18,11 +18,11 @@ Natural 20 and natural 1 outcomes still require explicit confirmation. A natural
 
 > **Audited preview:** critical damage is combined per target before native mitigation and Shield Block. If the attacker's live workflow is gone, approval stops safely; the GM must have the attacker roll again. It does not reconstruct and automatically apply stale stored damage. See [development status](Development.md).
 
-If no GM can review, the workflow stops without applying damage. Deleting a pending attack card cancels its waiting workflow. While a decision is pending, switching the roll to advantage or disadvantage, or adding a bonus, keeps the damage on the card and posts a fresh review with the new total. A natural 20 that only arrives with advantage counts as a critical. Once the GM has ruled, the attack roll is settled: the advantage switch and the attack's bonus button lock. *(Next release.)* An Edge **Reroll** is the exception: if the new die flips a ruled hit into a miss (or a miss into a hit), the card asks the GM to rule again. **Miss · take back damage** returns the damage applied to that target; **Hit · apply damage** applies it.
+If no GM can review, the workflow stops without applying damage. Deleting a pending attack card cancels its waiting workflow. While a decision is pending, switching the roll to advantage or disadvantage, or adding a bonus, keeps the damage on the card and posts a fresh review with the new total. A natural 20 that only arrives with advantage counts as a critical. Once the GM has ruled, the attack roll is settled: the advantage switch and the attack's bonus button lock. An Edge **Reroll** is the exception: if the new die flips a ruled hit into a miss (or a miss into a hit), the card asks the GM to rule again. **Miss · take back damage** returns the damage applied to that target; **Hit · apply damage** applies it.
 
 ## Coup de Grace
 
-*(Next release.)* Hit a mook that is **Surprised** and it dies: the target drops to 0 HP, whatever the damage. Melee, ranged and spell attacks all count. A mook is any creature that isn't a player character and has no Legendary Resistance. Mark surprised creatures with D&D5e's **Surprised** status on the token.
+Hit a mook that is **Surprised** and it dies: the target drops to 0 HP, whatever the damage. Melee, ranged and spell attacks all count. A mook is any creature that isn't a player character and has no Legendary Resistance. Mark surprised creatures with D&D5e's **Surprised** status on the token.
 
 Once the mission's Heat reaches **Critical**, enemies are alert and Coup de Grace is off. With no mission running, it applies.
 
@@ -30,7 +30,7 @@ With GM-confirmed attacks on, it's the GM's call: when Coup de Grace can apply, 
 
 ## Variant initiative
 
-*(Next release.)* A player character's initiative can be a skill check. The window that opens on rolling (sheet or combat tracker), in the pirate radio or the NCPD dispatch voice by turns, offers ordinary initiative, then every skill with its bonus; the chosen skill's total replaces D&D5e's initiative modifier, proficiency and initiative bonuses, while condition penalties and the Dexterity tiebreaker stay. D&D5e's roll dialog is skipped after the window, and advantage is set on the initiative card's switch. The card's label names the skill. NPCs, fixed initiative scores, and the GM's **Roll All** / **Roll NPCs** stay ordinary initiative.
+A player character's initiative can be a skill check. The window that opens on rolling (sheet or combat tracker), in the pirate radio or the NCPD dispatch voice by turns, offers ordinary initiative, then every skill with its bonus; the chosen skill's total replaces D&D5e's initiative modifier, proficiency and initiative bonuses, while condition penalties and the Dexterity tiebreaker stay. D&D5e's roll dialog is skipped after the window, and advantage is set on the initiative card's switch. The card's label names the skill. NPCs, fixed initiative scores, and the GM's **Roll All** / **Roll NPCs** stay ordinary initiative.
 
 ## The roll mode scan names the actual source
 
@@ -60,7 +60,7 @@ After approval and any required saves, whole-total controls and per-type control
 
 When Ready Set Midi applies the damage itself, that application is logged on the card too, as **Auto**, with the same **Undo**. Do not apply the same damage again by hand.
 
-**Changed rolls follow through.** If the damage changes after it was applied (a reroll, a bonus, critical dice), the GM's client adjusts each logged application by the difference, through dnd5e's resistances and immunities, and marks it *adjusted*. *(Next release.)* The difference is taken against what each target actually lost, so a target that bottomed out at 0 HP doesn't get back hit points it never lost. A save that flips after an Edge reroll redoes that target's damage at the new multiplier (failed ×1, saved ½ or none). **Undo** restores the hit points from before the first application. Adjustments need a GM online. Damage undone from Ready Set Midi's own damage card is not tracked by this log.
+**Changed rolls follow through.** If the damage changes after it was applied (a reroll, a bonus, critical dice), the GM's client adjusts each logged application by the difference, through dnd5e's resistances and immunities, and marks it *adjusted*. The difference is taken against what each target actually lost, so a target that bottomed out at 0 HP doesn't get back hit points it never lost. A save that flips after an Edge reroll redoes that target's damage at the new multiplier (failed ×1, saved ½ or none). **Undo** restores the hit points from before the first application. Adjustments need a GM online. Damage undone from Ready Set Midi's own damage card is not tracked by this log.
 
 **CRIT** on the damage line rolls the damage dice again and adds them: the roller may use it until the GM rules, the GM at any time. When the roller adds critical dice, the GM's review says so, and a later **Critical** decision does not add a second set.
 
