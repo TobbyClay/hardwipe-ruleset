@@ -4,12 +4,12 @@
 
 ## Give a wall durability
 
-| Manage presets | Apply a type to a wall — audited preview |
+| Manage presets | Apply a type to a wall |
 | --- | --- |
-| <img src="media/wall-types-manager.webp" alt="Wall type manager with AC, HP, armor, and threshold fields" width="440"> | <img src="media/wall-config-current.webp" alt="Compact Hardwipe section at the bottom of Foundry's wall editor" width="380"> |
+| <img src="media/wall-types-manager.webp" alt="The Wall types window with Concrete selected: its name and material, Durability with 40 hit points, armor 5 and threshold 10, and Targeting with Armor Class 10" width="440"> | <img src="media/wall-config-current.webp" alt="The Hardwipe section at the bottom of Foundry's wall editor: the wall type, and HP 40 of 60, AC 10, armor 7, threshold 15 and height 0–20 ft from the wall's level" width="380"> |
 
 1. Open **Game Settings → Hardwipe Ruleset → Manage wall types**.
-2. Create or edit a type with its material appearance, AC, maximum HP, starting HP, armor reduction, damage threshold, and top height (0 for a full-height wall).
+2. Create or edit a type: its name and material, hit points (maximum and starting), armor, damage threshold, and the Armor Class an attack aimed at the wall has to reach.
 3. Select the scene wall and assign that type. In the public release, use **Wall Controls → Configure wall cover**. The audited preview also puts a compact Hardwipe section at the **bottom** of the native Wall Configuration window.
 4. Save. Enable **Show damage and glimpses** for visible wear and sight/light slits.
 
@@ -24,9 +24,11 @@ Untagged solid walls are **indestructible cover**. A type existing in the manage
 
 These are editable presets. Create, duplicate, rename, or delete types in-app. Editing a preset does not retroactively change configured walls; reapply it to update them. Existing section damage remains unless **Reset section HP to starting HP** is selected. Lowering maximum HP clamps current HP.
 
-## Low walls
+## Wall height
 
-A barricade, a parapet or a car is a wall with a **top height** in scene units (feet on a five-foot grid); 0 is full height. Set it in the wall type, in the Hardwipe section of the wall editor, or in **Configure wall cover**. A token whose eyes are above the top sees and shoots over the wall: each cover line is checked at the height where it crosses the wall, so a sniper on a 10 ft roof shoots over a 4 ft barricade that still covers whoever crouches behind it. A token's eyes are at its elevation plus half its height, 2.5 ft for a medium token on the ground. Light, sound, movement and area blasts are stopped by the wall at any height.
+*(Next release.)* A wall's height is its scene levels'. Foundry 14 puts each wall on one or more levels (the **Levels** field at the top of the wall editor), and each level has a bottom and a top elevation; a wall stands from the lowest bottom to the highest top of its levels, and a wall on no level is full height. Foundry already keeps each level's walls to that level for sight, light, sound and movement. Hardwipe applies the same range to shots: each cover line is checked at the height where it crosses the wall, so a drone at 30 ft shoots over the 0–20 ft walls of the ground level, while everyone on that level stays behind them. A token's eyes are at its elevation plus half its depth, 2.5 ft for a medium token on the ground. The Hardwipe section of the wall editor shows the height the chosen levels give.
+
+0.7.49's own **top height** per wall and per wall type is gone: the GM's first load after the update removes it. A low barricade is no longer its own height; it blocks shots across its level like any wall.
 
 ## Threshold first, armor second
 

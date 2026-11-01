@@ -74,12 +74,32 @@ export function planSessionEnds(sessions) {
   return changed ? { sessions: next, changed } : null;
 }
 
+/** A wall carrying 0.7.49's own top height: its height is now its scene levels', so the key goes. */
+export function planWallHeight(wall) {
+  const cover = wall?.flags?.[MODULE_ID]?.cover;
+  return cover && typeof cover === "object" && Object.hasOwn(cover, "height") ? { _id: wall._id } : null;
+}
+
+/** Wall types without 0.7.49's top height. Null when no type has one. */
+export function planWallTypeHeights(value) {
+  if (!Array.isArray(value?.types)) return null;
+  let changed = 0;
+  const types = value.types.map(type => {
+    if (!type || typeof type !== "object" || !Object.hasOwn(type, "height")) return type;
+    changed++;
+    const { height, ...rest } = type;
+    return rest;
+  });
+  return changed ? { value: { ...value, types }, changed } : null;
+}
+
 /* Steps ---------------------------------------------------------------------------------------------- */
 
 export const MIGRATIONS = Object.freeze([
   { version: "0.7.49", key: "shield-max", run: () => updateItems(item => planShieldMax(item)) },
   { version: "0.7.49", key: "cyberware-flags", run: () => updateItems(item => planCyberwareFlags(item, new Set(CYBERWARE_SLOTS.map(slot => slot.type)))) },
-  { version: "0.7.49", key: "roll-tracker-ends", run: () => migrateRollTrackerEnds() }
+  { version: "0.7.49", key: "roll-tracker-ends", run: () => migrateRollTrackerEnds() },
+  { version: "0.7.50", key: "wall-height-levels", run: () => migrateWallHeights() }
 ]);
 
 /** World actors and the synthetic actors of unlinked tokens on every scene. */
@@ -119,6 +139,24 @@ async function migrateRollTrackerEnds() {
   if (!plan) return 0;
   await game.settings.set(MODULE_ID, "rollTrackerArchive", { ...value, sessions: plan.sessions });
   return plan.changed;
+}
+
+async function migrateWallHeights() {
+  const remove = () => globalThis._del ?? new foundry.data.operators.ForcedDeletion();
+  let changed = 0;
+  for (const scene of game.scenes ?? []) {
+    const updates = (scene.walls?.contents ?? []).map(wall => planWallHeight(wall.toObject())).filter(Boolean)
+      .map(({ _id }) => ({ _id, flags: { [MODULE_ID]: { cover: { height: remove() } } } }));
+    if (!updates.length) continue;
+    await scene.updateEmbeddedDocuments("Wall", updates, { hardwipeMigration: true });
+    changed += updates.length;
+  }
+  const plan = planWallTypeHeights(game.settings.get(MODULE_ID, "wallTypes"));
+  if (plan) {
+    await game.settings.set(MODULE_ID, "wallTypes", plan.value);
+    changed += plan.changed;
+  }
+  return changed;
 }
 
 /* Runner ---------------------------------------------------------------------------------------------- */

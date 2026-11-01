@@ -15,9 +15,9 @@ With Ready Set Midi 14.0.10.3 or later, ranged cover uses its built-in calculati
 | Three or four lines blocked | Three-quarters cover: +5 AC |
 | Walls hide every visibility point of the target from the attacker's eyes | Full physical cover: character cannot be hit through the wall |
 
-Lines pass through the holes damage has opened in a wall: only the wall's solid parts block. A wall with a top height blocks a line only where the line's elevation, interpolated between the attacker's and the target's eye lines (elevation plus half the token's depth), is at or below that top. Creatures between attacker and target block lines too (Ready Set Midi's *Creatures give cover* setting). The stray-shot impact point is where the attack's center line meets a wall, or, when that line goes through a hole, the nearest solid wall a blocked line meets.
+Lines pass through the holes damage has opened in a wall: only the wall's solid parts block. *(Next release.)* A wall blocks a line only where the line's elevation, interpolated between the attacker's and the target's eye lines (elevation plus half the token's depth), lies within the elevations of the wall's scene levels, from the lowest bottom to the highest top; a wall on no level blocks at every height. Creatures between attacker and target block lines too (Ready Set Midi's *Creatures give cover* setting). The stray-shot impact point is where the attack's center line meets a wall, or, when that line goes through a hole, the nearest solid wall a blocked line meets.
 
-With an older Ready Set Midi, ranged cover casts nine rays from the attacker's center to inset points across the target's footprint on the same scene level: 0–4 blocked is no cover, 5–6 half, 7–8 three-quarters, 9 full physical cover. Those rays also pass through wall holes and over walls whose top is below the ray's elevation where it crosses them.
+With an older Ready Set Midi, ranged cover casts nine rays from the attacker's center to inset points across the target's footprint on the same scene level: 0–4 blocked is no cover, 5–6 half, 7–8 three-quarters, 9 full physical cover. Those rays also pass through wall holes and over or under a wall where they cross it outside its levels' elevations.
 
 <img src="media/wall-impact-breach-review-0.7.39.webp" alt="Cover held, wall impact, breach, and GM review examples" width="900">
 
@@ -59,7 +59,7 @@ Use the managers instead of writing flags directly so ownership, queue, service,
 | --- | --- |
 | Cyberware category | Equipment `system.type.value = "hardwipe-<region>"` |
 | Cyberware state | Item `flags["hardwipe-ruleset"].cyberware`: `version`, `installed`, `disabled`, `damaged`, `pending` |
-| Wall durability | Wall `flags["hardwipe-ruleset"].cover`; its `height` is the wall's top in scene units, absent for a full-height wall |
+| Wall durability | Wall `flags["hardwipe-ruleset"].cover`. *(Next release.)* A wall's height is its scene levels' (`WallDocument#levels`, each level's `elevation.bottom` and `elevation.top`); 0.7.49's `cover.height` and the wall types' `height` are removed by the 0.7.50 world data upgrade |
 | Roll mode scan | Attack card `flags["hardwipe-ruleset"].rangedAdvisory`: `version` 4, `mode` (`manual` for ranged, `auto` for melee); `sources` as `{ type, name }` only for a player-owned attacker, with target-granted rules stored as "Granted by the target" (`grants: true`). An NPC's sources stay in memory on the rolling client |
 | Feature mode | Active Effect `flags["hardwipe-ruleset"].mode` = true, written only when the GM ticks **Hardwipe mode**; the effect's own `disabled` field is the switch |
 | Shield durability | Equipment `flags["hardwipe-ruleset"].shield`: `hp`, `max` (10 unless the GM set one), `broken` |
@@ -85,7 +85,7 @@ Ready Set Midi exposes `MidiQOL.hardwipeCoverBridgeVersion = 1` and the `midi-qo
 
 ## Limits that matter at the table
 
-Cover works within a scene level. A wall's top height counts for cover lines and token sight only; light, sound, movement and area blasts stop at the wall at any height. Hardwipe does not model token silhouettes, ricochets, bullet penetration, destructive map painting, or automatic Tile damage. Direct wall targeting supports ordinary weapon attack activities.
+Cover works within a scene level. *(Next release.)* A wall's height is its scene levels'; Foundry applies it to sight, light, sound and movement, and Hardwipe to cover lines. Area blasts use the levels of the area and the wall. Hardwipe does not model token silhouettes, ricochets, bullet penetration, destructive map painting, or automatic Tile damage. Direct wall targeting supports ordinary weapon attack activities.
 
 Generated sight/light helpers are module-managed and do not count as ballistic cover. Editing them manually can stop further damage or Undo until the parent is explicitly reconfigured. Undo retains up to 20 scene snapshots and refuses to overwrite intervening edits.
 

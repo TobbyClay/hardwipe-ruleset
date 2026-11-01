@@ -6,7 +6,7 @@ Hardwipe is a Foundry VTT module for running a Cyberpunk-flavoured game on the D
 
 [Install](#install) · [Edge](#edge-one-point-four-plays) · [Player guide](docs/Players.md) · [GM guide](docs/GM.md) · [Braindance](docs/Braindance.md) · [Card gallery](docs/Cards.md) · [Rules reference](docs/Reference.md)
 
-> **Which version is this?** This README describes **0.7.49**, which pairs with **Ready Set Midi 14.0.10.3**. It is the installer published on GitHub; the [release](https://github.com/TobbyClay/hardwipe-ruleset/releases/latest) carries both modules. Install them together.
+> **Which version is this?** This README describes **0.7.49**, which pairs with **Ready Set Midi 14.0.10.3**. It is the installer published on GitHub; the [release](https://github.com/TobbyClay/hardwipe-ruleset/releases/latest) carries both modules. Install them together. Sections marked **Next release** describe work merged on `main` since then; it ships with the next installer.
 
 ## Your body is your loadout
 
@@ -168,7 +168,7 @@ You choose the roll mode for ranged attacks. Under the attack roll, the **roll m
 | --- | --- |
 | <img src="docs/media/wall-config-current.webp" alt="Compact wall durability controls at the bottom of the native wall editor" width="320"> | <img src="docs/media/wall-damage-holes.webp" alt="Light through a wall: one wide hole from a big hit, three small holes from three smaller hits" width="300"> |
 
-Walls provide ranged cover. Give them a type, HP per five-foot section, armor, a damage threshold and, for barricades, a top height that anyone above it sees and shoots over. Shots that miss because of cover hit the wall; players can also target a wall section directly. Either way, the GM approves the damage with **Apply damage** or **Ignore**.
+Walls provide ranged cover. Give them a type, HP per five-foot section, armor and a damage threshold. *(Next release.)* A wall's height is its scene levels': a shot that crosses above their top passes over it. Shots that miss because of cover hit the wall; players can also target a wall section directly. Either way, the GM approves the damage with **Apply damage** or **Ignore**.
 
 - **Each hit leaves its own hole.** A big hit makes one wide hole, and several small hits make several small, scattered ones. The holes let sight, light and shots through, so players can glimpse what's behind and a target lined up with a hole has less cover. The wall still stops movement until a section reaches zero and opens a five-foot breach.
 - **Undo last wall damage** restores HP, holes and breached geometry together.

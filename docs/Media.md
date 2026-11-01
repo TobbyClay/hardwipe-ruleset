@@ -29,8 +29,8 @@ Montages put multiple native captures side by side. A montage illustrates separa
 | --- | --- | --- |
 | [cyberware-sheet-current.webp](media/cyberware-sheet-current.webp) | Audited preview (local 0.7.41 capture) | Player character sheet, paper doll, and slots; cropped. Original hover tooltip retained. |
 | [ranged-advisory-current.webp](media/ranged-advisory-current.webp) | 0.7.43 | Native ranged attack with the roll mode scan (actual Midi attribution); cropped from the player chat view. |
-| [wall-config-current.webp](media/wall-config-current.webp) | Audited preview (local 0.7.41 capture) | Compact Hardwipe controls at the bottom of the native wall editor; cropped. |
-| [wall-types-manager.webp](media/wall-types-manager.webp) | 0.7.24 | Native wall-type manager with armor, HP, and threshold fields; cropped. |
+| [wall-config-current.webp](media/wall-config-current.webp) | Next release (2026-11-01 capture) | The Hardwipe section at the bottom of the native wall editor: wall type, its values and the height from the wall's levels; cropped. |
+| [wall-types-manager.webp](media/wall-types-manager.webp) | Next release (2026-11-01 capture) | The Wall types window in Foundry's form layout: Details, Durability and Targeting, with Concrete selected. |
 | [heat-threat-broadcast.webp](media/heat-threat-broadcast.webp) | 0.7.40 | Threat broadcast rising, critical, Lockdown, and reduced-Heat card montage. |
 | [heat-corrupted-feed.webp](media/heat-corrupted-feed.webp) | 0.7.40 | Corrupted feed Heat-state montage. |
 | [heat-police-scanner.webp](media/heat-police-scanner.webp) | 0.7.40 | Police scanner Heat-state montage. |

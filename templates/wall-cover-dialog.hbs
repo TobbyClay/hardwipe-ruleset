@@ -1,0 +1,38 @@
+<div class="hardwipe-wall-cover-dialog scrollable">
+  <p class="hint">{{localize "HARDWIPE.WallTypes.DialogIntro"}}</p>
+  <div class="form-group">
+    <label for="{{rootId}}-preset">{{localize "HARDWIPE.WallTypes.Type"}}</label>
+    <div class="form-fields">
+      <select id="{{rootId}}-preset" name="preset">
+        <option value="current" selected>{{localize "HARDWIPE.WallTypes.KeepCurrent"}}</option>
+        <optgroup label="{{localize "HARDWIPE.WallTypes.Saved"}}">
+          {{#each types}}<option value="type:{{id}}">{{name}}</option>{{/each}}
+        </optgroup>
+        <option value="custom">{{localize "HARDWIPE.WallTypes.Custom"}}</option>
+        <option value="solid">{{localize "HARDWIPE.Cover.WallConfig.Solid"}}</option>
+      </select>
+    </div>
+    <p class="hint">{{localize "HARDWIPE.WallTypes.PresetHint"}}</p>
+  </div>
+  <div class="form-group hardwipe-wall-custom-material">
+    <label for="{{rootId}}-material">{{localize "HARDWIPE.WallTypes.Material"}}</label>
+    <div class="form-fields">
+      <input id="{{rootId}}-material" name="material" type="text" value="{{values.material}}" maxlength="80" list="{{rootId}}-materials" disabled>
+      <datalist id="{{rootId}}-materials">{{#each surfaces}}<option value="{{this}}"></option>{{/each}}</datalist>
+    </div>
+  </div>
+  {{> "modules/hardwipe-ruleset/templates/wall-durability.hbs" rootId=rootId values=values disabled=true}}
+  <fieldset>
+    <legend>{{localize "HARDWIPE.Cover.WallConfig.Options"}}</legend>
+    <div class="form-group">
+      <label for="{{rootId}}-reset">{{localize "HARDWIPE.Cover.WallConfig.Reset"}}</label>
+      <div class="form-fields"><input id="{{rootId}}-reset" name="resetHP" type="checkbox"></div>
+      <p class="hint">{{localize "HARDWIPE.WallTypes.ResetHint"}}</p>
+    </div>
+    <div class="form-group">
+      <label for="{{rootId}}-appearance">{{localize "HARDWIPE.Cover.WallConfig.Appearance"}}</label>
+      <div class="form-fields"><input id="{{rootId}}-appearance" name="appearance" type="checkbox" {{#if appearance}}checked{{/if}}></div>
+      <p class="hint">{{localize "HARDWIPE.WallTypes.AppearanceHint"}}</p>
+    </div>
+  </fieldset>
+</div>
