@@ -1,10 +1,10 @@
 const MODULE_ID = "hardwipe-ruleset";
 const SETTING = "wallTypes";
 const DEFAULT_TYPES = Object.freeze([
-  { id: "glass", name: "Glass", material: "glass", ac: 10, max: 10, hp: 10, armor: 0, damageThreshold: 0 },
-  { id: "light", name: "Light partition", material: "light", ac: 10, max: 20, hp: 20, armor: 2, damageThreshold: 3 },
-  { id: "concrete", name: "Concrete", material: "concrete", ac: 10, max: 40, hp: 40, armor: 5, damageThreshold: 10 },
-  { id: "reinforced", name: "Reinforced wall", material: "reinforced", ac: 10, max: 80, hp: 80, armor: 10, damageThreshold: 15 }
+  { id: "glass", name: "Glass", material: "glass", ac: 10, max: 10, hp: 10, armor: 0, damageThreshold: 0, height: 0 },
+  { id: "light", name: "Light partition", material: "light", ac: 10, max: 20, hp: 20, armor: 2, damageThreshold: 3, height: 0 },
+  { id: "concrete", name: "Concrete", material: "concrete", ac: 10, max: 40, hp: 40, armor: 5, damageThreshold: 10, height: 0 },
+  { id: "reinforced", name: "Reinforced wall", material: "reinforced", ac: 10, max: 80, hp: 80, armor: 10, damageThreshold: 15, height: 0 }
 ].map(Object.freeze));
 
 function number(value, label, { minimum = 0, fallback } = {}) {
@@ -83,7 +83,9 @@ export class WallTypes {
       id, name: text(input.name, "Name"), material: text(input.material ?? "concrete", "Material"),
       ac: number(input.ac, "Armor Class", { fallback: 10 }), max, hp,
       armor: number(input.armor, "Armor", { fallback: 0 }),
-      damageThreshold: number(input.damageThreshold, "Damage threshold", { fallback: 0 })
+      damageThreshold: number(input.damageThreshold, "Damage threshold", { fallback: 0 }),
+      // The wall's top in scene units; 0 is a full-height wall.
+      height: number(input.height, "Top height", { fallback: 0 })
     };
   }
 
@@ -229,7 +231,7 @@ function buildWallTypesConfig() {
     _formInput() {
       const field = name => this.element.querySelector(`[name='${name}']`)?.value;
       return { id: this._selectedId, name: field("name"), material: field("material"), ac: field("ac"),
-        max: field("max"), hp: field("hp"), armor: field("armor"), damageThreshold: field("damageThreshold") };
+        max: field("max"), hp: field("hp"), armor: field("armor"), damageThreshold: field("damageThreshold"), height: field("height") };
     }
 
     async _confirmLeave() {

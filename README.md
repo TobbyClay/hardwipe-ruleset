@@ -6,7 +6,7 @@ Hardwipe is a Foundry VTT module for running a Cyberpunk-flavoured game on the D
 
 [Install](#install) · [Player guide](docs/Players.md) · [GM guide](docs/GM.md) · [Braindance](docs/Braindance.md) · [Card gallery](docs/Cards.md) · [Rules reference](docs/Reference.md)
 
-> **Which version is this?** This README describes **0.7.48**, which pairs with **Ready Set Midi 14.0.10.2**. It is the installer published on GitHub; the [release](https://github.com/TobbyClay/hardwipe-ruleset/releases/latest) carries both modules. Install them together.
+> **Which version is this?** This README describes **0.7.47**, which pairs with **Ready Set Midi 14.0.10.2**. It is the installer published on GitHub; the [release](https://github.com/TobbyClay/hardwipe-ruleset/releases/latest) carries both modules. Install them together.
 
 ## Your body is your loadout
 
@@ -61,7 +61,7 @@ A spell, implant or weapon that forces a save lists every target with **Waiting*
 
 <img src="docs/media/ranged-advisory-current.webp" alt="Ranged attack card with the roll mode scan listing advantage and disadvantage sources and the mode to roll" width="300">
 
-You choose the roll mode for ranged attacks. Under the attack roll, the **roll mode scan** lists every advantage or disadvantage source Ready Set Midi actually evaluated, with the rule each came from, and says which mode to roll: **ADV**, **DIS** or **Straight**. Advantage and disadvantage cancel, and a blocked source is struck through. If nothing was found, no box appears.
+You choose the roll mode for ranged attacks. Under the attack roll, the **roll mode scan** lists every advantage or disadvantage source Ready Set Midi actually evaluated, with the rule each came from, and says which mode to roll: **ADV**, **DIS** or **Straight**. Advantage and disadvantage cancel, and a blocked source is struck through. If nothing was found, no box appears. Melee attacks get the same scan for the mode Midi applied, and a mode nothing named is called out as unlabelled. The **Roll rules** panel at the bottom of the Turn tab shows the rules in force on the character right now, each named after its cause, and lets a feature's modes (a stance, an aim setting) be switched on with one button.
 
 [Ranged hints and their limits →](docs/Combat.md#ranged-hints-name-the-actual-source)
 
@@ -71,7 +71,7 @@ You choose the roll mode for ranged attacks. Under the attack roll, the **roll m
 | --- | --- |
 | <img src="docs/media/wall-config-current.webp" alt="Compact wall durability controls at the bottom of the native wall editor" width="320"> | <img src="docs/media/wall-damage-holes.webp" alt="Light through a wall: one wide hole from a big hit, three small holes from three smaller hits" width="300"> |
 
-Walls provide ranged cover. Give them a type, HP per five-foot section, armor and a damage threshold. Shots that miss because of cover hit the wall; players can also target a wall section directly. Either way, the GM approves the damage with **Apply damage** or **Ignore**.
+Walls provide ranged cover. Give them a type, HP per five-foot section, armor, a damage threshold and, for barricades, a top height that anyone above it sees and shoots over. Shots that miss because of cover hit the wall; players can also target a wall section directly. Either way, the GM approves the damage with **Apply damage** or **Ignore**.
 
 - **Each hit leaves its own hole.** A big hit makes one wide hole, and several small hits make several small, scattered ones. The holes let sight, light and shots through, so players can glimpse what's behind and a target lined up with a hole has less cover. The wall still stops movement until a section reaches zero and opens a five-foot breach.
 - **Undo last wall damage** restores HP, holes and breached geometry together.
@@ -143,7 +143,7 @@ The GM pairs each player character with an NPC and enters a memory. Players keep
 
 ### Set it up
 
-1. **Install Hardwipe 0.7.48 with its Ready Set Midi** (see [Install](#install)). Braindance is built in; there is nothing else to enable.
+1. **Install Hardwipe 0.7.47 with its Ready Set Midi** (see [Install](#install)). Braindance is built in; there is nothing else to enable.
 2. **Coming from Braindance Suite?** Restore any running memory with it, then disable that module. While it is enabled, Hardwipe's Braindance stays switched off and tells the GM why.
 3. **Prepare the memory bodies.** Create or import the NPCs into the **Actors** directory; compendium NPCs must be imported first. Give them the weapons, spells and implants the players should have. Installed cyberware works like it does on a character.
 4. **Check who plays whom.** Each player character must be assigned to its player (**User Configuration → Character**) or owned by them.
@@ -180,7 +180,7 @@ Built and tested on **Foundry VTT 14.367 · D&D5e 6.0.5 · Ready Set Midi 14.0.1
    ```
 
 3. Install the **Ready Set Midi** build from the same release, plus libWrapper, socketlib and DAE. Enable all five with Hardwipe Ruleset.
-4. Disable standalone Midi-QOL and Ready Set Roll; the fork replaces both. Give characters the **Hardwipe Character** sheet.
+4. Disable standalone Midi-QOL and Ready Set Roll; the fork replaces both. Give characters the **Hardwipe Character** sheet and NPCs the **Hardwipe NPC** sheet (both are the defaults).
 
 **What Hardwipe changes in your world on first load:** Ready Set Midi's **Roll NPC saves** moves from *Auto* to *Chat Message*, once, so the GM rolls NPC saves from the card. You'll see a notice when it happens.
 

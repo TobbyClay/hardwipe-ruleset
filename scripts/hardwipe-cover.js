@@ -5,6 +5,7 @@ import { WallTypes, evaluateWallDamage } from "./hardwipe-wall-types.js";
 import { WallTargeting } from "./hardwipe-wall-targeting.js";
 import { AreaWallManager } from "./hardwipe-area-walls.js";
 import { planWallWear } from "./hardwipe-wall-wear.js";
+import { clearsWall, elevationChanged, heightCover, wallStopsLine, wallTop } from "./hardwipe-wall-height.js";
 
 const MODULE_ID = "hardwipe-ruleset";
 const STATE_FLAG = "coverAttack";
@@ -46,6 +47,13 @@ function isWeapon(activity) {
 
 function naturalResultOf(roll) {
   return roll?.dice?.find(die => die.faces === 20)?.results?.find(result => result.active !== false && !result.discarded)?.result;
+}
+
+/** A token's eye line: Foundry's vision origin (elevation plus half the depth), else its elevation. */
+function eyeElevation(token) {
+  const document = documentOf(token);
+  const origin = typeof document?.getVisionOrigin === "function" ? document.getVisionOrigin() : null;
+  return Number(origin?.elevation ?? document?.elevation ?? 0) || 0;
 }
 
 function sameLevel(attacker, target) {
@@ -115,8 +123,43 @@ export class CoverManager {
     if (game.settings.settings.has(`${MODULE_ID}.wallCoverEnabled`)) return;
     game.settings.register(MODULE_ID, "wallCoverEnabled", {
       name: "HARDWIPE.Cover.Setting", hint: "HARDWIPE.Cover.SettingHint",
-      scope: "world", config: true, type: Boolean, default: true
+      scope: "world", config: true, type: Boolean, default: true,
+      onChange: () => this._refreshHeights()
     });
+  }
+
+  /** The sweep test runs per edge: read the toggle once per change, not per edge. */
+  static _heightActive = true;
+
+  static _refreshHeights() {
+    this._heightActive = this._enabled();
+    if (canvas?.ready) canvas.perception.update({ initializeVision: true });
+  }
+
+  /**
+   * A wall with a top height lets a token whose eye line is above it see over it. Foundry's sweep decides per edge
+   * whether a wall blocks a polygon; for a sight polygon whose origin is above the wall's top the wall is left out.
+   * Light, sound and movement are untouched: the wall stops them at any height. A height change on a wall
+   * recomputes the open scene's vision, which core does not do for a flag-only update.
+   */
+  static _registerWallHeight() {
+    if (this._wallHeightRegistered) return;
+    this._wallHeightRegistered = true;
+    const manager = this;
+    libWrapper.register(MODULE_ID, "foundry.canvas.geometry.ClockwiseSweepPolygon.prototype._testEdgeInclusion", function(wrapped, edge, ...args) {
+      if (!wrapped(edge, ...args)) return false;
+      if (!manager._heightActive || edge?.type !== "wall" || this.config?.type !== "sight") return true;
+      const document = edge.object;
+      const flags = document?.flags?.[MODULE_ID];
+      if (!flags) return true;
+      const cover = heightCover(flags, id => document.parent?.walls?.get(id));
+      return !clearsWall(wallTop(cover), this.origin?.elevation);
+    }, "WRAPPER");
+    Hooks.on("updateWall", (wall, changes) => {
+      if (!canvas?.ready || wall.parent !== canvas.scene || !changes?.flags?.[MODULE_ID]) return;
+      canvas.perception.update({ initializeVision: true });
+    });
+    this._refreshHeights();
   }
 
   static registerControls() {
@@ -159,6 +202,7 @@ export class CoverManager {
     WallAppearance.initialize({ enqueue: task => this._enqueue(task), report: error => this._report(error) });
     this.registerControls();
     this._registerSocket();
+    this._registerWallHeight();
     Hooks.on("socketlib.ready", () => this._registerSocket());
     // Ready Set Midi's cover engine asks which walls stop cover lines, so damaged walls let lines through their holes.
     Hooks.on("midi-qol.coverWalls", context => this._coverWalls(context));
@@ -284,7 +328,8 @@ export class CoverManager {
   /**
    * Hardwipe walls for Ready Set Midi's cover engine. Generated sight/light helpers only trace their parent, and
    * non-ballistic walls never stop a shot; tagged ballistic walls and glass do, even when sight passes. A damaged
-   * wall blocks only along its solid parts.
+   * wall blocks only along its solid parts, and a wall with a top height only up to that top: the engine checks
+   * each line's elevation where it crosses the wall against the entry's band.
    */
   static _coverWalls({ scene, walls } = {}) {
     for (const entry of walls ?? []) {
@@ -297,13 +342,16 @@ export class CoverManager {
       if (!cover) continue;
       if (cover.ballistic === true || cover.material === "glass") entry.blocks = true;
       if (entry.blocks) entry.segments = solidSegments(entry.wall, scene);
+      const top = wallTop(cover);
+      if (top < (Number(entry.top) || Infinity)) entry.top = top;
     }
   }
 
   /**
    * Ranged cover. With Ready Set Midi's engine: DMG corner lines from the attacker's best corner, creatures as
    * cover, and total cover when walls hide the target. Otherwise nine rays from the attacker's center to inset
-   * footprint points, all blocked being total cover (Infinity). Either way, shots pass through wall holes.
+   * footprint points, all blocked being total cover (Infinity). Either way, shots pass through wall holes and
+   * over walls whose top is below the shot's elevation where it crosses them.
    */
   static inspectCover({ attacker, target, activity } = {}) {
     const empty = { coverBonus: 0, blocked: 0, samples: 9, fraction: 0, impact: null };
@@ -332,10 +380,16 @@ export class CoverManager {
       return Array.isArray(c) && Math.max(c[0], c[2]) >= left - 1 && Math.min(c[0], c[2]) <= right + 1
         && Math.max(c[1], c[3]) >= top - 1 && Math.min(c[1], c[3]) <= bottom + 1;
     });
-    const solids = walls.filter(wall => isBlocking(wall, attacker, target))
-      .flatMap(wall => solidSegments(wall, scene).map(c => ({ id: wall.id, c, wall })));
+    const fromElevation = eyeElevation(attacker);
+    const toElevation = eyeElevation(target);
+    const solids = walls.filter(wall => isBlocking(wall, attacker, target)).flatMap(wall => {
+      const top = wallTop(wall.flags?.[MODULE_ID]?.cover);
+      return solidSegments(wall, scene).map(c => ({ id: wall.id, c, wall, top }));
+    });
     const firstHit = (from, to) => {
-      const hit = findFirstWallIntersection(from, to, solids);
+      const hit = findFirstWallIntersection(from, to, solids, {
+        clears: (entry, intersection) => !wallStopsLine(entry.top, fromElevation, toElevation, intersection.t)
+      });
       return hit ? { ...hit, wall: hit.wall.wall } : null;
     };
     let blocked = 0;
@@ -393,6 +447,8 @@ export class CoverManager {
       attackerShape: shapeOf(workflow.token), targetShape: shapeOf(targetToken), wallCoordinates: [...cover.impact.wall.c],
       attackTotal: Number(context.attackTotal), targetAC: bareAC, coverBonus: bonus, totalCover,
       physicalBlocked: cover.blocked,
+      // Both eye lines: a change of elevation after the shot voids the impact like a change of position.
+      attackerElevation: eyeElevation(workflow.token), targetElevation: eyeElevation(targetToken),
       attackBonus: Number(context.attackTotal) - Number(workflow.attackRoll?.total),
       statusCoverBonus, defenseAdjustment: bareAC - descriptorBaseAC,
       referenceAC: result.referenceAC, threshold: result.threshold
@@ -655,6 +711,8 @@ export class CoverManager {
         if (!target || !sameLevel(attacker, target)) continue;
         if (record.attackerShape && stableJSON(shapeOf(attacker)) !== stableJSON(record.attackerShape)) throw new Error("The attacker moved after the shot. The wall impact was not applied.");
         if (record.targetShape && stableJSON(shapeOf(target)) !== stableJSON(record.targetShape)) throw new Error("The target moved after the shot. The wall impact was not applied.");
+        if (elevationChanged(record.attackerElevation, eyeElevation(attacker))) throw new Error("The attacker moved after the shot. The wall impact was not applied.");
+        if (elevationChanged(record.targetElevation, eyeElevation(target))) throw new Error("The target moved after the shot. The wall impact was not applied.");
         current = this.inspectCover({ attacker, target, activity });
         // Re-derive the wall from current scene geometry; never trust an incoming wall ID alone.
         if (!current.impact || current.impact.wallId !== record.wallId) continue;
@@ -823,7 +881,7 @@ export class CoverManager {
         <div class="form-group"><label>Wall type</label><select name="preset">
         <option value="current" selected>Keep each wall's current values</option>
         <option value="custom">Custom values below</option>
-        ${Object.entries(types).map(([key, preset]) => `<option value="type:${escape(key)}">${escape(preset.name)}: ${preset.max} HP, ${preset.armor} armor, threshold ${preset.damageThreshold}</option>`).join("")}
+        ${Object.entries(types).map(([key, preset]) => `<option value="type:${escape(key)}">${escape(preset.name)}: ${preset.max} HP, ${preset.armor} armor, threshold ${preset.damageThreshold}${preset.height > 0 ? `, top ${preset.height}` : ""}</option>`).join("")}
         <option value="solid">Solid, indestructible</option></select></div>
         <p class="hint">Choose a saved type to use its values, or Custom to use the fields below. Manage saved types in Settings → Game Settings → Hardwipe Ruleset → Manage wall types.</p>
         <div class="form-group"><label>Custom material</label><input name="material" value="${escape(current.material)}"></div>
@@ -833,6 +891,8 @@ export class CoverManager {
         <div class="form-group"><label>Custom armor</label><input type="number" name="armor" min="0" value="${escape(current.armor)}"></div>
         <div class="form-group"><label>Custom damage threshold</label><input type="number" name="damageThreshold" min="0" value="${escape(current.damageThreshold ?? 0)}"></div>
         <p class="hint">A damage roll below the threshold deals no damage. Qualifying rolls then subtract armor.</p>
+        <div class="form-group"><label>Custom top height</label><input type="number" name="height" min="0" step="any" value="${escape(Number(current.height) > 0 ? current.height : 0)}"></div>
+        <p class="hint">0 is full height. A token whose eyes are above the top sees and shoots over the wall.</p>
         <div class="form-group"><label>Reset section HP to starting HP</label><input type="checkbox" name="resetHP"></div>
         <div class="form-group"><label for="hardwipe-wall-appearance">Show damage and glimpses</label><input id="hardwipe-wall-appearance" type="checkbox" name="appearance" ${current.appearance !== false ? "checked" : ""}></div>
         <p class="hint">Damage leaves surface marks. At half HP, cracks allow light and vision; at quarter HP they widen. Shots pass through the cracks; movement is unchanged until destruction.</p>`,
@@ -862,10 +922,15 @@ export class CoverManager {
     return material;
   }
 
-  /** Build the same durability snapshot for configuration previews and saved wall operations. */
-  static _wallConfigurationCover(previous, { material, typeId, reset = false, appearance }) {
+  /**
+   * Build the same durability snapshot for configuration previews and saved wall operations. A type brings its
+   * own top height; `height` overrides it for this wall, and 0 (full height) is not stored.
+   */
+  static _wallConfigurationCover(previous, { material, typeId, reset = false, appearance, height }) {
     const cover = material ? { ...copy(previous), ...copy(material), typeId, version: 2, ballistic: true } : copy(previous);
     if (appearance !== undefined) cover.appearance = appearance;
+    if (height !== undefined && height !== null && Number.isFinite(Number(height))) cover.height = Number(height);
+    if (!(Number(cover.height) > 0)) delete cover.height;
     if (!reset && material?.max && Number(previous.max) > 0 && finite(previous.hp ?? previous.max)) {
       cover.hp = Math.min(Number(previous.hp ?? previous.max), Number(material.max));
     }
@@ -888,7 +953,7 @@ export class CoverManager {
   }
 
   /** Shared by the native single-wall sheet and the selected-walls dialog. */
-  static _wallConfigurationOperations(document, { material, typeId, reset = false, appearance, updateData = {} }) {
+  static _wallConfigurationOperations(document, { material, typeId, reset = false, appearance, height, updateData = {} }) {
     this._requireGM();
     const wall = document.parent?.walls.get(document.id);
     if (!wall || wall.getFlag(MODULE_ID, "wallWear")) throw new Error("Configure the original physical wall, not a damage visual.");
@@ -896,7 +961,7 @@ export class CoverManager {
     const data = foundry.utils.mergeObject(wall.toObject(), updateData, { inplace: false });
     // Native WallConfig has no editable coordinates. Configuration never changes physical geometry.
     data.c = copy(wall.c);
-    const cover = this._wallConfigurationCover(previous, { material, typeId, reset, appearance });
+    const cover = this._wallConfigurationCover(previous, { material, typeId, reset, appearance, height });
     if (cover.wear?.restrictions) {
       for (const key of ["sight", "light"]) if (key in updateData) cover.wear.restrictions[key] = data[key];
     }
@@ -996,6 +1061,7 @@ function buildWallConfig() {
       const cover = this.document.getFlag(MODULE_ID, "cover") ?? {};
       let types = WallTypes.materials;
       const currentName = cover.name ?? types[cover.typeId]?.name ?? cover.material ?? t("Solid");
+      const units = this.document.parent?.grid?.units ?? "";
       const root = `${this.id}-hardwipe-wall`;
       fieldset.innerHTML = `<legend>${escape(t("Title"))}</legend>
         <div class="form-group hardwipe-wall-config-type"><label for="${escape(root)}-type">${escape(t("Type"))}</label>
@@ -1004,6 +1070,10 @@ function buildWallConfig() {
             ${Object.values(types).map(type => `<option value="type:${escape(type.id)}">${escape(type.name)}</option>`).join("")}
             <option value="solid">${escape(t("Solid"))}</option>
           </select><button type="button" class="hardwipe-wall-config-manage icon" aria-label="${escape(t("Manage"))}" data-tooltip="${escape(t("Manage"))}"><i class="fas fa-cubes" inert></i></button></div>
+        </div>
+        <div class="form-group hardwipe-wall-config-height"><label for="${escape(root)}-height">${escape(t("Height"))}${units ? ` (${escape(units)})` : ""}</label>
+          <div class="form-fields"><input id="${escape(root)}-height" name="${prefix}Height" type="number" min="0" step="any" value="${escape(Number(cover.height) > 0 ? cover.height : 0)}"></div>
+          <p class="hint">${escape(t("HeightHint"))}</p>
         </div>
         <dl class="hardwipe-wall-config-values" aria-live="polite"></dl>
         <details class="hardwipe-wall-config-options"><summary>${escape(t("Options"))}</summary>
@@ -1015,6 +1085,7 @@ function buildWallConfig() {
           <p class="hint hardwipe-wall-config-sections"></p>
         </details>`;
       const select = fieldset.querySelector("select");
+      const heightInput = fieldset.querySelector(`[name='${prefix}Height']`);
       const updateSummary = () => {
         const material = select.value === "current" ? cover : select.value === "solid"
           ? CoverManager._wallMaterial("solid") : types[select.value.slice(5)];
@@ -1024,13 +1095,15 @@ function buildWallConfig() {
         }
         const preview = CoverManager._wallConfigurationCover(cover, {
           material: select.value === "current" ? null : material,
-          typeId: material.id ?? null, reset: fieldset.querySelector(`[name='${prefix}ResetHP']`).checked
+          typeId: material.id ?? null, reset: fieldset.querySelector(`[name='${prefix}ResetHP']`).checked,
+          height: Number(heightInput.value)
         });
         const destructible = Number(preview.max) > 0;
         const values = destructible ? [
           ["HP", `${preview.hp ?? preview.max} / ${preview.max}`], ["AC", preview.ac ?? 10],
           ["Armor", preview.armor ?? 0], ["Threshold", preview.damageThreshold ?? 0]
         ] : [["Durability", t("Solid")]];
+        values.push(["Height", Number(preview.height) > 0 ? `${preview.height}${units ? ` ${units}` : ""}` : t("FullHeight")]);
         fieldset.querySelector("dl").innerHTML = values.map(([key, value]) => `<div title="${escape(t(key))}"><dt>${escape(t(`${key}Short`))}</dt><dd>${escape(value)}</dd></div>`).join("");
         const sections = Object.entries(preview.sections ?? {}).slice(0, 8).map(([key, section]) => game.i18n.format("HARDWIPE.Cover.WallConfig.SectionHP", {
           section: Number(key) + 1, hp: section.hp, max: section.max ?? preview.max
@@ -1051,7 +1124,13 @@ function buildWallConfig() {
         select.value = selected;
         updateSummary();
       });
-      select.addEventListener("change", updateSummary);
+      select.addEventListener("change", () => {
+        // A saved type brings its own height; the field stays editable for this wall.
+        const type = select.value.startsWith("type:") ? types[select.value.slice(5)] : null;
+        if (type) heightInput.value = Number(type.height) > 0 ? type.height : 0;
+        updateSummary();
+      });
+      heightInput.addEventListener("change", updateSummary);
       fieldset.querySelector(`[name='${prefix}ResetHP']`).addEventListener("change", updateSummary);
       fieldset.querySelector(".hardwipe-wall-config-manage").addEventListener("click", () => WallTypes.manage());
       body.append(fieldset);
@@ -1077,8 +1156,12 @@ function buildWallConfig() {
       const preset = selector.value;
       const reset = form.elements[`${prefix}ResetHP`].checked;
       const appearance = form.elements[`${prefix}Appearance`].checked;
+      const heightValue = Number(form.elements[`${prefix}Height`]?.value ?? 0);
+      if (!Number.isFinite(heightValue) || heightValue < 0) throw new Error(game.i18n.localize("HARDWIPE.Cover.WallConfig.HeightInvalid"));
+      const height = heightValue > 0 ? heightValue : 0;
       const previous = this.document.getFlag(MODULE_ID, "cover");
-      if (preset === "current" && !reset && appearance === (previous?.appearance !== false) && !previous?.wear) {
+      const heightChanged = height !== (Number(previous?.height) > 0 ? Number(previous.height) : 0);
+      if (preset === "current" && !reset && !heightChanged && appearance === (previous?.appearance !== false) && !previous?.wear) {
         return super._processSubmitData(event, form, submitData, options);
       }
       if (!this.document.parent?.walls.has(this.document.id)) {
@@ -1087,7 +1170,7 @@ function buildWallConfig() {
       await CoverManager._enqueue(async () => {
         const material = CoverManager._wallMaterial(preset);
         const operations = CoverManager._wallConfigurationOperations(this.document, {
-          material, typeId: preset.startsWith("type:") ? material.id : null, reset, appearance, updateData: submitData
+          material, typeId: preset.startsWith("type:") ? material.id : null, reset, appearance, height, updateData: submitData
         });
         await CoverManager._batch(operations);
       });

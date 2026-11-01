@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import {
-  attacksPerAction, compareOptions, currentLedger, generalMoveOf, isCastable, isMeleeWeapon, isWeaponAttack, optionGroup,
+  attacksPerAction, compareOptions, currentLedger, generalMoveOf, isCastable, isAttackAction, isMeleeWeapon, isWeaponAttack, optionGroup,
   payFor, reactionHeld, readLedger, recordUse, slotFor
 } from "../scripts/hardwipe-turn.js";
 
@@ -133,6 +133,26 @@ test("weapon and unarmed attacks belong to the Attack action; spell attacks do n
   assert.ok(!isWeaponAttack({ type: "attack", attack: { type: { classification: "spell" } } }));
   assert.ok(isWeaponAttack({ type: "attack", attack: { type: {} }, item: { type: "weapon" } }));
   assert.ok(!isWeaponAttack({ type: "save", item: { type: "weapon" } }));
+});
+
+test("an activity's Action type decides whether it is one attack of the Attack action or the whole action", () => {
+  const flagged = (type, activity) => ({ ...activity, flags: { "hardwipe-ruleset": { actionType: type } } });
+  const shot = { type: "attack", attack: { type: { classification: "weapon" } } };
+  const burst = flagged("action", shot);
+  const jab = flagged("attack", { type: "utility", item: { type: "equipment" } });
+  // Without a choice, the default is the old inference.
+  assert.ok(isAttackAction(shot));
+  assert.ok(!isAttackAction({ type: "attack", attack: { type: { classification: "spell" } } }));
+  assert.ok(!isAttackAction({ type: "save", item: { type: "weapon" } }));
+  // A choice wins in both directions; anything else falls back to the default.
+  assert.ok(!isAttackAction(burst));
+  assert.ok(isAttackAction(jab));
+  assert.ok(isAttackAction(flagged("bogus", shot)));
+  assert.ok(!isAttackAction(null));
+  // The ledger: a full-action weapon spends the action without starting the Attack action.
+  const now = { combat: "c", round: 1, turn: 0, isTurn: true };
+  assert.equal(recordUse(null, { activation: "action", attack: isAttackAction(burst), move: null }, now).attacks, 0);
+  assert.equal(recordUse(null, { activation: "action", attack: isAttackAction(jab), move: null }, now).attacks, 1);
 });
 
 test("activities sort into bands by cost; everything else is outside the action economy", () => {

@@ -1,8 +1,8 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import {
-  CREW_FEATURE_TYPE, DEFAULT_CREW_TYPES, crewData, crewRule, expiresAt, isPrimed, normalizeCrewTypes, plainDescription, ruleFor,
-  setupActivityId
+  CREW_FEATURE_TYPE, DEFAULT_CREW_TYPES, crewData, crewRule, expiresAt, inSameCrew, isPrimed, normalizeCrewTypes, plainDescription,
+  ruleFor, setupActivityId
 } from "../scripts/hardwipe-crew.js";
 
 const effect = (crew, extra = {}) => ({ flags: { "hardwipe-ruleset": { crew } }, disabled: false, duration: {}, ...extra });
@@ -91,6 +91,23 @@ test("'until used' never expires, and nothing expires outside combat", () => {
   assert.equal(expiresAt("used", stamp(1, 0), now(9, 0, true)), false);
   assert.equal(expiresAt("turn", stamp(1, 2), null), false);
   assert.equal(expiresAt("round", null, { combat: null }), false);
+});
+
+test("a crewmate may fire a maneuver only from the setter's fight, or from a scene they share before one", () => {
+  const combat = ["Actor.mags", "Actor.juno", "Actor.drone"];
+  assert.equal(inSameCrew("Actor.mags", "Actor.juno", { combat }), true);
+  // In a started combat the fight is the crew: standing on the same scene does not get a stranger in.
+  assert.equal(inSameCrew("Actor.mags", "Actor.rook", { combat, scenes: [["Actor.mags", "Actor.rook"]] }), false);
+  assert.equal(inSameCrew("Actor.mags", "Actor.rook", { combat: [] }), false);
+  // Before a fight: any scene both have a token on.
+  assert.equal(inSameCrew("Actor.mags", "Actor.rook", { combat: null, scenes: [["Actor.drone"], ["Actor.mags", "Actor.rook"]] }), true);
+  assert.equal(inSameCrew("Actor.mags", "Actor.rook", { scenes: [["Actor.mags"], ["Actor.rook"]] }), false);
+  assert.equal(inSameCrew("Actor.mags", "Actor.rook", {}), false);
+  assert.equal(inSameCrew("Actor.mags", "Actor.rook"), false);
+  // Never yourself, never nobody.
+  assert.equal(inSameCrew("Actor.mags", "Actor.mags", { combat }), false);
+  assert.equal(inSameCrew("", "Actor.juno", { combat }), false);
+  assert.equal(inSameCrew("Actor.mags", undefined, { combat }), false);
 });
 
 test("the feature's description reads as one plain line, without GM secrets", () => {

@@ -4,7 +4,7 @@
 
 ## Installation and first run
 
-The public pair is **Hardwipe 0.7.48 + Ready Set Midi 14.0.10.2**, tested on **Foundry 14.367 / D&D5e 6.0.5**. Install both together from the [release page](https://github.com/TobbyClay/hardwipe-ruleset/releases/latest).
+The public pair is **Hardwipe 0.7.47 + Ready Set Midi 14.0.10.2**, tested on **Foundry 14.367 / D&D5e 6.0.5**. Install both together from the [release page](https://github.com/TobbyClay/hardwipe-ruleset/releases/latest).
 
 | Install | Manifest |
 | --- | --- |
@@ -13,7 +13,7 @@ The public pair is **Hardwipe 0.7.48 + Ready Set Midi 14.0.10.2**, tested on **F
 
 Enable Hardwipe, the custom Ready Set Midi fork, libWrapper, socketlib, and DAE. Keep standalone Midi-QOL and Ready Set Roll disabled when using the fork. Manual ZIPs contain module-named root folders for Foundry's `Data/modules` directory.
 
-Set a character's sheet to **Hardwipe Character** if it explicitly uses another sheet. Hardwipe's default registration does not override an actor's saved sheet preference.
+Set a character's sheet to **Hardwipe Character**, and an NPC's to **Hardwipe NPC**, if it explicitly uses another sheet. Both are registered as defaults; Hardwipe's default registration does not override an actor's saved sheet preference. The NPC sheet adds a Cyberware tab once the NPC carries an implant.
 
 ![Current Hardwipe character sheet](media/cyberware-current.png)
 
@@ -103,7 +103,7 @@ Open **Game Settings → Hardwipe Ruleset → Roll Tracker** (the window is call
 | Overview | The ranking by d20 average (role tag, characters, rolls, spells, natural 20s and 1s, the last ten d20s), the Friday Night Firefight strip (attacks and hit rate, crits, damage and the best hit, healing, downs), awards with their runners-up, the latest noted moments, and rolls and spells per session. |
 | Players | A character screen for each player or character: rolls, spells, natural 20s and 1s and the best roll; accuracy, damage, magic, saves, checks and the hot streak around the d20 average; d20 faces with a one-line read on them; spells cast, per-session rolls and spells, and roll types. The arrows step through players. |
 | Compare | Two players, the party or single characters, item-comparison style: player 1's numbers with green or red arrows against player 2, and who wins on how many stats. |
-| Dice | Every d20 face each player threw, dropped advantage dice included, with a fairness verdict once there are 60 or more, and a dice bag by die type. |
+| Dice | Every d20 face each player threw, dropped advantage dice included, with a fairness verdict once there are 60 or more, and a dice bag by die type. For the GM only, **Inspect adv/dis rolls** unfolds which rules put player characters' attack rolls at advantage or disadvantage in this scope, how often, and who rolled with them, read from the attack cards' roll mode scans (rules a target granted are not counted). Folded by default; nothing is listed until you ask. |
 | Moments | Every natural 1 and 20 with the GM's note. The GM writes or edits notes here; players read them. |
 | Sessions | GM only: the session log, described below. |
 
@@ -179,7 +179,7 @@ For example, **Entry Stack**: a Strike with a *Stack up* utility activity on a b
 
 <img src="media/crew-card-feed.png" alt="CREW card, Glitch feed: crew link, Strike, Mags >> Entry Stack, triggered by QA Player, Executed stamp" width="250">
 
-You can press **Fire**, **Trigger** or **×** on a character's Turn tab for them. A crewmate firing someone else's maneuver needs a GM online: your client removes it from its owner. Your client also removes a maneuver when its time is up, or when the combat it was set up in is deleted (unless it lasts until used).
+You can press **Fire**, **Trigger** or **×** on a character's Turn tab for them. A crewmate firing someone else's maneuver needs a GM online: your client removes it from its owner, and only for a character in the owner's fight, or on a scene with them before one; anyone else is refused. Your client also removes a maneuver when its time is up, or when the combat it was set up in is deleted (unless it lasts until used).
 
 ## Braindance
 

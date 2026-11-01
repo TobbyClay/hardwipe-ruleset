@@ -4,9 +4,7 @@
 
 ## What Foundry installs today
 
-The public release is **Hardwipe Ruleset 0.7.48** with **Ready Set Midi 14.0.10.2**; both are attached to the [release](https://github.com/TobbyClay/hardwipe-ruleset/releases/latest), and Hardwipe's manifest installs the companion as a dependency. Release notes: [0.7.48](RELEASE-0.7.48.md).
-
-0.7.47 was built and documented but never published on GitHub; everything in it ships in 0.7.48, so the previous public installer was 0.7.40. The 0.7.41 audited preview below is historical; everything in it shipped too.
+The public release is **Hardwipe Ruleset 0.7.47** with **Ready Set Midi 14.0.10.2**; both are attached to the [release](https://github.com/TobbyClay/hardwipe-ruleset/releases/latest), and Hardwipe's manifest installs the companion as a dependency. The 0.7.41 audited preview below is historical; everything in it shipped in 0.7.47.
 
 ## Audited preview
 
@@ -22,7 +20,7 @@ The **0.7.41 / Ready Set Midi 14.0.10.2** source cohort is under review in the r
 
 <img src="media/ranged-advisory-current.webp" alt="Actual audited preview card with identified advantage and disadvantage sources" width="350">
 
-Hardwipe 0.7.48 ships with the **tested companion**, attached to the release and rebuilt by [`preview/merge-companion.py`](../preview/README.md):
+Hardwipe 0.7.47 ships with the **tested companion**, attached to the release and rebuilt by [`preview/merge-companion.py`](../preview/README.md):
 - the cover-bridge build;
 - the wall-effects changes;
 - removal of reviewed instantaneous areas once the GM decides;
@@ -46,7 +44,7 @@ C4614DC76ABC87D465A998C2FF45D9444945454CB20EA9CF9B2144D4962F4AA0
 
 Git normalizes that file to LF without changing its code. The repository blob SHA256 is `3F40B1099E17CB3CD0D146F28BE4B29D4CE328BA20DCF64B2A0ED212B62A1C16`.
 
-The 0.7.41 preview manifest was never published as an installer; its features shipped in **0.7.48** with Ready Set Midi 14.0.10.2.
+The 0.7.41 preview manifest was never published as an installer; its features shipped in **0.7.47** with Ready Set Midi 14.0.10.2.
 
 ## Automated checks
 
@@ -70,6 +68,18 @@ node .github/scripts/check-module.mjs
 
 These checks don't replace runtime verification in Foundry; see the scope below.
 
+## Migrations
+
+Flags carry version fields and every reader tolerates older shapes, so a world never breaks on upgrade. From 0.7.49 the stored data is also brought up to date once: on `ready`, the active GM's client runs every step in [`scripts/hardwipe-migrations.js`](../scripts/hardwipe-migrations.js) newer than the world's recorded version (the hidden world setting `migrationVersion`), then records the module version. Steps are idempotent, run in version order, and a step that fails stops the run with a GM notice and is retried at the next load. `game.hardwipe.migrate({ force: true })` runs every step again. Compendium packs are not touched.
+
+| Version | Step | What it changes |
+| --- | --- | --- |
+| 0.7.49 | `shield-max` | Shields with Hardwipe HP but no stored maximum get `max: 10`, the value every shield had before maximums were per item. |
+| 0.7.49 | `cyberware-flags` | Cyberware items without their state flag (created while Hardwipe was off) become carried, unequipped and unattuned, as new cyberware is. |
+| 0.7.49 | `roll-tracker-ends` | Finished Roll Tracker sessions without an end are ended at their last roll. |
+
+Add a step by appending to `MIGRATIONS` with the version it ships in; keep its planner pure and cover it in `tests/migrations.test.mjs`.
+
 ## Verification scope
 
 ### Wall Effects integration, 2026-10-09
@@ -86,9 +96,17 @@ This hash supersedes the earlier companion hash **for the Wall Effects preview o
 
 **Superseded in 0.7.46:** emanations and rings now damage walls (an emanation from every point of the caster's space, a ring across its band), and the per-shape defaults offer the damage modes. Native player casts of every dnd5e area shape, GM approval, Ignore, breach, undo and a stale emanation were rechecked; the geometry suite has 20 passing cases. See `_release-audit/area-walls-0.7.46/QA-Report.md`.
 
-### Turn tab, roll calls and Crew Maneuvers, 0.7.48
+### 0.7.49 preview, 2026-10-22 to 2026-10-26
 
-Crew Maneuvers were checked on Foundry 14.367, D&D5e 6.0.5 and Ready Set Midi 14.0.10.2 with a GM and two players in separate browsers: Feature Type and subtype, the GM's maneuver types, weapon, activity and card payoffs, a crewmate firing someone else's maneuver through the GM, round and turn expiry, both CREW card styles, and the netlink strip. Not covered: expiry with no GM online, Ready Set Midi's prompt reaction modes, NPC crew, and descriptions with images or tables. See `_release-audit/crew-maneuvers/QA-Report.md`. The Turn tab, roll calls, netlink, comms queue and Cyberware tab redesign were built and checked in earlier local sessions. CI runs the unit tests, script parsing and the module check on every pull request.
+Runtime-checked in a disposable copy of the QA world on Foundry 14.367, D&D5e 6.0.6 and Ready Set Midi 14.0.10.3, with a GM client and, in the final pass, a player client:
+
+- Crew fire: the GM re-derives the crew, and a forged request naming a stranger is refused.
+- NPC sheet with a Cyberware tab once the NPC carries an implant; GM instant install; per-shield maximum HP; the migration runner.
+- Wall top height for cover lines and token sight; applying a wall impact is refused after either token changes position or elevation.
+- Cover is worked out for each attack and never left on the target.
+- Roll rules: the scan saved on player characters' cards and masked for players, shown on melee only when Midi applied a mode; the Turn tab panel with feature modes; the condition rule built from D&D5e's live table.
+
+Known limits: Ready Set Midi's own roll data names every source for anyone reading the console; the character inventory tab raises a harmless ResizeObserver notice, as 0.7.48 did.
 
 ### Braindance, 0.7.47
 

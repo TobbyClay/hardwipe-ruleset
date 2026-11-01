@@ -9,6 +9,7 @@ import { TurnTracker } from "./hardwipe-turn.js";
 
 const SHIELD_FLAG = "shield";
 const DEFAULT_SHIELD_HP = 10;
+const MAX_SHIELD_HP = 99;
 const RSR_MODULE_ID = "rsr5e";
 
 export class ShieldManager {
@@ -204,6 +205,7 @@ export class ShieldManager {
       repair: actorOrItem => ShieldManager.repair(actorOrItem),
       damage: (item, amount) => ShieldManager.damage(item, amount),
       heal: (item, amount) => ShieldManager.heal(item, amount),
+      setMax: (item, max) => ShieldManager.setMax(item, max),
       block: (actor, damages, options) => ShieldManager.block(actor, damages, options),
       canBlock: actor => ShieldManager.canBlock(actor)
     };
@@ -238,7 +240,21 @@ export class ShieldManager {
     if (!item || !this._canControlShield(item)) return false;
 
     return this._queueStateUpdate(item, async () => {
-      await this._writeState(item, { hp: DEFAULT_SHIELD_HP, broken: false });
+      const state = this._getState(item);
+      await this._writeState(item, { ...state, hp: state.max, broken: false });
+      return true;
+    });
+  }
+
+  /** GM: this shield's maximum HP, 1 to 99 (10 unless set). Current HP is clamped to it. */
+  static async setMax(itemOrActor, max) {
+    const item = this._resolveShieldItem(itemOrActor, { display: true });
+    if (!item || !game.user.isGM) return false;
+    return this._queueStateUpdate(item, async () => {
+      const state = this._getState(item);
+      const limit = shieldMax(max);
+      const hp = Math.min(state.hp, limit);
+      await this._writeState(item, { ...state, max: limit, hp, broken: hp <= 0 });
       return true;
     });
   }
@@ -792,7 +808,7 @@ export class ShieldManager {
 
   static _getState(item) {
     const raw = item?.getFlag(MODULE_ID, SHIELD_FLAG) ?? {};
-    const max = DEFAULT_SHIELD_HP;
+    const max = shieldMax(raw.max);
     const hp = clamp(Number(raw.hp ?? max) || 0, 0, max);
     return {
       hp,
@@ -804,9 +820,10 @@ export class ShieldManager {
   }
 
   static async _writeState(item, state) {
+    const max = shieldMax(state.max ?? this._getState(item).max);
     const next = this._makeState({
-      hp: clamp(Number(state.hp) || 0, 0, DEFAULT_SHIELD_HP),
-      max: DEFAULT_SHIELD_HP,
+      hp: clamp(Number(state.hp) || 0, 0, max),
+      max,
       broken: Boolean(state.broken) || Number(state.hp) <= 0
     });
     const updates = {
@@ -817,9 +834,10 @@ export class ShieldManager {
   }
 
   static _makeState({ hp, max = DEFAULT_SHIELD_HP, broken = false }) {
+    const limit = shieldMax(max);
     return {
-      hp: clamp(Number(hp) || 0, 0, DEFAULT_SHIELD_HP),
-      max: DEFAULT_SHIELD_HP,
+      hp: clamp(Number(hp) || 0, 0, limit),
+      max: limit,
       broken: Boolean(broken),
       updatedAt: Date.now(),
       updatedBy: game.user.id
@@ -908,6 +926,12 @@ function toPropertySet(properties) {
   if (properties instanceof Set) return new Set(properties);
   if (Array.isArray(properties)) return new Set(properties);
   return new Set();
+}
+
+/** A stored maximum as the shield's limit: a whole number from 1 to 99, else the default 10. */
+function shieldMax(value) {
+  const max = Math.trunc(Number(value));
+  return Number.isFinite(max) && max >= 1 ? Math.min(max, MAX_SHIELD_HP) : DEFAULT_SHIELD_HP;
 }
 
 function clamp(value, min, max) {

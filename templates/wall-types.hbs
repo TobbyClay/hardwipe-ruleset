@@ -31,12 +31,17 @@
   <input id="{{rootId}}-threshold" name="damageThreshold" type="number" min="0" step="any" value="{{type.damageThreshold}}" required>
   <p class="hint">A damage roll below this value deals no damage. A qualifying roll then loses armor reduction. Use 0 to allow every hit.</p>
 </div>
+<div class="form-group">
+  <label for="{{rootId}}-height">Top height</label>
+  <input id="{{rootId}}-height" name="height" type="number" min="0" step="any" value="{{type.height}}" required>
+  <p class="hint">0 is full height. A token whose eyes are above the top sees and shoots over the wall.</p>
+</div>
 <footer class="form-footer hardwipe-wall-types-footer">
   <button type="button" data-action="duplicate"><i class="fas fa-copy" inert></i> Duplicate</button>
   {{#if canDelete}}<button type="button" data-action="remove"><i class="fas fa-trash" inert></i> Delete</button>{{/if}}
   <button type="submit"><i class="fas fa-save" inert></i> {{#if isNew}}Create type{{else}}Save type{{/if}}</button>
 </footer>
 {{else}}
-<p>Create a wall type to define its HP, armor, and damage threshold.</p>
+<p>Create a wall type to define its HP, armor, damage threshold, and top height.</p>
 {{/if}}
 </section>

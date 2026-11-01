@@ -28,6 +28,9 @@ import { TurnTracker } from "./hardwipe-turn.js";
 import { registerRequests } from "./hardwipe-requests.js";
 import { registerComms } from "./hardwipe-comms.js";
 import { CrewManager } from "./hardwipe-crew.js";
+import { registerMigrations, runMigrations } from "./hardwipe-migrations.js";
+import { RollRules } from "./hardwipe-roll-rules.js";
+import { registerLiveConditionRules } from "./hardwipe-condition-rules.js";
 
 export const MODULE_ID = "hardwipe-ruleset";
 export const MODULE_TITLE = "Hardwipe Ruleset";
@@ -44,6 +47,8 @@ Hooks.once("init", async () => {
   game.hardwipe.cyberware = CyberwareManager.api;
   game.hardwipe.cover = CoverManager.api;
   game.hardwipe.crew = CrewManager.api;
+  game.hardwipe.rules = RollRules.api;
+  RollRules.registerEffectConfig();
 
   ShieldManager.initialize();
 
@@ -75,12 +80,14 @@ Hooks.once("init", async () => {
   registerRequests();
   registerComms();
   CrewManager.register();
+  registerMigrations();
 
   await foundry.applications.handlebars.loadTemplates([
     "modules/hardwipe-ruleset/templates/heat-hud.hbs",
     "modules/hardwipe-ruleset/templates/heat-config.hbs",
     "modules/hardwipe-ruleset/templates/cyberware-tab.hbs",
-    "modules/hardwipe-ruleset/templates/turn-tab.hbs"
+    "modules/hardwipe-ruleset/templates/turn-tab.hbs",
+    "modules/hardwipe-ruleset/templates/roll-rules.hbs"
   ]);
 });
 
@@ -90,10 +97,15 @@ Hooks.once("ready", () => {
   CyberwareManager.initialize();
   CoverManager.initialize();
   RangedAttackManager.initialize();
+  RollRules.initialize();
+  registerLiveConditionRules();
   AttackReviewManager.initialize();
   HardwipeSheet.initialize();
   ShortRestManager.initialize();
   void applyNpcSavesDefault();
   initializeBraindance();
+  // Last: the world's stored data is brought up to this version once everything above can read it.
+  game.hardwipe.migrate = options => runMigrations(options);
+  void runMigrations().catch(error => console.error(`${MODULE_TITLE} | Migrations`, error));
   console.log(`${MODULE_TITLE} | Ready`);
 });

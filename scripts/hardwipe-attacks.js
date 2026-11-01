@@ -2,7 +2,7 @@ import { MODULE_ID, escapeHTML, plainActivityLabel } from "./hardwipe-state.js";
 import { HardwipeRules } from "./hardwipe-rules.js";
 import {
   aggregateCriticalDamage, bindBrief, briefHTML, decorateRollCard, fallenTargets, insertAfterDamage, markDamageTypes, stampHTML, propertyChipsHTML, rarityClasses, recordSaveTargets,
-  recordWorkflowDamage, rollCriticalDice, saveBlock, saveState
+  recordWorkflowDamage, rollCriticalDice, saveBlock, saveState, shownRarity
 } from "./hardwipe-attack-cards.js";
 import { settleCard } from "./hardwipe-assembly.js";
 import { isSpellCard, renderSpellCard } from "./hardwipe-spell-cards.js";
@@ -926,10 +926,13 @@ function coverSnapshot(workflow, token) {
   return { level: bonus >= 5 ? "threeQuarters" : "half", material: wallBonus >= statusBonus ? material() : "" };
 }
 
-/** Weapon banner: type and rarity, the name as the title, attack type, property chips, verdict, targets, description. */
+/**
+ * Weapon banner: type and rarity (not an unidentified weapon's rarity, for players), the name as the title,
+ * attack type, property chips, verdict, targets, description.
+ */
 function weaponHeadHTML(view, item, activity) {
   const typeLabel = item?.system?.type?.label || (item ? game.i18n.localize(CONFIG.Item.typeLabels?.[item.type] ?? item.type) : "");
-  const rarity = item?.system?.rarity;
+  const rarity = shownRarity(item, { isGM: game.user.isGM });
   const rarityLabel = rarity ? game.i18n.localize(CONFIG.DND5E.itemRarity?.[rarity] ?? rarity) : "";
   const name = escapeHTML(view.weapon);
   const rarityClass = rarityClasses(item);

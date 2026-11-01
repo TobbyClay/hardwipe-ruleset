@@ -141,7 +141,8 @@ export class RollTrackerApp extends foundry.applications.api.ApplicationV2 {
       filter: RollTrackerApp.#onFilter, recap: RollTrackerApp.#onRecap, show: RollTrackerApp.#onShow, endSession: RollTrackerApp.#onEndSession,
       newSession: RollTrackerApp.#onNewSession, importLog: RollTrackerApp.#onImport, exportData: RollTrackerApp.#onExport,
       deleteSession: RollTrackerApp.#onDelete, editSession: RollTrackerApp.#onEdit, cancelEdit: RollTrackerApp.#onCancelEdit,
-      saveSession: RollTrackerApp.#onSaveSession, continueSession: RollTrackerApp.#onContinue, dismissForced: RollTrackerApp.#onDismissForced
+      saveSession: RollTrackerApp.#onSaveSession, continueSession: RollTrackerApp.#onContinue, dismissForced: RollTrackerApp.#onDismissForced,
+      inspectModes: RollTrackerApp.#onInspectModes
     }
   };
 
@@ -154,6 +155,7 @@ export class RollTrackerApp extends foundry.applications.api.ApplicationV2 {
   #forced = null;
   #banner = false;
   #stale = false;
+  #inspect = false;
 
   constructor(options = {}) {
     super(options);
@@ -503,8 +505,29 @@ export class RollTrackerApp extends foundry.applications.api.ApplicationV2 {
       return `<tr><td class="hwhr-who"><b>${e(user.name)}</b></td>${DICE.map(faces => `<td>${s.dice[faces] ? num(s.dice[faces]) : "·"}</td>`).join("")}<td>${other ? num(other) : "·"}</td><td class="is-total">${num(s.diceTotal)}</td></tr>`;
     }).join("");
     return `<p class="hwhr-hint-line">${e(tr("DiceHint"))}</p><div class="hwhr-dice">${cards}</div>
+      ${view.isGM ? this.#modes(view) : ""}
       <h3 class="hwhr-rb"><span>${e(tr("DiceBag"))}</span></h3>
       <div class="hwhr-tablewrap"><table class="hwhr-table is-bag"><thead><tr><th scope="col">${e(tr("Col.Player"))}</th>${DICE.map(faces => `<th scope="col">d${faces}</th>`).join("")}<th scope="col">${e(tr("Other"))}</th><th scope="col">${e(tr("Total"))}</th></tr></thead><tbody>${bag}</tbody></table></div>`;
+  }
+
+  /**
+   * GM only, folded behind one button: which rules put attack rolls at advantage or disadvantage in this scope,
+   * how often, and who rolled with them. The names come from the attack cards' roll mode scans.
+   */
+  #modes(view) {
+    const button = `<div class="hwhr-chips hwhr-inspect"><button type="button" class="hwhr-chip${this.#inspect ? " is-active" : ""}" data-action="inspectModes" aria-pressed="${this.#inspect}"><i class="fas fa-magnifying-glass" inert></i> ${e(tr("InspectModes"))}</button></div>`;
+    if (!this.#inspect) return button;
+    const s = summarize(view.records);
+    const MODE = { ADV: "Adv", DIS: "Dis", NOADV: "NoAdv", NODIS: "NoDis" };
+    const rows = [];
+    for (const type of Object.keys(MODE)) {
+      for (const [name, count] of Object.entries(s.modes[type])) rows.push({ type, name, count, users: s.modes.users[`${type}:${name}`] ?? [] });
+    }
+    rows.sort((a, b) => b.count - a.count || a.name.localeCompare(b.name));
+    const body = rows.map(row => `<tr><td class="hwhr-who"><b>${e(row.name)}</b></td><td><span class="hwhr-modechip is-${row.type.toLowerCase()}">${e(tr(`Mode.${MODE[row.type]}`))}</span></td><td>${num(row.count)}</td><td>${e(row.users.map(id => userName(id, view.named)).join(", "))}</td></tr>`).join("");
+    const named = [["adv", "Adv"], ["dis", "Dis"]].map(([key, label]) => e(tr("ModesNamed", { named: num(s.modes.named[key]), total: num(s.modes.total[key]), mode: tr(`Mode.${label}`) }))).join(" ");
+    return `${button}<section class="hwhr-modes"><h3 class="hwhr-rb"><span>${e(tr("ModesTitle"))}</span></h3><p class="hwhr-hint-line">${e(tr("ModesHint"))} ${named}</p>
+      ${rows.length ? `<div class="hwhr-tablewrap"><table class="hwhr-table is-modes"><thead><tr><th scope="col">${e(tr("Col.Source"))}</th><th scope="col">${e(tr("Col.Mode"))}</th><th scope="col">${e(tr("Col.Rolls"))}</th><th scope="col">${e(tr("Col.Players"))}</th></tr></thead><tbody>${body}</tbody></table></div>` : `<p class="hwhr-none">${e(tr("ModesNone"))}</p>`}</section>`;
   }
 
   /* Moments ----------------------------------------------------------------------------------------- */
@@ -582,6 +605,7 @@ export class RollTrackerApp extends foundry.applications.api.ApplicationV2 {
   static #onEntity(event, target) { this.#entity = target.dataset.entity; this.#tab = "players"; this.render(); }
   static #onStep(event, target) { this.#entity = target.dataset.entity; this.render(); }
   static #onFilter(event, target) { this.#filter = target.dataset.filter; this.render(); }
+  static #onInspectModes() { this.#inspect = !this.#inspect; this.render(); }
   static #onScopeTo(event, target) { this.#scope = target.dataset.session; this.#tab = "overview"; this.render(); }
   static #onDismissForced() { this.#banner = false; this.render(); }
   static #onRecap() { openRecapDialog({ scope: this.#scope }); }

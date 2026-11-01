@@ -4,6 +4,8 @@ const FLAG = "cyberware";
 const SERVICE_FLAG = "cyberwareServices";
 const FLAG_PATH = `flags.${MODULE_ID}.${FLAG}`;
 const REST_TYPES = new Set(["short", "long"]);
+/** Update option a GM's instant install or removal carries past the rest requirement. */
+const GM_OVERRIDE = "hardwipeGMInstall";
 
 export const CYBERWARE_SLOTS = Object.freeze([
   ["brain", "Brain", false],
@@ -98,6 +100,7 @@ export class CyberwareManager {
       setEnabled: (item, enabled) => this.setEnabled(item, enabled),
       reset: item => this.reset(item),
       repair: item => this.repair(item),
+      install: (item, installed) => this.install(item, installed),
       setServices: (actor, services) => this.setServices(actor, services)
     };
   }
@@ -297,6 +300,32 @@ export class CyberwareManager {
     return true;
   }
 
+  /**
+   * GM override: install or remove at once, skipping the rest, on any actor (an NPC's memory body, a new character).
+   * Installing evicts the package already in the region; every queued swap in that region is cleared.
+   */
+  static async install(item, installed = true) {
+    if (!game.user.isGM) {
+      notify("Warnings.GMInstall", "Only the GM installs or removes cyberware at once; players queue the swap for a rest.");
+      return false;
+    }
+    if (!this.isCyberware(item) || !item.actor) {
+      notify("Warnings.Owner", "Select a cyberware item on an actor you control.");
+      return false;
+    }
+    const updates = [];
+    for (const other of this._slotItems(item)) {
+      const state = this.getState(other);
+      const next = other.id === item.id ? Boolean(installed) : installed ? false : state.installed;
+      if (next === state.installed && !state.pending) continue;
+      const patch = this._itemUpdates(other, { installed: next, pending: null });
+      patch["system.equipped"] = next;
+      updates.push(patch);
+    }
+    if (updates.length) await item.actor.updateEmbeddedDocuments("Item", updates, { [GM_OVERRIDE]: true });
+    return true;
+  }
+
   static async setServices(actor, { ripperDoc, tools } = {}) {
     const target = resolveActor(actor);
     if (!target || !game.user.isGM) {
@@ -352,7 +381,8 @@ export class CyberwareManager {
     const matchesPending = (state.pending === "install" && nextInstalled === true)
       || (state.pending === "remove" && nextInstalled === false);
     const restCommit = options.isRest === true && matchesPending && installed !== undefined;
-    if (!restCommit && (nextInstalled !== state.installed || (equipped !== undefined && equipped !== state.installed))) {
+    const gmOverride = options[GM_OVERRIDE] === true && game.user.isGM;
+    if (!restCommit && !gmOverride && (nextInstalled !== state.installed || (equipped !== undefined && equipped !== state.installed))) {
       notify("Warnings.QueueRequired", "Queue installation or removal in the Cyberware tab, then complete a qualifying rest.");
       return false;
     }

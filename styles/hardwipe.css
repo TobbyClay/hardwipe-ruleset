@@ -711,6 +711,7 @@
    ========================================================================== */
 
 .hardwipe-character-sheet,
+.hardwipe-npc-sheet,
 .hardwipe-cyberware-tab,
 .hardwipe-item-strip,
 .hardwipe-btn,
@@ -1165,6 +1166,9 @@ button.hardwipe-hud-btn.hardwipe-hud-btn:disabled { opacity: 0.4; cursor: not-al
 .hardwipe-shield-controls { display: flex; align-items: center; gap: 4px; }
 .hardwipe-item-strip .hardwipe-strip-state { margin-left: auto; }
 .hardwipe-item-strip .hardwipe-shield-controls { margin-left: auto; }
+/* The shield's maximum HP: a small number field beside the meter, editable by the GM. */
+.hardwipe-item-strip .hardwipe-shield-max { display: flex; align-items: center; gap: 4px; flex: 0 0 auto; font: 600 11px/1 var(--hardwipe-label-font); text-transform: uppercase; letter-spacing: 0.04em; color: var(--hardwipe-muted); }
+.hardwipe-item-strip .hardwipe-shield-max input { width: 52px; height: var(--hardwipe-control); text-align: center; }
 .hardwipe-cyberware-item-sheet .form-group.label-top:has([name="system.attunement"], [name="system.attuned"]) { display: none; }
 
 /* ---- Cyberware actions in native Inventory rows (the Cyberware tab is styles/cyberware-tab.css) ---- */
@@ -3557,6 +3561,35 @@ button.hardwipe-web-tab:not([aria-selected="true"]):hover { color: var(--hw-hi);
 
 /* Folded cards keep only the attack line. */
 .chat-message.is-folded .hwra { display: none !important; }
+
+/* ---- Roll rules panel (bottom of the Turn tab; NPCs: under Features): feature modes, then the rules in force ---- */
+.hardwipe-roll-rules { display: grid; gap: 6px; margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--hardwipe-line); }
+.hardwipe-roll-rules > .hardwipe-label > i { margin-right: 4px; }
+.hardwipe-roll-rules h4.hardwipe-label { margin-top: 4px; }
+.hardwipe-roll-rules-npc { padding: 0 8px 8px; }
+.hardwipe-roll-rules-npc .hardwipe-roll-rules { --hardwipe-line: color-mix(in srgb, var(--color-text-primary, #222) 20%, transparent); --hardwipe-muted: var(--color-text-secondary, #777); --hardwipe-gold: var(--dnd5e-color-gold, #9f9275); --hardwipe-label-font: var(--dnd5e-font-roboto-condensed, "Roboto Condensed", sans-serif); }
+.hardwipe-mode-group { display: grid; gap: 4px; padding: 6px 8px; border: 1px solid var(--hardwipe-line); border-radius: 4px; }
+.hardwipe-mode-group.is-on { border-color: color-mix(in srgb, var(--hardwipe-ok) 55%, transparent); }
+.hardwipe-mode-head { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+.hardwipe-mode-head > img { width: 22px; height: 22px; border: 0; border-radius: 3px; object-fit: cover; }
+.hardwipe-mode-head > b { font-family: var(--hardwipe-label-font); font-size: 12px; }
+.hardwipe-mode-buttons { display: inline-flex; flex-wrap: wrap; gap: 4px; margin-left: auto; }
+.hardwipe-mode-btn { min-height: 22px; padding: 1px 8px; border: 1px solid var(--hardwipe-line); border-radius: 3px; background: transparent; color: var(--hardwipe-muted); font: 700 10px var(--hardwipe-label-font); letter-spacing: 0.04em; text-transform: uppercase; cursor: pointer; }
+.hardwipe-mode-btn.is-active { color: var(--hardwipe-ok); border-color: var(--hardwipe-ok); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--hardwipe-ok) 40%, transparent); }
+.hardwipe-mode-btn:disabled { cursor: default; opacity: 0.6; }
+.hardwipe-mode-field .hint { flex-basis: 100%; }
+.hwra.hardwipe-rules-list { margin: 0; padding: 0; border-left: 0; background: transparent; }
+.hardwipe-rules-list .hwra-list { padding: 0; }
+.hardwipe-rules-list .hwra-name > b { font-family: var(--hardwipe-label-font); }
+.hardwipe-rules-when code { font-size: 10px; }
+
+/* ---- Roll Tracker: the folded adv/dis inspection ---- */
+.hwhr-inspect { justify-content: flex-end; }
+.hwhr-modes { display: grid; gap: 6px; }
+.hwhr-modechip { display: inline-block; padding: 1px 6px; border: 1px solid currentColor; border-radius: 3px; font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; }
+.hwhr-modechip.is-adv { color: #8fe8bb; }
+.hwhr-modechip.is-dis { color: #ff7a8a; }
+.hwhr-modechip.is-noadv, .hwhr-modechip.is-nodis { color: var(--hw-warn, #e0b060); }
 
 /* ==========================================================================
  * 0.7.43 attack cards appear complete: kept out of the log while they assemble.
