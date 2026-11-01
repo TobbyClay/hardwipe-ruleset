@@ -4,7 +4,7 @@
 
 ## What Foundry installs today
 
-The public release is **Hardwipe Ruleset 0.7.50** with **Ready Set Midi 14.0.10.3**; both are attached to the [release](https://github.com/TobbyClay/hardwipe-ruleset/releases/latest), and Hardwipe's manifest installs the companion as a dependency. Release notes: [0.7.50](RELEASE-0.7.50.md), [0.7.49](RELEASE-0.7.49.md), [0.7.48](RELEASE-0.7.48.md).
+The public release is **Hardwipe Ruleset 0.7.51** with **Ready Set Midi 14.0.10.3**; both are attached to the [release](https://github.com/TobbyClay/hardwipe-ruleset/releases/latest), and Hardwipe's manifest installs the companion as a dependency. Release notes: [0.7.51](RELEASE-0.7.51.md), [0.7.50](RELEASE-0.7.50.md), [0.7.49](RELEASE-0.7.49.md), [0.7.48](RELEASE-0.7.48.md).
 
 Ready Set Midi 14.0.10.3 is built from the TypeScript source of the [ready-set-midi](https://github.com/TobbyClay/ready-set-midi) workspace: the 14.0.10.2 companion's changes, now in source, plus the built-in cover calculation adapted from Simple Cover 5e (MIT). Its JavaScript SHA256 is `84693456C81911ABB73BE9286770A11F59FF2C57B408E5D8A5A8407A1DCCD382`.
 
@@ -99,6 +99,10 @@ Its matching tested Ready Set Midi JavaScript SHA256 is:
 This hash supersedes the earlier companion hash **for the Wall Effects preview only**. Keep both records with their respective audit scope. Native Foundry 14.367 / D&D5e 6.0.5 GM and Player checks cover normal and half damage, threshold boundaries, private approval, Ignore, stale and duplicate decisions, reload, optical gaps, breaches, grouped undo, multiple origins, overlapping areas, and the existing Spread mode. The geometry suite has 16 passing cases; the production placement-count helper has six passing cases. Emanations and rings remain manual wall-damage cases; a native ring cast verified the warning.
 
 **Superseded in 0.7.46:** emanations and rings now damage walls (an emanation from every point of the caster's space, a ring across its band), and the per-shape defaults offer the damage modes. Native player casts of every dnd5e area shape, GM approval, Ignore, breach, undo and a stale emanation were rechecked; the geometry suite has 20 passing cases. See `_release-audit/area-walls-0.7.46/QA-Report.md`.
+
+### Initiative cards and copies of one NPC, 0.7.51
+
+Checked on Foundry 14.367, D&D5e 6.0.6 and Ready Set Midi 14.0.10.3 in a disposable world: three unlinked tokens of one NPC in a combat with a player character, each rolling its own initiative (D&D5e's group roll off); an Edge reroll on the second copy's card moved that copy and left the first alone, where 0.7.50's lookup picks the first; each card's place, on the GM's and the player's client, and the newest card's order strip matched the combat. 241 unit tests.
 
 ### Wall heights from scene levels and the wall type windows, 0.7.50
 

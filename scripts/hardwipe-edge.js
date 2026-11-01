@@ -1,5 +1,6 @@
 import { MODULE_ID, EdgeManager, StrikesManager, DownedManager, canControlActor, isMook, resolveActor, escapeHTML } from "./hardwipe-state.js";
 import { arrivalWindow, reruleTarget, saveState, resyncSaveTarget } from "./hardwipe-attack-cards.js";
+import { speakerCombatant } from "./hardwipe-initiative.js";
 
 /**
  * Edge plays. One point of Edge buys one immediate effect, chosen in the Spend picker:
@@ -612,11 +613,11 @@ function sameRoll(a, b) {
   return faces(a) === faces(b);
 }
 
-/** An initiative roll moves the combatant to its new total. */
+/** An initiative roll moves its own combatant (the speaker's token, never another copy of the actor) to the new total. */
 async function followInitiative(message, total) {
   if (!message.getFlag("core", "initiativeRoll")) return;
   for (const combat of game.combats ?? []) {
-    const combatant = combat.combatants.find(entry => (message.speaker?.token && entry.tokenId === message.speaker.token) || entry.actorId === message.speaker?.actor);
+    const combatant = speakerCombatant(combat.combatants, message.speaker);
     if (combatant?.isOwner) return combatant.update({ initiative: total });
   }
 }
