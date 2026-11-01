@@ -4,11 +4,9 @@
 
 ## What Foundry installs today
 
-The public release is **Hardwipe Ruleset 0.7.49** with **Ready Set Midi 14.0.10.3**; both are attached to the [release](https://github.com/TobbyClay/hardwipe-ruleset/releases/latest), and Hardwipe's manifest installs the companion as a dependency. Release notes: [0.7.49](RELEASE-0.7.49.md), [0.7.48](RELEASE-0.7.48.md).
+The public release is **Hardwipe Ruleset 0.7.50** with **Ready Set Midi 14.0.10.3**; both are attached to the [release](https://github.com/TobbyClay/hardwipe-ruleset/releases/latest), and Hardwipe's manifest installs the companion as a dependency. Release notes: [0.7.50](RELEASE-0.7.50.md), [0.7.49](RELEASE-0.7.49.md), [0.7.48](RELEASE-0.7.48.md).
 
 Ready Set Midi 14.0.10.3 is built from the TypeScript source of the [ready-set-midi](https://github.com/TobbyClay/ready-set-midi) workspace: the 14.0.10.2 companion's changes, now in source, plus the built-in cover calculation adapted from Simple Cover 5e (MIT). Its JavaScript SHA256 is `84693456C81911ABB73BE9286770A11F59FF2C57B408E5D8A5A8407A1DCCD382`.
-
-`main` carries work merged after 0.7.49: a wall's height now comes from its scene levels instead of Hardwipe's own top height, and the wall type windows use Foundry's form layout. It is not in an installer yet; the guides mark it **Next release**.
 
 0.7.47 was built and documented but never published on GitHub; everything in it shipped in 0.7.48, so the previous public installer was 0.7.40. The 0.7.41 audited preview below is historical; everything in it shipped too.
 
@@ -101,6 +99,10 @@ Its matching tested Ready Set Midi JavaScript SHA256 is:
 This hash supersedes the earlier companion hash **for the Wall Effects preview only**. Keep both records with their respective audit scope. Native Foundry 14.367 / D&D5e 6.0.5 GM and Player checks cover normal and half damage, threshold boundaries, private approval, Ignore, stale and duplicate decisions, reload, optical gaps, breaches, grouped undo, multiple origins, overlapping areas, and the existing Spread mode. The geometry suite has 16 passing cases; the production placement-count helper has six passing cases. Emanations and rings remain manual wall-damage cases; a native ring cast verified the warning.
 
 **Superseded in 0.7.46:** emanations and rings now damage walls (an emanation from every point of the caster's space, a ring across its band), and the per-shape defaults offer the damage modes. Native player casts of every dnd5e area shape, GM approval, Ignore, breach, undo and a stale emanation were rechecked; the geometry suite has 20 passing cases. See `_release-audit/area-walls-0.7.46/QA-Report.md`.
+
+### Wall heights from scene levels and the wall type windows, 0.7.50
+
+Checked on Foundry 14.367, D&D5e 6.0.6 and Ready Set Midi 14.0.10.3 in a disposable world, with a GM and a player in separate browsers: cover against a wall on a 0–20 ft level (half on the ground, none with both tokens at 30 ft) and on no level (half at any height), through the companion's engine and Hardwipe's fallback alike; the 0.7.50 upgrade removing planted 0.7.49 heights; wall types created, saved and deleted; custom values applied through Configure cover; the wall editor's height following its Levels field; a player's attack through the wall at half cover. 240 unit tests.
 
 ### Release check, 0.7.49
 
