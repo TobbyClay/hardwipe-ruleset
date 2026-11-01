@@ -100,6 +100,10 @@ This hash supersedes the earlier companion hash **for the Wall Effects preview o
 
 **Superseded in 0.7.46:** emanations and rings now damage walls (an emanation from every point of the caster's space, a ring across its band), and the per-shape defaults offer the damage modes. Native player casts of every dnd5e area shape, GM approval, Ignore, breach, undo and a stale emanation were rechecked; the geometry suite has 20 passing cases. See `_release-audit/area-walls-0.7.46/QA-Report.md`.
 
+### Release check, 0.7.49
+
+The release merges `main` (Legendary cards, Edge plays and the rest above) with the 0.7.49 work below. The staged release builds were run on Foundry 14.367, D&D5e 6.0.6, Custom D&D 5.6.0 and Ready Set Midi 14.0.10.3, with a GM and a player in separate browsers: signature cards carrying the roll mode scan on ranged and melee attacks, half cover from the companion's engine, unidentified weapons and ammunition keeping their rarity from the player, the Roll rules panel, Edge controls, shield maximum, the NPC Cyberware tab, the weapon sheet's Legendary section, wall top height, the wall types editor and the Card Studio. 238 unit tests.
+
 ### Roll rules, wall height, migrations and the NPC sheet, 0.7.49
 
 Runtime-checked in a disposable copy of the QA world on Foundry 14.367, D&D5e 6.0.6 and Ready Set Midi 14.0.10.3, with a GM client and, in the final pass, a player client:
