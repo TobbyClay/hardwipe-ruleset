@@ -6,7 +6,7 @@ Hardwipe is a Foundry VTT module for running a Cyberpunk-flavoured game on the D
 
 [Install](#install) · [Edge](#edge-one-point-four-plays) · [Player guide](docs/Players.md) · [GM guide](docs/GM.md) · [Braindance](docs/Braindance.md) · [Card gallery](docs/Cards.md) · [Rules reference](docs/Reference.md)
 
-> **Which version is this?** This README describes **0.7.48**, which pairs with **Ready Set Midi 14.0.10.2**. It is the installer published on GitHub; the [release](https://github.com/TobbyClay/hardwipe-ruleset/releases/latest) carries both modules. Install them together. Sections marked **Next release** describe work merged on `main` since then; it ships with the next installer.
+> **Which version is this?** This README describes **0.7.49**, which pairs with **Ready Set Midi 14.0.10.3**. It is the installer published on GitHub; the [release](https://github.com/TobbyClay/hardwipe-ruleset/releases/latest) carries both modules. Install them together.
 
 ## Your body is your loadout
 
@@ -26,9 +26,9 @@ The **Turn** tab on the Hardwipe Character sheet shows where you are in the roun
 
 - **The netlink.** When the GM asks for a roll, or a contest or a concentration interrupt needs you, the strip at the top lists it with a **Roll** button. It only appears when something is waiting.
 - **Reactions that count.** The reaction chip reads Ready Set Midi's markers, or Hardwipe's own ledger, and Shield Block reads it in combat.
-- **Was that your reaction?** *(Next release)* An action used off your turn asks whether it was your reaction, and the chip follows your answer.
-- **Attack action or Action.** *(Next release)* A weapon swing is one attack of the Attack action; anything that costs the whole action says so on the sheet.
-- **Active effects with their clock.** *(Next release)* Buffs show what they grant and a ring that drains with the time left. A GM's own effects work too.
+- **Was that your reaction?** An action used off your turn asks whether it was your reaction, and the chip follows your answer.
+- **Attack action or Action.** A weapon swing is one attack of the Attack action; anything that costs the whole action says so on the sheet.
+- **Active effects with their clock.** Buffs show what they grant and a ring that drains with the time left. A GM's own effects work too.
 
 [Read your turn →](docs/Players.md#read-your-turn)
 
@@ -51,8 +51,6 @@ One character sets it up; the rest of the crew pays it off. *Entry Stack*: Mags 
 
 ## Edge: one point, four plays
 
-**Next release:** merged on `main`, not in the 0.7.48 installer yet.
-
 | Spend it | Reroll anyone's die | The GM rules again |
 | --- | --- | --- |
 | <img src="docs/media/edge-picker.png" alt="Spend Edge picker: Reroll, Interrupt, Stabilize greyed (only at 0 HP) and Execute waiting for a target" width="250"> | <img src="docs/media/edge-reroll-attack-choose.png" alt="An NPC's attack card with Juno's Edge strip: keep the 10 for 16, a hit, or take the 19 for 25" width="230"> | <img src="docs/media/edge-reroll-gm-ruling.png" alt="The GM's view after a reroll took a confirmed hit to 8 against AC 15: Miss, take back damage, or Hit stands" width="230"> |
@@ -70,13 +68,11 @@ Each play posts its own cut-in card, and an award posts **Charged**.
 
 ## Every card from one family
 
-**Next release:** merged on `main`, not in the 0.7.48 installer yet.
-
 | Initiative | Consumables | Tools | Features |
 | --- | --- | --- | --- |
 | <img src="docs/media/initiative-order.png" alt="Initiative card: 4, fourth in the order, after Breach Guard, acts last, with the turn order strip" width="200"> | <img src="docs/media/consumable-damage.png" alt="Consumable card for a frag grenade: the blast scope, damage per target and the apply row" width="200"> | <img src="docs/media/tool-cards.png" alt="Six tool cards, one per family: Breach, Spoof, Synth, Fab, Nav and Signal" width="200"> | <img src="docs/media/feature-action-surge-card.png" alt="Action Surge card: +1 Action this turn" width="200"> |
 
-- **Initiative** shows your place in the turn order, and it updates as everyone else rolls. *(Next release.)* Rolling it puts you on the air with a pirate radio host, or under an NCPD dispatcher's camera, taking turns: ordinary initiative, or any skill as your initiative, and the card names the skill.
+- **Initiative** shows your place in the turn order, and it updates as everyone else rolls. Rolling it puts you on the air with a pirate radio host, or under an NCPD dispatcher's camera, taking turns: ordinary initiative, or any skill as your initiative, and the card names the skill.
 - **Consumables and features** read as one card. A heal draws a vitals trace, a grenade its blast and damage per target, and a buff what it grants and for how long.
 - **Tools** have a **Roll check** button. The result lands on the tool card in a scope drawn by its family (Breach, Spoof, Synth, Fab, Nav, Signal). Most rolls have no DC, so the card names the highest standard DC the total beats.
 - **Action Surge** gives the action back on the Turn tab.
@@ -86,8 +82,6 @@ Each play posts its own cut-in card, and an award posts **Charged**.
 [Card gallery →](docs/Cards.md)
 
 ## Chat that reads like comms
-
-**Next release:** merged on `main`, not in the 0.7.48 installer yet.
 
 | The feed | Light mode |
 | --- | --- |
@@ -128,8 +122,8 @@ When a player attacks, the GM sees the total, the target's AC (cover included) a
 - **No flicker.** The attack card stays out of the chat log while Ready Set Midi rolls, checks hits and rolls damage, then appears once, complete, reading *Awaiting GM*. The GM's review appears with it.
 - **Damage you can take back.** Damage applied by the workflow is logged on the card as **Auto**, with an **Undo** that restores the hit points. The damage row (×1, ½, ×2, Targets) logs its applications the same way.
 - **Rolls you can change.** Switch a pending attack to advantage, add a bonus, reroll a die or roll critical damage, and everything downstream follows. The GM gets a fresh review, a wall proposal still waiting for the GM is re-posted, and damage that was already applied is adjusted by the difference (*Auto · adjusted*). Undo still restores the original hit points. A natural 20 that only arrives with advantage counts as a critical.
-- **Who made it.** *(Next release.)* Set a weapon's **Manufacturer** and its card wears that maker: Arasaka, Militech, Kang Tao, Tsunami, Budget Arms, Malorian Arms, Constitutional Arms, Techtronika, Maelstrom, PALE or ????. [Every maker's card →](docs/Cards.md#weapon-makers)
-- **Legendary cards.** *(Next release.)* The GM gives a weapon of the top rarity tiers a chat card of its own from a crown on its card: a design made that weapon's own (art, hue, title, its own lines), or a signature card hand-built for one weapon (Exhibit C, Johnny Silverhand's Malorian Arms 3516, Skippy, Guts, Plan B, Overwatch, Lizzie, La Chingona Dorada, Satori). Or write your own in HTML and CSS in the Card Studio and share them as files. Custom D&D's own rarities work. [The cards →](docs/Cards.md#legendary-cards)
+- **Who made it.** Set a weapon's **Manufacturer** and its card wears that maker: Arasaka, Militech, Kang Tao, Tsunami, Budget Arms, Malorian Arms, Constitutional Arms, Techtronika, Maelstrom, PALE or ????. [Every maker's card →](docs/Cards.md#weapon-makers)
+- **Legendary cards.** The GM gives a weapon of the top rarity tiers a chat card of its own from a crown on its card: a design made that weapon's own (art, hue, title, its own lines), or a signature card hand-built for one weapon (Exhibit C, Johnny Silverhand's Malorian Arms 3516, Skippy, Guts, Plan B, Overwatch, Lizzie, La Chingona Dorada, Satori). Or write your own in HTML and CSS in the Card Studio and share them as files. Custom D&D's own rarities work. [The cards →](docs/Cards.md#legendary-cards)
 - **CRIT on the damage line.** The roller can roll critical damage (the damage dice again) until the GM rules; the GM can at any time. The GM's review notes when the roller added crit dice.
 
 [Combat, damage and shields →](docs/Combat.md) · [Edge, Strikes and Downed →](docs/Players.md#edge-strikes-and-downed)
@@ -164,7 +158,7 @@ A spell, implant or weapon that forces a save lists every target with **Waiting*
 
 <img src="docs/media/ranged-advisory-current.webp" alt="Ranged attack card with the roll mode scan listing advantage and disadvantage sources and the mode to roll" width="300">
 
-You choose the roll mode for ranged attacks. Under the attack roll, the **roll mode scan** lists every advantage or disadvantage source Ready Set Midi actually evaluated, with the rule each came from, and says which mode to roll: **ADV**, **DIS** or **Straight**. Advantage and disadvantage cancel, and a blocked source is struck through. If nothing was found, no box appears.
+You choose the roll mode for ranged attacks. Under the attack roll, the **roll mode scan** lists every advantage or disadvantage source Ready Set Midi actually evaluated, with the rule each came from, and says which mode to roll: **ADV**, **DIS** or **Straight**. Advantage and disadvantage cancel, and a blocked source is struck through. If nothing was found, no box appears. Melee attacks get the same scan for the mode Midi applied, and a mode nothing named is called out as unlabelled. The **Roll rules** panel at the bottom of the Turn tab shows the rules in force on the character right now, each named after its cause, and lets a feature's modes (a stance, an aim setting) be switched on with one button.
 
 [Ranged hints and their limits →](docs/Combat.md#ranged-hints-name-the-actual-source)
 
@@ -174,7 +168,7 @@ You choose the roll mode for ranged attacks. Under the attack roll, the **roll m
 | --- | --- |
 | <img src="docs/media/wall-config-current.webp" alt="Compact wall durability controls at the bottom of the native wall editor" width="320"> | <img src="docs/media/wall-damage-holes.webp" alt="Light through a wall: one wide hole from a big hit, three small holes from three smaller hits" width="300"> |
 
-Walls provide ranged cover. Give them a type, HP per five-foot section, armor and a damage threshold. Shots that miss because of cover hit the wall; players can also target a wall section directly. Either way, the GM approves the damage with **Apply damage** or **Ignore**.
+Walls provide ranged cover. Give them a type, HP per five-foot section, armor, a damage threshold and, for barricades, a top height that anyone above it sees and shoots over. Shots that miss because of cover hit the wall; players can also target a wall section directly. Either way, the GM approves the damage with **Apply damage** or **Ignore**.
 
 - **Each hit leaves its own hole.** A big hit makes one wide hole, and several small hits make several small, scattered ones. The holes let sight, light and shots through, so players can glimpse what's behind and a target lined up with a hole has less cover. The wall still stops movement until a section reaches zero and opens a five-foot breach.
 - **Undo last wall damage** restores HP, holes and breached geometry together.
@@ -204,9 +198,9 @@ Spend Hit Dice one at a time and watch the med-scan climb. Use rest abilities li
 
 <img src="docs/media/heat-police-scanner.webp" alt="Mission Heat police-scanner style with radar and escalation meter" width="720">
 
-A scene-level Heat meter tracks how loud the crew has been. *(Next release.)* The budget splits into thirds, **Clean**, **Hot** and **Critical**, as the rules set it, then **Lockdown**. Until Critical, a hit on a surprised mook can be a **Coup de Grace**: the GM's attack review offers it as its own button, and the mook dies outright. Each mission picks how Heat is announced: **Threat broadcast**, **Corrupted feed** or **Police scanner**. A world setting picks one of three turn-start card styles. Card colours are configurable, and motion stops for anyone with reduced motion turned on.
+A scene-level Heat meter tracks how loud the crew has been. The budget splits into thirds, **Clean**, **Hot** and **Critical**, as the rules set it, then **Lockdown**. Until Critical, a hit on a surprised mook can be a **Coup de Grace**: the GM's attack review offers it as its own button, and the mook dies outright. Each mission picks how Heat is announced: **Threat broadcast**, **Corrupted feed** or **Police scanner**. A world setting picks one of three turn-start card styles. Card colours are configurable, and motion stops for anyone with reduced motion turned on.
 
-*(Next release.)* When the Blackwall thins, the GM's **Eye** tool lets the AIs look back: a card from no sender, in one of nine ways of being watched. [The Eye →](docs/GM.md#the-eye)
+When the Blackwall thins, the GM's **Eye** tool lets the AIs look back: a card from no sender, in one of nine ways of being watched. [The Eye →](docs/GM.md#the-eye)
 
 [Mission Heat and interface settings →](docs/GM.md#mission-heat)
 
@@ -248,7 +242,7 @@ The GM pairs each player character with an NPC and enters a memory. Players keep
 
 ### Set it up
 
-1. **Install Hardwipe 0.7.48 with its Ready Set Midi** (see [Install](#install)). Braindance is built in; there is nothing else to enable.
+1. **Install Hardwipe 0.7.49 with its Ready Set Midi** (see [Install](#install)). Braindance is built in; there is nothing else to enable.
 2. **Coming from Braindance Suite?** Restore any running memory with it, then disable that module. While it is enabled, Hardwipe's Braindance stays switched off and tells the GM why.
 3. **Prepare the memory bodies.** Create or import the NPCs into the **Actors** directory; compendium NPCs must be imported first. Give them the weapons, spells and implants the players should have. Installed cyberware works like it does on a character.
 4. **Check who plays whom.** Each player character must be assigned to its player (**User Configuration → Character**) or owned by them.
@@ -275,7 +269,7 @@ The GM pairs each player character with an NPC and enters a memory. Players keep
 
 ## Install
 
-Built and tested on **Foundry VTT 14.367 · D&D5e 6.0.5 · Ready Set Midi 14.0.10.2**.
+Built and tested on **Foundry VTT 14.367 · D&D5e 6.0.6 · Ready Set Midi 14.0.10.3**.
 
 1. In Foundry Setup, open **Add-on Modules → Install Module**.
 2. Paste this manifest:
@@ -285,7 +279,7 @@ Built and tested on **Foundry VTT 14.367 · D&D5e 6.0.5 · Ready Set Midi 14.0.1
    ```
 
 3. Install the **Ready Set Midi** build from the same release, plus libWrapper, socketlib and DAE. Enable all five with Hardwipe Ruleset.
-4. Disable standalone Midi-QOL and Ready Set Roll; the fork replaces both. Give characters the **Hardwipe Character** sheet.
+4. Disable standalone Midi-QOL and Ready Set Roll; the fork replaces both. Give characters the **Hardwipe Character** sheet and NPCs the **Hardwipe NPC** sheet (both are the defaults).
 
 **What Hardwipe changes in your world on first load:** Ready Set Midi's **Roll NPC saves** moves from *Auto* to *Chat Message*, once, so the GM rolls NPC saves from the card. You'll see a notice when it happens.
 

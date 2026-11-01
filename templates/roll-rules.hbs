@@ -1,0 +1,37 @@
+{{#*inline "hardwipeRuleRow"}}
+<li class="hwra-src is-{{kind}}">
+  <span class="hwra-chip"><i class="fas {{glyph}}" inert></i><span>{{chip}}</span></span>
+  <span class="hwra-name">
+    <b>{{name}}</b>
+    {{#if detail}}<small>{{detail}}</small>{{/if}}
+    {{#unless when.always}}<small class="hardwipe-rules-when">{{whenLabel}}: {{#if when.expression}}<code>{{when.text}}</code>{{else}}{{when.text}}{{/if}}</small>{{/unless}}
+  </span>
+</li>
+{{/inline}}
+<section class="hardwipe-roll-rules" role="group" aria-label="{{labels.title}}">
+  <span class="hardwipe-label"><i class="fas fa-scale-balanced" inert></i>{{labels.title}}</span>
+  {{#each modes}}
+  <div class="hardwipe-mode-group {{#if activeId}}is-on{{/if}}" data-group="{{parentId}}">
+    <div class="hardwipe-mode-head">
+      <img src="{{img}}" alt="">
+      <b>{{parentName}}</b>
+      <span class="hardwipe-mode-buttons" role="group">
+        <button type="button" class="always-interactive hardwipe-mode-btn {{#unless activeId}}is-active{{/unless}}" data-action="hardwipeMode" data-group="{{parentId}}" data-effect-uuid=""
+          aria-pressed="{{#unless activeId}}true{{else}}false{{/unless}}" {{#unless canToggle}}disabled{{/unless}}>{{offLabel}}</button>
+        {{#each modes}}
+        <button type="button" class="always-interactive hardwipe-mode-btn {{#if active}}is-active{{/if}}" data-action="hardwipeMode" data-group="{{parentId}}" data-effect-uuid="{{uuid}}"
+          aria-pressed="{{#if active}}true{{else}}false{{/if}}" {{#unless canToggle}}disabled{{/unless}}>{{name}}</button>
+        {{/each}}
+      </span>
+    </div>
+    {{#if rows.length}}<div class="hwra hardwipe-rules-list"><ul class="hwra-list">{{#each rows}}{{> hardwipeRuleRow this}}{{/each}}</ul></div>{{/if}}
+  </div>
+  {{/each}}
+  {{#if mine.length}}
+  <div class="hwra hardwipe-rules-list"><ul class="hwra-list">{{#each mine}}{{> hardwipeRuleRow this}}{{/each}}</ul></div>
+  {{/if}}
+  {{#if against.length}}
+  <h4 class="hardwipe-label">{{labels.against}}</h4>
+  <div class="hwra hardwipe-rules-list"><ul class="hwra-list">{{#each against}}{{> hardwipeRuleRow this}}{{/each}}</ul></div>
+  {{/if}}
+</section>

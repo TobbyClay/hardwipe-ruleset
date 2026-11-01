@@ -9,6 +9,7 @@
  *   l spell level   s ability, skill or tool key   d damage type   f dice rolled by faces   p 1 not public
  *   w d20 faces dropped by advantage or disadvantage   e Hardwipe event (downed, flatlined, edge)
  *   q 1 rolled inside a braindance memory (the actor is then the participant's real character)
+ *   z the attack's roll mode sources from its card, as "ADV:name", "DIS:name", "NOADV:name" or "NODIS:name"
  */
 
 /** Kinds that roll a d20. */
@@ -117,6 +118,13 @@ export function extractRecords(message, { userFor = (actor, author) => author } 
         data.o = outcome.o;
         data.i = itemName;
         if (d20?.fumble && data.o === null) data.o = 0;
+        const advisory = own.rangedAdvisory;
+        if (advisory?.version === 4 && Array.isArray(advisory.sources)) {
+          // Rules a target granted are the target's, not the roller's: they are not counted.
+          const z = advisory.sources.filter(source => !source?.grants && typeof source?.type === "string" && typeof source?.name === "string" && source.name.trim())
+            .map(source => `${source.type}:${source.name.trim()}`).slice(0, 8);
+          if (z.length) data.z = z;
+        }
       } else {
         data.x = numberOr(roll.options?.target, c === "death" ? 10 : null);
         if (data.x !== null) data.o = data.v >= data.x ? 1 : 0;
@@ -162,6 +170,8 @@ export function summarize(records) {
     check: { n: 0, made: 0, known: 0, bySkill: {} },
     init: { n: 0, sum: 0, best: null },
     evt: { downed: 0, flatlined: 0, edge: 0 },
+    // Attack roll mode sources by name, who rolled with each, and how many advantage or disadvantage attacks named one.
+    modes: { ADV: {}, DIS: {}, NOADV: {}, NODIS: {}, users: {}, named: { adv: 0, dis: 0 }, total: { adv: 0, dis: 0 } },
     memory: 0
   };
   let hot = 0, cold = 0;
@@ -212,6 +222,23 @@ export function summarize(records) {
         if (record.o === 0) s.atk.miss++;
         if (record.r) s.atk.crit++;
         if (record.n === 1) s.atk.fumble++;
+        if (record.m === 1) s.modes.total.adv++;
+        if (record.m === -1) s.modes.total.dis++;
+        if (Array.isArray(record.z)) {
+          let adv = false, dis = false;
+          for (const entry of record.z) {
+            const split = String(entry).indexOf(":");
+            const type = split > 0 ? entry.slice(0, split) : "", name = split > 0 ? entry.slice(split + 1).trim() : "";
+            if (!Object.hasOwn(s.modes, type) || !name || type === "users") continue;
+            bump(s.modes[type], name);
+            const users = s.modes.users[`${type}:${name}`] ??= [];
+            if (record.u && !users.includes(record.u)) users.push(record.u);
+            if (type === "ADV") adv = true;
+            if (type === "DIS") dis = true;
+          }
+          if (record.m === 1 && adv) s.modes.named.adv++;
+          if (record.m === -1 && dis) s.modes.named.dis++;
+        }
         break;
       case "dmg":
         s.dmg.n++;

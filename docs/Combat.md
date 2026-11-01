@@ -18,11 +18,11 @@ Natural 20 and natural 1 outcomes still require explicit confirmation. A natural
 
 > **Audited preview:** critical damage is combined per target before native mitigation and Shield Block. If the attacker's live workflow is gone, approval stops safely; the GM must have the attacker roll again. It does not reconstruct and automatically apply stale stored damage. See [development status](Development.md).
 
-If no GM can review, the workflow stops without applying damage. Deleting a pending attack card cancels its waiting workflow. While a decision is pending, switching the roll to advantage or disadvantage, or adding a bonus, keeps the damage on the card and posts a fresh review with the new total. A natural 20 that only arrives with advantage counts as a critical. Once the GM has ruled, the attack roll is settled: the advantage switch and the attack's bonus button lock. *(Next release.)* An Edge **Reroll** is the exception: if the new die flips a ruled hit into a miss (or a miss into a hit), the card asks the GM to rule again. **Miss · take back damage** returns the damage applied to that target; **Hit · apply damage** applies it.
+If no GM can review, the workflow stops without applying damage. Deleting a pending attack card cancels its waiting workflow. While a decision is pending, switching the roll to advantage or disadvantage, or adding a bonus, keeps the damage on the card and posts a fresh review with the new total. A natural 20 that only arrives with advantage counts as a critical. Once the GM has ruled, the attack roll is settled: the advantage switch and the attack's bonus button lock. An Edge **Reroll** is the exception: if the new die flips a ruled hit into a miss (or a miss into a hit), the card asks the GM to rule again. **Miss · take back damage** returns the damage applied to that target; **Hit · apply damage** applies it.
 
 ## Coup de Grace
 
-*(Next release.)* Hit a mook that is **Surprised** and it dies: the target drops to 0 HP, whatever the damage. Melee, ranged and spell attacks all count. A mook is any creature that isn't a player character and has no Legendary Resistance. Mark surprised creatures with D&D5e's **Surprised** status on the token.
+Hit a mook that is **Surprised** and it dies: the target drops to 0 HP, whatever the damage. Melee, ranged and spell attacks all count. A mook is any creature that isn't a player character and has no Legendary Resistance. Mark surprised creatures with D&D5e's **Surprised** status on the token.
 
 Once the mission's Heat reaches **Critical**, enemies are alert and Coup de Grace is off. With no mission running, it applies.
 
@@ -30,17 +30,25 @@ With GM-confirmed attacks on, it's the GM's call: when Coup de Grace can apply, 
 
 ## Variant initiative
 
-*(Next release.)* A player character's initiative can be a skill check. The window that opens on rolling (sheet or combat tracker), in the pirate radio or the NCPD dispatch voice by turns, offers ordinary initiative, then every skill with its bonus; the chosen skill's total replaces D&D5e's initiative modifier, proficiency and initiative bonuses, while condition penalties and the Dexterity tiebreaker stay. D&D5e's roll dialog is skipped after the window, and advantage is set on the initiative card's switch. The card's label names the skill. NPCs, fixed initiative scores, and the GM's **Roll All** / **Roll NPCs** stay ordinary initiative.
+A player character's initiative can be a skill check. The window that opens on rolling (sheet or combat tracker), in the pirate radio or the NCPD dispatch voice by turns, offers ordinary initiative, then every skill with its bonus; the chosen skill's total replaces D&D5e's initiative modifier, proficiency and initiative bonuses, while condition penalties and the Dexterity tiebreaker stay. D&D5e's roll dialog is skipped after the window, and advantage is set on the initiative card's switch. The card's label names the skill. NPCs, fixed initiative scores, and the GM's **Roll All** / **Roll NPCs** stay ordinary initiative.
 
-## Ranged hints name the actual source
+## The roll mode scan names the actual source
 
 <img src="media/ranged-advisory-current.webp" alt="Roll mode scan under a ranged attack: the sources found and the mode to roll" width="350">
 
-The roller chooses Normal, Advantage, or Disadvantage. After the roll, the **roll mode scan** under the attack lists only the sources Ready Set Midi actually evaluated for that attack, using Midi's own labels, and says which mode they call for: **ADV**, **DIS** or **Straight** (advantage and disadvantage cancel; a blocking source strikes out the side it blocks). Conditional flags that evaluate false produce no hint. With no identified source, there is no box.
+Under an attack roll, the **roll mode scan** lists the advantage and disadvantage sources Ready Set Midi evaluated for that attack, by name, and the mode they add up to: **ADV**, **DIS** or **Straight** (the two cancel; a block strikes out its side). For a ranged attack you choose the mode, so the scan tells you what to roll. A melee attack's mode is set by Midi; its scan appears only when the roll had advantage or disadvantage, and reads **Applied**. No source, no box.
 
-Ranged weapons and ranged spell attacks retain manual roll mode. A newly selected Thrown mode does not borrow attribution calculated for melee; if Midi has no matching source calculation, its advisory stays hidden. Ordinary melee automation keeps its existing behavior.
+Only the attacker's owner and the GM see the scan. A rule the target grants reads **Granted by the target** for players. A player character's scan is saved on the card; an NPC's sources stay on the GM's screen. The GM also sees an **Unlabelled modifier** row when something outside any named rule changed the roll.
 
-The advisory does not inspect conditions, guess at unevaluated flags, or turn an unlabelled native modifier into a generic reminder. Clicking Advantage is a choice, not an identified rules source. Source names stay on the rolling client and are shown only to the actor's owner or GM on that client. They are not added to shared chat flags, and the local snapshot does not survive a reload. Older guessed advisories are hidden. Range limits still apply. Rules that Midi does not identify cannot generate a hint here.
+## Roll rules on the sheet
+
+The **Roll rules** panel at the bottom of a character's Turn tab (an NPC's: under Features, for the GM) lists what is in force on the character now, each rule named after its cause: an effect and its feature, or the condition or armor behind one of D&D5e's own modes. Rules against the character are under **Rolls against you**. To add a rule, give the feature or implant an Active Effect with a Midi flag such as `flags.midi-qol.advantage.attack.rwak`; the effect's name is what players read.
+
+**Modes.** A feature can offer modes the player switches on from the panel: a stance, an aim setting. Each is an Active Effect on the feature that the GM marks **Hardwipe mode** and leaves suspended. One mode per feature is on at a time.
+
+**Conditions.** D&D5e lists the conditions that give disadvantage on attack rolls but nothing applies them to attacks, so Hardwipe does, following the world's rules version: Poisoned, and under the 2014 rules Exhaustion 3. It stands aside when another module's condition effect already gives that disadvantage.
+
+Code and macros add named sources through `game.hardwipe.rules.register` or the `hardwipe.attackSources` hook; see the [reference](Reference.md).
 
 ## Read and apply a roll
 
@@ -52,7 +60,7 @@ After approval and any required saves, whole-total controls and per-type control
 
 When Ready Set Midi applies the damage itself, that application is logged on the card too, as **Auto**, with the same **Undo**. Do not apply the same damage again by hand.
 
-**Changed rolls follow through.** If the damage changes after it was applied (a reroll, a bonus, critical dice), the GM's client adjusts each logged application by the difference, through dnd5e's resistances and immunities, and marks it *adjusted*. *(Next release.)* The difference is taken against what each target actually lost, so a target that bottomed out at 0 HP doesn't get back hit points it never lost. A save that flips after an Edge reroll redoes that target's damage at the new multiplier (failed ×1, saved ½ or none). **Undo** restores the hit points from before the first application. Adjustments need a GM online. Damage undone from Ready Set Midi's own damage card is not tracked by this log.
+**Changed rolls follow through.** If the damage changes after it was applied (a reroll, a bonus, critical dice), the GM's client adjusts each logged application by the difference, through dnd5e's resistances and immunities, and marks it *adjusted*. The difference is taken against what each target actually lost, so a target that bottomed out at 0 HP doesn't get back hit points it never lost. A save that flips after an Edge reroll redoes that target's damage at the new multiplier (failed ×1, saved ½ or none). **Undo** restores the hit points from before the first application. Adjustments need a GM online. Damage undone from Ready Set Midi's own damage card is not tracked by this log.
 
 **CRIT** on the damage line rolls the damage dice again and adds them: the roller may use it until the GM rules, the GM at any time. When the roller adds critical dice, the GM's review says so, and a later **Critical** decision does not add a second set.
 
@@ -64,7 +72,7 @@ When Ready Set Midi applies the damage itself, that application is logged on the
 
 Carry and **equip** a shield to qualify. The compact Shield Block button appears only when an applicable controllable character has one equipped. A spent reaction disables it with a reason. Wall-only impacts do not offer or spend Shield Block.
 
-Shield HP belongs to the Equipment item and stays within 0–10. At zero, the shield is broken and unequipped. Repair or healing clears Broken without automatically re-equipping it. The editor and inventory meter read the same saved HP.
+Shield HP belongs to the Equipment item and stays between 0 and the shield's maximum: 10 unless the GM sets another (1 to 99) in the **Max HP** field on the shield's sheet. At zero, the shield is broken and unequipped. Repair or healing clears Broken without automatically re-equipping it. The editor and inventory meter read the same saved HP.
 
 ![Actual inventory shield HP meter below disabled and damaged implant activities](media/resources-shield-current.png)
 

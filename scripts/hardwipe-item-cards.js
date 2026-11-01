@@ -1,6 +1,6 @@
 import { escapeHTML, plainActivityLabel } from "./hardwipe-state.js";
 import { CyberwareManager } from "./hardwipe-cyberware.js";
-import { abilityColor, actionStrip, bindBrief, briefHTML, decorateRollCard, messagesAfter, placeActions, rarityClasses, saveBlock, saveState } from "./hardwipe-attack-cards.js";
+import { abilityColor, actionStrip, bindBrief, briefHTML, decorateRollCard, messagesAfter, placeActions, rarityClasses, saveBlock, saveState, shownRarity } from "./hardwipe-attack-cards.js";
 import { cardUses, effectsHTML } from "./hardwipe-implant-cards.js";
 import { renderConsumable } from "./hardwipe-consumable-cards.js";
 import { renderTool } from "./hardwipe-tool-cards.js";
@@ -126,8 +126,8 @@ function tagLabel(item, feature) {
   const typeLabel = game.i18n.localize(CONFIG.Item.typeLabels?.[item.type] ?? item.type);
   // Ammunition is a long word on a short bar.
   const subtype = item.system?.type?.value === "ammo" ? game.i18n.localize("HARDWIPE.Gear.Ammo") : item.system?.type?.label ?? "";
-  const rarity = item.system?.rarity;
-  // Common is the default rarity: left out of the bar.
+  const rarity = shownRarity(item, { isGM: game.user.isGM });
+  // Common is the default rarity: left out of the bar. Players don't see an unidentified item's rarity.
   const rarityLabel = rarity && rarity !== "common" ? game.i18n.localize(CONFIG.DND5E.itemRarity?.[rarity] ?? rarity) : "";
   const parts = feature ? [game.i18n.localize("HARDWIPE.Gear.Feature"), subtype] : [typeLabel, subtype, rarityLabel];
   return [...new Set(parts.filter(Boolean).map(String))].join(" · ");

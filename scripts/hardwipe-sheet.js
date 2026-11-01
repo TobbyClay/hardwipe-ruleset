@@ -3,15 +3,147 @@ import { awardEdge, openEdgePicker, stabilize } from "./hardwipe-edge.js";
 import { ShieldManager } from "./hardwipe-shields.js";
 import { BODY_REGION_ANCHORS, BODY_REGION_PATHS, BODY_REGION_PINGS, CyberwareManager, MIRRORED_BODY_REGIONS } from "./hardwipe-cyberware.js";
 import { TurnTracker } from "./hardwipe-turn.js";
+import { RollRules } from "./hardwipe-roll-rules.js";
 
 const TEMPLATE = `modules/${MODULE_ID}/templates/cyberware-tab.hbs`;
 const TURN_TEMPLATE = `modules/${MODULE_ID}/templates/turn-tab.hbs`;
+const ROLL_RULES_TEMPLATE = `modules/${MODULE_ID}/templates/roll-rules.hbs`;
 const BODY_ART = `modules/${MODULE_ID}/assets/cyberware-body.png`;
 const LEFT_SLOTS = ["brain", "spine", "torso", "nervous", "dermal"];
 const RIGHT_SLOTS = ["eyes", "audio", "arms", "hands", "legs"];
 
-/** Created at init, after D&D5e has exposed its applications. */
+const CYBERWARE_PART = { container: { classes: ["tab-body"], id: "tabs" }, template: TEMPLATE, scrollable: ["", ".hardwipe-cyberware-items"] };
+const CYBERWARE_TAB = { tab: "cyberware", label: "HARDWIPE.Cyberware.Title", icon: "fas fa-microchip" };
+/** The Roll rules panel for a sheet without a Turn tab (NPCs): under the Features tab's own content, when anything is in force. */
+async function renderRollRules(actor, part) {
+  const context = RollRules.sheetContext(actor);
+  if (!context.show) return;
+  const html = await foundry.applications.handlebars.renderTemplate(ROLL_RULES_TEMPLATE, context);
+  const wrap = part.ownerDocument.createElement("div");
+  wrap.className = "hardwipe-roll-rules-npc";
+  wrap.innerHTML = html;
+  part.append(wrap);
+}
+
+/** Created at ready, once D&D5e has exposed its applications. */
 export let HardwipeCharacterSheet;
+export let HardwipeNPCSheet;
+
+/**
+ * The Cyberware tab, its paper doll and the inventory row hook, shared by the character and NPC sheets.
+ * Installation is committed by a qualifying rest or the GM's instant override, never the inventory equip toggle.
+ */
+function CyberwareSheetMixin(Base) {
+  return class CyberwareSheet extends Base {
+    static DEFAULT_OPTIONS = {
+      actions: { hardwipeCyberware: onCyberwareAction, hardwipeSelectRegion: onSelectRegion, hardwipeService: onServiceAction, hardwipeMode: onModeAction }
+    };
+    _hardwipeSlot = "brain";
+
+    async _onRender(context, options) {
+      await super._onRender(context, options);
+      HardwipeSheet._observeCallouts(this);
+    }
+
+    _onClose(options) {
+      super._onClose(options);
+      this._hardwipeCalloutObserver?.disconnect();
+      this._hardwipeCalloutObserver = null;
+    }
+
+    _attachFrameListeners() {
+      super._attachFrameListeners();
+      // Delegate to the persistent frame so partial tab renders never duplicate listeners.
+      new dnd5e.applications.ContextMenu5e(this.element, ".hardwipe-body-map-drawing", [
+        {
+          label: "HARDWIPE.Cyberware.PaperDollChoose", icon: "fas fa-image",
+          visible: () => canControlActor(this.actor) && !this.actor.limited,
+          onClick: () => this._choosePaperDoll().catch(reportError)
+        },
+        {
+          label: "HARDWIPE.Cyberware.PaperDollDefault", icon: "fas fa-rotate-left",
+          visible: () => canControlActor(this.actor) && !this.actor.limited
+            && this.actor.getFlag(MODULE_ID, "paperDoll") != null,
+          onClick: () => this._setPaperDoll(null).catch(reportError)
+        }
+      ], { jQuery: false, fixed: true });
+      this.element.addEventListener("keydown", event => {
+        const target = event.target.closest?.(".hardwipe-body-map-drawing");
+        if (!target || !canControlActor(this.actor) || this.actor.limited
+          || !(event.key === "ContextMenu" || (event.shiftKey && event.key === "F10"))) return;
+        event.preventDefault();
+        event.stopPropagation();
+        const rect = target.getBoundingClientRect();
+        target.dispatchEvent(new PointerEvent("contextmenu", {
+          bubbles: true, cancelable: true, clientX: rect.left + rect.width / 2,
+          clientY: rect.top + Math.min(80, rect.height / 2)
+        }));
+      });
+      // SVG image errors do not bubble. Capture them before switching to the built-in art.
+      this.element.addEventListener("error", event => {
+        const image = event.target;
+        if (!image.matches?.("image.hardwipe-paper-doll") || image.getAttribute("href") === BODY_ART) return;
+        image.setAttribute("href", BODY_ART);
+        image.dataset.fallback = "true";
+        image.closest("svg").setAttribute("viewBox", "110 25 804 1486");
+        image.closest(".hardwipe-body-map").classList.remove("has-custom-paper-doll");
+      }, true);
+    }
+
+    async _choosePaperDoll() {
+      if (!canControlActor(this.actor) || this.actor.limited) return;
+      if (!game.user.can("FILES_BROWSE")) {
+        const current = paperDollPath(this.actor.getFlag(MODULE_ID, "paperDoll")) ?? BODY_ART;
+        const path = await foundry.applications.api.DialogV2.prompt({ classes: ["hardwipe-dialog"],
+          window: { title: game.i18n.localize("HARDWIPE.Cyberware.PaperDollChoose") },
+          content: `<div class="form-group stacked"><label>${label("HARDWIPE.Cyberware.PaperDollPath")}</label>
+            <input type="text" name="paperDoll" value="${escapeSheetHTML(current)}" aria-label="${label("HARDWIPE.Cyberware.PaperDollPath")}" required>
+            <p class="hint">${label("HARDWIPE.Cyberware.PaperDollPathHint")}</p></div>`,
+          rejectClose: false,
+          ok: { label: "HARDWIPE.Cyberware.PaperDollSave", callback: (event, button) => button.form.elements.paperDoll.value }
+        });
+        if (typeof path === "string") await this._setPaperDoll(path);
+        return;
+      }
+      const picker = new foundry.applications.apps.FilePicker.implementation({
+        type: "image", current: paperDollPath(this.actor.getFlag(MODULE_ID, "paperDoll")) ?? BODY_ART,
+        redirectToRoot: [BODY_ART], document: this.actor,
+        callback: path => this._setPaperDoll(path).catch(reportError)
+      });
+      await picker.browse();
+    }
+
+    async _setPaperDoll(path) {
+      // Re-check ownership when the picker returns; permissions can change while it is open.
+      if (!canControlActor(this.actor) || this.actor.limited) return;
+      if (path === null || path === BODY_ART) return this.actor.unsetFlag(MODULE_ID, "paperDoll");
+      const value = paperDollPath(path);
+      if (!value) throw new Error(game.i18n.localize("HARDWIPE.Cyberware.PaperDollInvalid"));
+      return this.actor.setFlag(MODULE_ID, "paperDoll", value);
+    }
+
+    async _preparePartContext(partId, context, options) {
+      context = await super._preparePartContext(partId, context, options);
+      if (partId === "cyberware") {
+        context.cyberware = HardwipeSheet._cyberwareContext(this.actor, this._hardwipeSlot);
+        await HardwipeSheet._cyberwareDescriptions(this.actor, context.cyberware.selected, this._hardwipeOpenDescriptions);
+      }
+      return context;
+    }
+
+    async _prepareItemPhysical(item, ctx) {
+      await super._prepareItemPhysical(item, ctx);
+      if (!CyberwareManager.isCyberware(item)) return;
+      const state = CyberwareManager.getState(item);
+      const status = cyberwareStatus(state);
+      ctx.subtitle = [ctx.subtitle, escapeSheetHTML(status), state.pending
+        ? escapeSheetHTML(textLabel("Queued", "Queued for rest")) : null].filter(Boolean).join(" • ");
+      // Installation is committed by a qualifying rest, never the inventory equip toggle.
+      ctx.equip.disabled = true;
+      ctx.equip.title = "HARDWIPE.Cyberware.EquipHint";
+    }
+  };
+}
 
 export class HardwipeSheet {
   static _initialized = false;
@@ -21,29 +153,23 @@ export class HardwipeSheet {
     if (this._initialized) return;
     this._initialized = true;
     const NativeSheet = dnd5e.applications.actor.CharacterActorSheet;
-    HardwipeCharacterSheet = class HardwipeCharacterSheet extends NativeSheet {
+    const NativeNPC = dnd5e.applications.actor.NPCActorSheet;
+    HardwipeCharacterSheet = class HardwipeCharacterSheet extends CyberwareSheetMixin(NativeSheet) {
       static DEFAULT_OPTIONS = {
         classes: ["hardwipe-character-sheet"],
-        actions: {
-          hardwipeRule: onRuleAction, hardwipeCyberware: onCyberwareAction,
-          hardwipeSelectRegion: onSelectRegion, hardwipeService: onServiceAction, hardwipeTurn: onTurnAction
-        }
+        actions: { hardwipeRule: onRuleAction, hardwipeTurn: onTurnAction }
       };
       static PARTS = {
         ...NativeSheet.PARTS,
-        cyberware: {
-          container: { classes: ["tab-body"], id: "tabs" }, template: TEMPLATE,
-          scrollable: ["", ".hardwipe-cyberware-items"]
-        },
+        cyberware: CYBERWARE_PART,
         turn: { container: { classes: ["tab-body"], id: "tabs" }, template: TURN_TEMPLATE, scrollable: [""] }
       };
       static TABS = [
         ...NativeSheet.TABS.slice(0, 2),
-        { tab: "cyberware", label: "HARDWIPE.Cyberware.Title", icon: "fas fa-microchip" },
+        CYBERWARE_TAB,
         { tab: "turn", label: "HARDWIPE.Turn.Title", icon: "fas fa-hourglass-half" },
         ...NativeSheet.TABS.slice(2)
       ];
-      _hardwipeSlot = "brain";
 
       /** Combat, movement and Midi markers change outside this actor's updates: redraw only the Turn tab. */
       _hardwipeRefreshTurn() {
@@ -53,87 +179,9 @@ export class HardwipeSheet {
         }, 60);
       }
 
-      async _onRender(context, options) {
-        await super._onRender(context, options);
-        HardwipeSheet._observeCallouts(this);
-      }
-
       _onClose(options) {
         super._onClose(options);
-        this._hardwipeCalloutObserver?.disconnect();
-        this._hardwipeCalloutObserver = null;
         clearTimeout(this._hardwipeTurnTimer);
-      }
-
-      _attachFrameListeners() {
-        super._attachFrameListeners();
-        // Delegate to the persistent frame so partial tab renders never duplicate listeners.
-        new dnd5e.applications.ContextMenu5e(this.element, ".hardwipe-body-map-drawing", [
-          {
-            label: "HARDWIPE.Cyberware.PaperDollChoose", icon: "fas fa-image",
-            visible: () => canControlActor(this.actor) && !this.actor.limited,
-            onClick: () => this._choosePaperDoll().catch(reportError)
-          },
-          {
-            label: "HARDWIPE.Cyberware.PaperDollDefault", icon: "fas fa-rotate-left",
-            visible: () => canControlActor(this.actor) && !this.actor.limited
-              && this.actor.getFlag(MODULE_ID, "paperDoll") != null,
-            onClick: () => this._setPaperDoll(null).catch(reportError)
-          }
-        ], { jQuery: false, fixed: true });
-        this.element.addEventListener("keydown", event => {
-          const target = event.target.closest?.(".hardwipe-body-map-drawing");
-          if (!target || !canControlActor(this.actor) || this.actor.limited
-            || !(event.key === "ContextMenu" || (event.shiftKey && event.key === "F10"))) return;
-          event.preventDefault();
-          event.stopPropagation();
-          const rect = target.getBoundingClientRect();
-          target.dispatchEvent(new PointerEvent("contextmenu", {
-            bubbles: true, cancelable: true, clientX: rect.left + rect.width / 2,
-            clientY: rect.top + Math.min(80, rect.height / 2)
-          }));
-        });
-        // SVG image errors do not bubble. Capture them before switching to the built-in art.
-        this.element.addEventListener("error", event => {
-          const image = event.target;
-          if (!image.matches?.("image.hardwipe-paper-doll") || image.getAttribute("href") === BODY_ART) return;
-          image.setAttribute("href", BODY_ART);
-          image.dataset.fallback = "true";
-          image.closest("svg").setAttribute("viewBox", "110 25 804 1486");
-          image.closest(".hardwipe-body-map").classList.remove("has-custom-paper-doll");
-        }, true);
-      }
-
-      async _choosePaperDoll() {
-        if (!canControlActor(this.actor) || this.actor.limited) return;
-        if (!game.user.can("FILES_BROWSE")) {
-          const current = paperDollPath(this.actor.getFlag(MODULE_ID, "paperDoll")) ?? BODY_ART;
-          const path = await foundry.applications.api.DialogV2.prompt({ classes: ["hardwipe-dialog"],
-            window: { title: game.i18n.localize("HARDWIPE.Cyberware.PaperDollChoose") },
-            content: `<div class="form-group stacked"><label>${label("HARDWIPE.Cyberware.PaperDollPath")}</label>
-              <input type="text" name="paperDoll" value="${escapeSheetHTML(current)}" aria-label="${label("HARDWIPE.Cyberware.PaperDollPath")}" required>
-              <p class="hint">${label("HARDWIPE.Cyberware.PaperDollPathHint")}</p></div>`,
-            rejectClose: false,
-            ok: { label: "HARDWIPE.Cyberware.PaperDollSave", callback: (event, button) => button.form.elements.paperDoll.value }
-          });
-          if (typeof path === "string") await this._setPaperDoll(path);
-          return;
-        }
-        const picker = new foundry.applications.apps.FilePicker.implementation({
-          type: "image", current: paperDollPath(this.actor.getFlag(MODULE_ID, "paperDoll")) ?? BODY_ART,
-          redirectToRoot: [BODY_ART], document: this.actor,
-          callback: path => this._setPaperDoll(path).catch(reportError)
-        });
-        await picker.browse();
-      }
-
-      async _setPaperDoll(path) {
-        // Re-check ownership when the picker returns; permissions can change while it is open.
-        if (!canControlActor(this.actor) || this.actor.limited) return;
-        if (path === null || path === BODY_ART) return this.actor.unsetFlag(MODULE_ID, "paperDoll");
-        const value = paperDollPath(path);
-        if (!value) throw new Error(game.i18n.localize("HARDWIPE.Cyberware.PaperDollInvalid"));
-        return this.actor.setFlag(MODULE_ID, "paperDoll", value);
       }
 
       _toggleDeathTray(open) {
@@ -149,26 +197,12 @@ export class HardwipeSheet {
 
       async _preparePartContext(partId, context, options) {
         context = await super._preparePartContext(partId, context, options);
-        if (partId === "cyberware") {
-          context.cyberware = HardwipeSheet._cyberwareContext(this.actor, this._hardwipeSlot);
-          await HardwipeSheet._cyberwareDescriptions(this.actor, context.cyberware.selected, this._hardwipeOpenDescriptions);
-        }
         if (partId === "turn") {
           context.turn = TurnTracker.context(this.actor, { netlinkOpen: this._hardwipeNetlinkOpen, seen: this._hardwipeNetlinkSeen ??= new Set() });
+          // The Roll rules panel sits at the bottom of the Turn tab.
+          context.rules = RollRules.sheetContext(this.actor);
         }
         return context;
-      }
-
-      async _prepareItemPhysical(item, ctx) {
-        await super._prepareItemPhysical(item, ctx);
-        if (!CyberwareManager.isCyberware(item)) return;
-        const state = CyberwareManager.getState(item);
-        const status = cyberwareStatus(state);
-        ctx.subtitle = [ctx.subtitle, escapeSheetHTML(status), state.pending
-          ? escapeSheetHTML(textLabel("Queued", "Queued for rest")) : null].filter(Boolean).join(" • ");
-        // Installation is committed by a qualifying rest, never the inventory equip toggle.
-        ctx.equip.disabled = true;
-        ctx.equip.title = "HARDWIPE.Cyberware.EquipHint";
       }
 
       // Modify detached parts before native DOM/scroll synchronization, with fresh values each render.
@@ -191,14 +225,41 @@ export class HardwipeSheet {
       types: ["character"], makeDefault: true, label: "HARDWIPE.Sheet.Character"
     });
 
-    // Refresh small rule controls on explicitly selected third-party character sheets.
-    Hooks.on("renderCharacterActorSheet", (app, html) => {
-      if (app instanceof HardwipeCharacterSheet) return;
+    // NPCs: the same Cyberware tab and inventory controls (no Turn tab, Edge or Strikes), so memory bodies and
+    // named antagonists carry implants the GM installs at once.
+    HardwipeNPCSheet = class HardwipeNPCSheet extends CyberwareSheetMixin(NativeNPC) {
+      static DEFAULT_OPTIONS = { classes: ["hardwipe-npc-sheet"] };
+      static PARTS = { ...NativeNPC.PARTS, cyberware: CYBERWARE_PART };
+      // The Cyberware tab appears once the NPC carries an implant: a wolf has no use for ten empty slots.
+      static TABS = [...NativeNPC.TABS.slice(0, 2), { ...CYBERWARE_TAB, condition: actor => actor.items.some(item => CyberwareManager.isCyberware(item)) },
+        ...NativeNPC.TABS.slice(2)];
+
+      // Modify detached parts before native DOM/scroll synchronization, with fresh values each render.
+      async _renderHTML(context, options) {
+        const parts = await super._renderHTML(context, options);
+        if (!this.actor.limited && parts.inventory) {
+          HardwipeSheet._renderShields(this.actor, parts.inventory);
+          HardwipeSheet._renderCyberwareInventory(this.actor, parts.inventory);
+        }
+        // An NPC's rules are for the GM and whoever owns it, not players who can only observe it.
+        if (this.actor.isOwner && parts.features) await renderRollRules(this.actor, parts.features);
+        return parts;
+      }
+    };
+    foundry.applications.apps.DocumentSheetConfig.registerSheet(Actor, MODULE_ID, HardwipeNPCSheet, {
+      types: ["npc"], makeDefault: true, label: "HARDWIPE.Sheet.NPC"
+    });
+
+    // Refresh small rule controls on explicitly selected third-party sheets (Edge and Strikes on characters only).
+    for (const [hook, type] of [["renderCharacterActorSheet", "character"], ["renderNPCActorSheet", "npc"]]) Hooks.on(hook, (app, html) => {
+      if (app instanceof HardwipeCharacterSheet || app instanceof HardwipeNPCSheet) return;
       const actor = app.actor ?? app.document;
       const element = asElement(html ?? app.element);
-      if (!isCharacter(actor) || actor.limited || !element) return;
-      this._renderEdge(actor, element);
-      this._renderStrikes(actor, element);
+      if (actor?.type !== type || actor.limited || !element) return;
+      if (type === "character") {
+        this._renderEdge(actor, element);
+        this._renderStrikes(actor, element);
+      }
       this._renderShields(actor, element);
       this._renderCyberwareInventory(actor, element);
       if (!this._actorListeners.has(element)) {
@@ -256,7 +317,9 @@ export class HardwipeSheet {
       actions: textLabel("Actions", "Actions"), charges: textLabel("Charges", "Charges"),
       available: textLabel("Available", "in inventory"),
       inventoryHint: textLabel("InventoryHint", "Active cyberware also appears in Inventory beside your weapons."),
-      readMore: textLabel("ReadMore", "Read more"), showLess: textLabel("ShowLess", "Show less")
+      readMore: textLabel("ReadMore", "Read more"), showLess: textLabel("ShowLess", "Show less"),
+      installNow: textLabel("InstallNow", "Install now"), removeNow: textLabel("RemoveNow", "Remove now"),
+      gmInstallHint: textLabel("GMInstallHint", "GM: install or remove now, without a rest")
     };
     const slots = context.slots.map(slot => ({
       ...slot, selected: slot.id === selectedId,
@@ -395,7 +458,7 @@ export class HardwipeSheet {
         equip.setAttribute("data-tooltip", "HARDWIPE.Cyberware.EquipHint");
       }
       const title = row.querySelector(".name.name-stacked");
-      if (title && !(actor.sheet instanceof HardwipeCharacterSheet)) {
+      if (title && !(actor.sheet instanceof HardwipeCharacterSheet || actor.sheet instanceof HardwipeNPCSheet)) {
         const badge = element.ownerDocument.createElement("span");
         badge.className = "subtitle hardwipe-inventory-state";
         badge.textContent = cyberwareStatus(state);
@@ -529,6 +592,8 @@ export class HardwipeSheet {
     panel.className = `hardwipe-item-strip hardwipe-shield-item-panel ${shield.broken ? "is-broken" : ""}`;
     panel.innerHTML = `<span class="hardwipe-label"><i class="fas fa-shield-halved" inert></i>${label("HARDWIPE.Shield.InventoryHP")}</span>
       <div class="hardwipe-shield-inventory-hp hardwipe-shield-hp ${shieldTier(shield)}">${shieldMeter(shield, { icon: false })}</div>
+      ${game.user.isGM ? `<label class="hardwipe-shield-max" data-tooltip="HARDWIPE.Shield.MaxHint"><span>${label("HARDWIPE.Shield.Max")}</span>
+        <input type="number" min="1" max="99" step="1" value="${shield.max}" data-hardwipe-shield-max aria-label="${label("HARDWIPE.Shield.Max")}"></label>` : ""}
       ${owner ? `<div class="hardwipe-shield-controls">
         ${itemButton("shield-damage", "HARDWIPE.Shield.DamageOne", "fa-minus")}
         ${itemButton("shield-heal", "HARDWIPE.Shield.HealOne", "fa-plus")}
@@ -555,6 +620,16 @@ export class HardwipeSheet {
         }
       }
     });
+    panel.querySelector("[data-hardwipe-shield-max]")?.addEventListener("change", async event => {
+      // Hardwipe's own field: keep the sheet's submit-on-change out of it.
+      event.stopPropagation();
+      if (!game.user.isGM) return;
+      const input = event.currentTarget;
+      input.disabled = true;
+      try { await ShieldManager.setMax(item, input.value); }
+      catch (error) { reportError(error); }
+      finally { if (input.isConnected) input.disabled = false; }
+    });
     element.querySelector(".sheet-header")?.after(panel);
   }
 
@@ -566,24 +641,33 @@ export class HardwipeSheet {
         : state.installed ? escapeSheetHTML(textLabel("Enabled", "Enabled")) : "";
     const toggleLabel = escapeSheetHTML(textLabel(state.damaged ? "ClearDamaged" : "MarkDamaged",
       state.damaged ? "Clear cyberware damage (GM override)" : "Mark cyberware damaged"));
+    const installLabel = escapeSheetHTML(textLabel(state.installed ? "RemoveNow" : "InstallNow", state.installed ? "Remove now" : "Install now"));
+    const gmInstallHint = escapeSheetHTML(textLabel("GMInstallHint", "GM: install or remove now, without a rest"));
     const panel = element.ownerDocument.createElement("section");
     const stateKey = state.damaged ? "damaged" : state.disabled ? "disabled" : state.installed ? "enabled" : "stored";
     // Same strip layout as the shield editor: label, state, then controls on the right.
     panel.className = `hardwipe-item-strip hardwipe-cyberware-item-panel ${state.damaged ? "is-damaged" : ""}`;
     panel.innerHTML = `<span class="hardwipe-label"><i class="fas fa-microchip" inert></i>${escapeSheetHTML(textLabel("Title", "Cyberware"))}</span>
       <span class="hardwipe-state hardwipe-strip-state is-${stateKey}">${installed}${status ? ` · ${status}` : ""}</span>
-      ${game.user.isGM ? `<button type="button" class="always-interactive hardwipe-btn is-icon is-danger"
+      ${game.user.isGM ? `<button type="button" class="always-interactive hardwipe-btn is-icon ${state.installed ? "is-danger" : "is-primary"}"
+        data-hardwipe-item-action="cyberware-install" data-tooltip="${gmInstallHint}" aria-label="${installLabel}"><i class="fas fa-bolt" inert></i></button>
+      <button type="button" class="always-interactive hardwipe-btn is-icon is-danger"
         data-hardwipe-item-action="cyberware-damage" aria-pressed="${state.damaged}"
         data-tooltip="${toggleLabel}" aria-label="${toggleLabel}"><i class="fas fa-triangle-exclamation" inert></i></button>` : ""}`;
     panel.addEventListener("click", async event => {
-      const button = event.target.closest?.('[data-hardwipe-item-action="cyberware-damage"]');
+      const button = event.target.closest?.("[data-hardwipe-item-action]");
       if (!button || !panel.contains(button) || !game.user.isGM || !CyberwareManager.isCyberware(item)) return;
       event.preventDefault();
       event.stopPropagation();
       button.disabled = true;
       try {
-        // A deliberate GM status edit. The narrow path retains installation, power, pending swaps, and unknown flags.
-        await item.update({ [`flags.${MODULE_ID}.cyberware.damaged`]: !CyberwareManager.getState(item).damaged });
+        if (button.dataset.hardwipeItemAction === "cyberware-install") {
+          // GM override: install or remove at once, no rest, on any actor (an NPC's memory body, say).
+          await CyberwareManager.install(item, !CyberwareManager.getState(item).installed);
+        } else {
+          // A deliberate GM status edit. The narrow path retains installation, power, pending swaps, and unknown flags.
+          await item.update({ [`flags.${MODULE_ID}.cyberware.damaged`]: !CyberwareManager.getState(item).damaged });
+        }
       } catch (error) { reportError(error); }
       finally { if (button.isConnected) button.disabled = false; }
     });
@@ -642,6 +726,8 @@ async function onCyberwareAction(event, target) {
       case "enable": await CyberwareManager.setEnabled(item, true); break;
       case "reset": await CyberwareManager.reset(item); break;
       case "repair": await CyberwareManager.repair(item); break;
+      case "gm-install": await CyberwareManager.install(item, true); break;
+      case "gm-remove": await CyberwareManager.install(item, false); break;
     }
   } catch (error) { reportError(error); }
   finally { if (target.isConnected && target.dataset.cyberwareAction !== "use") target.disabled = false; }
@@ -652,6 +738,16 @@ async function onTurnAction(event, target) {
   if (target.disabled) return;
   target.disabled = true;
   try { await TurnTracker.handle(this.actor, target, event, this); }
+  catch (error) { reportError(error); }
+  finally { if (target.isConnected) target.disabled = false; }
+}
+
+/** A mode button on the Roll rules panel: that mode on (its siblings off), or the whole group off. */
+async function onModeAction(event, target) {
+  event.preventDefault();
+  if (target.disabled) return;
+  target.disabled = true;
+  try { await RollRules.setMode(this.actor, target.dataset.effectUuid || null, target.dataset.group || null); }
   catch (error) { reportError(error); }
   finally { if (target.isConnected) target.disabled = false; }
 }

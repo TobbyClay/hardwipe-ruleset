@@ -130,6 +130,19 @@ export function plainDescription(html) {
     .trim();
 }
 
+/**
+ * Whether `firer` is in `setter`'s crew, so may fire a crew-fired maneuver of theirs. The crew is the started
+ * combat the setter is in (`combat`: its combatants' actor UUIDs; null outside one), else anyone with a token on a
+ * scene the setter has one on (`scenes`: one list of actor UUIDs per scene). Plain data: the GM's socket check and
+ * the firer's own client apply the same rule, so a crafted request can't fire a stranger's maneuver.
+ */
+export function inSameCrew(setterUuid, firerUuid, { combat = null, scenes = [] } = {}) {
+  if (!setterUuid || !firerUuid || setterUuid === firerUuid) return false;
+  const together = uuids => Array.isArray(uuids) && uuids.includes(setterUuid) && uuids.includes(firerUuid);
+  if (combat) return together(combat);
+  return scenes.some(together);
+}
+
 /* Live state ------------------------------------------------------------------------------------- */
 
 export class CrewManager {
@@ -285,6 +298,10 @@ export class CrewManager {
     if (!isPrimed(effect)) return notPrimed();
     const settings = this.settingsOf(setter, effect);
     if (settings.fires !== "crew") return null;
+    if (!inSameCrew(setter.uuid, firer.uuid, this._crewPools(setter))) {
+      ui.notifications.warn(game.i18n.localize("HARDWIPE.Crew.NotCrew"));
+      return null;
+    }
     if (!game.users.activeGM || !this._socket) {
       ui.notifications.warn(game.i18n.localize("HARDWIPE.Crew.NeedsGM"));
       return null;
@@ -298,18 +315,33 @@ export class CrewManager {
     return settings;
   }
 
-  /** GM side of fireAsCrew: the sender must own the firer, and the maneuver must still be primed and crew-fired. */
+  /**
+   * GM side of fireAsCrew: the sender must own the firer, a character in the setter's crew (their fight, or a scene
+   * they share before one), and the maneuver must still be primed and crew-fired. A hidden button is not authorization:
+   * the crew is re-derived here, never taken from the request.
+   */
   static async _gmFire(setterUuid, effectId, firerUuid, userId) {
     const user = game.users.get(userId);
     const setter = foundry.utils.fromUuidSync(setterUuid);
     const firer = foundry.utils.fromUuidSync(firerUuid);
     if (!user || setter?.documentName !== "Actor" || firer?.documentName !== "Actor" || setter === firer) return false;
-    if (!firer.testUserPermission(user, "OWNER")) return false;
+    if (firer.type !== "character" || !firer.testUserPermission(user, "OWNER")) return false;
+    if (!inSameCrew(setter.uuid, firer.uuid, this._crewPools(setter))) return false;
     const effect = setter.effects.get(effectId);
     if (!isPrimed(effect) || this.settingsOf(setter, effect).fires !== "crew") return false;
     let deleted = [];
     try { deleted = await setter.deleteEmbeddedDocuments("ActiveEffect", [effectId]); } catch { deleted = []; }
     return !!deleted?.length;
+  }
+
+  /** What a maneuver's crew is judged against: the setter's started combat (its combatants), else every scene's tokens. */
+  static _crewPools(setter) {
+    const stamp = combatStamp(setter);
+    const combat = stamp ? game.combats.get(stamp.combat) : null;
+    return {
+      combat: combat ? combat.combatants.map(combatant => combatant.actor?.uuid).filter(Boolean) : null,
+      scenes: (game.scenes ?? []).map(scene => scene.tokens.map(token => token.actor?.uuid).filter(Boolean))
+    };
   }
 
   /** Stand down: remove the effect without a payoff. */

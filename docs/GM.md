@@ -4,7 +4,7 @@
 
 ## Installation and first run
 
-The public pair is **Hardwipe 0.7.48 + Ready Set Midi 14.0.10.2**, tested on **Foundry 14.367 / D&D5e 6.0.5**. Install both together from the [release page](https://github.com/TobbyClay/hardwipe-ruleset/releases/latest).
+The public pair is **Hardwipe 0.7.49 + Ready Set Midi 14.0.10.3**, tested on **Foundry 14.367 / D&D5e 6.0.6**. Install both together from the [release page](https://github.com/TobbyClay/hardwipe-ruleset/releases/latest).
 
 | Install | Manifest |
 | --- | --- |
@@ -13,7 +13,7 @@ The public pair is **Hardwipe 0.7.48 + Ready Set Midi 14.0.10.2**, tested on **F
 
 Enable Hardwipe, the custom Ready Set Midi fork, libWrapper, socketlib, and DAE. Keep standalone Midi-QOL and Ready Set Roll disabled when using the fork. Manual ZIPs contain module-named root folders for Foundry's `Data/modules` directory.
 
-Set a character's sheet to **Hardwipe Character** if it explicitly uses another sheet. Hardwipe's default registration does not override an actor's saved sheet preference.
+Set a character's sheet to **Hardwipe Character**, and an NPC's to **Hardwipe NPC**, if it explicitly uses another sheet. Both are registered as defaults; Hardwipe's default registration does not override an actor's saved sheet preference. The NPC sheet adds a Cyberware tab once the NPC carries an implant.
 
 ![Current Hardwipe character sheet](media/cyberware-current.png)
 
@@ -23,7 +23,7 @@ For a first-session setup: configure implant categories and service access, leav
 
 <img src="media/mission-heat-config.webp" alt="Start Mission dialog lets the GM choose the Heat card style" width="750">
 
-Use **Start Mission** on the Heat HUD. Choose the mission maximum and card style. The meter tracks the scene's escalation. *(Next release.)* The budget splits into thirds, **Clean**, **Hot** and **Critical**, and when it doesn't divide by three Critical gets the smallest range: a budget of 6 is two marks of each, 7 is 3, 2, 2. Spending the whole budget is **Lockdown**. **−** takes back a mark the crew genuinely erased. Drag the HUD by its header; each client's position persists. The thermometer in Token Controls shows or hides it.
+Use **Start Mission** on the Heat HUD. Choose the mission maximum and card style. The meter tracks the scene's escalation. The budget splits into thirds, **Clean**, **Hot** and **Critical**, and when it doesn't divide by three Critical gets the smallest range: a budget of 6 is two marks of each, 7 is 3, 2, 2. Spending the whole budget is **Lockdown**. **−** takes back a mark the crew genuinely erased. Drag the HUD by its header; each client's position persists. The thermometer in Token Controls shows or hides it.
 
 | Threat broadcast | Corrupted feed | Police scanner |
 | --- | --- | --- |
@@ -92,9 +92,9 @@ Spell colors have separate modes: one base color, by school, by player, or per s
 
 Fresh rolls have short entry animations; old cards do not replay them after reload. Reduced-motion preferences suppress animation.
 
-**Light mode.** *(Next release.)* Hardwipe's cards stay dark terminals in Foundry's light colour scheme; their contents are pinned to the dark theme, so totals and dice stay readable. Typed chat follows each viewer's interface scheme, with names in a deeper shade of the player's colour.
+**Light mode.** Hardwipe's cards stay dark terminals in Foundry's light colour scheme; their contents are pinned to the dark theme, so totals and dice stay readable. Typed chat follows each viewer's interface scheme, with names in a deeper shade of the player's colour.
 
-**Typed chat and Smartphone Widget.** *(Next release.)* Typed messages show as a comm feed (see [Chat](Players.md#chat)). Smartphone Widget's texts join it as phone texts, but only when its **private chat logs** setting is off; otherwise the module keeps them out of chat.
+**Typed chat and Smartphone Widget.** Typed messages show as a comm feed (see [Chat](Players.md#chat)). Smartphone Widget's texts join it as phone texts, but only when its **private chat logs** setting is off; otherwise the module keeps them out of chat.
 
 ## Roll Tracker
 
@@ -107,7 +107,7 @@ Open **Game Settings → Hardwipe Ruleset → Roll Tracker** (the window is call
 | Overview | The ranking by d20 average (role tag, characters, rolls, spells, natural 20s and 1s, the last ten d20s), the Friday Night Firefight strip (attacks and hit rate, crits, damage and the best hit, healing, downs), awards with their runners-up, the latest noted moments, and rolls and spells per session. |
 | Players | A character screen for each player or character: rolls, spells, natural 20s and 1s and the best roll; accuracy, damage, magic, saves, checks and the hot streak around the d20 average; d20 faces with a one-line read on them; spells cast, per-session rolls and spells, and roll types. The arrows step through players. |
 | Compare | Two players, the party or single characters, item-comparison style: player 1's numbers with green or red arrows against player 2, and who wins on how many stats. |
-| Dice | Every d20 face each player threw, dropped advantage dice included, with a fairness verdict once there are 60 or more, and a dice bag by die type. |
+| Dice | Every d20 face each player threw, dropped advantage dice included, with a fairness verdict once there are 60 or more, and a dice bag by die type. For the GM only, **Inspect adv/dis rolls** unfolds which rules put player characters' attack rolls at advantage or disadvantage in this scope, how often, and who rolled with them, read from the attack cards' roll mode scans (rules a target granted are not counted). Folded by default; nothing is listed until you ask. |
 | Moments | Every natural 1 and 20 with the GM's note. The GM writes or edits notes here; players read them. |
 | Sessions | GM only: the session log, described below. |
 
@@ -183,7 +183,7 @@ For example, **Entry Stack**: a Strike with a *Stack up* utility activity on a b
 
 <img src="media/crew-card-feed.png" alt="CREW card, Glitch feed: crew link, Strike, Mags >> Entry Stack, triggered by QA Player, Executed stamp" width="250">
 
-You can press **Fire**, **Trigger** or **×** on a character's Turn tab for them. A crewmate firing someone else's maneuver needs a GM online: your client removes it from its owner. Your client also removes a maneuver when its time is up, or when the combat it was set up in is deleted (unless it lasts until used).
+You can press **Fire**, **Trigger** or **×** on a character's Turn tab for them. A crewmate firing someone else's maneuver needs a GM online: your client removes it from its owner, and only for a character in the owner's fight, or on a scene with them before one; anyone else is refused. Your client also removes a maneuver when its time is up, or when the combat it was set up in is deleted (unless it lasts until used).
 
 ## Braindance
 
@@ -200,7 +200,7 @@ Award Edge with **+** beside it on the sheet or the Turn tab: it posts a **Charg
 
 <img src="media/legendary-editor.webp" alt="The Legendary card window for Silver Tongue: Standard, Its own card, Signature and Studio; its own card starts from Engraved with a painting as art, a hue, a title colour, a line above the name and a flavour line, and the card on the right shows the result as it will look" width="620">
 
-*(Next release.)* Give a rare weapon its own attack card from the **crown** on the bar of one of its cards in chat, or from the **Legendary card** section on the weapon's Details tab, which works before it has ever attacked. Only you see either. The card shows on weapons at or above **Legendary cards from** in Hardwipe's settings. The rarities come in the rarity list's order, so Custom D&D's own tiers count as you rank them (say Gonk, Street, Nova, Preem, Iconic); **Automatic** is the top tier.
+Give a rare weapon its own attack card from the **crown** on the bar of one of its cards in chat, or from the **Legendary card** section on the weapon's Details tab, which works before it has ever attacked. Only you see either. The card shows on weapons at or above **Legendary cards from** in Hardwipe's settings. The rarities come in the rarity list's order, so Custom D&D's own tiers count as you rank them (say Gonk, Street, Nova, Preem, Iconic); **Automatic** is the top tier.
 
 - **Its own card:** pick a design to start from, then make it this weapon's: art (any image, shown behind the design's panel at the strength you set), a hue, the title's type and colour, a line above and below the name, a badge (the design's stamp, seal, pass band or speech bubble) and a flavour line. The card on the right follows as you edit.
 - **Signature:** a card hand-built for one weapon. Each is on one weapon at a time: giving it to another takes it off the first, which goes back to the standard card. The list says where each one is. Under the chosen card, **Logo** takes an image from your Foundry files (the Samurai logo for Johnny's sleeve, say). It is set once for the world and goes with the card; Hardwipe ships none.
@@ -213,7 +213,7 @@ Award Edge with **+** beside it on the sheet or the Turn tab: it posts a **Charg
 
 <img src="media/legendary-studio.webp" alt="The Card Studio with a copy of Skippy open: its name, description and One weapon at a time, the card's HTML and CSS, and on the right the card on Silver Tongue at a critical, saying HEADSHOT!" width="760">
 
-*(Next release.)* Write your own cards in HTML and CSS: **Hardwipe settings → Open the Card Studio** (GM only). Start from a blank card or a copy of any design or signature card, and watch it on any of the world's weapons at any outcome as you type. **Save card** keeps it in the world; give it to weapons from their Legendary card window.
+Write your own cards in HTML and CSS: **Hardwipe settings → Open the Card Studio** (GM only). Start from a blank card or a copy of any design or signature card, and watch it on any of the world's weapons at any outcome as you type. **Save card** keeps it in the world; give it to weapons from their Legendary card window.
 
 - **What a card is:** the weapon's head. Tokens fill it per weapon: `{{title}}`, `{{name}}`, `{{type}}`, `{{rarity}}`, `{{maker}}`, `{{img}}`, `{{logo}}`, `{{serial}}`, `{{line}}` (your line for the outcome) and `{{status}}` (the status and your crown; leave it out and Hardwipe adds a plain top row). `{{#hit}}…{{/hit}}` shows only on a hit, `{{^logo}}…{{/logo}}` only when no logo is set. Hardwipe adds the attack's parts (kind, chips, verdict, targets, description) below, so a card can't break the attack. The token list is in the studio.
 - **CSS** stays inside the card: `&` is the whole chat message, so `& { --l-rail: … }` colours the roll card's rail. Your CSS can restyle the verdict too, so keep hits and misses readable.
@@ -225,7 +225,7 @@ Award Edge with **+** beside it on the sheet or the Turn tab: it posts a **Charg
 
 <img src="media/eye-variants.webp" alt="Nine Eye cards from no sender: a swarm of eyes, a wall of eyes, a close-up with Mags reflected in the pupil, pairs of eyes in the dark, an eye at a crack, nine camera feeds of eyes with Mags marked as subject, a halo of eyes around Mags, LET US IN spelled in eyes, and closed eyes waking" width="760">
 
-*(Next release.)* The AIs behind the Blackwall want through, and sometimes they look back. The **eye** in Token Controls (GM only) posts a card from no sender, **∅**, at a character:
+The AIs behind the Blackwall want through, and sometimes they look back. The **eye** in Token Controls (GM only) posts a card from no sender, **∅**, at a character:
 
 - **Who it sees:** a player character, or no one in particular. The card names them, the scene and the round, and some variants show their portrait.
 - **How it looks:** one of nine variants, or **Random**: Swarm, Wall of eyes, Close-up, In the dark, Crack in the wall, Every camera, Halo, Spelled in eyes, Waking.
