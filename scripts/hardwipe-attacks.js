@@ -2,7 +2,7 @@ import { MODULE_ID, escapeHTML, plainActivityLabel, repeatsLabel } from "./hardw
 import { HardwipeRules } from "./hardwipe-rules.js";
 import {
   aggregateCriticalDamage, bindBrief, briefHTML, decorateRollCard, fallenTargets, insertAfterDamage, markDamageTypes, stampHTML, propertyChipsHTML, rarityClasses, recordSaveTargets,
-  recordWorkflowDamage, rollCriticalDice, saveBlock, saveState
+  recordWorkflowDamage, rollCriticalDice, saveBlock, saveState, shownRarity
 } from "./hardwipe-attack-cards.js";
 import { settleCard } from "./hardwipe-assembly.js";
 import { applyCoupDeGrace, coupDeGraceFor, coupTargets } from "./hardwipe-coup.js";
@@ -974,14 +974,14 @@ function weaponPreview(item, card, tone = "attack") {
 setWeaponPreview(weaponPreview);
 
 /**
- * Weapon banner: type and rarity, the name as the title, attack type, property chips, verdict, targets, description.
+ * Weapon banner: type and rarity (not an unidentified weapon's rarity, for players), the name as the title,
+ * attack type, property chips, verdict, targets, description.
  * With a legendary card the same parts go into that card's head. A preview (the GM's card editor) leaves out the
  * result, the description and the crown.
  */
 function weaponHeadHTML(view, item, activity, card = null, { preview = false } = {}) {
   const typeLabel = item?.system?.type?.label || (item ? game.i18n.localize(CONFIG.Item.typeLabels?.[item.type] ?? item.type) : "");
-  // Like D&D5e's sheet, a player doesn't see an unidentified weapon's rarity.
-  const rarity = item?.system?.identified === false && !game.user.isGM ? "" : item?.system?.rarity;
+  const rarity = shownRarity(item, { isGM: game.user.isGM });
   const rarityLabel = rarity ? game.i18n.localize(CONFIG.DND5E.itemRarity?.[rarity] ?? rarity) : "";
   const parts = {
     tone: view.tone, name: escapeHTML(view.weapon), type: escapeHTML(typeLabel), rarity: escapeHTML(rarityLabel), status: escapeHTML(view.status),

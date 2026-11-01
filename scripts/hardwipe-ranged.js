@@ -40,6 +40,41 @@ export function isRangedAttack(workflow) {
     || ["ranged", "thrown", "thrown-offhand"].includes(workflow.attackMode));
 }
 
+/** Copy Midi's evaluated attribution into an advisory, leaving out the roller's own choices. */
+function readAttribution(attribution, data) {
+  if (!attribution || typeof attribution !== "object") return data;
+  for (const [type, label] of Object.entries(MODIFIER_LABELS)) {
+    for (const [source, displayName] of Object.entries(attribution[type] ?? {})) {
+      if (MANUAL_SOURCES.has(source) || typeof displayName !== "string" || !displayName.trim()) continue;
+      const reason = `${label}: ${displayName.trim()}`;
+      if (data.reasons.includes(reason)) continue;
+      data.reasons.push(reason);
+      // Midi keys a rule the target grants as "grants.<family> <target>": its name is the target's own effect.
+      data.sources.push(String(source).startsWith("grants.") ? { type, name: displayName.trim(), grants: true } : { type, name: displayName.trim() });
+    }
+  }
+  return data;
+}
+
+/**
+ * What anyone but the GM may read of a scan: a rule the target grants is named only as coming from the target,
+ * so a player never learns an NPC's effect names from their own attack. Duplicates left by that merge are dropped.
+ */
+export function maskTargetSources(sources = [], label = "Granted by the target") {
+  const out = [];
+  for (const source of sources) {
+    const masked = source?.grants ? { type: source.type, name: label, grants: true }
+      : source?.unlabelled ? { type: source.type, name: source.name, unlabelled: true } : { type: source?.type, name: source?.name };
+    if (!out.some(entry => entry.type === masked.type && entry.name === masked.name)) out.push(masked);
+  }
+  return out;
+}
+
+/** What a player sees of a scan: target rules masked, and no unlabelled row, which is a note for the GM. */
+export function playerSources(sources = [], label = "Granted by the target") {
+  return maskTargetSources(sources, label).filter(source => !source.unlabelled);
+}
+
 /** Read only sources already evaluated by Midi; never infer rules from actor data. */
 export function collectRangedAdvisory(workflow, attackMode = workflow?.attackMode) {
   const data = emptyAdvisory();
@@ -48,18 +83,37 @@ export function collectRangedAdvisory(workflow, attackMode = workflow?.attackMod
   // That earlier attribution is not evidence for the newly selected attack mode.
   const resolvedType = activity?.getActionType?.(attackMode) ?? activity?.actionType;
   if (!isRangedAttack({ activity, attackMode }) || resolvedType !== activity?.actionType) return data;
-  const attribution = workflow?.attackRollModifierTracker?.attribution;
-  if (!attribution || typeof attribution !== "object") return data;
-  for (const [type, label] of Object.entries(MODIFIER_LABELS)) {
-    for (const [source, displayName] of Object.entries(attribution[type] ?? {})) {
-      if (MANUAL_SOURCES.has(source) || typeof displayName !== "string" || !displayName.trim()) continue;
-      const reason = `${label}: ${displayName.trim()}`;
-      if (data.reasons.includes(reason)) continue;
-      data.reasons.push(reason);
-      data.sources.push({ type, name: displayName.trim() });
-    }
-  }
-  return data;
+  return readAttribution(workflow?.attackRollModifierTracker?.attribution, data);
+}
+
+/**
+ * Any attack. A ranged attack keeps the rules above (its mode is the player's). A melee attack reads Midi's live
+ * tracker, whose mode Midi applied itself, so the readout explains what happened rather than what to roll.
+ */
+export function collectAttackAdvisory(workflow, attackMode = workflow?.attackMode) {
+  const activity = workflow?.activity;
+  if (isRangedAttack({ activity, attackMode })) return collectRangedAdvisory(workflow, attackMode);
+  const data = { ...emptyAdvisory(), manual: false };
+  if (!activity?.attack) return data;
+  return readAttribution(workflow?.attackRollModifierTracker?.attribution, data);
+}
+
+/**
+ * A mode the d20 carries that neither a listed source nor the roller's own choice explains: a module, a macro
+ * or the system set it below Midi's attribution. The row says so instead of leaving the mode unexplained.
+ * The roller's choices are keyboard modifiers and, when a roll dialog was actually shown, its buttons: Midi
+ * labels a mode set on the configuration "Roll Dialog" even when the roll was fast-forwarded past one.
+ */
+export function unlabelledSource(sources, rolledMode, attribution = {}, labels = {}, { dialogUsed = true } = {}) {
+  const rolled = Math.sign(Number(rolledMode) || 0);
+  if (!rolled || rolled === expectedMode(sources)) return null;
+  const type = rolled > 0 ? "ADV" : "DIS";
+  const choices = new Set(["keyPress", "forcedKeyPress", ...(dialogUsed ? ["config-buttons"] : [])]);
+  const chosen = Object.keys(attribution?.[type] ?? {}).some(source => choices.has(source));
+  if (chosen) return null;
+  const name = String(labels.name ?? "Unlabelled modifier").trim();
+  const rule = String(labels.rule ?? "Set by a macro, a module or the system").trim();
+  return { type, name: `${name} - ${rule}`, unlabelled: true };
 }
 
 /** Restore caller-supplied modes after native dnd5e merges actor attack-roll modifiers. */
@@ -158,6 +212,8 @@ export class RangedAttackManager {
     // Track that synchronous rebuild so its clicked-button advantageMode remains authoritative.
     libWrapper.register(ID, "dnd5e.applications.dice.RollConfigurationDialog.prototype._finalizeRolls", function(wrapped, action) {
       manager._finalizingDialogs.add(this);
+      // A dialog really was shown for this roll: its buttons are the roller's choice, not a hidden modifier.
+      if (this.config?.workflow) this.config.workflow.hardwipeDialogUsed = true;
       try { return wrapped(action); }
       finally { manager._finalizingDialogs.delete(this); }
     }, "WRAPPER");
@@ -206,26 +262,44 @@ export class RangedAttackManager {
     }
   }
 
+  /**
+   * Snapshot this attack's sources. A ranged attack keeps the snapshot taken before its mode went manual; a melee
+   * attack reads Midi's live tracker, plus a row for a mode nothing named, and has a readout only when Midi put
+   * advantage or disadvantage on its d20. Chat flags are readable by every client, so names reach the card only
+   * for a player-owned attacker, with target-granted rules masked; an NPC's attack keeps its names in memory on
+   * the rolling client, as before. The readout is drawn only for the attacker's owner and the GM.
+   */
   static async _record(workflow) {
-    if (!workflow.attackRoll || !workflow.chatCard) return;
+    if (!workflow.attackRoll || !workflow.chatCard || !workflow.activity?.attack) return;
     const card = workflow.chatCard;
     const finalMode = workflow.attackRoll.options?.attackMode ?? workflow.attackMode;
     const finalType = workflow.activity?.getActionType?.(finalMode) ?? workflow.activity?.actionType;
-    const data = finalType === workflow.activity?.actionType
-      ? workflow.hardwipeRangedAdvisory ?? emptyAdvisory() : emptyAdvisory();
+    let data;
+    if (isRangedAttack({ activity: workflow.activity, attackMode: finalMode })) {
+      data = workflow.hardwipeRangedManualApplied && finalType === workflow.activity?.actionType
+        ? workflow.hardwipeRangedAdvisory ?? emptyAdvisory() : emptyAdvisory();
+    } else {
+      data = collectAttackAdvisory(workflow, finalMode);
+      // Midi chose this mode itself: a straight d20 needs no explanation.
+      if (!Math.sign(Number(workflow.attackRoll.options?.advantageMode) || 0)) data.sources = [];
+      const extra = unlabelledSource(data.sources, workflow.attackRoll.options?.advantageMode, workflow.attackRollModifierTracker?.attribution,
+        { name: game.i18n.localize("HARDWIPE.Advisory.Unlabelled"), rule: game.i18n.localize("HARDWIPE.Advisory.UnlabelledRule") },
+        { dialogUsed: !!workflow.hardwipeDialogUsed });
+      if (extra) data.sources.push(extra);
+    }
     try {
-      if (!workflow.hardwipeRangedManualApplied
-        || !isRangedAttack({ activity: workflow.activity, attackMode: workflow.attackRoll.options?.attackMode ?? workflow.attackMode })) {
-        this._attackerAdvisories.delete(card.id);
-        if (card.getFlag(ID, FLAG)) await card.unsetFlag(ID, FLAG);
+      const sources = (data.sources ?? []).map(({ type, name, grants, unlabelled }) => grants ? { type, name, grants: true }
+        : unlabelled ? { type, name, unlabelled: true } : { type, name });
+      this._attackerAdvisories.set(card.id, [...sources]);
+      if (this._attackerAdvisories.size > 200) this._attackerAdvisories.delete(this._attackerAdvisories.keys().next().value);
+      const current = card.getFlag(ID, FLAG);
+      if (!sources.length) {
+        if (current) await card.unsetFlag(ID, FLAG);
         return;
       }
-      // Public chat flags are readable by other clients. Keep evaluated source names only
-      // on the rolling client; their snapshot survives rerenders, never publishes NPC or defender state.
-      this._attackerAdvisories.set(card.id, [...(data.sources ?? [])]);
-      if (this._attackerAdvisories.size > 200) this._attackerAdvisories.delete(this._attackerAdvisories.keys().next().value);
-      const publicData = { version: 3, manual: true };
-      if (JSON.stringify(card.getFlag(ID, FLAG)) !== JSON.stringify(publicData)) await card.setFlag(ID, FLAG, publicData);
+      const publicData = { version: 4, mode: data.manual ? "manual" : "auto" };
+      if (workflow.actor?.hasPlayerOwner) publicData.sources = maskTargetSources(sources, game.i18n.localize("HARDWIPE.Advisory.FromTarget"));
+      if (JSON.stringify(current) !== JSON.stringify(publicData)) await card.setFlag(ID, FLAG, publicData);
     } catch (error) {
       console.warn(`${ID} | Midi attribution could not be attached to the attack card`, error);
     }
@@ -234,17 +308,25 @@ export class RangedAttackManager {
   static _render(message, html) {
     const root = html?.querySelector ? html : html?.[0];
     root?.querySelectorAll(".hardwipe-ranged-advisory").forEach(node => node.remove());
+    // Ready Set Midi's info icon lists every source by name in its tooltip, to every viewer: an NPC's features, a
+    // target's effects. The roll mode scan replaces it, masked, for the owner; only the GM keeps Midi's own list.
+    if (!game.user.isGM) root?.querySelectorAll(".midi-attribution-info").forEach(node => node.remove());
     const data = message.getFlag(ID, FLAG);
-    if (!root || data?.version !== 3 || !data.manual || message.visible === false || message.isContentVisible === false
+    if (!root || !data || !(data.version === 4 || (data.version === 3 && data.manual)) || message.visible === false || message.isContentVisible === false
       || message.isRollVisible === false || (message.blind && !game.user.isGM)) return;
     const content = root.querySelector(".message-content");
     if (!content) return;
     const actor = ChatMessage.getSpeakerActor(message.speaker);
-    // Older flags were built from guesses. Discard them without rewriting chat history.
-    const sources = (game.user.isGM || actor?.isOwner ? this._attackerAdvisories.get(message.id) ?? [] : [])
-      .filter(source => MODIFIER_LABELS[source?.type] && typeof source.name === "string" && source.name.trim());
+    const allowed = game.user.isGM || actor?.isOwner;
+    // A player-owned attacker's card carries its (masked) names; otherwise they live in memory on the rolling
+    // client. Older flags were built from guesses. Discard them without rewriting chat history.
+    const stored = data.version === 4 && Array.isArray(data.sources);
+    const remembered = this._attackerAdvisories.get(message.id);
+    let sources = allowed ? (game.user.isGM && remembered ? remembered : stored ? data.sources : remembered) ?? [] : [];
+    if (!game.user.isGM) sources = playerSources(sources, game.i18n.localize("HARDWIPE.Advisory.FromTarget"));
+    sources = sources.filter(source => MODIFIER_LABELS[source?.type] && typeof source.name === "string" && source.name.trim());
     if (!sources.length) return;
-    const box = this._readout(root.ownerDocument, message, sources);
+    const box = this._readout(root.ownerDocument, message, sources, data.version === 4 ? data.mode : "manual");
     // The readout belongs to the attack roll: it sits right under it, above the damage.
     const section = content.querySelector(".midi-qol-attack-roll");
     (section ?? content).append(box);
@@ -254,7 +336,7 @@ export class RangedAttackManager {
    * One row per detected source (what it does, then its name and the rule it comes from), and the mode those
    * sources call for, beside the title: advantage and disadvantage together cancel to a straight roll.
    */
-  static _readout(doc, message, sources) {
+  static _readout(doc, message, sources, mode = "manual") {
     const t = (key, data) => data ? game.i18n.format(`HARDWIPE.Advisory.${key}`, data) : game.i18n.localize(`HARDWIPE.Advisory.${key}`);
     const el = (tag, className, text) => {
       const node = doc.createElement(tag);
@@ -274,7 +356,7 @@ export class RangedAttackManager {
 
     const head = el("header", "hwra-head");
     const call = el("span", `hwra-call is-${expected}`);
-    call.append(el("span", "hwra-k", t("Rules")), el("span", `hwra-mode is-${expected}`, t(`Short.${expected}`)));
+    call.append(el("span", "hwra-k", t(mode === "auto" ? "Applied" : "Rules")), el("span", `hwra-mode is-${expected}`, t(`Short.${expected}`)));
     const cancel = expected === "norm" && sources.some(s => s.type === "ADV") && sources.some(s => s.type === "DIS");
     call.dataset.tooltip = cancel ? t("Cancel") : t(`Should.${expected}`);
     head.append(el("span", "hwra-title", t("Title")), call);

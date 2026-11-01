@@ -9,7 +9,7 @@
 | <img src="media/wall-types-manager.webp" alt="Wall type manager with AC, HP, armor, and threshold fields" width="440"> | <img src="media/wall-config-current.webp" alt="Compact Hardwipe section at the bottom of Foundry's wall editor" width="380"> |
 
 1. Open **Game Settings → Hardwipe Ruleset → Manage wall types**.
-2. Create or edit a type with its material appearance, AC, maximum HP, starting HP, armor reduction, and damage threshold.
+2. Create or edit a type with its material appearance, AC, maximum HP, starting HP, armor reduction, damage threshold, and top height (0 for a full-height wall).
 3. Select the scene wall and assign that type. In the public release, use **Wall Controls → Configure wall cover**. The audited preview also puts a compact Hardwipe section at the **bottom** of the native Wall Configuration window.
 4. Save. Enable **Show damage and glimpses** for visible wear and sight/light slits.
 
@@ -23,6 +23,10 @@ Untagged solid walls are **indestructible cover**. A type existing in the manage
 | Reinforced wall | 10 | 80 | 10 | 15 |
 
 These are editable presets. Create, duplicate, rename, or delete types in-app. Editing a preset does not retroactively change configured walls; reapply it to update them. Existing section damage remains unless **Reset section HP to starting HP** is selected. Lowering maximum HP clamps current HP.
+
+## Low walls
+
+A barricade, a parapet or a car is a wall with a **top height** in scene units (feet on a five-foot grid); 0 is full height. Set it in the wall type, in the Hardwipe section of the wall editor, or in **Configure wall cover**. A token whose eyes are above the top sees and shoots over the wall: each cover line is checked at the height where it crosses the wall, so a sniper on a 10 ft roof shoots over a 4 ft barricade that still covers whoever crouches behind it. A token's eyes are at its elevation plus half its height, 2.5 ft for a medium token on the ground. Light, sound, movement and area blasts are stopped by the wall at any height.
 
 ## Threshold first, armor second
 
@@ -52,7 +56,7 @@ The private review shows raw damage, threshold/armor context, section HP, propos
 
 If the attack or damage roll changes while the proposal is still waiting (a reroll, a bonus, critical dice), the attacker's client withdraws it and posts a new one from the current rolls. Once the GM has applied or ignored it, the proposal stands: to change wall damage already applied, use **Undo last wall damage** and roll again.
 
-Repeated approvals cannot apply one impact twice. Moved tokens, changed geometry, or changed durability can make a proposal stale and stop application. Pending review remains available after reload. Direct wall approval requires the GM to view that scene.
+Repeated approvals cannot apply one impact twice. Moved tokens (a change of position or of elevation on either side), changed geometry, or changed durability make a proposal stale and stop application. Pending review remains available after reload. Direct wall approval requires the GM to view that scene.
 
 ## Target a wall directly
 
@@ -143,4 +147,4 @@ At zero HP, Hardwipe removes that fixed five-foot interval and keeps the remaini
 
 Turning off damage and glimpses restores original sight/light restrictions and removes the visual helpers. Treat generated boundaries as module-managed; configure the physical parent wall.
 
-Hardwipe changes Foundry wall geometry and overlays marks. It does not repaint the scene background. A wall drawn in the map art can remain visible after its collision boundary is breached. Cover is a two-dimensional footprint calculation on the scene level, without wall height, bullet penetration, or ricochets.
+Hardwipe changes Foundry wall geometry and overlays marks. It does not repaint the scene background. A wall drawn in the map art can remain visible after its collision boundary is breached. Cover is a footprint calculation on the scene level with a per-wall top height, without bullet penetration or ricochets.

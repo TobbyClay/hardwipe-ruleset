@@ -60,6 +60,12 @@ test("explicit levels and elevation exclude unrelated physical walls", () => {
   assert.equal(isPhysicalAreaWall(upper, region({ elevation: { bottom: 20, top: 20 } }), { upper: { bottom: 20, top: 30 } }), true);
 });
 
+test("a wall's top height does not let a blast pass over it", () => {
+  const low = wall("low", [100, 0, 100, 100], { flags: { "hardwipe-ruleset": { cover: { height: 4 } } } });
+  assert.equal(isPhysicalAreaWall(low, region({ elevation: { bottom: 5, top: 10 } })), true);
+  assert.equal(isPhysicalAreaWall(low, region()), true);
+});
+
 test("partially reached sections qualify, endpoint-only contact does not", () => {
   const hits = expose([wall("thin", [100, 0, 100, 100])], [region({ sourcePolygons: [rectangle(90, 5, 110, 6)] })]);
   assert.equal(hits.length, 1);

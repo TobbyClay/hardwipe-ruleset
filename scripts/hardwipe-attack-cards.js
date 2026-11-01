@@ -64,6 +64,15 @@ export function scRarityKey(item, { viewers = "nobody", isGM = false } = {}) {
 }
 
 /**
+ * The rarity a card's text may name to this viewer. dnd5e conceals an unidentified item's rarity from
+ * players on its sheets, so they get "" here; GMs, and everyone for identified items, get the item's rarity.
+ */
+export function shownRarity(item, { isGM = false } = {}) {
+  if (item?.system?.identified === false && !isGM) return "";
+  return item?.system?.rarity ?? "";
+}
+
+/**
  * SC Item Rarity Colors publishes each rarity's colours as variables on its own classes; giving an
  * element those classes lets SC colour it with the user's palette and toggles.
  */

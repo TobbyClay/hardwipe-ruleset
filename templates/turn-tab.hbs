@@ -287,6 +287,7 @@
     <ul class="unlist hardwipe-turn-options">{{#each outside}}{{> hardwipeTurnOption}}{{/each}}</ul>
   </details>
   {{/if}}
+  {{#if @root.rules.show}}{{> "modules/hardwipe-ruleset/templates/roll-rules.hbs" @root.rules}}{{/if}}
   {{/unless}}
   {{/with}}
 </section>

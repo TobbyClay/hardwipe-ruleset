@@ -13,6 +13,8 @@ Cyberware is ordinary **Equipment** in the character's inventory. Choosing a **C
 3. Add ordinary Active Effects for passive benefits and D&D5e Activities for actions.
 4. Queue its installation from the Cyberware tab and complete a qualifying rest.
 
+The GM can skip the rest: the bolt button beside an implant, on the Cyberware tab or on the item's own sheet, installs or removes it at once and evicts whatever the region held. On the **Hardwipe NPC** sheet the same tab appears once an NPC carries an implant: drop one into its inventory, then install it with the bolt.
+
 Installed cyberware replaces common attunement for those items; ordinary equipment keeps native attunement. The equip indicator reflects installation and cannot skip the swap process.
 
 ## Slots and service

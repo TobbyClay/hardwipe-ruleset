@@ -72,6 +72,18 @@ node .github/scripts/check-module.mjs
 
 These checks don't replace runtime verification in Foundry; see the scope below.
 
+## Migrations
+
+Flags carry version fields and every reader tolerates older shapes, so a world never breaks on upgrade. From 0.7.49 the stored data is also brought up to date once: on `ready`, the active GM's client runs every step in [`scripts/hardwipe-migrations.js`](../scripts/hardwipe-migrations.js) newer than the world's recorded version (the hidden world setting `migrationVersion`), then records the module version. Steps are idempotent, run in version order, and a step that fails stops the run with a GM notice and is retried at the next load. `game.hardwipe.migrate({ force: true })` runs every step again. Compendium packs are not touched.
+
+| Version | Step | What it changes |
+| --- | --- | --- |
+| 0.7.49 | `shield-max` | Shields with Hardwipe HP but no stored maximum get `max: 10`, the value every shield had before maximums were per item. |
+| 0.7.49 | `cyberware-flags` | Cyberware items without their state flag (created while Hardwipe was off) become carried, unequipped and unattuned, as new cyberware is. |
+| 0.7.49 | `roll-tracker-ends` | Finished Roll Tracker sessions without an end are ended at their last roll. |
+
+Add a step by appending to `MIGRATIONS` with the version it ships in; keep its planner pure and cover it in `tests/migrations.test.mjs`.
+
 ## Verification scope
 
 ### Wall Effects integration, 2026-10-09
@@ -87,6 +99,18 @@ Its matching tested Ready Set Midi JavaScript SHA256 is:
 This hash supersedes the earlier companion hash **for the Wall Effects preview only**. Keep both records with their respective audit scope. Native Foundry 14.367 / D&D5e 6.0.5 GM and Player checks cover normal and half damage, threshold boundaries, private approval, Ignore, stale and duplicate decisions, reload, optical gaps, breaches, grouped undo, multiple origins, overlapping areas, and the existing Spread mode. The geometry suite has 16 passing cases; the production placement-count helper has six passing cases. Emanations and rings remain manual wall-damage cases; a native ring cast verified the warning.
 
 **Superseded in 0.7.46:** emanations and rings now damage walls (an emanation from every point of the caster's space, a ring across its band), and the per-shape defaults offer the damage modes. Native player casts of every dnd5e area shape, GM approval, Ignore, breach, undo and a stale emanation were rechecked; the geometry suite has 20 passing cases. See `_release-audit/area-walls-0.7.46/QA-Report.md`.
+
+### 0.7.49 preview, 2026-10-22 to 2026-10-26
+
+Runtime-checked in a disposable copy of the QA world on Foundry 14.367, D&D5e 6.0.6 and Ready Set Midi 14.0.10.3, with a GM client and, in the final pass, a player client:
+
+- Crew fire: the GM re-derives the crew, and a forged request naming a stranger is refused.
+- NPC sheet with a Cyberware tab once the NPC carries an implant; GM instant install; per-shield maximum HP; the migration runner.
+- Wall top height for cover lines and token sight; applying a wall impact is refused after either token changes position or elevation.
+- Cover is worked out for each attack and never left on the target.
+- Roll rules: the scan saved on player characters' cards and masked for players, shown on melee only when Midi applied a mode; the Turn tab panel with feature modes; the condition rule built from D&D5e's live table.
+
+Known limits: Ready Set Midi's own roll data names every source for anyone reading the console; the character inventory tab raises a harmless ResizeObserver notice, as 0.7.48 did.
 
 ### Edge plays, card pass, typed chat and light mode, after 0.7.48
 

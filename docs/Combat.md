@@ -32,15 +32,23 @@ With GM-confirmed attacks on, it's the GM's call: when Coup de Grace can apply, 
 
 *(Next release.)* A player character's initiative can be a skill check. The window that opens on rolling (sheet or combat tracker), in the pirate radio or the NCPD dispatch voice by turns, offers ordinary initiative, then every skill with its bonus; the chosen skill's total replaces D&D5e's initiative modifier, proficiency and initiative bonuses, while condition penalties and the Dexterity tiebreaker stay. D&D5e's roll dialog is skipped after the window, and advantage is set on the initiative card's switch. The card's label names the skill. NPCs, fixed initiative scores, and the GM's **Roll All** / **Roll NPCs** stay ordinary initiative.
 
-## Ranged hints name the actual source
+## The roll mode scan names the actual source
 
 <img src="media/ranged-advisory-current.webp" alt="Roll mode scan under a ranged attack: the sources found and the mode to roll" width="350">
 
-The roller chooses Normal, Advantage, or Disadvantage. After the roll, the **roll mode scan** under the attack lists only the sources Ready Set Midi actually evaluated for that attack, using Midi's own labels, and says which mode they call for: **ADV**, **DIS** or **Straight** (advantage and disadvantage cancel; a blocking source strikes out the side it blocks). Conditional flags that evaluate false produce no hint. With no identified source, there is no box.
+Under an attack roll, the **roll mode scan** lists the advantage and disadvantage sources Ready Set Midi evaluated for that attack, by name, and the mode they add up to: **ADV**, **DIS** or **Straight** (the two cancel; a block strikes out its side). For a ranged attack you choose the mode, so the scan tells you what to roll. A melee attack's mode is set by Midi; its scan appears only when the roll had advantage or disadvantage, and reads **Applied**. No source, no box.
 
-Ranged weapons and ranged spell attacks retain manual roll mode. A newly selected Thrown mode does not borrow attribution calculated for melee; if Midi has no matching source calculation, its advisory stays hidden. Ordinary melee automation keeps its existing behavior.
+Only the attacker's owner and the GM see the scan. A rule the target grants reads **Granted by the target** for players. A player character's scan is saved on the card; an NPC's sources stay on the GM's screen. The GM also sees an **Unlabelled modifier** row when something outside any named rule changed the roll.
 
-The advisory does not inspect conditions, guess at unevaluated flags, or turn an unlabelled native modifier into a generic reminder. Clicking Advantage is a choice, not an identified rules source. Source names stay on the rolling client and are shown only to the actor's owner or GM on that client. They are not added to shared chat flags, and the local snapshot does not survive a reload. Older guessed advisories are hidden. Range limits still apply. Rules that Midi does not identify cannot generate a hint here.
+## Roll rules on the sheet
+
+The **Roll rules** panel at the bottom of a character's Turn tab (an NPC's: under Features, for the GM) lists what is in force on the character now, each rule named after its cause: an effect and its feature, or the condition or armor behind one of D&D5e's own modes. Rules against the character are under **Rolls against you**. To add a rule, give the feature or implant an Active Effect with a Midi flag such as `flags.midi-qol.advantage.attack.rwak`; the effect's name is what players read.
+
+**Modes.** A feature can offer modes the player switches on from the panel: a stance, an aim setting. Each is an Active Effect on the feature that the GM marks **Hardwipe mode** and leaves suspended. One mode per feature is on at a time.
+
+**Conditions.** D&D5e lists the conditions that give disadvantage on attack rolls but nothing applies them to attacks, so Hardwipe does, following the world's rules version: Poisoned, and under the 2014 rules Exhaustion 3. It stands aside when another module's condition effect already gives that disadvantage.
+
+Code and macros add named sources through `game.hardwipe.rules.register` or the `hardwipe.attackSources` hook; see the [reference](Reference.md).
 
 ## Read and apply a roll
 
@@ -64,7 +72,7 @@ When Ready Set Midi applies the damage itself, that application is logged on the
 
 Carry and **equip** a shield to qualify. The compact Shield Block button appears only when an applicable controllable character has one equipped. A spent reaction disables it with a reason. Wall-only impacts do not offer or spend Shield Block.
 
-Shield HP belongs to the Equipment item and stays within 0–10. At zero, the shield is broken and unequipped. Repair or healing clears Broken without automatically re-equipping it. The editor and inventory meter read the same saved HP.
+Shield HP belongs to the Equipment item and stays between 0 and the shield's maximum: 10 unless the GM sets another (1 to 99) in the **Max HP** field on the shield's sheet. At zero, the shield is broken and unequipped. Repair or healing clears Broken without automatically re-equipping it. The editor and inventory meter read the same saved HP.
 
 ![Actual inventory shield HP meter below disabled and damaged implant activities](media/resources-shield-current.png)
 

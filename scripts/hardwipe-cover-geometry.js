@@ -86,10 +86,11 @@ function wallEndpoints(wall) {
 
 /**
  * Return the nearest wall contact along the shot; isBlocking(wall) may filter
- * doors, elevation, and direction outside this 2D helper. Equal-distance walls
+ * doors, levels, and direction outside this 2D helper, and clears(wall, intersection)
+ * lets the shot pass a wall it crosses above that wall's top. Equal-distance walls
  * use their IDs for a stable tie-break, then preserve iterable order.
  */
-export function findFirstWallIntersection(origin, target, walls, { isBlocking } = {}) {
+export function findFirstWallIntersection(origin, target, walls, { isBlocking, clears } = {}) {
   if (!isPoint(origin) || !isPoint(target) || !walls) return null;
   let first = null;
   const tolerance = pixelTolerance(origin, target) / Math.max(1, Math.hypot(target.x - origin.x, target.y - origin.y));
@@ -100,6 +101,7 @@ export function findFirstWallIntersection(origin, target, walls, { isBlocking } 
     if (!endpoints) continue;
     const intersection = segmentIntersection(origin, target, ...endpoints);
     if (!intersection) continue;
+    if (clears && clears(wall, intersection)) continue;
     const wallId = wall.id ?? wall._id ?? wall.document?.id ?? wall.document?._id ?? null;
     if (first && intersection.t > first.t + tolerance) continue;
     if (first && Math.abs(intersection.t - first.t) <= tolerance && String(wallId ?? "") >= String(first.wallId ?? "")) continue;

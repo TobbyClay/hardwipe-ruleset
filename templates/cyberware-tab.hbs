@@ -173,6 +173,11 @@
               data-tooltip="{{../labels.install}}" aria-label="{{../labels.install}}" {{#unless canInstall}}disabled{{/unless}}><i class="fas fa-arrow-down-to-bracket" inert></i> {{../labels.installShort}}</button>
             {{/if}}
             {{/if}}
+            {{#if ../isGM}}
+            <button type="button" class="always-interactive hardwipe-btn is-icon {{#if installed}}is-danger{{else}}is-primary{{/if}}" data-action="hardwipeCyberware"
+              data-cyberware-action="{{#if installed}}gm-remove{{else}}gm-install{{/if}}" data-tooltip="{{../labels.gmInstallHint}}"
+              aria-label="{{#if installed}}{{../labels.removeNow}}{{else}}{{../labels.installNow}}{{/if}}"><i class="fas fa-bolt" inert></i></button>
+            {{/if}}
           </div>
           {{/if}}
         </div>
