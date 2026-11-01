@@ -26,6 +26,7 @@ import { registerInitiativeCards } from "./hardwipe-initiative.js";
 import { registerInitiativeChoice } from "./hardwipe-initiative-choice.js";
 import { registerEye } from "./hardwipe-eye.js";
 import { registerManufacturers } from "./hardwipe-manufacturers.js";
+import { registerLegendary } from "./hardwipe-legendary.js";
 import { registerToolCards } from "./hardwipe-tool-cards.js";
 import { registerRollTracker } from "./hardwipe-roll-tracker.js";
 import { RecapDialog, RollTrackerApp, SessionDialog } from "./hardwipe-roll-tracker-app.js";
@@ -70,6 +71,7 @@ Hooks.once("init", async () => {
   registerInitiativeChoice();
   registerEye();
   registerManufacturers();
+  registerLegendary();
   registerToolCards();
   // Ready Set Midi's retroactive bonus dialog (the + on a roll) wears Hardwipe's dialog style.
   Hooks.on("renderDialogV2", (app, element) => {

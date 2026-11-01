@@ -4,7 +4,7 @@
 
 Hardwipe gives each kind of action its own software-inspired display. Click any image to open the full capture. The examples use synthetic characters and scenes, so the QA names are demonstration data.
 
-[Weapons](#weapon-outcomes-and-gm-review) · [Makers](#weapon-makers) · [Spells](#spell-programs) · [Concentration](#concentration-interrupts) · [Checks](#checks-and-initiative) · [Gear](#gear-and-class-features) · [Consumables](#consumables) · [Features](#class-features) · [Tools](#tools) · [Prompts](#prompts) · [Crew](#crew-maneuvers) · [Implants](#cyberware-diagnostics) · [Rests](#short-rest-monitor) · [Chat](#typed-messages) · [Rolls](#plain-rolls) · [System cards](#edge-strikes-and-downed) · [Roll calls](#roll-calls) · [Braindance](#braindance) · [Heat](#mission-heat-styles)
+[Weapons](#weapon-outcomes-and-gm-review) · [Makers](#weapon-makers) · [Legendary](#legendary-cards) · [Spells](#spell-programs) · [Concentration](#concentration-interrupts) · [Checks](#checks-and-initiative) · [Gear](#gear-and-class-features) · [Consumables](#consumables) · [Features](#class-features) · [Tools](#tools) · [Prompts](#prompts) · [Crew](#crew-maneuvers) · [Implants](#cyberware-diagnostics) · [Rests](#short-rest-monitor) · [Chat](#typed-messages) · [Rolls](#plain-rolls) · [System cards](#edge-strikes-and-downed) · [Roll calls](#roll-calls) · [Braindance](#braindance) · [Heat](#mission-heat-styles)
 
 ## Weapon outcomes and GM review
 
@@ -34,6 +34,37 @@ Use a weapon activity to make the roll; the GM confirms each target. The verdict
 *(Next release.)* Set a weapon's **Manufacturer** on its Details tab and its attack card wears that maker: the bar and wordmark, an emblem behind the head, the title's type, a serial plate, and the roll card's rail. The outcome still reads where it always does: the outline, the verdict strip and the targets keep their hit, miss and critical colours, and a miss fades the brand.
 
 Eleven makers have a style: **Arasaka**, **Militech**, **Kang Tao**, **Tsunami Defense Systems**, **Budget Arms**, **Malorian Arms**, **Constitutional Arms**, **Techtronika**, **Maelstrom**, and the campaign's own **PALE** (circuit hands forcing their way in through a damaged card) and **????** (a card running out of power). Any other maker shows its name on the plain card's bar; no maker keeps the plain card. A card follows the weapon's current maker, so changing it redraws the weapon's cards already in chat.
+
+### Legendary cards
+
+*(Next release.)* A rare enough weapon can have a chat card of its own, in place of the plain card and its maker's style. Every card of that weapon wears it, the ones already in chat too. There are two kinds. [Making one →](GM.md#legendary-cards)
+
+<img src="media/legendary-own.webp" alt="Four weapons' own cards: Silver Tongue on engraved chrome turned blue, with a painting behind the plate and its own lines; La Chingona Dorada on gold leaf, the name in script, Para Jackie above it; Saint's Due as a neon sign with Our Lady of the Combat Zone above the name and a flavour line; Satori in ink on washi with its seal" width="900">
+
+**Its own card.** The GM starts from a design and makes it that weapon's own: its art behind the panel, a hue, the title's type and colour, a line above and below the name, a badge, a flavour line. It's saved on that weapon and no other. The designs to start from: **Engraved** (brushed chrome, brass filigree), **Holo foil** (the weapon's art in a window, a sheen), **Evidence file** (a typed case sheet, a stamp), **Neon shrine** (a pink tube on brick, a halo), **Backstage pass** (a chrome pass on a lanyard), **Gilded** (gold leaf, marigolds, papel picado), **Ink and seal** (washi, a brushed circle, a seal) and **Smart-link screen** (a pixel face with a word on every shot).
+
+<img src="media/legendary-signatures.webp" alt="Four signature cards: Exhibit C with NCPD crime-scene tape, a photo of the sledgehammer with an evidence marker and a scale, and a sealed NCPD evidence bag; Malorian Arms 3516 as a worn Samurai record sleeve with Johnny Silverhand's name and two track titles, the record sliding out; Skippy in Stone Cold Killer mode as a message thread saying Nailed it. You're welcome.; Guts as a pink and cyan card covered in stickers, BANG! and a Property of Rebecca tag" width="900">
+
+**A signature card.** Hand-built for one known weapon, and on one weapon at a time:
+
+- **Exhibit C**, a sledgehammer used in a crime: NCPD crime-scene tape, the scene photo with its marker and scale, the sealed NCPD evidence bag. A critical fires the camera's flash.
+- **Malorian Arms 3516**, Johnny Silverhand's pistol: a worn Samurai record sleeve (Chippin' In, Never Fade Away), the record sliding out. A critical spins it.
+- **Skippy**, the talking smart pistol, in Stone Cold Killer mode: its message thread. It types while the GM decides, and has something to say about every result.
+- **Guts**, Rebecca's shotgun: a card bombed with stickers in pink and cyan, BANG! included.
+
+<img src="media/legendary-signatures-2.webp" alt="Five more signature cards: Plan B as Dexter DeShawn's gold-edged business card with a bill reading Worth every eddie; Overwatch as the Badlands at dusk seen beside a scope, with an Aldecaldos patch; Lizzie as a pink braindance shard from Lizzie's Bar, protected by the Mox; La Chingona Dorada on Jackie Welles' ofrenda with candles, marigolds and his frame; Satori in a black lacquer case with the blade and a red silk cord, dimmed on a miss" width="680">
+
+- **Plan B**, Dexter DeShawn's pistol, which pays for every shot in eddies: the fixer's card, and the bill, whose last line follows the result.
+- **Overwatch**, Panam Palmer's suppressed sniper rifle: the Badlands at dusk beside its scope, an Aldecaldos patch. A critical lights the reticle.
+- **Lizzie**, the pink pistol from Judy's den at Lizzie's Bar: a braindance shard with a heart sticker, protected by the Mox.
+- **La Chingona Dorada**, Jackie Welles' pistols, left on his ofrenda at El Coyote Cojo: candles, marigolds and a frame for his photo.
+- **Satori**, Saburo Arasaka's katana, taken in the Konpeki Plaza heist: a black lacquer case, the blade, a red silk cord.
+
+Each signature card has a slot for a logo from your own files: the band's logo on Johnny's sleeve, a badge on the evidence bag, Skippy's picture in the chat, a sticker on Guts or Lizzie, a patch on Overwatch, a mark on Dex's card, a photo of Jackie in his frame, a crest on Satori's case. It shows in your world only; Hardwipe ships no logos or art from either game, and without one each card uses its own lettering.
+
+**A studio card.** Written by the GM in HTML and CSS in the Card Studio, starting from a blank card or a copy of any card here, and shared as a file. [The Card Studio →](GM.md#card-studio)
+
+The outline, the verdict strip and the targets keep their hit, miss and critical colours, and a miss dims the card. A player sees an unidentified weapon's plain card, without its rarity.
 
 ## Spell programs
 

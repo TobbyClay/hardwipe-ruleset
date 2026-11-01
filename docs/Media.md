@@ -323,4 +323,16 @@ Captured on **2026-10-21** in the disposable QA world, as the QA Player: one liv
 | --- | --- |
 | [weapon-makers.webp](media/weapon-makers.webp) | Unbranded, Arasaka, Militech, Kang Tao, Tsunami Defense Systems, Budget Arms, Malorian Arms, Constitutional Arms, Techtronika, PALE, ???? and Maelstrom. |
 
+## Legendary card capture
+
+Captured on **2026-10-26** in the disposable QA world with Custom D&D's rarities set to Gonk, Street, Nova, Preem and Iconic. Each gallery is four live attacks by the QA Player's Iconic weapons (SRD stand-ins renamed) on the QA Cover Target, ruled by the GM; their heads were cloned side by side as the player sees them, descriptions left out. The own cards were made in the GM's window, which is shown open on Silver Tongue. The galleries are captured at 2×, the window at 1.25×, all saved as WebP.
+
+| Published file | Subject |
+| --- | --- |
+| [legendary-own.webp](media/legendary-own.webp) | Own cards: Silver Tongue (Engraved, with art and a hue), La Chingona Dorada (Gilded), Saint's Due (Neon shrine), Satori (Ink and seal). |
+| [legendary-signatures.webp](media/legendary-signatures.webp) | Signature cards: Exhibit C (hit), Malorian Arms 3516 (critical), Skippy (hit), Guts (critical). |
+| [legendary-signatures-2.webp](media/legendary-signatures-2.webp) | Signature cards: Plan B (hit), Overwatch (critical), Lizzie (hit), La Chingona Dorada (critical), Satori (miss). |
+| [legendary-editor.webp](media/legendary-editor.webp) | The GM's Legendary card window on Silver Tongue's own card. |
+| [legendary-studio.webp](media/legendary-studio.webp) | The Card Studio with a copy of Skippy, previewed on Silver Tongue at a critical. |
+
 The originals remain in the development audit. Documentation media contains no machine-specific file paths, campaign databases, QA result JSON, or recreated UI.

@@ -1,0 +1,67 @@
+<section class="hwc-studio">
+  <div class="hwc-bar">
+    <label class="hwc-bar-field"><span>{{localize "HARDWIPE.Studio.Card"}}</span>
+      <select name="selected" {{#unless cards.length}}disabled{{/unless}}>
+        {{#each cards}}<option value="{{id}}" {{#if selected}}selected{{/if}}>{{name}}</option>{{/each}}
+        {{#unless cards.length}}<option value="">{{localize "HARDWIPE.Studio.None"}}</option>{{/unless}}
+      </select>
+    </label>
+    <label class="hwc-bar-field"><span>{{localize "HARDWIPE.Studio.Start"}}</span>
+      <select name="start">
+        <option value="blank">{{localize "HARDWIPE.Studio.Blank"}}</option>
+        <optgroup label="{{localize "HARDWIPE.Studio.Signatures"}}">{{#each signatures}}<option value="{{value}}">{{label}}</option>{{/each}}</optgroup>
+        <optgroup label="{{localize "HARDWIPE.Studio.Bases"}}">{{#each bases}}<option value="{{value}}">{{label}}</option>{{/each}}</optgroup>
+      </select>
+    </label>
+    <button type="button" data-action="create"><i class="fas fa-plus" inert></i> {{localize "HARDWIPE.Studio.New"}}</button>
+    <span class="hwc-bar-gap"></span>
+    <button type="button" data-action="importCards"><i class="fas fa-file-import" inert></i> {{localize "HARDWIPE.Studio.Import"}}</button>
+    <button type="button" data-action="exportCard" {{#unless card}}disabled{{/unless}}><i class="fas fa-file-export" inert></i> {{localize "HARDWIPE.Studio.Export"}}</button>
+    <button type="button" data-action="exportAll" {{#unless cards.length}}disabled{{/unless}}>{{localize "HARDWIPE.Studio.ExportAll"}}</button>
+    <button type="button" data-action="remove" {{#unless card}}disabled{{/unless}}><i class="fas fa-trash" inert></i> {{localize "HARDWIPE.Studio.Delete"}}</button>
+  </div>
+  {{#if card}}
+  <div class="hwc-columns">
+    <div class="hwc-edit">
+      <div class="form-group"><label>{{localize "HARDWIPE.Studio.Name"}}</label><div class="form-fields"><input type="text" name="name" value="{{card.name}}" maxlength="60" required></div></div>
+      <div class="form-group"><label>{{localize "HARDWIPE.Studio.Hint"}}</label><div class="form-fields"><input type="text" name="hint" value="{{card.hint}}" maxlength="200"></div></div>
+      <div class="form-group"><label>{{localize "HARDWIPE.Studio.Unique"}}</label><div class="form-fields"><input type="checkbox" name="unique" {{#if card.unique}}checked{{/if}}></div>
+        <p class="hint">{{localize "HARDWIPE.Studio.UniqueHint"}}</p></div>
+      <div class="hwc-code">
+        <label>{{localize "HARDWIPE.Studio.HTML"}}<small>{{localize "HARDWIPE.Studio.HTMLHint"}}</small></label>
+        <textarea name="html" spellcheck="false" rows="12">{{card.html}}</textarea>
+      </div>
+      <div class="hwc-code">
+        <label>{{localize "HARDWIPE.Studio.CSS"}}<small>{{localize "HARDWIPE.Studio.CSSHint"}}</small></label>
+        <textarea name="css" spellcheck="false" rows="14">{{card.css}}</textarea>
+      </div>
+      <p class="hwc-sites" {{#unless sites}}hidden{{/unless}}><i class="fas fa-globe" inert></i> {{localize "HARDWIPE.Studio.Sites"}} <span>{{sites}}</span></p>
+      <details class="hwc-more">
+        <summary>{{localize "HARDWIPE.Studio.Lines"}}</summary>
+        <p class="hint">{{localize "HARDWIPE.Studio.LinesHint"}}</p>
+        {{#each lines}}<div class="form-group"><label>{{label}}</label><div class="form-fields"><input type="text" name="line-{{tone}}" value="{{value}}" maxlength="120"></div></div>{{/each}}
+      </details>
+      <details class="hwc-more">
+        <summary>{{localize "HARDWIPE.Studio.Tokens"}}</summary>
+        <dl class="hwc-tokens">{{#each tokens}}<dt>{{key}}</dt><dd>{{text}}</dd>{{/each}}</dl>
+        <p class="hint">{{localize "HARDWIPE.Studio.Safety"}}</p>
+      </details>
+    </div>
+    <div class="hwc-preview">
+      <div class="form-group"><label>{{localize "HARDWIPE.Studio.Sample"}}</label><div class="form-fields"><select name="sample">
+        {{#each weapons}}<option value="{{uuid}}" {{#if selected}}selected{{/if}}>{{name}}</option>{{/each}}
+        {{#unless weapons.length}}<option value="">{{localize "HARDWIPE.Studio.SampleWeapon"}}</option>{{/unless}}
+      </select></div></div>
+      <div class="form-group"><label>{{localize "HARDWIPE.Studio.Outcome"}}</label><div class="form-fields"><select name="tone">
+        {{#each tones}}<option value="{{tone}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}
+      </select></div></div>
+      <div class="form-group"><label>{{localize "HARDWIPE.Studio.Logo"}}</label><div class="form-fields"><file-picker name="logo" type="image" value="{{logo}}"></file-picker></div>
+        <p class="hint">{{localize "HARDWIPE.Studio.LogoHint"}}</p></div>
+      <div class="hwc-stage"></div>
+    </div>
+  </div>
+  <footer class="hwc-foot"><button type="submit"><i class="fas fa-floppy-disk" inert></i> {{localize "HARDWIPE.Studio.Save"}}</button></footer>
+  {{else}}
+  <p class="hwc-empty">{{localize "HARDWIPE.Studio.Empty"}}</p>
+  {{/if}}
+</section>
