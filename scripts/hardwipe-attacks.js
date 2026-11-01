@@ -7,7 +7,7 @@ import {
 import { settleCard } from "./hardwipe-assembly.js";
 import { applyCoupDeGrace, coupDeGraceFor, coupTargets } from "./hardwipe-coup.js";
 import { brandCard, itemMaker } from "./hardwipe-manufacturers.js";
-import { bindLegendControl, dressLegendary, legendControlHTML, legendaryDesign, legendaryHeadHTML } from "./hardwipe-legendary.js";
+import { bindLegendControl, dressLegendary, legendControlHTML, legendaryDesign, legendaryHeadHTML, setWeaponPreview } from "./hardwipe-legendary.js";
 import { isSpellCard, renderSpellCard } from "./hardwipe-spell-cards.js";
 import { isImplantCard, renderImplantCard } from "./hardwipe-implant-cards.js";
 import { isCheckCard, renderCheckCard } from "./hardwipe-check-cards.js";
@@ -591,7 +591,7 @@ export class AttackReviewManager {
       // The weapon's legendary card, else the maker's style, else the base card (hardwipe-legendary.js, hardwipe-manufacturers.js).
       dressLegendary(element, card);
       brandCard(element, card ? "" : itemMaker(item), message.id);
-      bindLegendControl(element, item, spec => weaponHeadHTML({ ...view, tone: "attack", status: "" }, item, activity, spec, { preview: true }));
+      bindLegendControl(element, item);
       bindBrief(message, element, item);
       decorateRollCard(message, element, { pending: view.pending, saves, tone: view.tone, locked });
       return;
@@ -963,6 +963,15 @@ function coverSnapshot(workflow, token) {
   if (!bonus) return null;
   return { level: bonus >= 5 ? "threeQuarters" : "half", material: wallBonus >= statusBonus ? material() : "" };
 }
+
+/** A weapon's head with no attack behind it, for the card editors: its first attack's kind, its chips, the outcome's tone. */
+function weaponPreview(item, card, tone = "attack") {
+  const activity = item?.system?.activities?.find?.(entry => entry.type === "attack");
+  const view = { tone, status: "", pending: false, verdict: "", targets: [], weapon: item?.name ?? "",
+    kind: attackKind(activity, ["mwak", "msak"].includes(activity?.actionType)), activity: plainActivityLabel(activity?.name) };
+  return weaponHeadHTML(view, item, activity, card, { preview: true });
+}
+setWeaponPreview(weaponPreview);
 
 /**
  * Weapon banner: type and rarity, the name as the title, attack type, property chips, verdict, targets, description.

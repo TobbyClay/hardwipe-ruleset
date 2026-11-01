@@ -2,6 +2,7 @@ import { MODULE_ID, escapeHTML } from "./hardwipe-state.js";
 import { hashSeed } from "./hardwipe-eye.js";
 import { rerenderCards } from "./hardwipe-attack-cards.js";
 import { itemMaker } from "./hardwipe-manufacturers.js";
+import { openCardStudio, placesStatus, registerCardStudio, studioBodyHTML, studioCards } from "./hardwipe-card-studio.js";
 
 /**
  * Legendary cards: a rare enough weapon can have a chat card of its own in place of the plain card and its maker's
@@ -10,7 +11,9 @@ import { itemMaker } from "./hardwipe-manufacturers.js";
  *   lines, saved on the weapon;
  * - a signature card: hand-built here for one known weapon, and on one weapon at a time. Each has a slot for a logo
  *   (the band's on Johnny's sleeve, a badge on the evidence bag): an image from the world's own files, which the GM
- *   sets once per card. Hardwipe ships no game logos or art.
+ *   sets once per card. Hardwipe ships no game logos or art;
+ * - a studio card: written by the GM in HTML and CSS in the Card Studio (hardwipe-card-studio.js), and shared as files.
+ * The GM opens a weapon's card from the crown on its attack card, or from its sheet (GM only).
  * The choice is saved on the item (`flags["hardwipe-ruleset"].cardIdentity`), so every card of that weapon wears it,
  * the ones already in chat too. Which weapons qualify is a rarity floor in the system's rarity order, so Custom D&D's
  * own tiers count as the GM ranks them. The verdict, the targets and the roll card keep their outcome colours
@@ -73,27 +76,31 @@ export function cleanLogo(path) {
   return String(path ?? "").trim().slice(0, LIMITS.art);
 }
 
-/** What a flag asks for: the weapon's own card, a signature card, or null (the plain card, a newer schema, a design that's gone). */
-export function cardSpec(flag) {
+/**
+ * What a flag asks for: the weapon's own card, a signature card, a studio card (one of `studio`, the world's), or null
+ * (the plain card, a newer schema, a card that's gone).
+ */
+export function cardSpec(flag, studio = {}) {
   if (flag?.schema !== 1) return null;
   if (flag.mode === "signature") return Object.hasOwn(SIGNATURES, flag.signature) ? { kind: "signature", id: flag.signature } : null;
+  if (flag.mode === "studio") return Object.hasOwn(studio, flag.studio) ? { kind: "studio", id: flag.studio } : null;
   if (flag.mode !== "own") return null;
   const own = cleanOwn(flag.own);
   return own.base ? { kind: "own", own } : null;
 }
 
 /** The card a viewer sees for a weapon: one is set, the weapon is rare enough, and a player knows what it is. */
-export function cardDesign(item, { table, chosen, isGM }) {
+export function cardDesign(item, { table, chosen, isGM, studio = {} }) {
   if (item?.type !== "weapon") return null;
-  const spec = cardSpec(item.flags?.[MODULE_ID]?.[FLAG]);
+  const spec = cardSpec(item.flags?.[MODULE_ID]?.[FLAG], studio);
   if (!spec || !reachesFloor(rarityKey(item), table, chosen)) return null;
   if (item.system?.identified === false && !isGM) return null;
   return spec;
 }
 
-/** The other weapons wearing a signature card (one weapon at a time: applying it elsewhere takes it off them). */
-export function heldElsewhere(items, id, uuid) {
-  return items.filter(item => item.uuid !== uuid && cardSpec(item.flags?.[MODULE_ID]?.[FLAG])?.id === id);
+/** The other weapons wearing a signature or studio card (one weapon at a time: applying it elsewhere takes it off them). */
+export function heldElsewhere(items, id, uuid, studio = {}) {
+  return items.filter(item => item.uuid !== uuid && cardSpec(item.flags?.[MODULE_ID]?.[FLAG], studio)?.id === id);
 }
 
 /** A serial for the card, the same on every client: from the item, not the message. */
@@ -126,7 +133,8 @@ const STICKERS = '<svg class="hws-star" viewBox="0 0 24 24"><path d="M12 1l3.2 7
   + '<svg class="hws-bolt" viewBox="0 0 16 26"><path d="M10 1L1 15h6l-2 10 10-15H9z" fill="#3ff3ff" stroke="#111" stroke-width="1.3" stroke-linejoin="round"/></svg>';
 
 const title = p => `<div class="hardwipe-chat-title hwl-title">${p.name}</div>`;
-const top = (p, label) => `${label}<span class="hardwipe-attack-status">${p.status}</span>${p.control}`;
+const top = (p, label) => `${label}${p.templating ? "{{status}}" : status(p)}`;
+const status = p => `<span class="hardwipe-attack-status">${p.status}</span>${p.control}`;
 // What every card keeps, in the base card's order: the attack's kind, the chips, the verdict, the targets, the brief.
 const tail = p => `${p.kind}${p.props}${p.verdict}${p.targets}${p.brief}${p.meta}`;
 const joined = (...parts) => parts.filter(Boolean).join(" · ");
@@ -141,9 +149,18 @@ const KATANA = '<svg class="hws-blade" viewBox="0 0 240 24">'
   + '<rect x="4" y="9.5" width="48" height="6" rx="2" fill="#2a0c0c"/>'
   + `<path d="${Array.from({ length: 8 }, (_, i) => `M${6 + i * 6} 9.5l6 6M${12 + i * 6} 9.5l-6 6`).join("")}" stroke="#b3141c" stroke-width="1.2"/>`
   + '<rect x="2" y="9" width="4" height="7" rx="1" fill="#b8932f"/></svg>';
-const logo = (p, cls) => p.logo ? `<img class="hws-logo ${cls}" src="${p.logo}" alt="" draggable="false">` : "";
 const OUTCOMES = new Set(["attack", "pending", "hit", "critical", "miss", "mixed", "fumble"]);
 const outcome = tone => OUTCOMES.has(tone) ? tone : "attack";
+// When `p.templating` is set, a card writes itself out as a studio template: tokens in place of the logo, its line
+// and its outcome's switches (see builtinTemplate).
+const logoImg = (src, cls) => `<img class="hws-logo ${cls}" src="${src}" alt="" draggable="false">`;
+const logoOr = (p, cls, fallback = "") => p.templating
+  ? `{{#logo}}${logoImg("{{logo}}", cls)}{{/logo}}${fallback ? `{{^logo}}${fallback}{{/logo}}` : ""}`
+  : p.logo ? logoImg(p.logo, cls) : fallback;
+const say = (p, key) => p.templating ? "{{line}}" : tx(key);
+const when = (p, tone, html, otherwise = "") => p.templating
+  ? `{{#${tone}}}${html}{{/${tone}}}${otherwise ? `{{^${tone}}}${otherwise}{{/${tone}}}` : ""}`
+  : outcome(p.tone) === tone ? html : otherwise;
 
 /* The base designs ------------------------------------------------------------------------------ */
 
@@ -191,7 +208,7 @@ const BASES = {
     ${tail(p)}`,
   smartlink: p => `<div class="hwl-top">${top(p, `<span class="hwl-rarity">${p.rarity}</span>`)}</div>
     <div class="hwl-screen hwl-show">${art(p)}<div class="hwl-chat"><span class="hwl-face"><i></i><i></i><b></b></span>
-      <span class="hwl-bubble">${p.badge || tx(`Smartlink.${outcome(p.tone)}`)}</span></div>
+      <span class="hwl-bubble">${p.badge || say(p, `Smartlink.${outcome(p.tone)}`)}</span></div>
       ${kicker(p)}${title(p)}<div class="hwl-sub">${p.subtitle || joined(p.type, p.maker)}</div>${quote(p)}</div>
     ${tail(p)}`
 };
@@ -209,7 +226,7 @@ const SIGNATURES = {
     <div class="hws-scene">
       <div class="hws-photo hwl-fold">${p.img ? `<img src="${p.img}" alt="" draggable="false">` : ""}<i class="hws-ruler"></i><i class="hws-tent">C</i><i class="hws-spatter"></i><i class="hws-flash"></i></div>
       <div class="hws-bag"><div class="hws-zip"></div><div class="hws-print"><b>${tx("Sig.Print")}</b><span>#${p.serial}</span></div>
-        ${logo(p, "is-badge")}${title(p)}<div class="hws-note">${tx("Sig.Recovered")}</div>
+        ${logoOr(p, "is-badge")}${title(p)}<div class="hws-note">${tx("Sig.Recovered")}</div>
         <div class="hws-custody"><span>${tx("Sig.Custody")}</span>${SCRAWL}<em>${tx("Sig.Sealed")}</em></div></div>
     </div>
     ${tail(p)}`,
@@ -218,57 +235,58 @@ const SIGNATURES = {
   "malorian-3516": p => `<div class="hwl-top">${top(p, `<span class="hwl-rarity">${p.rarity}</span>`)}</div>
     <div class="hws-deck"><i class="hws-record hwl-fold"><i class="hws-label"><b>3516</b><small>${tx("Sig.Side")}</small></i></i>
       <div class="hws-sleeve"><i class="hws-ring"></i><i class="hws-burn"></i>
-        <div class="hws-band">${p.logo ? logo(p, "is-band") : `<b>${tx("Sig.Band")}</b>`}</div>
+        <div class="hws-band">${logoOr(p, "is-band", `<b>${tx("Sig.Band")}</b>`)}</div>
         <div class="hws-artist">${tx("Sig.Artist")}</div>${title(p)}<div class="hws-live">${tx("Sig.Tracks")}</div>
         <span class="hws-sticker hwl-fold">${tx("Sig.Sticker")}</span></div></div>
     ${tail(p)}`,
   // Skippy, the talking smart pistol: a message thread, and it has a word on every shot.
   skippy: p => {
     const tone = outcome(p.tone);
-    const lines = [t(`Sig.Skippy.${tone}`), tone === "pending" ? "" : t(`Sig.Skippy.${tone}2`)].filter(Boolean);
+    const lines = p.templating ? ["{{line}}"]
+      : [t(`Sig.Skippy.${tone}`), tone === "pending" ? "" : t(`Sig.Skippy.${tone}2`)].filter(Boolean).map(line => escapeHTML(line));
     return `<div class="hwl-top">${top(p, `<span class="hwl-rarity">${p.rarity}</span>`)}</div>
-      <div class="hws-phone"><div class="hws-contact"><span class="hws-avatar">${p.logo ? logo(p, "is-avatar") : "<i></i><i></i><b></b>"}</span>
-        <span class="hws-who">${title(p)}<small>${tx(tone === "pending" ? "Sig.Typing" : "Sig.Online")}</small></span><span class="hws-aim">${tx("Sig.Mode")}</span></div>
-        <div class="hws-thread">${lines.map(line => `<div class="hws-msg">${escapeHTML(line)}</div>`).join("")}
-          ${tone === "pending" ? '<div class="hws-msg hws-dots"><i></i><i></i><i></i></div>' : ""}</div>
+      <div class="hws-phone"><div class="hws-contact"><span class="hws-avatar">${logoOr(p, "is-avatar", "<i></i><i></i><b></b>")}</span>
+        <span class="hws-who">${title(p)}<small>${when(p, "pending", tx("Sig.Typing"), tx("Sig.Online"))}</small></span><span class="hws-aim">${tx("Sig.Mode")}</span></div>
+        <div class="hws-thread">${lines.map(line => `<div class="hws-msg">${line}</div>`).join("")}
+          ${when(p, "pending", '<div class="hws-msg hws-dots"><i></i><i></i><i></i></div>')}</div>
         <div class="hws-meta">${joined(p.type, p.maker)}</div></div>
       ${tail(p)}`;
   },
   // Guts, Rebecca's shotgun: a card bombed with stickers in pink and cyan.
   guts: p => `<div class="hwl-top">${top(p, `<span class="hwl-rarity">${p.rarity}</span>`)}</div>
-    <div class="hws-bomb"><i class="hws-dots"></i><span class="hws-stickers hwl-fold">${STICKERS}${logo(p, "is-sticker")}</span><span class="hws-bang">${tx("Sig.Bang")}</span>
+    <div class="hws-bomb"><i class="hws-dots"></i><span class="hws-stickers hwl-fold">${STICKERS}${logoOr(p, "is-sticker")}</span><span class="hws-bang">${tx("Sig.Bang")}</span>
       <div class="hws-tag"><small>${tx("Sig.Hello")}</small><b>${tx("Sig.Owner")}</b></div>${title(p)}
       <div class="hws-sub">${joined(p.type, p.maker)}</div></div>
     ${tail(p)}`,
   // Plan B, Dexter DeShawn's pistol, which pays for every shot from the wallet: the fixer's card, and the bill.
   "plan-b": p => `<div class="hwl-top">${top(p, `<span class="hwl-rarity">${p.rarity}</span>`)}</div>
-    <div class="hws-deal"><div class="hws-bizcard">${p.logo ? logo(p, "is-crest") : `<span class="hws-monogram">${tx("Sig.Monogram")}</span>`}
+    <div class="hws-deal"><div class="hws-bizcard">${logoOr(p, "is-crest", `<span class="hws-monogram">${tx("Sig.Monogram")}</span>`)}
         <div class="hws-fixer"><b>${tx("Sig.Dex")}</b><small>${tx("Sig.Fixer")}</small></div>${title(p)}</div>
-      <div class="hws-receipt hwl-fold"><b>${tx("Sig.PlanB.Head")}</b><span><i>${tx("Sig.PlanB.Shot")}</i><i>€$</i></span><em>${tx(`Sig.PlanB.${outcome(p.tone)}`)}</em></div></div>
+      <div class="hws-receipt hwl-fold"><b>${tx("Sig.PlanB.Head")}</b><span><i>${tx("Sig.PlanB.Shot")}</i><i>€$</i></span><em>${say(p, `Sig.PlanB.${outcome(p.tone)}`)}</em></div></div>
     ${tail(p)}`,
   // Overwatch, Panam Palmer's suppressed sniper rifle: the Badlands at dusk, its scope, the Aldecaldos.
   overwatch: p => `<div class="hwl-top">${top(p, `<span class="hwl-rarity">${p.rarity}</span>`)}</div>
     <div class="hws-badlands"><i class="hws-sun"></i><i class="hws-mesa"></i>
       <span class="hws-scope hwl-fold"><i class="hws-cross"></i><small>${tx("Sig.Range")}</small></span>
-      ${p.logo ? logo(p, "is-patch") : `<span class="hws-patch">${tx("Sig.Aldecaldos")}</span>`}
+      ${logoOr(p, "is-patch", `<span class="hws-patch">${tx("Sig.Aldecaldos")}</span>`)}
       ${title(p)}<div class="hws-sub">${joined(tx("Sig.Panam"), p.maker)}</div><span class="hws-suppressed">${tx("Sig.Suppressed")}</span></div>
     ${tail(p)}`,
   // Lizzie, the pink pistol from Judy's den at Lizzie's Bar: a braindance shard, a sticker, the Mox.
   lizzie: p => `<div class="hwl-top">${top(p, `<span class="hwl-rarity">${p.rarity}</span>`)}</div>
-    <div class="hws-shard"><i class="hws-pins"></i>${p.logo ? logo(p, "is-sticker") : '<span class="hws-heart">♥</span>'}
+    <div class="hws-shard"><i class="hws-pins"></i>${logoOr(p, "is-sticker", '<span class="hws-heart">♥</span>')}
       <div class="hws-shard-label"><span class="hws-club">${tx("Sig.Lizzies")}</span>${title(p)}<div class="hws-sub">${joined(tx("Sig.BD"), p.maker)}</div></div>
       <span class="hws-mox">${tx("Sig.Mox")}</span></div>
     ${tail(p)}`,
   // La Chingona Dorada, Jackie Welles' pistols, left on his ofrenda at El Coyote Cojo: candles, marigolds, his frame.
   "la-chingona-dorada": p => `<div class="hwl-top">${top(p, `<span class="hwl-rarity">${p.rarity}</span>`)}</div>
     <div class="hws-ofrenda"><i class="hws-glow"></i>
-      <span class="hws-frame">${p.logo ? logo(p, "is-photo") : '<i class="hws-silhouette"></i>'}<small>${tx("Sig.Jackie")}</small></span>
+      <span class="hws-frame">${logoOr(p, "is-photo", '<i class="hws-silhouette"></i>')}<small>${tx("Sig.Jackie")}</small></span>
       <div class="hws-words">${title(p)}<div class="hws-sub">${tx("Sig.ParaJackie")}</div></div>
       <span class="hws-candles hwl-fold">${"<i></i>".repeat(5)}</span><span class="hws-petals hwl-fold">${MARIGOLD.repeat(3)}</span></div>
     ${tail(p)}`,
   // Satori, Saburo Arasaka's katana, taken in the Konpeki Plaza heist: a black lacquer case, the blade, a silk cord.
   satori: p => `<div class="hwl-top">${top(p, `<span class="hwl-rarity">${p.rarity}</span>`)}</div>
-    <div class="hws-lacquer"><i class="hws-wave"></i><i class="hws-cord hwl-fold"></i>${p.logo ? logo(p, "is-mon") : '<span class="hws-mon">荒坂</span>'}
+    <div class="hws-lacquer"><i class="hws-wave"></i><i class="hws-cord hwl-fold"></i>${logoOr(p, "is-mon", '<span class="hws-mon">荒坂</span>')}
       <div class="hws-slip">${title(p)}<div class="hws-sub">${joined(tx("Sig.Saburo"), tx("Sig.Konpeki"))}</div></div>${KATANA}</div>
     ${tail(p)}`
 };
@@ -277,6 +295,7 @@ export const SIGNATURE_IDS = Object.keys(SIGNATURES);
 /** The design's classes on the message (they reach the roll card below the head): "" for the plain card. */
 export function rootClasses(spec) {
   if (spec?.kind === "signature") return `${ROOT} hwl-sig hwl-sig-${spec.id}`;
+  if (spec?.kind === "studio") return `${ROOT} hwc hwc-${spec.id}`;
   if (spec?.kind === "own") return `${ROOT} hwl-${spec.own.base}`;
   return "";
 }
@@ -288,10 +307,15 @@ export function rootClasses(spec) {
  */
 export function legendaryHeadHTML(spec, parts, item) {
   const p = { ...parts, maker: escapeHTML(itemMaker(item)), img: escapeHTML(item?.img ?? ""), serial: serialOf(item?.uuid),
-    kicker: "", subtitle: "", badge: "", quote: "", art: "", logo: spec.kind === "signature" ? escapeHTML(cleanLogo(spec.logo)) : "" };
+    kicker: "", subtitle: "", badge: "", quote: "", art: "", logo: spec.kind === "own" ? "" : escapeHTML(cleanLogo(spec.logo)) };
   const head = (inner, classes = [], style = []) => `<div class="hardwipe-attack-head hardwipe-weapon-head hwl-head is-${parts.tone}${classes.map(c => ` ${c}`).join("")}"`
     + `${style.length ? ` style="${style.join(";")}"` : ""}>${inner}</div>`;
   if (spec.kind === "signature") return head(SIGNATURES[spec.id](p));
+  // A studio card is the head's markup; Hardwipe adds a top row when the card places no {{status}}, and the working parts.
+  if (spec.kind === "studio") {
+    const row = placesStatus(spec.card) ? "" : `<div class="hwl-top"><span class="hwl-rarity">${p.rarity}</span>${status(p)}</div>`;
+    return head(`${row}<div class="hwc-body">${studioBodyHTML(spec.card, p, status(p))}</div>${tail(p)}`);
+  }
   const { own } = spec;
   for (const key of ["kicker", "subtitle", "badge", "quote", "art"]) p[key] = escapeHTML(own[key]);
   const classes = [own.hue && "has-hue", own.color && "has-color", own.font && `hwl-font-${own.font}`].filter(Boolean);
@@ -315,10 +339,19 @@ function signatureLogos() {
   return game.settings.settings.has(`${MODULE_ID}.${LOGOS}`) ? game.settings.get(MODULE_ID, LOGOS) ?? {} : {};
 }
 
-/** The card this viewer sees on a weapon's attack card, or null. A signature card brings its logo. */
+/** The card this viewer sees on a weapon's attack card, or null. A signature or studio card brings its logo. */
 export function legendaryDesign(item) {
-  const spec = cardDesign(item, { table: CONFIG.DND5E.itemRarity, chosen: chosenFloor(), isGM: game.user.isGM });
+  const studio = studioCards();
+  const spec = cardDesign(item, { table: CONFIG.DND5E.itemRarity, chosen: chosenFloor(), isGM: game.user.isGM, studio });
+  if (spec?.kind === "studio") return { ...spec, card: studio[spec.id], logo: signatureLogos()[spec.id] ?? "" };
   return spec?.kind === "signature" ? { ...spec, logo: signatureLogos()[spec.id] ?? "" } : spec;
+}
+
+let weaponPreview = null;
+
+/** The attack card's head for a weapon, drawn without a message (hardwipe-attacks.js gives it): for the editors. */
+export function setWeaponPreview(preview) {
+  weaponPreview = preview;
 }
 
 /** The GM's crown on the card's bar: it opens the weapon's card. Nothing for players or for a weapon not rare enough. */
@@ -330,23 +363,103 @@ export function legendControlHTML(item) {
 
 /** Mark the message with its card (or clear it). */
 export function dressLegendary(element, spec) {
-  element.classList.remove(ROOT, ...[...element.classList].filter(name => name.startsWith("hwl-")));
+  element.classList.remove(ROOT, "hwc", ...[...element.classList].filter(name => /^hw[lc]-/.test(name)));
   const classes = rootClasses(spec);
   if (classes) element.classList.add(...classes.split(" "));
 }
 
-/**
- * Wire the crown. `preview(spec)` draws this weapon's head as a card (null for the plain card), for the editor.
- * @param {HTMLElement} element
- * @param {Item} item
- * @param {(spec: object|null) => string} preview
- */
-export function bindLegendControl(element, item, preview) {
+/** Wire the crown on an attack card: it opens the weapon's card. */
+export function bindLegendControl(element, item) {
   element.querySelector(".hwl-pick")?.addEventListener("click", event => {
     event.preventDefault();
     event.stopPropagation();
-    void editCard(item, preview);
+    void editCard(item);
   });
+}
+
+/** What a weapon wears now, in a few words, for its sheet. */
+function describeCard(spec, studio) {
+  if (spec?.kind === "own") return `${t("Mode.own")} · ${t(`Design.${spec.own.base}`)}`;
+  if (spec?.kind === "signature") return `${t("Mode.signature")} · ${t(`Sig.${spec.id}`)}`;
+  if (spec?.kind === "studio") return `${t("Mode.studio")} · ${studio[spec.id].name}`;
+  return t("Mode.default");
+}
+
+/** The GM's section on a weapon's sheet (Details): what it wears, and the button that opens its card. */
+function sheetSection(app, html) {
+  const item = app.document;
+  const root = html instanceof HTMLElement ? html : html?.[0];
+  if (!game.user.isGM || item?.type !== "weapon" || !root) return;
+  const tab = root.querySelector('.tab[data-tab="details"]');
+  if (!tab || tab.querySelector(".hwl-sheet")) return;
+  const studio = studioCards();
+  const table = CONFIG.DND5E.itemRarity ?? {};
+  const floor = rarityFloor(table, chosenFloor());
+  const note = canWearLegend(item) ? t("Sheet.Hint")
+    : game.i18n.format("HARDWIPE.Legend.Sheet.Floor", { tier: game.i18n.localize(table[floor]?.label ?? table[floor] ?? floor) });
+  const section = document.createElement("fieldset");
+  section.className = "hwl-sheet";
+  section.innerHTML = `<legend>${tx("Pick")}</legend>
+    <div class="form-group"><label>${tx("Sheet.Now")}</label>
+      <div class="form-fields"><span class="hwl-sheet-now">${escapeHTML(describeCard(cardSpec(item.getFlag(MODULE_ID, FLAG), studio), studio))}</span>
+        <button type="button" class="hwl-sheet-edit"><i class="fas fa-crown" inert></i> ${tx("Sheet.Edit")}</button></div>
+      <p class="hint">${escapeHTML(note)}</p></div>`;
+  section.querySelector(".hwl-sheet-edit").addEventListener("click", event => {
+    event.preventDefault();
+    void editCard(item);
+  });
+  const maker = tab.querySelector(".hardwipe-manufacturer");
+  if (maker) maker.after(section);
+  else tab.prepend(section);
+}
+
+/** A loaded stylesheet by its path. Foundry 14 imports module styles into a layer, so look inside imports too. */
+function findSheet(path) {
+  const walk = rules => {
+    for (const rule of rules) {
+      if (rule instanceof CSSImportRule) {
+        if (rule.href.includes(path)) return rule.styleSheet;
+        const inner = rule.styleSheet && walk(rule.styleSheet.cssRules);
+        if (inner) return inner;
+      } else if (rule.cssRules && !(rule instanceof CSSStyleRule)) {
+        const inner = walk(rule.cssRules);
+        if (inner) return inner;
+      }
+    }
+    return null;
+  };
+  for (const sheet of document.styleSheets) {
+    if (sheet.href?.includes(path)) return sheet;
+    try { const found = walk(sheet.cssRules); if (found) return found; } catch { /* another origin's sheet */ }
+  }
+  return null;
+}
+
+/**
+ * A built-in card written out as a studio card: its middle as a template (tokens for the weapon, its logo, its line and
+ * its outcome's switches) and its rules from styles/legendary.css, made relative to the card. In the browser only.
+ */
+function builtinTemplate(kind, id) {
+  const render = kind === "signature" ? SIGNATURES[id] : BASES[id];
+  const tokens = { templating: true, tone: "attack", name: "{{name}}", type: "{{type}}", rarity: "{{rarity}}", maker: "{{maker}}", img: "{{img}}",
+    serial: "{{serial}}", status: "", control: "", kind: "", props: "", verdict: "", targets: "", brief: "", meta: "",
+    kicker: "", subtitle: "", badge: "", quote: "", art: "", logo: "" };
+  const holder = document.createElement("template");
+  holder.innerHTML = render(tokens);
+  const html = holder.innerHTML.trim().replace(/<div class="hardwipe-chat-title hwl-title">\{\{name\}\}<\/div>/g, "{{title}}").replace(/\n\s+\n/g, "\n");
+  const scope = kind === "signature" ? `hwl-sig-${id}` : `hwl-${id}`;
+  const sheet = findSheet("/styles/legendary.css");
+  const css = [];
+  for (const rule of sheet?.cssRules ?? []) {
+    if (!(rule instanceof CSSStyleRule) || !rule.selectorText.includes(`.${scope}`)) continue;
+    const selector = rule.selectorText.replaceAll(`.chat-message.${scope}`, "&").replaceAll(`.${scope} `, "").replaceAll(`.${scope}`, "&");
+    css.push(`${selector} { ${rule.style.cssText} }`);
+  }
+  const lineKey = { skippy: tone => `Sig.Skippy.${tone}`, "plan-b": tone => `Sig.PlanB.${tone}`, smartlink: tone => `Smartlink.${tone}` }[id];
+  const name = kind === "signature" ? t(`Sig.${id}`) : t(`Design.${id}`);
+  return { name: game.i18n.format("HARDWIPE.Studio.CopyOf", { name }), hint: kind === "signature" ? t(`Sig.${id}Hint`) : "",
+    unique: kind === "signature", html, css: css.join("\n"),
+    lines: lineKey ? Object.fromEntries([...OUTCOMES].map(tone => [tone, t(lineKey(tone))])) : {} };
 }
 
 /** Every weapon in the world's actors and items: where a signature card can be. Unlinked tokens follow their actor. */
@@ -355,19 +468,27 @@ function worldWeapons() {
 }
 
 /** The editor's form as a flag. */
-function flagFromForm(data) {
-  const mode = ["own", "signature"].includes(data.mode) ? data.mode : "default";
-  return { schema: 1, mode, own: cleanOwn(data), signature: mode === "signature" && SIGNATURE_IDS.includes(data.signature) ? data.signature : null };
+function flagFromForm(data, studio) {
+  const mode = ["own", "signature", "studio"].includes(data.mode) ? data.mode : "default";
+  return { schema: 1, mode, own: cleanOwn(data), signature: mode === "signature" && SIGNATURE_IDS.includes(data.signature) ? data.signature : null,
+    studio: mode === "studio" && Object.hasOwn(studio, data.studio) ? data.studio : null };
 }
 
-async function editCard(item, preview) {
+async function editCard(item) {
   const flag = item.getFlag(MODULE_ID, FLAG) ?? {};
-  const spec = cardSpec(flag);
+  const studio = studioCards();
+  const studioIds = Object.keys(studio).sort((a, b) => studio[a].name.localeCompare(studio[b].name));
+  const spec = cardSpec(flag, studio);
   const own = cleanOwn(flag.own);
   own.base ||= BASE_IDS[0];
   const mode = spec?.kind ?? "default";
   const signature = spec?.kind === "signature" ? spec.id : "";
+  const chosenStudio = spec?.kind === "studio" ? spec.id : "";
   const logos = signatureLogos();
+  const preview = next => {
+    if (next?.kind === "studio") next.card = studio[next.id];
+    return weaponPreview?.(item, next, "attack") ?? "";
+  };
   const weapons = worldWeapons();
   const checked = on => on ? " checked" : "";
   const field = (key, input, hint = "") => `<div class="form-group"><label>${tx(`Field.${key}`)}</label>
@@ -381,10 +502,19 @@ async function editCard(item, preview) {
       <span><b>${tx(`Sig.${id}`)}</b><small>${tx(`Sig.${id}Hint`)}</small><em class="${holder ? "is-held" : ""}">${where}</em></span></label>
       ${field("logo", `<file-picker name="logo-${id}" type="image" value="${escapeHTML(logos[id] ?? "")}"></file-picker>`, `Sig.${id}Logo`)}</div>`;
   };
+  const studioChoice = id => {
+    const card = studio[id];
+    const holder = card.unique ? heldElsewhere(weapons, id, item.uuid, studio)[0] : null;
+    const where = holder ? escapeHTML(game.i18n.format("HARDWIPE.Legend.SignatureHeld", { weapon: holder.name, owner: holder.actor?.name ?? "—" }))
+      : tx(!card.unique ? "StudioShared" : chosenStudio === id ? "SignatureHere" : "SignatureFree");
+    return `<div class="hwl-sig-row"><label class="hwl-sig-choice"><input type="radio" name="studio" value="${id}"${checked(chosenStudio === id || (!chosenStudio && id === studioIds[0]))}>
+      <span><b>${escapeHTML(card.name)}</b>${card.hint ? `<small>${escapeHTML(card.hint)}</small>` : ""}<em class="${holder ? "is-held" : ""}">${where}</em></span></label>
+      ${field("logo", `<file-picker name="logo-${id}" type="image" value="${escapeHTML(logos[id] ?? "")}"></file-picker>`, "StudioLogo")}</div>`;
+  };
   const content = `<div class="hwl-editor">
     <div class="hwl-ed-form">
       <p class="hint">${tx("PickHint")}</p>
-      <div class="hwl-modes">${["default", "own", "signature"].map(key => `<label><input type="radio" name="mode" value="${key}"${checked(mode === key)}><span>${tx(`Mode.${key}`)}</span></label>`).join("")}</div>
+      <div class="hwl-modes">${["default", "own", "signature", "studio"].map(key => `<label><input type="radio" name="mode" value="${key}"${checked(mode === key)}><span>${tx(`Mode.${key}`)}</span></label>`).join("")}</div>
       <p class="hwl-ed-only is-default hint">${tx("StandardHint")}</p>
       <div class="hwl-ed-only is-own"><p class="hint">${tx("OwnHint")}</p>
         ${field("base", `<select name="base">${BASE_IDS.map(id => `<option value="${id}"${own.base === id ? " selected" : ""}>${tx(`Design.${id}`)}</option>`).join("")}</select>`)}
@@ -397,6 +527,8 @@ async function editCard(item, preview) {
         ${field("badge", `<input type="text" name="badge" maxlength="${LIMITS.badge}" value="${escapeHTML(own.badge)}">`, "Field.badgeHint")}
         ${field("quote", `<textarea name="quote" maxlength="${LIMITS.quote}" rows="2">${escapeHTML(own.quote)}</textarea>`)}</div>
       <div class="hwl-ed-only is-signature"><p class="hint">${tx("SignatureHint")}</p>${SIGNATURE_IDS.map(signatureChoice).join("")}</div>
+      <div class="hwl-ed-only is-studio"><p class="hint">${tx(studioIds.length ? "StudioHint" : "StudioNone")}</p>${studioIds.map(studioChoice).join("")}
+        <button type="button" class="hwl-open-studio"><i class="fas fa-pen-ruler" inert></i> ${tx("OpenStudio")}</button></div>
     </div>
     <div class="hwl-ed-preview"><div class="hwl-ed-stage"></div></div>
   </div>`;
@@ -411,12 +543,19 @@ async function editCard(item, preview) {
     render: (event, dialog) => {
       const form = dialog.element.querySelector("form");
       const stage = dialog.element.querySelector(".hwl-ed-stage");
+      dialog.element.querySelector(".hwl-open-studio")?.addEventListener("click", () => openCardStudio());
+      // Keep the window on the screen as a mode or the preview makes it taller, so Apply stays in reach.
+      const fit = () => requestAnimationFrame(() => {
+        const box = dialog.element.getBoundingClientRect();
+        if (box.bottom > window.innerHeight - 10) dialog.setPosition({ top: Math.max(10, window.innerHeight - box.height - 10) });
+      });
       const draw = () => {
         const data = new FormData(form).object;
-        const next = cardSpec(flagFromForm(data));
-        if (next?.kind === "signature") next.logo = data[`logo-${next.id}`];
+        const next = cardSpec(flagFromForm(data, studio), studio);
+        if (next && next.kind !== "own") next.logo = data[`logo-${next.id}`];
         stage.className = `hwl-ed-stage ${rootClasses(next)}`.trim();
         stage.innerHTML = preview(next);
+        fit();
       };
       form.addEventListener("input", draw);
       form.addEventListener("change", draw);
@@ -425,19 +564,21 @@ async function editCard(item, preview) {
     buttons: [
       { action: "apply", label: "HARDWIPE.Legend.Apply", icon: "fas fa-check", default: true, callback: (event, button) => {
         const data = new FormData(button.form).object;
-        return { flag: flagFromForm(data), logos: Object.fromEntries(SIGNATURE_IDS.map(id => [id, cleanLogo(data[`logo-${id}`])]).filter(([, path]) => path)) };
+        const kept = Object.fromEntries(Object.entries(logos).filter(([id]) => !SIGNATURE_IDS.includes(id) && !studioIds.includes(id)));
+        return { flag: flagFromForm(data, studio), logos: { ...kept, ...Object.fromEntries([...SIGNATURE_IDS, ...studioIds].map(id => [id, cleanLogo(data[`logo-${id}`])]).filter(([, path]) => path)) } };
       } },
       { action: "cancel", label: "Cancel", icon: "fas fa-xmark" }
     ]
   });
   if (!picked?.flag) return;
   const { flag: next, logos: chosen } = picked;
-  if (next.mode === "signature" && !next.signature) next.mode = "default";
+  if ((next.mode === "signature" && !next.signature) || (next.mode === "studio" && !next.studio)) next.mode = "default";
   // The logos belong to the cards, wherever they are: one setting for the world.
   if (!foundry.utils.equals(chosen, logos)) await game.settings.set(MODULE_ID, LOGOS, chosen);
-  // A signature card is on one weapon at a time: applying it here takes it off any other.
-  if (next.mode === "signature") {
-    for (const other of heldElsewhere(worldWeapons(), next.signature, item.uuid)) await other.setFlag(MODULE_ID, FLAG, { schema: 1, mode: "default" });
+  // A signature card, and a studio card made unique, is on one weapon at a time: applying it here takes it off any other.
+  const unique = next.mode === "signature" ? next.signature : next.mode === "studio" && studio[next.studio]?.unique ? next.studio : null;
+  if (unique) {
+    for (const other of heldElsewhere(worldWeapons(), unique, item.uuid, studio)) await other.setFlag(MODULE_ID, FLAG, { schema: 1, mode: "default" });
   }
   await item.setFlag(MODULE_ID, FLAG, next);
 }
@@ -459,6 +600,12 @@ export function registerLegendary() {
     type: String, default: "", choices: rarityChoices, onChange: () => rerenderCards()
   });
   game.settings.register(MODULE_ID, LOGOS, { scope: "world", config: false, type: Object, default: {}, onChange: () => rerenderCards() });
+  registerCardStudio({
+    preview: (item, spec, tone) => weaponPreview?.(item, spec, tone) ?? "", weapons: worldWeapons, builtin: builtinTemplate,
+    starts: { signatures: SIGNATURE_IDS, bases: BASE_IDS, label: (kind, id) => t(kind === "signature" ? `Sig.${id}` : `Design.${id}`) },
+    logos: signatureLogos, setLogos: logos => game.settings.set(MODULE_ID, LOGOS, logos), onChange: () => rerenderCards()
+  });
+  Hooks.on("renderItemSheet5e", sheetSection);
   // A new card, rarity or identification redraws that weapon's cards already in the log.
   Hooks.on("updateItem", (item, changes) => {
     if (item.type !== "weapon") return;

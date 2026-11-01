@@ -570,7 +570,7 @@
 /* The GM's card editor: the form on the left, this weapon's card as it will look on the right. */
 .application.dialog.hardwipe-dialog.is-legend { --hwd: #e2bf68; --hwd-ink: #1a1203; }
 .hwl-editor { display: grid; grid-template-columns: minmax(0, 1fr) 300px; align-items: start; gap: 16px; }
-.hwl-ed-form { max-height: 70vh; padding-right: 6px; overflow-y: auto; }
+.hwl-ed-form { max-height: min(62vh, 600px); padding-right: 6px; overflow-y: auto; }
 .hwl-ed-form .form-group { margin: 0 0 6px; }
 .hwl-ed-form .form-group > label { flex: 0 0 130px; }
 .hwl-ed-form .hint { margin: 2px 0 8px; color: var(--hw-dim); font-size: 12px; }
@@ -583,7 +583,8 @@
 .hwl-ed-only { display: none; }
 .hwl-editor:has(input[name="mode"][value="default"]:checked) .hwl-ed-only.is-default,
 .hwl-editor:has(input[name="mode"][value="own"]:checked) .hwl-ed-only.is-own,
-.hwl-editor:has(input[name="mode"][value="signature"]:checked) .hwl-ed-only.is-signature { display: block; }
+.hwl-editor:has(input[name="mode"][value="signature"]:checked) .hwl-ed-only.is-signature,
+.hwl-editor:has(input[name="mode"][value="studio"]:checked) .hwl-ed-only.is-studio { display: block; }
 .hwl-sig-choice { position: relative; display: block; margin: 0 0 6px; padding: 8px 10px; background: rgba(0, 0, 0, 0.3); border: 1px solid var(--hw-line-2, rgba(143, 207, 176, 0.25)); cursor: pointer; }
 .hwl-sig-choice input { position: absolute; opacity: 0; pointer-events: none; }
 .hwl-sig-choice:has(input:checked) { border-color: var(--hwd); box-shadow: 0 0 0 1px var(--hwd); }
@@ -594,3 +595,43 @@
 .hwl-sig-choice em.is-held { color: var(--hw-warn); }
 .hwl-ed-preview { position: sticky; top: 0; }
 .hwl-ed-stage .hardwipe-attack-head { margin: 0; }
+
+/* Studio cards (hardwipe-card-studio.js): a top row until the card's own CSS styles it. */
+.hwc .hwl-top { display: flex; align-items: center; gap: 8px; padding: 7px 14px 6px; color: var(--hw-dim); font: 700 9px var(--hw-font-mono); letter-spacing: 0.24em; text-transform: uppercase; }
+.hwc .hwl-top .hwl-rarity { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.hwc-body { position: relative; }
+
+/* The weapon sheet's Legendary card section (GM only). */
+.hwl-sheet .form-fields { align-items: center; gap: 8px; }
+.hwl-sheet-now { flex: 1; min-width: 0; }
+.hwl-sheet .hwl-sheet-edit { flex: 0 0 auto; width: auto; }
+.hwl-open-studio { width: auto; margin-top: 4px; }
+
+/* The Card Studio: the card's text on the left, the card on a weapon on the right. */
+.hardwipe-card-studio .window-content { padding: 0; overflow: hidden; }
+.hwc-studio { display: flex; flex-direction: column; height: 100%; }
+.hwc-bar { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 8px; padding: 10px 12px; border-bottom: 1px solid var(--color-border, rgba(255, 255, 255, 0.15)); }
+.hwc-bar-field { display: flex; flex-direction: column; gap: 2px; font-size: 11px; }
+.hwc-bar-field select { min-width: 190px; }
+.hwc-bar button { flex: 0 0 auto; width: auto; }
+.hwc-bar-gap { flex: 1; }
+.hwc-columns { flex: 1; min-height: 0; display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: 14px; padding: 10px 12px; }
+.hwc-edit, .hwc-preview { min-height: 0; padding-right: 6px; overflow-y: auto; }
+.hwc-code { display: flex; flex-direction: column; gap: 3px; margin: 8px 0; }
+.hwc-code label { display: flex; justify-content: space-between; gap: 10px; font-weight: 700; }
+.hwc-code small { font-weight: 400; opacity: 0.75; }
+.hwc-code textarea { min-height: 190px; font: 12px/1.4 var(--hw-font-mono); tab-size: 2; white-space: pre; resize: vertical; }
+.hwc-more { margin: 6px 0; }
+.hwc-more summary { font-weight: 700; cursor: pointer; }
+.hwc-tokens { display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: 3px 10px; margin: 6px 0; }
+.hwc-tokens dt { font-family: var(--hw-font-mono); }
+.hwc-tokens dt::before { content: "{{"; }
+.hwc-tokens dt::after { content: "}}"; }
+.hwc-tokens dd { margin: 0; }
+.hwc-stage { margin-top: 10px; padding: 8px; background: #0b0f11; border-radius: 4px; }
+.hwc-stage .hardwipe-attack-head { margin: 0; }
+.hwc-foot { display: flex; justify-content: flex-end; padding: 8px 12px; border-top: 1px solid var(--color-border, rgba(255, 255, 255, 0.15)); }
+.hwc-foot button { width: auto; }
+.hwc-empty { padding: 24px; }
+.hwc-sites { margin: 4px 0 8px; color: var(--hw-warn, #ffc24d); font-size: 12px; }
+.hwc-sites span { font-family: var(--hw-font-mono); }

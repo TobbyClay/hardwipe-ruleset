@@ -198,15 +198,28 @@ Award Edge with **+** beside it on the sheet or the Turn tab: it posts a **Charg
 
 ## Legendary cards
 
-<img src="media/legendary-editor.webp" alt="The Legendary card window for Silver Tongue: Standard, Its own card and Signature; its own card starts from Engraved with a painting as art, a hue, a title colour, a line above the name and a flavour line, and the card on the right shows the result as it will look" width="620">
+<img src="media/legendary-editor.webp" alt="The Legendary card window for Silver Tongue: Standard, Its own card, Signature and Studio; its own card starts from Engraved with a painting as art, a hue, a title colour, a line above the name and a flavour line, and the card on the right shows the result as it will look" width="620">
 
-*(Next release.)* Give a rare weapon its own attack card: click the **crown** on the bar of one of its cards in chat. Only you see the crown, and only on weapons at or above **Legendary cards from** in Hardwipe's settings. The rarities come in the rarity list's order, so Custom D&D's own tiers count as you rank them (say Gonk, Street, Nova, Preem, Iconic); **Automatic** is the top tier.
+*(Next release.)* Give a rare weapon its own attack card from the **crown** on the bar of one of its cards in chat, or from the **Legendary card** section on the weapon's Details tab, which works before it has ever attacked. Only you see either. The card shows on weapons at or above **Legendary cards from** in Hardwipe's settings. The rarities come in the rarity list's order, so Custom D&D's own tiers count as you rank them (say Gonk, Street, Nova, Preem, Iconic); **Automatic** is the top tier.
 
 - **Its own card:** pick a design to start from, then make it this weapon's: art (any image, shown behind the design's panel at the strength you set), a hue, the title's type and colour, a line above and below the name, a badge (the design's stamp, seal, pass band or speech bubble) and a flavour line. The card on the right follows as you edit.
 - **Signature:** a card hand-built for one weapon. Each is on one weapon at a time: giving it to another takes it off the first, which goes back to the standard card. The list says where each one is. Under the chosen card, **Logo** takes an image from your Foundry files (the Samurai logo for Johnny's sleeve, say). It is set once for the world and goes with the card; Hardwipe ships none.
+- **Studio:** a card from the Card Studio, below. One made unique follows the same one-weapon rule.
 - **Standard** goes back to the plain card or the maker's style; the weapon keeps what you made for it if you switch back.
 
 [Every design and signature card →](Cards.md#legendary-cards)
+
+### Card Studio
+
+<img src="media/legendary-studio.webp" alt="The Card Studio with a copy of Skippy open: its name, description and One weapon at a time, the card's HTML and CSS, and on the right the card on Silver Tongue at a critical, saying HEADSHOT!" width="760">
+
+*(Next release.)* Write your own cards in HTML and CSS: **Hardwipe settings → Open the Card Studio** (GM only). Start from a blank card or a copy of any design or signature card, and watch it on any of the world's weapons at any outcome as you type. **Save card** keeps it in the world; give it to weapons from their Legendary card window.
+
+- **What a card is:** the weapon's head. Tokens fill it per weapon: `{{title}}`, `{{name}}`, `{{type}}`, `{{rarity}}`, `{{maker}}`, `{{img}}`, `{{logo}}`, `{{serial}}`, `{{line}}` (your line for the outcome) and `{{status}}` (the status and your crown; leave it out and Hardwipe adds a plain top row). `{{#hit}}…{{/hit}}` shows only on a hit, `{{^logo}}…{{/logo}}` only when no logo is set. Hardwipe adds the attack's parts (kind, chips, verdict, targets, description) below, so a card can't break the attack. The token list is in the studio.
+- **CSS** stays inside the card: `&` is the whole chat message, so `& { --l-rail: … }` colours the roll card's rail. Your CSS can restyle the verdict too, so keep hits and misses readable.
+- **Allowed:** images, GIFs and videos from your Foundry files or any https site, https links (they open in a new tab), SVG, and animations.
+- **Removed on every client:** scripts, event handlers, forms, frames, fonts and imports from other sites, plain-http addresses, and anything fixed over the screen.
+- **Sharing:** **Export** saves a card as a file (**Export all**, every card); **Import** adds cards from a file. The studio names every outside site a card loads from or links to, and warns on import, because those sites see each player's address when the card shows. A card's logo stays in your world and isn't exported.
 
 ## The Eye
 

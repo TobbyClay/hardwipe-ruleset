@@ -333,5 +333,6 @@ Captured on **2026-10-26** in the disposable QA world with Custom D&D's rarities
 | [legendary-signatures.webp](media/legendary-signatures.webp) | Signature cards: Exhibit C (hit), Malorian Arms 3516 (critical), Skippy (hit), Guts (critical). |
 | [legendary-signatures-2.webp](media/legendary-signatures-2.webp) | Signature cards: Plan B (hit), Overwatch (critical), Lizzie (hit), La Chingona Dorada (critical), Satori (miss). |
 | [legendary-editor.webp](media/legendary-editor.webp) | The GM's Legendary card window on Silver Tongue's own card. |
+| [legendary-studio.webp](media/legendary-studio.webp) | The Card Studio with a copy of Skippy, previewed on Silver Tongue at a critical. |
 
 The originals remain in the development audit. Documentation media contains no machine-specific file paths, campaign databases, QA result JSON, or recreated UI.

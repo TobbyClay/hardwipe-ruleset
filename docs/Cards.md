@@ -62,6 +62,8 @@ Eleven makers have a style: **Arasaka**, **Militech**, **Kang Tao**, **Tsunami D
 
 Each signature card has a slot for a logo from your own files: the band's logo on Johnny's sleeve, a badge on the evidence bag, Skippy's picture in the chat, a sticker on Guts or Lizzie, a patch on Overwatch, a mark on Dex's card, a photo of Jackie in his frame, a crest on Satori's case. It shows in your world only; Hardwipe ships no logos or art from either game, and without one each card uses its own lettering.
 
+**A studio card.** Written by the GM in HTML and CSS in the Card Studio, starting from a blank card or a copy of any card here, and shared as a file. [The Card Studio →](GM.md#card-studio)
+
 The outline, the verdict strip and the targets keep their hit, miss and critical colours, and a miss dims the card. A player sees an unidentified weapon's plain card, without its rarity.
 
 ## Spell programs
